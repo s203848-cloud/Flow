@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-to-Speech Converter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-3px);
+        }
+        
+        .app-title {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #ff8000, #ffaa00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 10px rgba(255, 128, 0, 0.2);
+        }
+        
+        .app-subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: rgba(20, 15, 40, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ffaa00;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i {
+            color: #ff8000;
+        }
+        
+        .text-input-container {
+            margin-bottom: 25px;
+        }
+        
+        .text-label {
+            display: block;
+            margin-bottom: 10px;
+            color: #ffaa00;
+            font-weight: 600;
+        }
+        
+        .text-input {
+            width: 100%;
+            min-height: 200px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        .text-input:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+        }
+        
+        .text-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .control-label {
+            margin-bottom: 10px;
+            color: #ffaa00;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        select {
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: #ff8000;
+        }
+        
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff8000;
+            cursor: pointer;
+            border: 2px solid #ffaa00;
+        }
+        
+        .slider-value {
+            text-align: center;
+            font-weight: 600;
+            color: #ffaa00;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 5px 10px;
+            border-radius: 5px;
+            width: 60px;
+            align-self: center;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #ff8000, #ff5500);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #ff9500, #ff6a00);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 128, 0, 0.15);
+            color: #ffaa00;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 128, 0, 0.25);
+            transform: translateY(-3px);
+        }
+        
+        .btn-danger {
+            background: rgba(220, 53, 69, 0.15);
+            color: #ff6b6b;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+        
+        .btn-danger:hover {
+            background: rgba(220, 53, 69, 0.25);
+            transform: translateY(-3px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .playback-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .playback-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .play-btn {
+            background: linear-gradient(135deg, #ff8000, #ff5500);
+            color: white;
+            width: 70px;
+            height: 70px;
+        }
+        
+        .play-btn:hover {
+            background: linear-gradient(135deg, #ff9500, #ff6a00);
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255, 128, 0, 0.5);
+        }
+        
+        .control-btn {
+            background: rgba(255, 128, 0, 0.15);
+            color: #ffaa00;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 128, 0, 0.25);
+            transform: scale(1.05);
+        }
+        
+        .status-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            border-left: 4px solid #ff8000;
+        }
+        
+        .status-icon {
+            font-size: 1.5rem;
+            color: #ff8000;
+            margin-right: 15px;
+        }
+        
+        .status-text {
+            font-size: 1.1rem;
+            color: #ffaa00;
+        }
+        
+        .progress-container {
+            margin-top: 25px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #ff8000, #ffaa00);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        .voice-testing {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .test-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: #ffaa00;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .test-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .sample-texts {
+            margin-top: 20px;
+        }
+        
+        .sample-texts h3 {
+            margin-bottom: 15px;
+            color: #ffaa00;
+        }
+        
+        .sample-text {
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .sample-text:hover {
+            background: rgba(0, 0, 0, 0.3);
+            border-left-color: #ff8000;
+        }
+        
+        .sample-text-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #ffaa00;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .sample-text-content {
+            color: #ccc;
+            font-size: 0.95rem;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #777;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .playback-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .playback-btn {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .play-btn {
+                width: 60px;
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+            <div class="header-icons">
+                <i class="fas fa-volume-up" style="color: #ff8000; font-size: 1.5rem;"></i>
+            </div>
+        </div>
+        
+        <h1 class="app-title">Text-to-Speech Converter</h1>
+        <p class="app-subtitle">Transform written text into natural-sounding speech</p>
+        
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-keyboard"></i> Enter Your Text</h2>
+            
+            <div class="text-input-container">
+                <label class="text-label" for="textInput">Text to convert to speech:</label>
+                <textarea class="text-input" id="textInput" placeholder="Type or paste your text here...">Welcome to the Text-to-Speech Converter! This tool allows you to convert written text into natural-sounding audio. You can adjust the voice, speed, pitch, and volume to customize the output. Try it out by clicking the play button!</textarea>
+                
+                <div class="text-stats">
+                    <span id="charCount">Characters: 0</span>
+                    <span id="wordCount">Words: 0</span>
+                    <span id="estimateTime">Estimated time: 0s</span>
+                </div>
+            </div>
+            
+            <h2 class="card-title"><i class="fas fa-sliders-h"></i> Voice Settings</h2>
+            
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label class="control-label" for="voiceSelect"><i class="fas fa-user"></i> Select Voice</label>
+                    <select id="voiceSelect">
+                        <option value="">Loading voices...</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="rateSlider"><i class="fas fa-tachometer-alt"></i> Speed</label>
+                    <div class="slider-container">
+                        <input type="range" min="0.5" max="2" step="0.1" value="1" class="slider" id="rateSlider">
+                        <div class="slider-value" id="rateValue">1.0</div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="pitchSlider"><i class="fas fa-wave-square"></i> Pitch</label>
+                    <div class="slider-container">
+                        <input type="range" min="0.5" max="2" step="0.1" value="1" class="slider" id="pitchSlider">
+                        <div class="slider-value" id="pitchValue">1.0</div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="volumeSlider"><i class="fas fa-volume-up"></i> Volume</label>
+                    <div class="slider-container">
+                        <input type="range" min="0" max="1" step="0.1" value="1" class="slider" id="volumeSlider">
+                        <div class="slider-value" id="volumeValue">1.0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="playback-controls">
+                <button class="playback-btn control-btn" id="stopBtn" title="Stop">
+                    <i class="fas fa-stop"></i>
+                </button>
+                <button class="playback-btn control-btn" id="pauseBtn" title="Pause">
+                    <i class="fas fa-pause"></i>
+                </button>
+                <button class="playback-btn play-btn" id="playBtn" title="Play">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button class="playback-btn control-btn" id="resumeBtn" title="Resume">
+                    <i class="fas fa-play-circle"></i>
+                </button>
+                <button class="playback-btn control-btn" id="restartBtn" title="Restart">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+            
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-info">
+                    <span id="progressText">Progress: 0%</span>
+                    <span id="timeRemaining">Time remaining: 0s</span>
+                </div>
+            </div>
+            
+            <div class="status-display">
+                <div class="status-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="status-text" id="statusText">
+                    Ready to convert text to speech. Enter text and press play.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-download"></i> Export & Save</h2>
+            
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label class="control-label"><i class="fas fa-file-audio"></i> Audio Format</label>
+                    <select id="formatSelect">
+                        <option value="wav">WAV (High Quality)</option>
+                        <option value="mp3">MP3 (Compressed)</option>
+                        <option value="ogg">OGG (Web Optimized)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label"><i class="fas fa-save"></i> Save Options</label>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <button class="btn btn-secondary" id="saveAudioBtn">
+                            <i class="fas fa-download"></i> Download Audio
+                        </button>
+                        <button class="btn btn-secondary" id="shareBtn">
+                            <i class="fas fa-share-alt"></i> Share Audio
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="voice-testing">
+                <h3 class="card-title"><i class="fas fa-vial"></i> Quick Voice Testing</h3>
+                <p style="color: #aaa; margin-bottom: 15px;">Test different voices with these sample phrases:</p>
+                <div class="test-buttons">
+                    <button class="test-btn" id="testHello">Hello, how are you?</button>
+                    <button class="test-btn" id="testWeather">The weather is beautiful today.</button>
+                    <button class="test-btn" id="testNumbers">12345 Testing numbers.</button>
+                    <button class="test-btn" id="testQuestion">What time is it?</button>
+                    <button class="test-btn" id="testLonger">This is a longer sentence to test the voice speed and clarity.</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-comment-alt"></i> Sample Texts</h2>
+            <div class="sample-texts">
+                <div class="sample-text" id="sampleNews">
+                    <div class="sample-text-title"><i class="fas fa-newspaper"></i> News Report</div>
+                    <div class="sample-text-content">Scientists have made a breakthrough in renewable energy technology, developing a new solar panel that is 50% more efficient than current models. This advancement could significantly reduce our reliance on fossil fuels and accelerate the transition to clean energy worldwide.</div>
+                </div>
+                
+                <div class="sample-text" id="sampleStory">
+                    <div class="sample-text-title"><i class="fas fa-book-open"></i> Short Story</div>
+                    <div class="sample-text-content">The old lighthouse had stood on the cliff for over a century, its beam cutting through the foggy nights. Mariners said it had saved countless ships from the jagged rocks below. But tonight, for the first time in memory, the light had gone out.</div>
+                </div>
+                
+                <div class="sample-text" id="sampleInstruction">
+                    <div class="sample-text-title"><i class="fas fa-list-ol"></i> Instructions</div>
+                    <div class="sample-text-content">To assemble the furniture, first lay out all parts and identify each component using the diagram. Connect part A to part B using the included bolts. Then attach part C to the assembled base. Finally, secure the back panel using the provided screws and tighten all connections.</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Text-to-Speech Converter • Uses Web Speech API for browser-based synthesis</p>
+            <p>Works best in Chrome, Edge, and Safari browsers with available voices</p>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const textInput = document.getElementById('textInput');
+        const voiceSelect = document.getElementById('voiceSelect');
+        const rateSlider = document.getElementById('rateSlider');
+        const pitchSlider = document.getElementById('pitchSlider');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const rateValue = document.getElementById('rateValue');
+        const pitchValue = document.getElementById('pitchValue');
+        const volumeValue = document.getElementById('volumeValue');
+        
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resumeBtn = document.getElementById('resumeBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        
+        const charCount = document.getElementById('charCount');
+        const wordCount = document.getElementById('wordCount');
+        const estimateTime = document.getElementById('estimateTime');
+        const statusText = document.getElementById('statusText');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const timeRemaining = document.getElementById('timeRemaining');
+        const progressContainer = document.getElementById('progressContainer');
+        
+        const saveAudioBtn = document.getElementById('saveAudioBtn');
+        const shareBtn = document.getElementById('shareBtn');
+        const formatSelect = document.getElementById('formatSelect');
+        
+        // Test buttons
+        const testHello = document.getElementById('testHello');
+        const testWeather = document.getElementById('testWeather');
+        const testNumbers = document.getElementById('testNumbers');
+        const testQuestion = document.getElementById('testQuestion');
+        const testLonger = document.getElementById('testLonger');
+        
+        // Sample texts
+        const sampleNews = document.getElementById('sampleNews');
+        const sampleStory = document.getElementById('sampleStory');
+        const sampleInstruction = document.getElementById('sampleInstruction');
+        
+        // Speech synthesis variables
+        let speech = null;
+        let voices = [];
+        let isPlaying = false;
+        let isPaused = false;
+        let startTime = null;
+        let speechProgress = 0;
+        let speechDuration = 0;
+        let progressInterval = null;
+        
+        // Initialize the app
+        function init() {
+            updateTextStats();
+            
+            // Load available voices
+            loadVoices();
+            
+            // If voices aren't loaded yet, try again when they become available
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = loadVoices;
+            }
+            
+            // Update slider values display
+            rateSlider.addEventListener('input', () => {
+                rateValue.textContent = rateSlider.value;
+                updateTextStats();
+            });
+            
+            pitchSlider.addEventListener('input', () => {
+                pitchValue.textContent = pitchSlider.value;
+            });
+            
+            volumeSlider.addEventListener('input', () => {
+                volumeValue.textContent = volumeSlider.value;
+            });
+            
+            // Update text stats as user types
+            textInput.addEventListener('input', updateTextStats);
+            
+            // Set up event listeners for buttons
+            playBtn.addEventListener('click', playSpeech);
+            pauseBtn.addEventListener('click', pauseSpeech);
+            resumeBtn.addEventListener('click', resumeSpeech);
+            stopBtn.addEventListener('click', stopSpeech);
+            restartBtn.addEventListener('click', restartSpeech);
+            
+            // Set up test buttons
+            testHello.addEventListener('click', () => testVoice("Hello, how are you today?"));
+            testWeather.addEventListener('click', () => testVoice("The weather is beautiful today. It's a perfect day for a walk in the park."));
+            testNumbers.addEventListener('click', () => testVoice("12345 Testing numbers. 67890. One, two, three, four, five."));
+            testQuestion.addEventListener('click', () => testVoice("What time is it? Can you tell me the current time?"));
+            testLonger.addEventListener('click', () => testVoice("This is a longer sentence to test the voice speed and clarity. The quick brown fox jumps over the lazy dog."));
+            
+            // Set up sample text clicks
+            sampleNews.addEventListener('click', () => {
+                textInput.value = document.querySelector('#sampleNews .sample-text-content').textContent;
+                updateTextStats();
+            });
+            
+            sampleStory.addEventListener('click', () => {
+                textInput.value = document.querySelector('#sampleStory .sample-text-content').textContent;
+                updateTextStats();
+            });
+            
+            sampleInstruction.addEventListener('click', () => {
+                textInput.value = document.querySelector('#sampleInstruction .sample-text-content').textContent;
+                updateTextStats();
+            });
+            
+            // Set up export buttons
+            saveAudioBtn.addEventListener('click', saveAudio);
+            shareBtn.addEventListener('click', shareAudio);
+            
+            // Initialize progress container as hidden
+            progressContainer.style.display = 'none';
+        }
+        
+        // Load available voices
+        function loadVoices() {
+            voices = speechSynthesis.getVoices();
+            voiceSelect.innerHTML = '';
+            
+            if (voices.length === 0) {
+                voiceSelect.innerHTML = '<option value="">No voices available</option>';
+                return;
+            }
+            
+            // Filter to show only English voices for simplicity
+            const englishVoices = voices.filter(voice => voice.lang.startsWith('en'));
+            
+            if (englishVoices.length === 0) {
+                voiceSelect.innerHTML = '<option value="">No English voices available</option>';
+                return;
+            }
+            
+            // Add voices to dropdown
+            englishVoices.forEach((voice, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${voice.name} (${voice.lang})`;
+                
+                // Select a default voice (usually the first one)
+                if (index === 0) {
+                    option.selected = true;
+                }
+                
+                voiceSelect.appendChild(option);
+            });
+            
+            statusText.textContent = `Loaded ${englishVoices.length} voice(s). Ready to convert text to speech.`;
+        }
+        
+        // Update text statistics
+        function updateTextStats() {
+            const text = textInput.value.trim();
+            const charLength = text.length;
+            const wordLength = text === '' ? 0 : text.split(/\s+/).length;
+            
+            // Estimate speech time (average reading speed: 150 words per minute)
+            const wordsPerMinute = 150;
+            const minutes = wordLength / wordsPerMinute;
+            const seconds = Math.ceil(minutes * 60);
+            
+            // Adjust for rate
+            const adjustedSeconds = Math.ceil(seconds / parseFloat(rateSlider.value));
+            
+            charCount.textContent = `Characters: ${charLength}`;
+            wordCount.textContent = `Words: ${wordLength}`;
+            estimateTime.textContent = `Estimated time: ${adjustedSeconds}s`;
+            
+            // Store estimated duration
+            speechDuration = adjustedSeconds;
+        }
+        
+        // Play the speech
+        function playSpeech() {
+            const text = textInput.value.trim();
+            
+            if (text === '') {
+                statusText.textContent = 'Please enter some text first.';
+                return;
+            }
+            
+            if (isPaused && speech) {
+                // If speech was paused, resume it
+                speechSynthesis.resume();
+                isPlaying = true;
+                isPaused = false;
+                statusText.textContent = 'Resuming speech...';
+                updateButtonStates();
+                startProgressTracker();
+                return;
+            }
+            
+            // Stop any ongoing speech
+            stopSpeech();
+            
+            // Create new speech utterance
+            speech = new SpeechSynthesisUtterance(text);
+            
+            // Set voice
+            const selectedVoiceIndex = parseInt(voiceSelect.value);
+            if (selectedVoiceIndex >= 0 && voices[selectedVoiceIndex]) {
+                speech.voice = voices[selectedVoiceIndex];
+            }
+            
+            // Set rate, pitch, and volume
+            speech.rate = parseFloat(rateSlider.value);
+            speech.pitch = parseFloat(pitchSlider.value);
+            speech.volume = parseFloat(volumeSlider.value);
+            
+            // Set up event listeners for this speech
+            speech.onstart = function() {
+                isPlaying = true;
+                isPaused = false;
+                statusText.textContent = 'Speaking...';
+                updateButtonStates();
+                startProgressTracker();
+            };
+            
+            speech.onend = function() {
+                isPlaying = false;
+                isPaused = false;
+                statusText.textContent = 'Speech finished.';
+                updateButtonStates();
+                stopProgressTracker();
+                speechProgress = 100;
+                updateProgressDisplay();
+            };
+            
+            speech.onerror = function(event) {
+                isPlaying = false;
+                isPaused = false;
+                statusText.textContent = `Error: ${event.error}`;
+                updateButtonStates();
+                stopProgressTracker();
+            };
+            
+            speech.onpause = function() {
+                isPlaying = false;
+                isPaused = true;
+                statusText.textContent = 'Speech paused.';
+                updateButtonStates();
+                stopProgressTracker();
+            };
+            
+            // Start speaking
+            speechSynthesis.speak(speech);
+        }
+        
+        // Pause the speech
+        function pauseSpeech() {
+            if (isPlaying && speechSynthesis.speaking) {
+                speechSynthesis.pause();
+                isPlaying = false;
+                isPaused = true;
+                statusText.textContent = 'Speech paused.';
+                updateButtonStates();
+                stopProgressTracker();
+            }
+        }
+        
+        // Resume the speech
+        function resumeSpeech() {
+            if (isPaused && speechSynthesis.speaking) {
+                speechSynthesis.resume();
+                isPlaying = true;
+                isPaused = false;
+                statusText.textContent = 'Resuming speech...';
+                updateButtonStates();
+                startProgressTracker();
+            }
+        }
+        
+        // Stop the speech
+        function stopSpeech() {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+                isPlaying = false;
+                isPaused = false;
+                statusText.textContent = 'Speech stopped.';
+                updateButtonStates();
+                stopProgressTracker();
+                speechProgress = 0;
+                updateProgressDisplay();
+            }
+        }
+        
+        // Restart the speech
+        function restartSpeech() {
+            stopSpeech();
+            // Small delay to ensure speech is fully stopped
+            setTimeout(playSpeech, 100);
+        }
+        
+        // Update button states based on speech status
+        function updateButtonStates() {
+            playBtn.disabled = isPlaying;
+            pauseBtn.disabled = !isPlaying;
+            resumeBtn.disabled = !isPaused;
+            stopBtn.disabled = !isPlaying && !isPaused;
+            
+            // Show/hide progress bar
+            if (isPlaying || isPaused) {
+                progressContainer.style.display = 'block';
+            } else {
+                progressContainer.style.display = 'none';
+            }
+        }
+        
+        // Start tracking speech progress
+        function startProgressTracker() {
+            startTime = Date.now();
+            speechProgress = 0;
+            
+            progressInterval = setInterval(() => {
+                if (speechDuration > 0) {
+                    const elapsed = (Date.now() - startTime) / 1000; // in seconds
+                    speechProgress = Math.min((elapsed / speechDuration) * 100, 100);
+                    updateProgressDisplay();
+                }
+            }, 100);
+        }
+        
+        // Stop tracking speech progress
+        function stopProgressTracker() {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+        }
+        
+        // Update progress display
+        function updateProgressDisplay() {
+            progressFill.style.width = `${speechProgress}%`;
+            progressText.textContent = `Progress: ${Math.round(speechProgress)}%`;
+            
+            if (speechDuration > 0 && speechProgress < 100) {
+                const remainingSeconds = Math.ceil((speechDuration * (100 - speechProgress)) / 100);
+                timeRemaining.textContent = `Time remaining: ${remainingSeconds}s`;
+            } else {
+                timeRemaining.textContent = 'Time remaining: 0s';
+            }
+        }
+        
+        // Test a voice with a short phrase
+        function testVoice(phrase) {
+            // Stop any ongoing speech
+            stopSpeech();
+            
+            // Create test utterance
+            const testSpeech = new SpeechSynthesisUtterance(phrase);
+            
+            // Set voice
+            const selectedVoiceIndex = parseInt(voiceSelect.value);
+            if (selectedVoiceIndex >= 0 && voices[selectedVoiceIndex]) {
+                testSpeech.voice = voices[selectedVoiceIndex];
+            }
+            
+            // Set rate, pitch, and volume
+            testSpeech.rate = parseFloat(rateSlider.value);
+            testSpeech.pitch = parseFloat(pitchSlider.value);
+            testSpeech.volume = parseFloat(volumeSlider.value);
+            
+            // Speak the test phrase
+            speechSynthesis.speak(testSpeech);
+            
+            statusText.textContent = 'Testing voice...';
+        }
+        
+        // Save audio (simulated - in a real app, this would generate actual audio)
+        function saveAudio() {
+            const text = textInput.value.trim();
+            
+            if (text === '') {
+                statusText.textContent = 'Please enter some text first.';
+                return;
+            }
+            
+            const format = formatSelect.value;
+            const fileName = `speech_${new Date().toISOString().slice(0, 10)}.${format}`;
+            
+            // Simulate saving process
+            statusText.textContent = `Generating ${format.toUpperCase()} audio file...`;
+            saveAudioBtn.disabled = true;
+            
+            setTimeout(() => {
+                // In a real implementation, you would use the Web Audio API
+                // or a server-side service to generate actual audio files
+                statusText.textContent = `Audio saved as ${fileName} (simulated)`;
+                saveAudioBtn.disabled = false;
+                
+                // Show a success message
+                alert(`In a real implementation, this would download "${fileName}"\n\nFor now, you can use browser extensions or online services to convert text to downloadable audio files.`);
+            }, 1500);
+        }
+        
+        // Share audio (simulated)
+        function shareAudio() {
+            const text = textInput.value.trim();
+            
+            if (text === '') {
+                statusText.textContent = 'Please enter some text first.';
+                return;
+            }
+            
+            statusText.textContent = 'Preparing audio for sharing...';
+            
+            setTimeout(() => {
+                statusText.textContent = 'Audio ready for sharing (simulated)';
+                
+                // Show a message about sharing options
+                alert('In a real application, this feature would:\n1. Generate an audio file\n2. Create a shareable link\n3. Allow sharing via email, social media, or messaging apps\n\nFor now, you can copy the text and use other tools to convert and share it.');
+            }, 1000);
+        }
+        
+        // Initialize the app when page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

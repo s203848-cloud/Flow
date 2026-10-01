@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Sculpting Software</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+    color: #fff;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background: rgba(20, 20, 35, 0.8);
+    border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+    border-radius: 10px;
+    margin: 10px;
+}
+
+.back-btn {
+    padding: 8px 15px;
+    background: rgba(255, 128, 0, 0.2);
+    border: 1px solid #ff8000;
+    border-radius: 5px;
+    color: #ff8000;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.back-btn:hover {
+    background: rgba(255, 128, 0, 0.4);
+}
+
+.container {
+    display: flex;
+    height: calc(100vh - 100px);
+    margin: 0 10px;
+    gap: 10px;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 280px;
+    background: rgba(20, 20, 35, 0.5);
+    border: 1px solid rgba(255, 69, 0, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.sidebar-section {
+    margin-bottom: 25px;
+}
+
+.sidebar-section h3 {
+    color: #ff8000;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+    padding-bottom: 5px;
+}
+
+.tool-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.tool-btn {
+    background: rgba(50, 50, 70, 0.4);
+    border: 1px solid rgba(255, 128, 0, 0.2);
+    border-radius: 6px;
+    padding: 10px 8px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+    position: relative;
+    text-align: center;
+}
+
+.tool-btn:hover {
+    background: rgba(255, 128, 0, 0.2);
+    border-color: #ff8000;
+}
+
+.tool-btn.active {
+    background: rgba(255, 128, 0, 0.3);
+    border-color: #ff8000;
+    color: #ffcc00;
+}
+
+.tool-btn .tool-alt {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    font-size: 0.7rem;
+    color: #aaa;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.tool-btn:hover .tool-alt {
+    opacity: 1;
+}
+
+/* Viewport */
+.viewport-container {
+    flex: 1;
+    background: rgba(10, 10, 20, 0.7);
+    border: 1px solid rgba(255, 69, 0, 0.2);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+#viewport {
+    width: 100%;
+    height: 100%;
+    outline: none;
+}
+
+.viewport-stats {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #aaa;
+}
+
+/* Tool Options */
+.tool-options {
+    background: rgba(20, 20, 35, 0.5);
+    border: 1px solid rgba(255, 69, 0, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.option-row {
+    margin-bottom: 12px;
+}
+
+.option-row label {
+    display: block;
+    color: #aaa;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+}
+
+.option-row input[type="range"] {
+    width: 100%;
+    background: rgba(50, 50, 70, 0.4);
+    height: 6px;
+    border-radius: 3px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.option-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ff8000;
+    cursor: pointer;
+}
+
+/* Instructions */
+.instructions {
+    position: absolute;
+    top: 80px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 3px solid #ff8000;
+    max-width: 300px;
+}
+
+.instructions h4 {
+    color: #ff8000;
+    margin-bottom: 10px;
+}
+
+.instructions ul {
+    padding-left: 20px;
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+.instructions li {
+    margin-bottom: 5px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(20, 20, 35, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 128, 0, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 128, 0, 0.5);
+}
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold;">3D Sculpting Software</span>
+        <div style="width: 60px;"></div>
+    </div>
+
+    <div class="container">
+        <!-- Sidebar with brushes -->
+        <div class="sidebar">
+            <!-- Sculpt Brushes -->
+            <div class="sidebar-section">
+                <h3><i class="fas fa-brush"></i> Sculpt Brushes</h3>
+                <div class="tool-grid">
+                    <div class="tool-btn active" data-brush="draw">
+                        Draw <span class="tool-alt">Sharp</span>
+                    </div>
+                    <div class="tool-btn" data-brush="clay">
+                        Clay <span class="tool-alt">Strips</span>
+                    </div>
+                    <div class="tool-btn" data-brush="clayThumb">
+                        Clay Thumb
+                    </div>
+                    <div class="tool-btn" data-brush="layer">
+                        Layer
+                    </div>
+                    <div class="tool-btn" data-brush="inflate">
+                        Inflate <span class="tool-alt">Blob</span>
+                    </div>
+                    <div class="tool-btn" data-brush="crease">
+                        Crease Polish <span class="tool-alt">Sharp</span>
+                    </div>
+                    <div class="tool-btn" data-brush="smooth">
+                        Smooth
+                    </div>
+                    <div class="tool-btn" data-brush="flatten">
+                        Flatten <span class="tool-alt">Contrast</span>
+                    </div>
+                    <div class="tool-btn" data-brush="plateau">
+                        Plateau
+                    </div>
+                    <div class="tool-btn" data-brush="fill">
+                        Fill <span class="tool-alt">Deepen</span>
+                    </div>
+                    <div class="tool-btn" data-brush="scrape">
+                        Scrape <span class="tool-alt">Fill</span>
+                    </div>
+                    <div class="tool-btn" data-brush="trim">
+                        Trim <span class="tool-alt">Multiplane</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deform Brushes -->
+            <div class="sidebar-section">
+                <h3><i class="fas fa-hand-paper"></i> Deform Brushes</h3>
+                <div class="tool-grid">
+                    <div class="tool-btn" data-brush="pinch">
+                        Pinch <span class="tool-alt">Magnify</span>
+                    </div>
+                    <div class="tool-btn" data-brush="grab">
+                        Grab <span class="tool-alt">2D</span>
+                    </div>
+                    <div class="tool-btn" data-brush="grabSilhouette">
+                        Grab Silhouette
+                    </div>
+                    <div class="tool-btn" data-brush="elasticGrab">
+                        Elastic Grab
+                    </div>
+                    <div class="tool-btn" data-brush="snakeHook">
+                        Snake Hook <span class="tool-alt">Elastic</span>
+                    </div>
+                    <div class="tool-btn" data-brush="pull">
+                        Pull
+                    </div>
+                    <div class="tool-btn" data-brush="thumb">
+                        Thumb
+                    </div>
+                    <div class="tool-btn" data-brush="pose">
+                        Pose
+                    </div>
+                    <div class="tool-btn" data-brush="nudge">
+                        Nudge
+                    </div>
+                    <div class="tool-btn" data-brush="twist">
+                        Twist
+                    </div>
+                    <div class="tool-btn" data-brush="relax">
+                        Relax Slide <span class="tool-alt">Pinch</span>
+                    </div>
+                    <div class="tool-btn" data-brush="boundary">
+                        Boundary
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paint Brushes -->
+            <div class="sidebar-section">
+                <h3><i class="fas fa-paint-brush"></i> Paint Brushes</h3>
+                <div class="tool-grid">
+                    <div class="tool-btn" data-brush="mask">
+                        Mask
+                    </div>
+                    <div class="tool-btn" data-brush="faceSets">
+                        Draw Face Sets
+                    </div>
+                    <div class="tool-btn" data-brush="paintHard">
+                        Paint Hard <span class="tool-alt">Soft</span>
+                    </div>
+                    <div class="tool-btn" data-brush="paintPressure">
+                        Paint Pressure <span class="tool-alt">Square</span>
+                    </div>
+                    <div class="tool-btn" data-brush="airbrush">
+                        Airbrush
+                    </div>
+                    <div class="tool-btn" data-brush="blend">
+                        Blend <span class="tool-alt">Paint</span>
+                    </div>
+                    <div class="tool-btn" data-brush="smear">
+                        Smear
+                    </div>
+                    <div class="tool-btn" data-brush="sharpen">
+                        Sharpen
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cloth Brushes -->
+            <div class="sidebar-section">
+                <h3><i class="fas fa-tshirt"></i> Cloth Brushes</h3>
+                <div class="tool-grid">
+                    <div class="tool-btn" data-brush="dragCloth">
+                        Drag Cloth
+                    </div>
+                    <div class="tool-btn" data-brush="pushCloth">
+                        Push Cloth
+                    </div>
+                    <div class="tool-btn" data-brush="grabCloth">
+                        Grab Cloth <span class="tool-alt">Planar</span>
+                    </div>
+                    <div class="tool-btn" data-brush="inflateCloth">
+                        Inflate Cloth
+                    </div>
+                    <div class="tool-btn" data-brush="pinchCloth">
+                        Pinch Cloth <span class="tool-alt">Folds</span>
+                    </div>
+                    <div class="tool-btn" data-brush="bendCloth">
+                        Bend/Twist Cloth
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tool Options -->
+            <div class="tool-options">
+                <div class="option-row">
+                    <label>Brush Size: <span id="brushSizeValue">1.0</span></label>
+                    <input type="range" id="brushSize" min="0.1" max="3" step="0.1" value="1">
+                </div>
+                <div class="option-row">
+                    <label>Brush Strength: <span id="brushStrengthValue">0.5</span></label>
+                    <input type="range" id="brushStrength" min="0" max="1" step="0.05" value="0.5">
+                </div>
+                <div class="option-row">
+                    <label>Falloff: <span id="falloffValue">0.5</span></label>
+                    <input type="range" id="falloff" min="0" max="1" step="0.05" value="0.5">
+                </div>
+                <div class="option-row">
+                    <button id="resetMesh" style="width:100%; padding:10px; background:rgba(255,69,0,0.2); border:1px solid #ff4500; color:#ff4500; border-radius:6px; cursor:pointer;">
+                        Reset Mesh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3D Viewport -->
+        <div class="viewport-container">
+            <canvas id="viewport"></canvas>
+            <div class="viewport-stats">
+                Vertices: <span id="vertexCount">0</span> | 
+                Faces: <span id="faceCount">0</span> | 
+                Brush: <span id="currentBrush">Draw</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructions Panel -->
+    <div class="instructions">
+        <h4><i class="fas fa-info-circle"></i> Controls</h4>
+        <ul>
+            <li><strong>Left Click:</strong> Sculpt</li>
+            <li><strong>Right Click:</strong> Rotate View</li>
+            <li><strong>Middle Click:</strong> Pan View</li>
+            <li><strong>Scroll:</strong> Zoom</li>
+            <li><strong>Ctrl+Z:</strong> Undo</li>
+            <li><strong>Ctrl+Y:</strong> Redo</li>
+            <li><strong>Hover over tools:</strong> See alternatives</li>
+        </ul>
+    </div>
+
+    <script>
+        // Three.js Scene Setup
+        let scene, camera, renderer, controls;
+        let mesh, geometry, material;
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+        let isSculpting = false;
+        let currentBrush = 'draw';
+        let brushSize = 1.0;
+        let brushStrength = 0.5;
+        let falloff = 0.5;
+
+        // Initialize Three.js scene
+        function init() {
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0a1a);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            // Renderer
+            const canvas = document.getElementById('viewport');
+            renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            renderer.setSize(canvas.parentElement.clientWidth, canvas.parentElement.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            // Orbit Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(10, 10, 5);
+            scene.add(directionalLight);
+
+            // Create initial mesh (sphere for sculpting)
+            createInitialMesh();
+
+            // Add grid helper
+            const gridHelper = new THREE.GridHelper(10, 10, 0x444444, 0x222222);
+            scene.add(gridHelper);
+
+            // Event Listeners
+            window.addEventListener('resize', onWindowResize);
+            canvas.addEventListener('mousedown', onMouseDown);
+            canvas.addEventListener('mouseup', onMouseUp);
+            canvas.addEventListener('mousemove', onMouseMove);
+            canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+            // UI Event Listeners
+            setupUIListeners();
+
+            // Start animation loop
+            animate();
+        }
+
+        function createInitialMesh() {
+            // Create a sphere with enough vertices for sculpting
+            geometry = new THREE.SphereGeometry(2, 64, 64);
+            material = new THREE.MeshPhongMaterial({ 
+                color: 0xff8000,
+                shininess: 30,
+                specular: 0x333333,
+                side: THREE.DoubleSide
+            });
+            mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+            updateStats();
+        }
+
+        function onWindowResize() {
+            const container = document.querySelector('.viewport-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        function onMouseDown(event) {
+            if (event.button === 0) { // Left click
+                isSculpting = true;
+                sculpt(event);
+            }
+        }
+
+        function onMouseUp() {
+            isSculpting = false;
+        }
+
+        function onMouseMove(event) {
+            if (isSculpting) {
+                sculpt(event);
+            }
+        }
+
+        function sculpt(event) {
+            // Get mouse position in normalized device coordinates
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            // Update the picking ray with the camera and mouse position
+            raycaster.setFromCamera(mouse, camera);
+
+            // Calculate objects intersecting the picking ray
+            const intersects = raycaster.intersectObject(mesh);
+
+            if (intersects.length > 0) {
+                const intersect = intersects[0];
+                const vertexIndex = intersect.face.a;
+                const vertices = geometry.attributes.position.array;
+
+                // Get the vertex position
+                const vertex = new THREE.Vector3(
+                    vertices[vertexIndex * 3],
+                    vertices[vertexIndex * 3 + 1],
+                    vertices[vertexIndex * 3 + 2]
+                );
+
+                // Calculate distance from intersection point
+                const distance = vertex.distanceTo(intersect.point);
+
+                // Apply brush effect based on distance and brush type
+                if (distance < brushSize) {
+                    const strength = brushStrength * (1 - distance / brushSize) * falloff;
+                    const normal = intersect.face.normal.clone();
+
+                    // Apply different brush effects
+                    switch(currentBrush) {
+                        case 'draw':
+                            // Push along normal
+                            vertex.add(normal.multiplyScalar(strength * 0.1));
+                            break;
+                        case 'smooth':
+                            // Simple smoothing by averaging with neighbors
+                            smoothVertex(vertexIndex, strength * 0.5);
+                            break;
+                        case 'inflate':
+                            // Inflate in all directions
+                            vertex.add(vertex.clone().normalize().multiplyScalar(strength * 0.1));
+                            break;
+                        case 'flatten':
+                            // Flatten toward a plane
+                            vertex.y = vertex.y * (1 - strength) + 0 * strength;
+                            break;
+                        case 'pinch':
+                            // Pinch toward center
+                            const direction = vertex.clone().normalize();
+                            vertex.add(direction.multiplyScalar(-strength * 0.1));
+                            break;
+                        default:
+                            // Default draw brush
+                            vertex.add(normal.multiplyScalar(strength * 0.1));
+                    }
+
+                    // Update vertex position in array
+                    vertices[vertexIndex * 3] = vertex.x;
+                    vertices[vertexIndex * 3 + 1] = vertex.y;
+                    vertices[vertexIndex * 3 + 2] = vertex.z;
+
+                    // Mark attributes as needing update
+                    geometry.attributes.position.needsUpdate = true;
+                    geometry.computeVertexNormals();
+                }
+            }
+        }
+
+        function smoothVertex(index, strength) {
+            const vertices = geometry.attributes.position.array;
+            const faces = geometry.index.array;
+            
+            // This is a simplified smoothing function
+            // In a real implementation, you would find neighboring vertices
+            const avg = new THREE.Vector3(0, 0, 0);
+            let count = 0;
+
+            // Simple approach: average with nearby vertices
+            for (let i = Math.max(0, index - 10); i < Math.min(vertices.length / 3, index + 10); i++) {
+                avg.x += vertices[i * 3];
+                avg.y += vertices[i * 3 + 1];
+                avg.z += vertices[i * 3 + 2];
+                count++;
+            }
+
+            if (count > 0) {
+                avg.divideScalar(count);
+                vertices[index * 3] = vertices[index * 3] * (1 - strength) + avg.x * strength;
+                vertices[index * 3 + 1] = vertices[index * 3 + 1] * (1 - strength) + avg.y * strength;
+                vertices[index * 3 + 2] = vertices[index * 3 + 2] * (1 - strength) + avg.z * strength;
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('vertexCount').textContent = geometry.attributes.position.count;
+            document.getElementById('faceCount').textContent = geometry.index ? geometry.index.count / 3 : 0;
+        }
+
+        function setupUIListeners() {
+            // Brush selection
+            document.querySelectorAll('.tool-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentBrush = btn.dataset.brush;
+                    document.getElementById('currentBrush').textContent = btn.textContent.trim();
+                });
+            });
+
+            // Brush settings
+            document.getElementById('brushSize').addEventListener('input', (e) => {
+                brushSize = parseFloat(e.target.value);
+                document.getElementById('brushSizeValue').textContent = brushSize.toFixed(1);
+            });
+
+            document.getElementById('brushStrength').addEventListener('input', (e) => {
+                brushStrength = parseFloat(e.target.value);
+                document.getElementById('brushStrengthValue').textContent = brushStrength.toFixed(2);
+            });
+
+            document.getElementById('falloff').addEventListener('input', (e) => {
+                falloff = parseFloat(e.target.value);
+                document.getElementById('falloffValue').textContent = falloff.toFixed(2);
+            });
+
+            // Reset mesh
+            document.getElementById('resetMesh').addEventListener('click', () => {
+                scene.remove(mesh);
+                createInitialMesh();
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'z') {
+                    console.log('Undo');
+                    // Implement undo functionality here
+                }
+                if (e.ctrlKey && e.key === 'y') {
+                    console.log('Redo');
+                    // Implement redo functionality here
+                }
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Initialize the application
+        init();
+    </script>
+</body>
+</html>

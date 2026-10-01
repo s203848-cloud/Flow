@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synth Pad Explorer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 128, 0, 0.2);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        h1 {
+            color: #ff8000;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 128, 0, 0.5);
+        }
+        
+        .subtitle {
+            color: #a0a0ff;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        
+        .synth-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .synth-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .control-panel {
+            background: rgba(10, 10, 26, 0.7);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .panel-title {
+            color: #ff8000;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .panel-title i {
+            font-size: 1.2rem;
+        }
+        
+        .control-group {
+            margin-bottom: 25px;
+        }
+        
+        .control-group h3 {
+            color: #a0a0ff;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        .slider-container {
+            margin-bottom: 15px;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .slider-label span {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+        
+        .slider-value {
+            color: #ff8000;
+            font-weight: 600;
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(to right, #0a0a1a, #ff8000);
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff8000;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 0 5px rgba(255, 128, 0, 0.8);
+        }
+        
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        
+        .wave-btn, .filter-btn {
+            padding: 8px 15px;
+            background: rgba(26, 10, 46, 0.7);
+            border: 1px solid rgba(160, 160, 255, 0.3);
+            border-radius: 5px;
+            color: #a0a0ff;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-grow: 1;
+            text-align: center;
+        }
+        
+        .wave-btn:hover, .filter-btn:hover {
+            background: rgba(160, 160, 255, 0.1);
+        }
+        
+        .wave-btn.active, .filter-btn.active {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+            color: #ff8000;
+        }
+        
+        .keyboard {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+        
+        .key {
+            height: 120px;
+            flex-grow: 1;
+            border: 1px solid #0a0a1a;
+            cursor: pointer;
+            transition: all 0.1s;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .key:hover {
+            filter: brightness(1.2);
+        }
+        
+        .key:active, .key.active {
+            transform: scale(0.98);
+        }
+        
+        .white-key {
+            background: linear-gradient(to bottom, #f8f8f8, #d0d0d0);
+            color: #333;
+        }
+        
+        .black-key {
+            background: linear-gradient(to bottom, #333, #000);
+            margin-left: -10px;
+            margin-right: -10px;
+            z-index: 1;
+            height: 75px;
+            width: 30px;
+        }
+        
+        .visualization-panel {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .visualization-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .wave-display {
+            flex-grow: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .wave-display canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .adsr-display {
+            height: 120px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .adsr-display canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .preset-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .preset-btn {
+            padding: 10px 15px;
+            background: rgba(26, 10, 46, 0.7);
+            border: 1px solid rgba(160, 160, 255, 0.3);
+            border-radius: 5px;
+            color: #a0a0ff;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-grow: 1;
+            text-align: center;
+        }
+        
+        .preset-btn:hover {
+            background: rgba(160, 160, 255, 0.1);
+        }
+        
+        .preset-btn.active {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+            color: #ff8000;
+        }
+        
+        /* Export section styles */
+        .export-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .export-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .export-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #ff8000, #ff5500);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 600;
+            flex-grow: 1;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 128, 0, 0.4);
+        }
+        
+        .export-btn:active {
+            transform: translateY(0);
+        }
+        
+        .export-btn.recording {
+            background: linear-gradient(135deg, #ff3333, #cc0000);
+            animation: pulse 1.5s infinite;
+        }
+        
+        .export-btn.exporting {
+            background: linear-gradient(135deg, #33cc33, #009900);
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .record-timer {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #ff8000;
+            margin-top: 10px;
+            font-weight: 600;
+            display: none;
+        }
+        
+        .export-options {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(26, 10, 46, 0.5);
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .export-options.show {
+            display: block;
+        }
+        
+        .option-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        
+        .option-label {
+            flex: 1;
+            color: #a0a0ff;
+        }
+        
+        .option-input {
+            background: rgba(10, 10, 26, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 4px;
+            color: white;
+            padding: 6px 10px;
+            width: 120px;
+        }
+        
+        .download-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 15px;
+            background: linear-gradient(135deg, #33cc33, #009900);
+            border-radius: 5px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .download-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(51, 204, 51, 0.3);
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.3);
+            color: #a0a0ff;
+            font-size: 0.9rem;
+        }
+        
+        .status {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            color: #ff8000;
+            border-left: 3px solid #ff8000;
+        }
+        
+        .note {
+            color: #a0a0ff;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        </div>
+        
+        <header>
+            <h1>Synth Pad Explorer</h1>
+            <p class="subtitle">A subtractive synthesizer with filters, LFO, and real-time waveform visualization</p>
+        </header>
+        
+        <div class="synth-container">
+            <!-- Left panel: Controls -->
+            <div class="control-panel">
+                <div class="panel-title">
+                    <i class="fas fa-sliders-h"></i> Synth Controls
+                </div>
+                
+                <div class="control-group">
+                    <h3>Oscillator & Waveform</h3>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Frequency</span>
+                            <span class="slider-value" id="freq-value">440 Hz</span>
+                        </div>
+                        <input type="range" min="50" max="1000" value="440" class="slider" id="freq-slider">
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Detune</span>
+                            <span class="slider-value" id="detune-value">0 cents</span>
+                        </div>
+                        <input type="range" min="-50" max="50" value="0" class="slider" id="detune-slider">
+                    </div>
+                    
+                    <div class="button-group">
+                        <div class="wave-btn active" data-wave="sine">Sine</div>
+                        <div class="wave-btn" data-wave="square">Square</div>
+                        <div class="wave-btn" data-wave="sawtooth">Sawtooth</div>
+                        <div class="wave-btn" data-wave="triangle">Triangle</div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Filter</h3>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Cutoff Frequency</span>
+                            <span class="slider-value" id="cutoff-value">1000 Hz</span>
+                        </div>
+                        <input type="range" min="100" max="5000" value="1000" class="slider" id="cutoff-slider">
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Resonance</span>
+                            <span class="slider-value" id="resonance-value">1.0</span>
+                        </div>
+                        <input type="range" min="0.5" max="10" value="1" step="0.1" class="slider" id="resonance-slider">
+                    </div>
+                    
+                    <div class="button-group">
+                        <div class="filter-btn active" data-filter="lowpass">Lowpass</div>
+                        <div class="filter-btn" data-filter="highpass">Highpass</div>
+                        <div class="filter-btn" data-filter="bandpass">Bandpass</div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>LFO (Low Frequency Oscillator)</h3>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>LFO Rate</span>
+                            <span class="slider-value" id="lfo-rate-value">5 Hz</span>
+                        </div>
+                        <input type="range" min="0.1" max="20" value="5" step="0.1" class="slider" id="lfo-rate-slider">
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>LFO Depth</span>
+                            <span class="slider-value" id="lfo-depth-value">50%</span>
+                        </div>
+                        <input type="range" min="0" max="100" value="50" class="slider" id="lfo-depth-slider">
+                    </div>
+                    
+                    <div class="button-group">
+                        <div class="wave-btn active" data-lfo-target="frequency">Frequency</div>
+                        <div class="wave-btn" data-lfo-target="filter">Filter</div>
+                        <div class="wave-btn" data-lfo-target="gain">Volume</div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>ADSR Envelope</h3>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Attack</span>
+                            <span class="slider-value" id="attack-value">0.1s</span>
+                        </div>
+                        <input type="range" min="0" max="2" value="0.1" step="0.01" class="slider" id="attack-slider">
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Decay</span>
+                            <span class="slider-value" id="decay-value">0.3s</span>
+                        </div>
+                        <input type="range" min="0" max="2" value="0.3" step="0.01" class="slider" id="decay-slider">
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Sustain</span>
+                            <span class="slider-value" id="sustain-value">0.7</span>
+                        </div>
+                        <input type="range" min="0" max="1" value="0.7" step="0.01" class="slider" id="sustain-slider">
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Release</span>
+                            <span class="slider-value" id="release-value">0.5s</span>
+                        </div>
+                        <input type="range" min="0" max="3" value="0.5" step="0.01" class="slider" id="release-slider">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right panel: Visualization -->
+            <div class="control-panel visualization-panel">
+                <div class="panel-title">
+                    <i class="fas fa-wave-square"></i> Waveform Visualization
+                </div>
+                
+                <div class="visualization-container">
+                    <div class="wave-display">
+                        <canvas id="waveform-canvas"></canvas>
+                    </div>
+                    
+                    <div class="adsr-display">
+                        <canvas id="adsr-canvas"></canvas>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h3>Keyboard</h3>
+                        <div class="keyboard" id="keyboard">
+                            <!-- Keys will be generated by JavaScript -->
+                        </div>
+                        <p class="note">Click keys or press number keys 1-8 to play notes</p>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h3>Synth Presets</h3>
+                        <div class="preset-buttons">
+                            <div class="preset-btn active" data-preset="warm">Warm Pad</div>
+                            <div class="preset-btn" data-preset="bright">Bright Lead</div>
+                            <div class="preset-btn" data-preset="bass">Bass</div>
+                            <div class="preset-btn" data-preset="evolving">Evolving</div>
+                        </div>
+                    </div>
+                    
+                    <!-- New Export Section -->
+                    <div class="export-section">
+                        <h3>Audio Export</h3>
+                        <div class="export-controls">
+                            <button class="export-btn" id="record-btn">
+                                <i class="fas fa-circle"></i> Record Audio
+                            </button>
+                            <button class="export-btn" id="export-mp3-btn">
+                                <i class="fas fa-file-export"></i> Export as MP3
+                            </button>
+                            <button class="export-btn" id="export-wav-btn">
+                                <i class="fas fa-file-audio"></i> Export as WAV
+                            </button>
+                        </div>
+                        
+                        <div class="record-timer" id="record-timer">
+                            Recording: <span id="timer">00:00</span>
+                        </div>
+                        
+                        <div class="export-options" id="export-options">
+                            <div class="option-row">
+                                <div class="option-label">Filename:</div>
+                                <input type="text" class="option-input" id="filename-input" value="synth-recording">
+                            </div>
+                            <div class="option-row">
+                                <div class="option-label">Duration (seconds):</div>
+                                <input type="number" class="option-input" id="duration-input" value="5" min="1" max="60">
+                            </div>
+                            <div class="option-row">
+                                <div class="option-label">Bitrate:</div>
+                                <select class="option-input" id="bitrate-select">
+                                    <option value="128">128 kbps</option>
+                                    <option value="192" selected>192 kbps</option>
+                                    <option value="256">256 kbps</option>
+                                    <option value="320">320 kbps</option>
+                                </select>
+                            </div>
+                            <div id="download-container" style="display: none; text-align: center; margin-top: 15px;">
+                                <a href="../tools-list.html" class="download-link" id="download-link" download="synth-recording.mp3">
+                                    <i class="fas fa-download"></i> Download MP3
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="status" id="status">
+                            <i class="fas fa-info-circle"></i> Warm Pad preset loaded. Press a key to play.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Synth Pad Explorer - A Web Audio API subtractive synthesizer | Use the controls to shape your sound</p>
+            <p class="note">Note: This is a simulation for demonstration. In a full implementation, the Web Audio API would generate actual sound and recordings.</p>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const waveformCanvas = document.getElementById('waveform-canvas');
+        const adsrCanvas = document.getElementById('adsr-canvas');
+        const keyboard = document.getElementById('keyboard');
+        const statusEl = document.getElementById('status');
+        const recordBtn = document.getElementById('record-btn');
+        const exportMp3Btn = document.getElementById('export-mp3-btn');
+        const exportWavBtn = document.getElementById('export-wav-btn');
+        const recordTimer = document.getElementById('record-timer');
+        const timerDisplay = document.getElementById('timer');
+        const exportOptions = document.getElementById('export-options');
+        const filenameInput = document.getElementById('filename-input');
+        const durationInput = document.getElementById('duration-input');
+        const bitrateSelect = document.getElementById('bitrate-select');
+        const downloadContainer = document.getElementById('download-container');
+        const downloadLink = document.getElementById('download-link');
+        
+        // Canvas contexts
+        const waveCtx = waveformCanvas.getContext('2d');
+        const adsrCtx = adsrCanvas.getContext('2d');
+        
+        // Initialize canvas size
+        function initCanvas() {
+            const waveContainer = waveformCanvas.parentElement;
+            waveformCanvas.width = waveContainer.offsetWidth;
+            waveformCanvas.height = waveContainer.offsetHeight;
+            
+            const adsrContainer = adsrCanvas.parentElement;
+            adsrCanvas.width = adsrContainer.offsetWidth;
+            adsrCanvas.height = adsrContainer.offsetHeight;
+            
+            drawWaveform();
+            drawADSR();
+        }
+        
+        // Synth state
+        let synthState = {
+            frequency: 440,
+            detune: 0,
+            waveform: 'sine',
+            filterType: 'lowpass',
+            cutoff: 1000,
+            resonance: 1,
+            lfoRate: 5,
+            lfoDepth: 50,
+            lfoTarget: 'frequency',
+            attack: 0.1,
+            decay: 0.3,
+            sustain: 0.7,
+            release: 0.5,
+            activeNotes: new Set()
+        };
+        
+        // Recording state
+        let isRecording = false;
+        let recordingStartTime = 0;
+        let recordingTimer = null;
+        let recordedChunks = [];
+        
+        // Notes for the keyboard (C4 to C5)
+        const notes = [
+            { note: 'C4', frequency: 261.63, type: 'white' },
+            { note: 'C#4', frequency: 277.18, type: 'black' },
+            { note: 'D4', frequency: 293.66, type: 'white' },
+            { note: 'D#4', frequency: 311.13, type: 'black' },
+            { note: 'E4', frequency: 329.63, type: 'white' },
+            { note: 'F4', frequency: 349.23, type: 'white' },
+            { note: 'F#4', frequency: 369.99, type: 'black' },
+            { note: 'G4', frequency: 392.00, type: 'white' },
+            { note: 'G#4', frequency: 415.30, type: 'black' },
+            { note: 'A4', frequency: 440.00, type: 'white' },
+            { note: 'A#4', frequency: 466.16, type: 'black' },
+            { note: 'B4', frequency: 493.88, type: 'white' },
+            { note: 'C5', frequency: 523.25, type: 'white' }
+        ];
+        
+        // Create keyboard
+        function createKeyboard() {
+            keyboard.innerHTML = '';
+            notes.forEach((note, index) => {
+                const key = document.createElement('div');
+                key.className = `key ${note.type}-key`;
+                key.textContent = note.note;
+                key.dataset.note = note.note;
+                key.dataset.frequency = note.frequency;
+                key.dataset.index = index;
+                
+                key.addEventListener('mousedown', () => playNote(note.frequency, note.note));
+                key.addEventListener('mouseup', () => stopNote(note.frequency));
+                key.addEventListener('mouseleave', () => stopNote(note.frequency));
+                
+                keyboard.appendChild(key);
+            });
+        }
+        
+        // Initialize controls
+        function initControls() {
+            // Frequency slider
+            const freqSlider = document.getElementById('freq-slider');
+            const freqValue = document.getElementById('freq-value');
+            freqSlider.addEventListener('input', () => {
+                synthState.frequency = parseFloat(freqSlider.value);
+                freqValue.textContent = `${synthState.frequency.toFixed(0)} Hz`;
+                drawWaveform();
+            });
+            
+            // Detune slider
+            const detuneSlider = document.getElementById('detune-slider');
+            const detuneValue = document.getElementById('detune-value');
+            detuneSlider.addEventListener('input', () => {
+                synthState.detune = parseFloat(detuneSlider.value);
+                detuneValue.textContent = `${synthState.detune} cents`;
+                drawWaveform();
+            });
+            
+            // Waveform buttons
+            document.querySelectorAll('.wave-btn[data-wave]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.wave-btn[data-wave]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    synthState.waveform = btn.dataset.wave;
+                    drawWaveform();
+                    updateStatus(`Waveform changed to ${synthState.waveform}`);
+                });
+            });
+            
+            // Cutoff slider
+            const cutoffSlider = document.getElementById('cutoff-slider');
+            const cutoffValue = document.getElementById('cutoff-value');
+            cutoffSlider.addEventListener('input', () => {
+                synthState.cutoff = parseFloat(cutoffSlider.value);
+                cutoffValue.textContent = `${synthState.cutoff.toFixed(0)} Hz`;
+                drawWaveform();
+            });
+            
+            // Resonance slider
+            const resonanceSlider = document.getElementById('resonance-slider');
+            const resonanceValue = document.getElementById('resonance-value');
+            resonanceSlider.addEventListener('input', () => {
+                synthState.resonance = parseFloat(resonanceSlider.value);
+                resonanceValue.textContent = synthState.resonance.toFixed(1);
+                drawWaveform();
+            });
+            
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    synthState.filterType = btn.dataset.filter;
+                    updateStatus(`Filter changed to ${synthState.filterType}`);
+                });
+            });
+            
+            // LFO Rate slider
+            const lfoRateSlider = document.getElementById('lfo-rate-slider');
+            const lfoRateValue = document.getElementById('lfo-rate-value');
+            lfoRateSlider.addEventListener('input', () => {
+                synthState.lfoRate = parseFloat(lfoRateSlider.value);
+                lfoRateValue.textContent = `${synthState.lfoRate.toFixed(1)} Hz`;
+                drawWaveform();
+            });
+            
+            // LFO Depth slider
+            const lfoDepthSlider = document.getElementById('lfo-depth-slider');
+            const lfoDepthValue = document.getElementById('lfo-depth-value');
+            lfoDepthSlider.addEventListener('input', () => {
+                synthState.lfoDepth = parseFloat(lfoDepthSlider.value);
+                lfoDepthValue.textContent = `${synthState.lfoDepth}%`;
+                drawWaveform();
+            });
+            
+            // LFO Target buttons
+            document.querySelectorAll('.wave-btn[data-lfo-target]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.wave-btn[data-lfo-target]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    synthState.lfoTarget = btn.dataset.lfoTarget;
+                    updateStatus(`LFO target changed to ${synthState.lfoTarget}`);
+                });
+            });
+            
+            // ADSR sliders
+            const attackSlider = document.getElementById('attack-slider');
+            const attackValue = document.getElementById('attack-value');
+            attackSlider.addEventListener('input', () => {
+                synthState.attack = parseFloat(attackSlider.value);
+                attackValue.textContent = `${synthState.attack.toFixed(2)}s`;
+                drawADSR();
+            });
+            
+            const decaySlider = document.getElementById('decay-slider');
+            const decayValue = document.getElementById('decay-value');
+            decaySlider.addEventListener('input', () => {
+                synthState.decay = parseFloat(decaySlider.value);
+                decayValue.textContent = `${synthState.decay.toFixed(2)}s`;
+                drawADSR();
+            });
+            
+            const sustainSlider = document.getElementById('sustain-slider');
+            const sustainValue = document.getElementById('sustain-value');
+            sustainSlider.addEventListener('input', () => {
+                synthState.sustain = parseFloat(sustainSlider.value);
+                sustainValue.textContent = synthState.sustain.toFixed(2);
+                drawADSR();
+            });
+            
+            const releaseSlider = document.getElementById('release-slider');
+            const releaseValue = document.getElementById('release-value');
+            releaseSlider.addEventListener('input', () => {
+                synthState.release = parseFloat(releaseSlider.value);
+                releaseValue.textContent = `${synthState.release.toFixed(2)}s`;
+                drawADSR();
+            });
+            
+            // Preset buttons
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    loadPreset(btn.dataset.preset);
+                    updateStatus(`${getPresetName(btn.dataset.preset)} preset loaded`);
+                });
+            });
+        }
+        
+        // Draw waveform visualization
+        function drawWaveform() {
+            const width = waveformCanvas.width;
+            const height = waveformCanvas.height;
+            
+            // Clear canvas
+            waveCtx.clearRect(0, 0, width, height);
+            
+            // Draw grid
+            waveCtx.strokeStyle = 'rgba(160, 160, 255, 0.1)';
+            waveCtx.lineWidth = 1;
+            
+            // Horizontal lines
+            for (let i = 0; i <= 10; i++) {
+                const y = i * (height / 10);
+                waveCtx.beginPath();
+                waveCtx.moveTo(0, y);
+                waveCtx.lineTo(width, y);
+                waveCtx.stroke();
+            }
+            
+            // Vertical lines
+            for (let i = 0; i <= 10; i++) {
+                const x = i * (width / 10);
+                waveCtx.beginPath();
+                waveCtx.moveTo(x, 0);
+                waveCtx.lineTo(x, height);
+                waveCtx.stroke();
+            }
+            
+            // Draw waveform based on selected type
+            waveCtx.strokeStyle = '#ff8000';
+            waveCtx.lineWidth = 3;
+            waveCtx.beginPath();
+            
+            const samples = 200;
+            const amplitude = height * 0.4;
+            const centerY = height / 2;
+            
+            // Calculate LFO effect
+            const lfoEffect = synthState.lfoDepth / 100;
+            const lfoPhase = Date.now() * 0.001 * synthState.lfoRate * 2 * Math.PI;
+            
+            for (let i = 0; i <= samples; i++) {
+                const x = (i / samples) * width;
+                const t = (i / samples) * 4 * Math.PI; // Two full cycles
+                
+                // Base waveform
+                let y;
+                switch(synthState.waveform) {
+                    case 'sine':
+                        y = Math.sin(t);
+                        break;
+                    case 'square':
+                        y = Math.sin(t) > 0 ? 1 : -1;
+                        break;
+                    case 'sawtooth':
+                        y = 2 * (t / (2 * Math.PI) - Math.floor(0.5 + t / (2 * Math.PI)));
+                        break;
+                    case 'triangle':
+                        y = 2 * Math.asin(Math.sin(t)) / Math.PI;
+                        break;
+                    default:
+                        y = Math.sin(t);
+                }
+                
+                // Apply LFO if targeting frequency
+                if (synthState.lfoTarget === 'frequency') {
+                    const lfo = Math.sin(lfoPhase + t * 0.5) * lfoEffect;
+                    y *= (1 + lfo * 0.5);
+                }
+                
+                // Apply filter effect visualization
+                const filterEffect = synthState.cutoff / 5000; // Normalize cutoff
+                const resonanceEffect = synthState.resonance / 10;
+                
+                // Simulate filter by modifying the waveform
+                if (synthState.filterType === 'lowpass') {
+                    y = y * filterEffect;
+                } else if (synthState.filterType === 'highpass') {
+                    y = y * (1 - filterEffect);
+                } else if (synthState.filterType === 'bandpass') {
+                    y = y * Math.sin(filterEffect * Math.PI) * resonanceEffect;
+                }
+                
+                // Apply LFO if targeting filter
+                if (synthState.lfoTarget === 'filter') {
+                    const lfo = Math.sin(lfoPhase + t * 0.5) * lfoEffect;
+                    y *= (1 + lfo * 0.3);
+                }
+                
+                const finalY = centerY - y * amplitude;
+                
+                if (i === 0) {
+                    waveCtx.moveTo(x, finalY);
+                } else {
+                    waveCtx.lineTo(x, finalY);
+                }
+            }
+            
+            waveCtx.stroke();
+            
+            // Draw info text
+            waveCtx.fillStyle = '#a0a0ff';
+            waveCtx.font = '14px Segoe UI';
+            waveCtx.fillText(`Waveform: ${synthState.waveform} | Frequency: ${synthState.frequency}Hz | LFO: ${synthState.lfoRate}Hz (${synthState.lfoTarget})`, 10, 20);
+            waveCtx.fillText(`Filter: ${synthState.filterType} | Cutoff: ${synthState.cutoff}Hz | Resonance: ${synthState.resonance}`, 10, 40);
+        }
+        
+        // Draw ADSR visualization
+        function drawADSR() {
+            const width = adsrCanvas.width;
+            const height = adsrCanvas.height;
+            
+            // Clear canvas
+            adsrCtx.clearRect(0, 0, width, height);
+            
+            // Draw grid
+            adsrCtx.strokeStyle = 'rgba(160, 160, 255, 0.1)';
+            adsrCtx.lineWidth = 1;
+            
+            // Horizontal lines
+            for (let i = 0; i <= 10; i++) {
+                const y = i * (height / 10);
+                adsrCtx.beginPath();
+                adsrCtx.moveTo(0, y);
+                adsrCtx.lineTo(width, y);
+                adsrCtx.stroke();
+            }
+            
+            // Draw ADSR envelope
+            adsrCtx.strokeStyle = '#ff8000';
+            adsrCtx.lineWidth = 3;
+            adsrCtx.beginPath();
+            
+            const attackX = synthState.attack * 100; // Scale for visualization
+            const decayX = attackX + synthState.decay * 100;
+            const sustainX = decayX + 100; // Fixed sustain length
+            const releaseX = sustainX + synthState.release * 100;
+            
+            // Scale to fit canvas
+            const scaleX = width / releaseX;
+            const scaledAttackX = attackX * scaleX;
+            const scaledDecayX = decayX * scaleX;
+            const scaledSustainX = sustainX * scaleX;
+            const scaledReleaseX = releaseX * scaleX;
+            
+            // Attack
+            adsrCtx.moveTo(0, height);
+            adsrCtx.lineTo(scaledAttackX, height * 0.1);
+            
+            // Decay
+            adsrCtx.lineTo(scaledDecayX, height * (1 - synthState.sustain * 0.8));
+            
+            // Sustain
+            adsrCtx.lineTo(scaledSustainX, height * (1 - synthState.sustain * 0.8));
+            
+            // Release
+            adsrCtx.lineTo(scaledReleaseX, height);
+            
+            adsrCtx.stroke();
+            
+            // Draw points
+            adsrCtx.fillStyle = '#ff8000';
+            adsrCtx.beginPath();
+            adsrCtx.arc(scaledAttackX, height * 0.1, 5, 0, Math.PI * 2);
+            adsrCtx.fill();
+            
+            adsrCtx.beginPath();
+            adsrCtx.arc(scaledDecayX, height * (1 - synthState.sustain * 0.8), 5, 0, Math.PI * 2);
+            adsrCtx.fill();
+            
+            adsrCtx.beginPath();
+            adsrCtx.arc(scaledSustainX, height * (1 - synthState.sustain * 0.8), 5, 0, Math.PI * 2);
+            adsrCtx.fill();
+            
+            // Draw labels
+            adsrCtx.fillStyle = '#a0a0ff';
+            adsrCtx.font = '12px Segoe UI';
+            adsrCtx.fillText('A', scaledAttackX/2, height * 0.05);
+            adsrCtx.fillText('D', (scaledAttackX + scaledDecayX)/2, height * (1 - synthState.sustain * 0.8) - 10);
+            adsrCtx.fillText('S', (scaledDecayX + scaledSustainX)/2, height * (1 - synthState.sustain * 0.8) - 10);
+            adsrCtx.fillText('R', (scaledSustainX + scaledReleaseX)/2, height - 10);
+            
+            // Draw values
+            adsrCtx.font = '10px Segoe UI';
+            adsrCtx.fillText(`${synthState.attack}s`, scaledAttackX/2, height * 0.05 + 15);
+            adsrCtx.fillText(`${synthState.decay}s`, (scaledAttackX + scaledDecayX)/2, height * (1 - synthState.sustain * 0.8) - 20);
+            adsrCtx.fillText(`Level: ${synthState.sustain}`, (scaledDecayX + scaledSustainX)/2, height * (1 - synthState.sustain * 0.8) + 20);
+            adsrCtx.fillText(`${synthState.release}s`, (scaledSustainX + scaledReleaseX)/2, height - 20);
+        }
+        
+        // Play a note (visual simulation)
+        function playNote(frequency, noteName) {
+            synthState.activeNotes.add(frequency);
+            
+            // Update keyboard visual
+            document.querySelectorAll('.key').forEach(key => {
+                if (parseFloat(key.dataset.frequency) === frequency) {
+                    key.classList.add('active');
+                }
+            });
+            
+            // Update status
+            updateStatus(`Playing note: ${noteName} (${frequency.toFixed(2)} Hz)`);
+            
+            // In a real implementation, this would trigger Web Audio API oscillator
+        }
+        
+        // Stop a note
+        function stopNote(frequency) {
+            synthState.activeNotes.delete(frequency);
+            
+            // Update keyboard visual
+            document.querySelectorAll('.key').forEach(key => {
+                if (parseFloat(key.dataset.frequency) === frequency) {
+                    key.classList.remove('active');
+                }
+            });
+            
+            // Update status if no notes are playing
+            if (synthState.activeNotes.size === 0) {
+                updateStatus('Press a key to play');
+            }
+        }
+        
+        // Load a preset
+        function loadPreset(presetName) {
+            const presets = {
+                warm: {
+                    frequency: 440,
+                    detune: 0,
+                    waveform: 'sine',
+                    filterType: 'lowpass',
+                    cutoff: 800,
+                    resonance: 1.5,
+                    lfoRate: 3,
+                    lfoDepth: 30,
+                    lfoTarget: 'frequency',
+                    attack: 0.3,
+                    decay: 0.5,
+                    sustain: 0.8,
+                    release: 1.2
+                },
+                bright: {
+                    frequency: 440,
+                    detune: 0,
+                    waveform: 'sawtooth',
+                    filterType: 'highpass',
+                    cutoff: 2000,
+                    resonance: 2.0,
+                    lfoRate: 8,
+                    lfoDepth: 20,
+                    lfoTarget: 'filter',
+                    attack: 0.05,
+                    decay: 0.2,
+                    sustain: 0.6,
+                    release: 0.3
+                },
+                bass: {
+                    frequency: 110,
+                    detune: 0,
+                    waveform: 'square',
+                    filterType: 'lowpass',
+                    cutoff: 400,
+                    resonance: 3.0,
+                    lfoRate: 0.5,
+                    lfoDepth: 10,
+                    lfoTarget: 'filter',
+                    attack: 0.1,
+                    decay: 0.4,
+                    sustain: 0.9,
+                    release: 0.5
+                },
+                evolving: {
+                    frequency: 220,
+                    detune: 5,
+                    waveform: 'triangle',
+                    filterType: 'bandpass',
+                    cutoff: 1200,
+                    resonance: 5.0,
+                    lfoRate: 0.3,
+                    lfoDepth: 80,
+                    lfoTarget: 'frequency',
+                    attack: 2.0,
+                    decay: 1.0,
+                    sustain: 0.7,
+                    release: 2.5
+                }
+            };
+            
+            const preset = presets[presetName];
+            if (!preset) return;
+            
+            // Update synth state
+            Object.assign(synthState, preset);
+            
+            // Update UI controls
+            document.getElementById('freq-slider').value = preset.frequency;
+            document.getElementById('freq-value').textContent = `${preset.frequency} Hz`;
+            
+            document.getElementById('detune-slider').value = preset.detune;
+            document.getElementById('detune-value').textContent = `${preset.detune} cents`;
+            
+            document.querySelectorAll('.wave-btn[data-wave]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.wave === preset.waveform);
+            });
+            
+            document.getElementById('cutoff-slider').value = preset.cutoff;
+            document.getElementById('cutoff-value').textContent = `${preset.cutoff} Hz`;
+            
+            document.getElementById('resonance-slider').value = preset.resonance;
+            document.getElementById('resonance-value').textContent = preset.resonance.toFixed(1);
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === preset.filterType);
+            });
+            
+            document.getElementById('lfo-rate-slider').value = preset.lfoRate;
+            document.getElementById('lfo-rate-value').textContent = `${preset.lfoRate} Hz`;
+            
+            document.getElementById('lfo-depth-slider').value = preset.lfoDepth;
+            document.getElementById('lfo-depth-value').textContent = `${preset.lfoDepth}%`;
+            
+            document.querySelectorAll('.wave-btn[data-lfo-target]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lfoTarget === preset.lfoTarget);
+            });
+            
+            document.getElementById('attack-slider').value = preset.attack;
+            document.getElementById('attack-value').textContent = `${preset.attack}s`;
+            
+            document.getElementById('decay-slider').value = preset.decay;
+            document.getElementById('decay-value').textContent = `${preset.decay}s`;
+            
+            document.getElementById('sustain-slider').value = preset.sustain;
+            document.getElementById('sustain-value').textContent = preset.sustain.toFixed(2);
+            
+            document.getElementById('release-slider').value = preset.release;
+            document.getElementById('release-value').textContent = `${preset.release}s`;
+            
+            // Redraw visualizations
+            drawWaveform();
+            drawADSR();
+        }
+        
+        // Get preset display name
+        function getPresetName(presetKey) {
+            const names = {
+                warm: 'Warm Pad',
+                bright: 'Bright Lead',
+                bass: 'Bass',
+                evolving: 'Evolving'
+            };
+            return names[presetKey] || presetKey;
+        }
+        
+        // Update status message
+        function updateStatus(message) {
+            statusEl.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+        }
+        
+        // Export functions
+        function startRecording() {
+            if (isRecording) return;
+            
+            isRecording = true;
+            recordingStartTime = Date.now();
+            recordedChunks = [];
+            
+            // Update UI
+            recordBtn.classList.add('recording');
+            recordBtn.innerHTML = '<i class="fas fa-stop"></i> Stop Recording';
+            recordTimer.style.display = 'block';
+            exportOptions.classList.add('show');
+            downloadContainer.style.display = 'none';
+            
+            updateStatus('Recording started... Play some notes!');
+            
+            // Start timer
+            recordingTimer = setInterval(updateRecordingTimer, 1000);
+            
+            // In a real implementation, you would:
+            // 1. Create a MediaRecorder instance
+            // 2. Connect it to your Web Audio API destination
+            // 3. Start recording
+            // 4. Collect data chunks in recordedChunks array
+        }
+        
+        function stopRecording() {
+            if (!isRecording) return;
+            
+            isRecording = false;
+            
+            // Update UI
+            recordBtn.classList.remove('recording');
+            recordBtn.innerHTML = '<i class="fas fa-circle"></i> Record Audio';
+            recordTimer.style.display = 'none';
+            clearInterval(recordingTimer);
+            
+            updateStatus('Recording stopped. Ready to export.');
+            
+            // In a real implementation, you would:
+            // 1. Stop the MediaRecorder
+            // 2. Create a blob from recordedChunks
+            // 3. Show export options
+        }
+        
+        function updateRecordingTimer() {
+            const elapsedSeconds = Math.floor((Date.now() - recordingStartTime) / 1000);
+            const minutes = Math.floor(elapsedSeconds / 60).toString().padStart(2, '0');
+            const seconds = (elapsedSeconds % 60).toString().padStart(2, '0');
+            timerDisplay.textContent = `${minutes}:${seconds}`;
+        }
+        
+        function exportAudio(format) {
+            const filename = filenameInput.value.trim() || 'synth-recording';
+            const duration = parseInt(durationInput.value) || 5;
+            const bitrate = bitrateSelect.value;
+            
+            updateStatus(`Exporting as ${format.toUpperCase()}... This would generate audio in a real implementation.`);
+            
+            // Show exporting state
+            const exportBtn = format === 'mp3' ? exportMp3Btn : exportWavBtn;
+            const originalText = exportBtn.innerHTML;
+            exportBtn.classList.add('exporting');
+            exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+            
+            // Simulate export process
+            setTimeout(() => {
+                // Reset button
+                exportBtn.classList.remove('exporting');
+                exportBtn.innerHTML = originalText;
+                
+                // In a real implementation, you would:
+                // 1. Generate the audio file from recorded data or current synth state
+                // 2. For MP3: Use libraries like lamejs or server-side encoding
+                // 3. For WAV: Can be generated client-side using Web Audio API
+                
+                // For demo purposes, create a mock download link
+                const mockData = `This is a mock ${format} file. In a real implementation, actual audio would be generated.`;
+                const blob = new Blob([mockData], { type: 'application/octet-stream' });
+                const url = URL.createObjectURL(blob);
+                
+                // Update download link
+                downloadLink.href = url;
+                downloadLink.download = `${filename}.${format}`;
+                downloadLink.innerHTML = `<i class="fas fa-download"></i> Download ${format.toUpperCase()}`;
+                downloadContainer.style.display = 'block';
+                
+                updateStatus(`${format.toUpperCase()} export complete! Click download to save.`);
+                
+                // Show notification
+                showExportNotification(format, filename, bitrate);
+            }, 2000);
+        }
+        
+        function showExportNotification(format, filename, bitrate) {
+            // Create a notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #33cc33, #009900);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 5px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                z-index: 1000;
+                animation: slideIn 0.3s ease-out;
+                max-width: 300px;
+            `;
+            
+            notification.innerHTML = `
+                <div style="font-weight: 600; margin-bottom: 5px;">
+                    <i class="fas fa-check-circle"></i> Export Complete!
+                </div>
+                <div style="font-size: 0.9rem;">
+                    ${format.toUpperCase()} file ready: ${filename}.${format}<br>
+                    Bitrate: ${bitrate} kbps
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Remove notification after 5 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+        }
+        
+        // Initialize everything when page loads
+        function init() {
+            initCanvas();
+            createKeyboard();
+            initControls();
+            loadPreset('warm');
+            
+            // Setup export event listeners
+            recordBtn.addEventListener('click', () => {
+                if (isRecording) {
+                    stopRecording();
+                } else {
+                    startRecording();
+                }
+            });
+            
+            exportMp3Btn.addEventListener('click', () => exportAudio('mp3'));
+            exportWavBtn.addEventListener('click', () => exportAudio('wav'));
+            
+            // Handle window resize
+            window.addEventListener('resize', initCanvas);
+            
+            // Add keyboard event listeners for number keys 1-8
+            document.addEventListener('keydown', (e) => {
+                const key = e.key;
+                if (key >= '1' && key <= '8') {
+                    const index = parseInt(key) - 1;
+                    if (index < notes.length) {
+                        const note = notes[index];
+                        playNote(note.frequency, note.note);
+                    }
+                }
+            });
+            
+            document.addEventListener('keyup', (e) => {
+                const key = e.key;
+                if (key >= '1' && key <= '8') {
+                    const index = parseInt(key) - 1;
+                    if (index < notes.length) {
+                        const note = notes[index];
+                        stopNote(note.frequency);
+                    }
+                }
+            });
+            
+            // Add CSS for notification animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Animation loop for waveform
+            function animate() {
+                drawWaveform();
+                requestAnimationFrame(animate);
+            }
+            
+            // Start animation
+            animate();
+        }
+        
+        // Initialize the synth when page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trigonometry Helper · Unit circle & waves</title>
+    <!-- Font Awesome for back arrow (v6) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #f0f0ff;
+            min-height: 100vh;
+            padding: 1.5rem 2rem;
+        }
+
+        /* navbar / header */
+        .navbar {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .back-btn {
+            padding: 8px 18px;
+            background: rgba(255, 128, 0, 0.12);
+            border: 1px solid #ff8000;
+            border-radius: 40px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.15s;
+            backdrop-filter: blur(4px);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.28);
+            border-color: #ffaa33;
+            color: #ffaa33;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 400;
+            letter-spacing: 1px;
+            background: linear-gradient(145deg, #fff8e7, #ffd7b5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            border-left: 3px solid #ff8000;
+            padding-left: 1.2rem;
+        }
+
+        /* main layout grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: minmax(340px, 1fr) 1.2fr;
+            gap: 1.8rem;
+            margin-bottom: 2rem;
+        }
+
+        /* cards with glass-dark style */
+        .card {
+            background: rgba(10, 8, 22, 0.65);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 128, 0, 0.25);
+            border-radius: 32px;
+            padding: 1.5rem 1.5rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,128,0,0.15) inset;
+        }
+
+        .unit-circle-panel {
+            grid-row: span 1;
+        }
+
+        .controls-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* angle control row */
+        .angle-input-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: flex-end;
+            background: rgba(0,0,0,0.3);
+            border-radius: 48px;
+            padding: 1.2rem 1.8rem;
+            border: 1px solid rgba(255,128,0,0.3);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 130px;
+        }
+
+        .input-group label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #ffb060;
+            margin-bottom: 4px;
+        }
+
+        .input-group input {
+            background: #0e0b1c;
+            border: 1px solid #ff8000;
+            border-radius: 40px;
+            padding: 10px 18px;
+            color: white;
+            font-weight: 500;
+            font-size: 1.2rem;
+            outline: none;
+            transition: 0.1s;
+        }
+
+        .input-group input:focus {
+            border-color: #ffb347;
+            box-shadow: 0 0 0 3px rgba(255,128,0,0.4);
+        }
+
+        /* slider */
+        .slider-container {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        input[type=range] {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,128,0,0.2);
+            border-radius: 10px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            background: #ff8000;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #fff3e0;
+            box-shadow: 0 0 10px #ffaa33;
+        }
+
+        /* trig values display */
+        .trig-values {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            background: rgba(0,0,0,0.25);
+            border-radius: 48px;
+            padding: 1.2rem 1.8rem;
+            border: 1px solid #ff8000;
+        }
+
+        .trig-item {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            font-size: 1.3rem;
+        }
+
+        .trig-label {
+            color: #ffb77c;
+            font-weight: 300;
+        }
+
+        .trig-number {
+            font-weight: 600;
+            color: white;
+            background: rgba(255,128,0,0.2);
+            padding: 5px 14px;
+            border-radius: 40px;
+            border: 1px solid #ff8000;
+        }
+
+        /* quick angle buttons */
+        .angle-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+        }
+
+        .angle-btn {
+            background: rgba(255,128,0,0.1);
+            border: 1px solid #ff8000;
+            color: #ffb577;
+            padding: 8px 14px;
+            border-radius: 32px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.1s;
+            flex: 1 0 auto;
+            max-width: 80px;
+        }
+
+        .angle-btn:hover {
+            background: #ff8000;
+            color: #0a0a1a;
+            border-color: #ffb577;
+        }
+
+        /* canvas containers */
+        .canvas-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 0.5rem;
+            background: rgba(0,0,0,0.4);
+            border-radius: 28px;
+            padding: 15px 5px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 20px;
+            background: #0a0a1a;
+            box-shadow: 0 0 0 1px #ff8000, 0 10px 30px black;
+        }
+
+        #unitCircleCanvas {
+            max-width: 320px;
+        }
+
+        .wave-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+            margin-top: 1.5rem;
+        }
+
+        .wave-card {
+            background: rgba(8, 5, 18, 0.7);
+            border-radius: 28px;
+            padding: 0.8rem;
+            border: 1px solid rgba(255,128,0,0.3);
+        }
+
+        .wave-title {
+            color: #ffb47b;
+            margin-left: 10px;
+            margin-bottom: 5px;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        footer {
+            text-align: right;
+            margin-top: 2rem;
+            color: #ffa54d;
+            opacity: 0.7;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 860px) {
+            .dashboard { grid-template-columns: 1fr; }
+            body { padding: 1rem; }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <h1>⚡ unit circle · waves · conversion</h1>
+    </div>
+
+    <!-- main dashboard -->
+    <div class="dashboard">
+        <!-- left: unit circle + quick angles -->
+        <div class="card unit-circle-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                <span style="color:#ffb47b; font-weight: 300; letter-spacing: 2px;">UNIT CIRCLE</span>
+                <span style="background: #ff8000; padding: 2px 12px; border-radius: 40px; font-weight: 600;">r = 1</span>
+            </div>
+            <div class="canvas-wrapper">
+                <canvas id="unitCircleCanvas" width="320" height="320"></canvas>
+            </div>
+            <!-- quick angle bank -->
+            <div class="angle-bank" style="margin-top: 1rem;">
+                <button class="angle-btn" data-deg="0">0°</button>
+                <button class="angle-btn" data-deg="30">30°</button>
+                <button class="angle-btn" data-deg="45">45°</button>
+                <button class="angle-btn" data-deg="60">60°</button>
+                <button class="angle-btn" data-deg="90">90°</button>
+                <button class="angle-btn" data-deg="180">180°</button>
+                <button class="angle-btn" data-deg="270">270°</button>
+                <button class="angle-btn" data-deg="360">360°</button>
+            </div>
+        </div>
+
+        <!-- right panel: controls + values + waves -->
+        <div class="controls-panel">
+            <!-- angle conversion card -->
+            <div class="card" style="padding: 1.2rem;">
+                <div class="angle-input-row">
+                    <div class="input-group">
+                        <label><i class="fas fa-circle" style="color:#ff8000;"></i> degrees</label>
+                        <input type="number" id="degInput" value="45" step="0.1" min="0" max="360">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-circle" style="color:#ffaa33;"></i> radians</label>
+                        <input type="number" id="radInput" value="0.7854" step="0.01" min="0" max="6.2832">
+                    </div>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="angleSlider" min="0" max="360" value="45" step="0.1">
+                </div>
+            </div>
+
+            <!-- live sin / cos / tan -->
+            <div class="trig-values">
+                <div class="trig-item"><span class="trig-label">sin</span><span class="trig-number" id="sinValue">0.7071</span></div>
+                <div class="trig-item"><span class="trig-label">cos</span><span class="trig-number" id="cosValue">0.7071</span></div>
+                <div class="trig-item"><span class="trig-label">tan</span><span class="trig-number" id="tanValue">1.0000</span></div>
+            </div>
+
+            <!-- sine + cosine waves -->
+            <div class="wave-row">
+                <div class="wave-card">
+                    <div class="wave-title"><i class="fas fa-wave-square" style="color:#ff8000;"></i> sine</div>
+                    <canvas id="sineCanvas" width="360" height="130"></canvas>
+                </div>
+                <div class="wave-card">
+                    <div class="wave-title"><i class="fas fa-wave-square" style="color:#4db8ff;"></i> cosine</div>
+                    <canvas id="cosineCanvas" width="360" height="130"></canvas>
+                </div>
+            </div>
+
+            <!-- tiny hint -->
+            <div style="display: flex; gap: 15px; justify-content: center; font-size: 0.85rem; opacity:0.7;">
+                <span><span style="color:#ff8000;">●</span> sine projection</span>
+                <span><span style="color:#4db8ff;">●</span> cosine projection</span>
+            </div>
+        </div>
+    </div>
+
+    <footer>⇢ angle conversion • real‑time unit circle • waves with dynamic marker</footer>
+
+    <script>
+        (function() {
+            // ----- DOM elements -----
+            const unitCanvas = document.getElementById('unitCircleCanvas');
+            const sineCanvas = document.getElementById('sineCanvas');
+            const cosineCanvas = document.getElementById('cosineCanvas');
+
+            const degInput = document.getElementById('degInput');
+            const radInput = document.getElementById('radInput');
+            const angleSlider = document.getElementById('angleSlider');
+
+            const sinSpan = document.getElementById('sinValue');
+            const cosSpan = document.getElementById('cosValue');
+            const tanSpan = document.getElementById('tanValue');
+
+            const angleBtns = document.querySelectorAll('.angle-btn');
+
+            // ----- constants & helpers -----
+            const TWO_PI = 2 * Math.PI;
+            const HALF_PI = Math.PI / 2;
+            const radToDeg = (rad) => rad * 180 / Math.PI;
+            const degToRad = (deg) => deg * Math.PI / 180;
+
+            // state (store in degrees)
+            let currentDeg = 45.0;         // start at 45°
+
+            // sync all inputs from degrees (without infinite loop)
+            function syncInputsFromDeg(deg) {
+                // clamp between 0 and 360
+                deg = Math.min(360, Math.max(0, deg));
+                currentDeg = deg;
+
+                const rad = degToRad(deg);
+
+                // update fields (only if value differs to avoid loops)
+                if (Math.abs(deg - parseFloat(degInput.value)) > 1e-6) degInput.value = deg.toFixed(1);
+                if (Math.abs(rad - parseFloat(radInput.value)) > 1e-6) radInput.value = rad.toFixed(6);
+                if (Math.abs(deg - angleSlider.value) > 1e-6) angleSlider.value = deg;
+
+                // update trig displays
+                const s = Math.sin(rad);
+                const c = Math.cos(rad);
+                const t = s/c;
+                sinSpan.textContent = s.toFixed(4);
+                cosSpan.textContent = c.toFixed(4);
+                tanSpan.textContent = (Math.abs(t) > 1e10 ? '∞' : t.toFixed(4));
+
+                // redraw all canvases
+                redrawAll(deg, rad);
+            }
+
+            // sync from radians input
+            function syncFromRad(rad) {
+                rad = Math.min(TWO_PI, Math.max(0, rad));
+                let deg = radToDeg(rad);
+                deg = Math.min(360, Math.max(0, deg));
+                syncInputsFromDeg(deg);
+            }
+
+            // redraw all graphics
+            function redrawAll(deg, rad) {
+                drawUnitCircle(deg, rad);
+                drawWave(sineCanvas, 'sine', rad);
+                drawWave(cosineCanvas, 'cosine', rad);
+            }
+
+            // ----- unit circle drawing (cx=160, cy=160, r=120) -----
+            function drawUnitCircle(deg, rad) {
+                const ctx = unitCanvas.getContext('2d');
+                const w = 320, h = 320;
+                ctx.clearRect(0, 0, w, h);
+
+                // background (already dark, but we paint for consistency)
+                ctx.fillStyle = '#0a0a1a';
+                ctx.fillRect(0, 0, w, h);
+
+                const cx = 160, cy = 160, r = 120;
+
+                // grid / axes (thin orange glow)
+                ctx.beginPath();
+                ctx.strokeStyle = '#ff8000';
+                ctx.lineWidth = 0.8;
+                ctx.globalAlpha = 0.25;
+                // faint crosshair
+                ctx.beginPath();
+                ctx.moveTo(cx - r - 10, cy);
+                ctx.lineTo(cx + r + 10, cy);
+                ctx.moveTo(cx, cy - r - 10);
+                ctx.lineTo(cx, cy + r + 10);
+                ctx.stroke();
+                ctx.globalAlpha = 1.0;
+
+                // unit circle
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, 0, TWO_PI);
+                ctx.strokeStyle = '#ff9933';
+                ctx.lineWidth = 2.2;
+                ctx.stroke();
+                // inner semi-transparent fill
+                ctx.fillStyle = 'rgba(255,128,0,0.05)';
+                ctx.fill();
+
+                // axis labels (simple)
+                ctx.fillStyle = '#ffb577';
+                ctx.font = '12px "Segoe UI"';
+                ctx.fillText('1', cx + r - 15, cy - 8);
+                ctx.fillText('-1', cx - r - 5, cy - 8);
+                ctx.fillText('1', cx + 5, cy - r + 15);
+                ctx.fillText('-1', cx + 5, cy + r - 5);
+
+                // compute point coordinates
+                const x0 = cx + r * Math.cos(rad);
+                const y0 = cy - r * Math.sin(rad);   // because y increases downward
+
+                // draw radius line
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(x0, y0);
+                ctx.strokeStyle = '#ff8000';
+                ctx.lineWidth = 2.5;
+                ctx.globalAlpha = 0.7;
+                ctx.stroke();
+
+                // draw dashed projections (sine vertical, cosine horizontal)
+                ctx.globalAlpha = 0.4;
+                ctx.beginPath();
+                ctx.moveTo(x0, cy);
+                ctx.lineTo(x0, y0);
+                ctx.strokeStyle = '#4db8ff';   // cosine projection (horizontal) actually? let's differentiate: vertical for sine, horizontal for cosine
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(cx, y0);
+                ctx.lineTo(x0, y0);
+                ctx.strokeStyle = '#ff8000';   // sine projection
+                ctx.stroke();
+                ctx.globalAlpha = 1.0;
+
+                // draw the point (glowing)
+                ctx.beginPath();
+                ctx.arc(x0, y0, 8, 0, TWO_PI);
+                ctx.fillStyle = '#ffaa33';
+                ctx.shadowColor = '#ff8000';
+                ctx.shadowBlur = 12;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                // angle arc (small)
+                ctx.beginPath();
+                ctx.arc(cx, cy, 40, 0, -rad, true);  // negative because canvas angle direction
+                ctx.strokeStyle = '#ffb577';
+                ctx.setLineDash([3, 3]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // degree label near arc
+                ctx.fillStyle = '#ffb577';
+                ctx.font = 'bold 14px "Segoe UI"';
+                ctx.fillText(deg.toFixed(1) + '°', cx + 45, cy - 40);
+            }
+
+            // ----- draw sine or cosine wave (canvas, type, current rad) -----
+            function drawWave(canvas, type, currentRad) {
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width, h = canvas.height;
+                ctx.clearRect(0, 0, w, h);
+
+                // background
+                ctx.fillStyle = '#0c0b1a';
+                ctx.fillRect(0, 0, w, h);
+
+                const margin = 20;
+                const graphW = w - 2 * margin;
+                const graphH = h - 2 * margin;
+                const midY = margin + graphH / 2;
+                const amplitude = (graphH / 2) * 0.8;  // keep some padding
+
+                // draw axes
+                ctx.beginPath();
+                ctx.strokeStyle = '#ff8000';
+                ctx.lineWidth = 1;
+                ctx.globalAlpha = 0.3;
+                // horizontal axis
+                ctx.moveTo(margin, midY);
+                ctx.lineTo(w - margin, midY);
+                // vertical ticks at 0, π/2, π, 3π/2, 2π
+                for (let i = 0; i <= 4; i++) {
+                    let x = margin + (i / 4) * graphW;
+                    ctx.moveTo(x, midY - 5);
+                    ctx.lineTo(x, midY + 5);
+                }
+                ctx.stroke();
+                ctx.globalAlpha = 1.0;
+
+                // draw the wave
+                ctx.beginPath();
+                ctx.strokeStyle = (type === 'sine') ? '#ff8000' : '#4db8ff';
+                ctx.lineWidth = 2.5;
+                ctx.globalAlpha = 0.9;
+
+                for (let px = 0; px <= graphW; px++) {
+                    const t = (px / graphW) * TWO_PI;  // 0 to 2π
+                    let val;
+                    if (type === 'sine') val = Math.sin(t);
+                    else val = Math.cos(t);
+
+                    const x = margin + px;
+                    const y = midY - val * amplitude;
+                    if (px === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+
+                // draw vertical marker at current rad
+                const markerX = margin + (currentRad / TWO_PI) * graphW;
+                ctx.beginPath();
+                ctx.moveTo(markerX, margin - 5);
+                ctx.lineTo(markerX, h - margin + 5);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.globalAlpha = 0.8;
+                ctx.stroke();
+
+                // draw point on curve
+                let currentVal = (type === 'sine') ? Math.sin(currentRad) : Math.cos(currentRad);
+                const pointY = midY - currentVal * amplitude;
+                ctx.beginPath();
+                ctx.arc(markerX, pointY, 6, 0, 2 * Math.PI);
+                ctx.fillStyle = '#ffddbb';
+                ctx.shadowColor = (type === 'sine') ? '#ff8000' : '#4db8ff';
+                ctx.shadowBlur = 10;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                // small labels on top
+                ctx.globalAlpha = 0.5;
+                ctx.fillStyle = '#aaa';
+                ctx.font = '9px "Segoe UI"';
+                ctx.fillText('0', margin-3, midY-8);
+                ctx.fillText('π/2', margin + 0.25*graphW-10, midY-12);
+                ctx.fillText('π', margin + 0.5*graphW-5, midY-12);
+                ctx.fillText('3π/2', margin + 0.75*graphW-15, midY-12);
+                ctx.fillText('2π', margin + graphW-18, midY-12);
+                ctx.globalAlpha = 1.0;
+            }
+
+            // ----- Event listeners -----
+            degInput.addEventListener('input', function(e) {
+                let deg = parseFloat(e.target.value) || 0;
+                deg = Math.min(360, Math.max(0, deg));
+                syncInputsFromDeg(deg);
+            });
+
+            radInput.addEventListener('input', function(e) {
+                let rad = parseFloat(e.target.value) || 0;
+                rad = Math.min(TWO_PI, Math.max(0, rad));
+                syncFromRad(rad);
+            });
+
+            angleSlider.addEventListener('input', function(e) {
+                let deg = parseFloat(e.target.value);
+                syncInputsFromDeg(deg);
+            });
+
+            // quick angle buttons
+            angleBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    let deg = parseInt(this.getAttribute('data-deg'), 10);
+                    syncInputsFromDeg(deg);
+                });
+            });
+
+            // initial draw (45°)
+            syncInputsFromDeg(45.0);
+
+            // optional: fine tuning to avoid fraction loops
+            window.addEventListener('load', () => {
+                // ensure rad field has proper fraction display: not needed, but extra redraw safe
+                redrawAll(currentDeg, degToRad(currentDeg));
+            });
+        })();
+    </script>
+</body>
+</html>

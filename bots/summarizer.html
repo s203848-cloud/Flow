@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Summarizer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+    color: #fff;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background: rgba(20, 20, 35, 0.8);
+    border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+    margin-bottom: 30px;
+    border-radius: 10px;
+}
+
+.back-btn {
+    padding: 8px 15px;
+    background: rgba(255, 128, 0, 0.2);
+    border: 1px solid #ff8000;
+    border-radius: 5px;
+    color: #ff8000;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.section {
+    background: rgba(20, 20, 35, 0.5);
+    border: 1px solid rgba(255, 69, 0, 0.2);
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 15px;
+    background: rgba(50, 50, 70, 0.4);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    border-radius: 8px;
+    color: #fff;
+    resize: vertical;
+    font-family: inherit;
+}
+
+textarea::placeholder {
+    color: #888;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    margin-top: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #ccc;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    background: rgba(50, 50, 70, 0.4);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    border-radius: 5px;
+    color: #fff;
+}
+
+.btn {
+    padding: 12px 25px;
+    background: linear-gradient(to right, #ff7e00, #ff4500);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 69, 0, 0.4);
+}
+
+.result {
+    background: rgba(50, 50, 70, 0.4);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    display: none;
+}
+
+.result.show {
+    display: block;
+}
+
+.result-text {
+    color: #ddd;
+    line-height: 1.6;
+}
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold;">Text Summarizer</span>
+        <div style="width: 60px;"></div>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <h2 style="margin-bottom: 15px;"><i class="fas fa-compress"></i> Summarize Text</h2>
+            <textarea id="textInput" placeholder="Paste text to summarize..."></textarea>
+            <div class="form-group">
+                <label>Summary Length (%)</label>
+                <input type="range" id="lengthSlider" min="10" max="90" value="30" oninput="updateLength()">
+                <div style="color: #aaa; margin-top: 5px; font-size: 0.9rem;">Compress to <span id="lengthValue">30</span>% of original</div>
+            </div>
+            <button class="btn" onclick="summarize()"><i class="fas fa-magic"></i> Generate Summary</button>
+        </div>
+
+        <div class="result" id="result">
+            <h2 style="margin-bottom: 15px; color: #ff8000;"><i class="fas fa-file-alt"></i> Summary</h2>
+            <div class="result-text" id="resultText"></div>
+        </div>
+    </div>
+
+    <script>
+        function updateLength() {
+            document.getElementById('lengthValue').textContent = document.getElementById('lengthSlider').value;
+        }
+
+        function summarize() {
+            const text = document.getElementById('textInput').value;
+            const ratio = parseInt(document.getElementById('lengthSlider').value) / 100;
+            
+            if (!text.trim()) {
+                alert('Please enter text to summarize');
+                return;
+            }
+
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim());
+            const summaryLength = Math.max(1, Math.ceil(sentences.length * ratio));
+            const summary = sentences.slice(0, summaryLength).join('. ') + '.';
+
+            document.getElementById('resultText').textContent = summary;
+            document.getElementById('result').classList.add('show');
+        }
+    </script>
+</body>
+</html>

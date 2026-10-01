@@ -1,0 +1,2255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Cube Viewer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            overflow: hidden;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.8);
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            height: calc(100vh - 180px);
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 20px;
+            height: 100%;
+        }
+        
+        /* Left Toolbar - Scrollable */
+        .left-toolbar {
+            width: 60px;
+            background: rgba(20, 20, 35, 0.8);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            padding: 10px 0;
+            align-items: center;
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-height: 100%;
+            min-height: 300px;
+            scrollbar-width: thin;
+            scrollbar-color: #ff8000 rgba(255, 128, 0, 0.2);
+        }
+        
+        .left-toolbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .left-toolbar::-webkit-scrollbar-track {
+            background: rgba(255, 128, 0, 0.1);
+            border-radius: 2px;
+        }
+        
+        .left-toolbar::-webkit-scrollbar-thumb {
+            background: #ff8000;
+            border-radius: 2px;
+        }
+        
+        .left-toolbar::-webkit-scrollbar-thumb:hover {
+            background: #ff9933;
+        }
+        
+        .tool-group {
+            margin-bottom: 20px;
+            width: 100%;
+            flex-shrink: 0;
+        }
+        
+        .tool-title {
+            font-size: 0.7rem;
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+        
+        .tool-button {
+            width: 44px;
+            height: 44px;
+            margin: 0 auto 8px;
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            flex-shrink: 0;
+            color: #fff;
+        }
+        
+        .tool-button:hover {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+        }
+        
+        .tool-button.active {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff8000;
+            color: #ff8000;
+            box-shadow: 0 0 15px rgba(255, 128, 0, 0.5);
+            transform: scale(1.05);
+        }
+        
+        .tool-button i {
+            font-size: 1.2rem;
+        }
+        
+        .tool-button.has-menu::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 6px;
+            height: 6px;
+            background: #ff8000;
+            border-radius: 50%;
+        }
+        
+        /* Viewer Area */
+        .viewer-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            height: 100%;
+        }
+        
+        .viewer-container {
+            flex: 1;
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(10, 10, 20, 0.8);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            min-height: 500px;
+        }
+        
+        #cube-container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Gizmo overlay */
+        .gizmo-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            backdrop-filter: blur(5px);
+        }
+        
+        .gizmo-axis {
+            display: flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            background: rgba(0, 0, 0, 0.5);
+            gap: 8px;
+            min-width: 120px;
+        }
+        
+        .axis-icon {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
+        .axis-icon.x { background: #ff4444; }
+        .axis-icon.y { background: #44ff44; }
+        .axis-icon.z { background: #4444ff; }
+        
+        .gizmo-axis-x { color: #ff8888; }
+        .gizmo-axis-y { color: #88ff88; }
+        .gizmo-axis-z { color: #8888ff; }
+        
+        .tool-status {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #ff8000;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .tool-status i {
+            font-size: 1rem;
+        }
+        
+        .selection-rect {
+            position: absolute;
+            border: 2px dashed #ff8000;
+            background: rgba(255, 128, 0, 0.1);
+            pointer-events: none;
+            display: none;
+        }
+        
+        /* Tool visual feedback */
+        .tool-visual-feedback {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            color: rgba(255, 128, 0, 0.8);
+            text-shadow: 0 0 20px rgba(255, 128, 0, 0.5);
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            background: rgba(20, 20, 35, 0.8);
+            border-radius: 10px 10px 0 0;
+            padding: 8px 15px;
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        
+        .menu-button {
+            padding: 6px 12px;
+            background: transparent;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border-radius: 5px;
+            margin-right: 2px;
+            transition: all 0.2s ease;
+        }
+        
+        .menu-button:hover {
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        .menu-button.has-dropdown::after {
+            content: '▼';
+            font-size: 0.6rem;
+            margin-left: 5px;
+            opacity: 0.7;
+        }
+        
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            background: rgba(20, 20, 35, 0.95);
+            border-radius: 8px;
+            padding: 8px 0;
+            min-width: 200px;
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            z-index: 1000;
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #ff8000 rgba(255, 128, 0, 0.2);
+        }
+        
+        .dropdown-menu::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-track {
+            background: rgba(255, 128, 0, 0.1);
+            border-radius: 2px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb {
+            background: #ff8000;
+            border-radius: 2px;
+        }
+        
+        .dropdown-item {
+            padding: 8px 15px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background: rgba(255, 128, 0, 0.2);
+            margin: 5px 0;
+        }
+        
+        /* Right Panel */
+        .right-panel {
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 300px;
+            max-height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: #ff8000 rgba(255, 128, 0, 0.2);
+            padding-right: 5px;
+        }
+        
+        .right-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .right-panel::-webkit-scrollbar-track {
+            background: rgba(255, 128, 0, 0.1);
+            border-radius: 3px;
+        }
+        
+        .right-panel::-webkit-scrollbar-thumb {
+            background: #ff8000;
+            border-radius: 3px;
+        }
+        
+        .right-panel::-webkit-scrollbar-thumb:hover {
+            background: #ff9933;
+        }
+        
+        .panel-section {
+            background: rgba(20, 20, 35, 0.5);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .panel-header {
+            padding: 12px 15px;
+            background: rgba(50, 50, 70, 0.3);
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+            font-weight: 600;
+            color: #ff8000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        /* Object List - Scrollable */
+        .object-list .panel-content {
+            padding: 15px;
+            overflow-y: auto;
+            max-height: 250px;
+            min-height: 150px;
+            scrollbar-width: thin;
+            scrollbar-color: #ff8000 rgba(255, 128, 0, 0.2);
+        }
+        
+        .object-list .panel-content::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .object-list .panel-content::-webkit-scrollbar-track {
+            background: rgba(255, 128, 0, 0.1);
+            border-radius: 2px;
+        }
+        
+        .object-list .panel-content::-webkit-scrollbar-thumb {
+            background: #ff8000;
+            border-radius: 2px;
+        }
+        
+        .object-item {
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .object-item:hover {
+            background: rgba(255, 128, 0, 0.1);
+        }
+        
+        .object-item.selected {
+            background: rgba(255, 128, 0, 0.2);
+            border-left: 3px solid #ff8000;
+        }
+        
+        .object-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            background: #ff8000;
+            border-radius: 3px;
+        }
+        
+        .object-controls {
+            margin-left: auto;
+            display: flex;
+            gap: 5px;
+        }
+        
+        .object-control {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+            color: #fff;
+        }
+        
+        .object-control:hover {
+            opacity: 1;
+            color: #ff8000;
+        }
+        
+        /* Properties Panel - Scrollable */
+        .properties-panel {
+            flex: 1;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .properties-panel .panel-content {
+            padding: 15px;
+            overflow-y: auto;
+            max-height: 500px;
+            min-height: 300px;
+            scrollbar-width: thin;
+            scrollbar-color: #ff8000 rgba(255, 128, 0, 0.2);
+        }
+        
+        .properties-panel .panel-content::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .properties-panel .panel-content::-webkit-scrollbar-track {
+            background: rgba(255, 128, 0, 0.1);
+            border-radius: 2px;
+        }
+        
+        .properties-panel .panel-content::-webkit-scrollbar-thumb {
+            background: #ff8000;
+            border-radius: 2px;
+        }
+        
+        .property-group {
+            margin-bottom: 20px;
+        }
+        
+        .property-title {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            color: #aaa;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .property-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .property-label {
+            flex: 1;
+            font-size: 0.85rem;
+            color: #ccc;
+        }
+        
+        .property-value {
+            width: 60px;
+            text-align: center;
+            font-weight: bold;
+            color: #ff8000;
+            font-size: 0.9rem;
+        }
+        
+        input[type="range"] {
+            flex: 2;
+            height: 6px;
+            background: rgba(50, 50, 70, 0.4);
+            border-radius: 10px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ff8000;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.7);
+        }
+        
+        .color-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .color-picker {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            border: 2px solid rgba(255, 128, 0, 0.3);
+            cursor: pointer;
+        }
+        
+        .color-value {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 69, 0, 0.2);
+            color: #aaa;
+            font-size: 0.8rem;
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background: rgba(20, 20, 35, 0.95);
+            color: #ff8000;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            z-index: 10000;
+            pointer-events: none;
+            white-space: nowrap;
+            border: 1px solid rgba(255, 69, 0, 0.2);
+        }
+        
+        /* Modal for tool options */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: rgba(20, 20, 35, 0.95);
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            max-height: 80vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #ff8000 rgba(255, 128, 0, 0.2);
+        }
+        
+        .modal-content::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .modal-content::-webkit-scrollbar-track {
+            background: rgba(255, 128, 0, 0.1);
+            border-radius: 2px;
+        }
+        
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #ff8000;
+            border-radius: 2px;
+        }
+        
+        .modal-header {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #ff8000;
+        }
+        
+        .modal-option {
+            padding: 10px;
+            background: rgba(50, 50, 70, 0.4);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #fff;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .modal-option:hover {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+        }
+        
+        .close-modal {
+            margin-top: 15px;
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .close-modal:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        /* Selection highlight */
+        .selection-highlight {
+            position: absolute;
+            border: 2px solid #ff8000;
+            box-shadow: 0 0 15px rgba(255, 128, 0, 0.5);
+            pointer-events: none;
+            display: none;
+        }
+        
+        @media (max-width: 1200px) {
+            .right-panel {
+                width: 250px;
+                min-width: 250px;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .left-toolbar {
+                width: 100%;
+                flex-direction: row;
+                padding: 5px;
+                justify-content: space-around;
+                margin-bottom: 10px;
+                max-height: 60px;
+                overflow-x: auto;
+                overflow-y: hidden;
+                min-height: auto;
+            }
+            
+            .tool-group {
+                margin-bottom: 0;
+                width: auto;
+                flex-shrink: 0;
+            }
+            
+            .right-panel {
+                width: 100%;
+                flex-direction: row;
+                max-height: 300px;
+            }
+            
+            .object-list, .properties-panel {
+                flex: 1;
+                min-height: 250px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar span {
+                font-size: 1.2rem;
+            }
+            
+            .container {
+                padding: 0;
+            }
+            
+            .top-bar {
+                padding: 5px 10px;
+                overflow-x: auto;
+            }
+            
+            .menu-button {
+                padding: 5px 8px;
+                font-size: 0.8rem;
+            }
+            
+            .right-panel {
+                flex-direction: column;
+                max-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold;">3D Cube Viewer</span>
+        <div style="width: 60px;"></div>
+    </div>
+
+    <div class="container">
+        <div class="main-content">
+            <!-- Left Toolbar - Scrollable -->
+            <div class="left-toolbar">
+                <div class="tool-group">
+                    <div class="tool-title">SELECT</div>
+                    <div class="tool-button active" id="tool-select" title="Select Tool (Q)">
+                        <i class="fas fa-mouse-pointer"></i>
+                    </div>
+                    <div class="tool-button has-menu" id="tool-box-select" title="Box Select (B)">
+                        <i class="far fa-square"></i>
+                    </div>
+                    <div class="tool-button" id="tool-lasso-select" title="Lasso Select">
+                        <i class="fas fa-mars-stroke"></i>
+                    </div>
+                    <div class="tool-button" id="tool-circle-select" title="Circle Select (C)">
+                        <i class="far fa-circle"></i>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-title">TRANSFORM</div>
+                    <div class="tool-button" id="tool-move" title="Move Tool (G)">
+                        <i class="fas fa-arrows-alt"></i>
+                    </div>
+                    <div class="tool-button" id="tool-rotate" title="Rotate Tool (R)">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <div class="tool-button" id="tool-scale" title="Scale Tool (S)">
+                        <i class="fas fa-expand-alt"></i>
+                    </div>
+                    <div class="tool-button has-menu" id="tool-transform" title="Transform Gizmo">
+                        <i class="fas fa-vector-square"></i>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-title">ANNOTATE</div>
+                    <div class="tool-button" id="tool-draw" title="Draw Tool">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                    <div class="tool-button" id="tool-sketch" title="Sketch Tool">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-title">ADD</div>
+                    <div class="tool-button has-menu" id="tool-add-shapes" title="Add Shapes">
+                        <i class="fas fa-cube"></i>
+                    </div>
+                    <div class="tool-button" id="tool-add-light" title="Add Light">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="tool-button" id="tool-add-camera" title="Add Camera">
+                        <i class="fas fa-video"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Viewer Area -->
+            <div class="viewer-area">
+                <!-- Top Bar Menu -->
+                <div class="top-bar">
+                    <div class="menu-button has-dropdown" id="menu-view">View</div>
+                    <div class="menu-button has-dropdown" id="menu-select">Select</div>
+                    <div class="menu-button has-dropdown" id="menu-add">Add</div>
+                    <div class="menu-button has-dropdown" id="menu-object">Object</div>
+                    
+                    <!-- View Dropdown -->
+                    <div class="dropdown-menu" id="dropdown-view">
+                        <div class="dropdown-item">Frame All Objects</div>
+                        <div class="dropdown-item">Frame Selected Object</div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item">Front View</div>
+                        <div class="dropdown-item">Side View</div>
+                        <div class="dropdown-item">Top View</div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item">Toggle Overlays</div>
+                        <div class="dropdown-item">Toggle Guides</div>
+                    </div>
+                    
+                    <!-- Select Dropdown -->
+                    <div class="dropdown-menu" id="dropdown-select">
+                        <div class="dropdown-item">Select All</div>
+                        <div class="dropdown-item">Deselect All</div>
+                        <div class="dropdown-item">Invert Selection</div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item">Select by Type → Mesh</div>
+                        <div class="dropdown-item">Select by Type → Light</div>
+                        <div class="dropdown-item">Select by Type → Camera</div>
+                    </div>
+                    
+                    <!-- Add Dropdown -->
+                    <div class="dropdown-menu" id="dropdown-add">
+                        <div class="dropdown-item">Mesh → Cube</div>
+                        <div class="dropdown-item">Mesh → Sphere</div>
+                        <div class="dropdown-item">Mesh → Cylinder</div>
+                        <div class="dropdown-item">Mesh → Plane</div>
+                        <div class="dropdown-item">Mesh → Cone</div>
+                        <div class="dropdown-item">Mesh → Torus</div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item">Light → Point</div>
+                        <div class="dropdown-item">Light → Directional</div>
+                        <div class="dropdown-item">Light → Spotlight</div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item">Camera</div>
+                        <div class="dropdown-item">Empty Object</div>
+                    </div>
+                    
+                    <!-- Object Dropdown -->
+                    <div class="dropdown-menu" id="dropdown-object">
+                        <div class="dropdown-item">Duplicate</div>
+                        <div class="dropdown-item">Delete</div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item">Apply Transformations</div>
+                        <div class="dropdown-item">Set Origin → Geometry to Origin</div>
+                        <div class="dropdown-item">Set Origin → Origin to Geometry</div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item">Convert to Mesh</div>
+                    </div>
+                </div>
+                
+                <!-- 3D Viewer -->
+                <div class="viewer-container">
+                    <div id="cube-container"></div>
+                    <!-- Gizmo Overlay -->
+                    <div class="gizmo-overlay">
+                        <div class="gizmo-axis gizmo-axis-x">
+                            <div class="axis-icon x"></div>
+                            <span id="axis-x">X: 0.00</span>
+                        </div>
+                        <div class="gizmo-axis gizmo-axis-y">
+                            <div class="axis-icon y"></div>
+                            <span id="axis-y">Y: 0.00</span>
+                        </div>
+                        <div class="gizmo-axis gizmo-axis-z">
+                            <div class="axis-icon z"></div>
+                            <span id="axis-z">Z: 0.00</span>
+                        </div>
+                    </div>
+                    <div class="tool-status" id="tool-status">
+                        <i class="fas fa-mouse-pointer"></i>
+                        <span>Select Tool Active (Q)</span>
+                    </div>
+                    <!-- Visual feedback for tools -->
+                    <div class="tool-visual-feedback" id="tool-visual-feedback"></div>
+                    <!-- Selection rectangle -->
+                    <div class="selection-rect" id="selection-rect"></div>
+                </div>
+            </div>
+            
+            <!-- Right Panel - Scrollable -->
+            <div class="right-panel">
+                <!-- Object List (Outliner) - Scrollable -->
+                <div class="panel-section object-list">
+                    <div class="panel-header">
+                        <span><i class="fas fa-list"></i> Object List</span>
+                        <span style="font-size: 0.8rem; opacity: 0.7;">5 Objects</span>
+                    </div>
+                    <div class="panel-content">
+                        <div class="object-item selected" data-object="cube">
+                            <div class="object-icon" style="background: #808080;"></div>
+                            <span>Cube</span>
+                            <div class="object-controls">
+                                <div class="object-control" title="Toggle Visibility"><i class="fas fa-eye"></i></div>
+                                <div class="object-control" title="Lock Selection"><i class="fas fa-lock"></i></div>
+                            </div>
+                        </div>
+                        <div class="object-item" data-object="light1">
+                            <div class="object-icon" style="background: #ffcc00;"></div>
+                            <span>Directional Light</span>
+                            <div class="object-controls">
+                                <div class="object-control" title="Toggle Visibility"><i class="fas fa-eye"></i></div>
+                                <div class="object-control" title="Lock Selection"><i class="fas fa-lock"></i></div>
+                            </div>
+                        </div>
+                        <div class="object-item" data-object="light2">
+                            <div class="object-icon" style="background: #4cc9f0;"></div>
+                            <span>Ambient Light</span>
+                            <div class="object-controls">
+                                <div class="object-control" title="Toggle Visibility"><i class="fas fa-eye"></i></div>
+                                <div class="object-control" title="Lock Selection"><i class="fas fa-lock"></i></div>
+                            </div>
+                        </div>
+                        <div class="object-item" data-object="camera">
+                            <div class="object-icon" style="background: #ff6b6b;"></div>
+                            <span>Camera</span>
+                            <div class="object-controls">
+                                <div class="object-control" title="Toggle Visibility"><i class="fas fa-eye"></i></div>
+                                <div class="object-control" title="Lock Selection"><i class="fas fa-lock"></i></div>
+                            </div>
+                        </div>
+                        <div class="object-item" data-object="grid">
+                            <div class="object-icon" style="background: #a0a0c0;"></div>
+                            <span>Grid Helper</span>
+                            <div class="object-controls">
+                                <div class="object-control" title="Toggle Visibility"><i class="fas fa-eye"></i></div>
+                                <div class="object-control" title="Lock Selection"><i class="fas fa-lock"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Properties Panel - Scrollable -->
+                <div class="panel-section properties-panel">
+                    <div class="panel-header">
+                        <span><i class="fas fa-sliders-h"></i> Properties</span>
+                        <span style="font-size: 0.8rem; opacity: 0.7;">Cube</span>
+                    </div>
+                    <div class="panel-content">
+                        <div class="property-group">
+                            <div class="property-title"><i class="fas fa-arrows-alt"></i> Transform</div>
+                            <div class="property-row">
+                                <div class="property-label">Position X</div>
+                                <input type="range" id="pos-x" min="-5" max="5" step="0.1" value="0">
+                                <div class="property-value" id="pos-x-value">0.0</div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Position Y</div>
+                                <input type="range" id="pos-y" min="-5" max="5" step="0.1" value="0">
+                                <div class="property-value" id="pos-y-value">0.0</div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Position Z</div>
+                                <input type="range" id="pos-z" min="-5" max="5" step="0.1" value="0">
+                                <div class="property-value" id="pos-z-value">0.0</div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Rotation X</div>
+                                <input type="range" id="rot-x" min="0" max="360" step="1" value="0">
+                                <div class="property-value" id="rot-x-value">0°</div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Rotation Y</div>
+                                <input type="range" id="rot-y" min="0" max="360" step="1" value="0">
+                                <div class="property-value" id="rot-y-value">0°</div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Rotation Z</div>
+                                <input type="range" id="rot-z" min="0" max="360" step="1" value="0">
+                                <div class="property-value" id="rot-z-value">0°</div>
+                            </div>
+                        </div>
+                        
+                        <div class="property-group">
+                            <div class="property-title"><i class="fas fa-paint-brush"></i> Material</div>
+                            <div class="property-row">
+                                <div class="property-label">Color</div>
+                                <div class="color-picker-container">
+                                    <div class="color-picker" id="color-picker" style="background: #808080;"></div>
+                                    <div class="color-value" id="color-value">#808080</div>
+                                </div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Opacity</div>
+                                <input type="range" id="opacity" min="0.1" max="1" step="0.1" value="0.9">
+                                <div class="property-value" id="opacity-value">0.9</div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Wireframe</div>
+                                <input type="range" id="wireframe" min="0" max="1" step="1" value="0">
+                                <div class="property-value" id="wireframe-value">Off</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tool Options Modal -->
+    <div class="modal" id="tool-modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modal-title">Tool Options</div>
+            <div id="modal-options">
+                <!-- Options will be inserted here -->
+            </div>
+            <button class="close-modal" id="close-modal">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Main variables
+        let scene, camera, renderer, controls;
+        let cube, cubeMesh;
+        let cubeSize = 2;
+        let cubeColor = 0x808080; // Gray color
+        let selectedTool = 'select';
+        let selectedObject = 'cube';
+        let isDragging = false;
+        let gizmoGroup;
+        let selectionBox;
+        let moveArrows = { x: null, y: null, z: null };
+        let rotateRings = { x: null, y: null, z: null };
+        let scaleBoxes = { x: null, y: null, z: null, center: null };
+        let originalCubeColor = 0x808080;
+        let originalCubeOpacity = 0.9;
+        
+        // Selection variables
+        let selectionStart = { x: 0, y: 0 };
+        let isSelecting = false;
+        
+        // Initialize the 3D scene
+        function init() {
+            // Create scene
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x0a0a1a, 10, 50);
+            
+            // Create camera
+            const container = document.getElementById('cube-container');
+            camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(5, 5, 8);
+            camera.lookAt(0, 0, 0);
+            
+            // Create renderer
+            renderer = new THREE.WebGLRenderer({ 
+                antialias: true, 
+                alpha: true,
+                powerPreference: "high-performance"
+            });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            
+            // Add renderer to container
+            container.appendChild(renderer.domElement);
+            
+            // Add orbit controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 3;
+            controls.maxDistance = 30;
+            controls.maxPolarAngle = Math.PI;
+            
+            // Create cube
+            createCube();
+            
+            // Create gizmo group
+            gizmoGroup = new THREE.Group();
+            scene.add(gizmoGroup);
+            
+            // Create selection box
+            const selectionBoxGeometry = new THREE.BoxGeometry(1, 1, 1);
+            const selectionBoxMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0xff8000, 
+                transparent: true, 
+                opacity: 0.2,
+                side: THREE.BackSide
+            });
+            selectionBox = new THREE.Mesh(selectionBoxGeometry, selectionBoxMaterial);
+            selectionBox.visible = false;
+            scene.add(selectionBox);
+            
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(10, 15, 10);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.camera.left = -10;
+            directionalLight.shadow.camera.right = 10;
+            directionalLight.shadow.camera.top = 10;
+            directionalLight.shadow.camera.bottom = -10;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            scene.add(directionalLight);
+            
+            // Add a grid helper
+            const gridHelper = new THREE.GridHelper(20, 20, 0x444444, 0x222222);
+            gridHelper.position.y = -cubeSize/2;
+            scene.add(gridHelper);
+            
+            // Add axes helper
+            const axesHelper = new THREE.AxesHelper(5);
+            scene.add(axesHelper);
+            
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize);
+            
+            // Setup UI event listeners
+            setupUI();
+            
+            // Setup mouse interactions
+            setupMouseInteractions();
+            
+            // Update gizmo initially
+            updateGizmo();
+            
+            // Start animation loop
+            animate();
+            
+            // Show initial tool feedback
+            showToolVisualFeedback();
+        }
+        
+        // Create or update the cube
+        function createCube() {
+            // Remove existing cube if present
+            if (cubeMesh) {
+                scene.remove(cubeMesh);
+                if (cubeMesh.geometry) cubeMesh.geometry.dispose();
+                if (cubeMesh.material) cubeMesh.material.dispose();
+            }
+            
+            // Create cube geometry
+            const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+            
+            // Create material
+            const material = new THREE.MeshPhongMaterial({ 
+                color: cubeColor, 
+                transparent: true, 
+                opacity: originalCubeOpacity,
+                shininess: 30,
+                specular: 0x111111
+            });
+            
+            // Create cube mesh
+            cubeMesh = new THREE.Mesh(geometry, material);
+            cubeMesh.castShadow = true;
+            cubeMesh.receiveShadow = true;
+            cubeMesh.name = "Cube";
+            cube = cubeMesh;
+            
+            // Add cube to scene
+            scene.add(cube);
+        }
+        
+        // Create move gizmo (arrows)
+        function createMoveGizmo() {
+            // Clear existing gizmo
+            while(gizmoGroup.children.length > 0) { 
+                const child = gizmoGroup.children[0];
+                gizmoGroup.remove(child);
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+            }
+            
+            const arrowLength = 1.5;
+            const arrowHeadLength = 0.4;
+            const arrowHeadWidth = 0.2;
+            const lineWidth = 0.1;
+            
+            // X axis (red)
+            const arrowX = new THREE.ArrowHelper(
+                new THREE.Vector3(1, 0, 0),
+                new THREE.Vector3(0, 0, 0),
+                arrowLength,
+                0xff4444,
+                arrowHeadLength,
+                arrowHeadWidth
+            );
+            arrowX.name = "gizmo-x";
+            arrowX.userData = { axis: 'x', type: 'move' };
+            moveArrows.x = arrowX;
+            gizmoGroup.add(arrowX);
+            
+            // Y axis (green)
+            const arrowY = new THREE.ArrowHelper(
+                new THREE.Vector3(0, 1, 0),
+                new THREE.Vector3(0, 0, 0),
+                arrowLength,
+                0x44ff44,
+                arrowHeadLength,
+                arrowHeadWidth
+            );
+            arrowY.name = "gizmo-y";
+            arrowY.userData = { axis: 'y', type: 'move' };
+            moveArrows.y = arrowY;
+            gizmoGroup.add(arrowY);
+            
+            // Z axis (blue)
+            const arrowZ = new THREE.ArrowHelper(
+                new THREE.Vector3(0, 0, 1),
+                new THREE.Vector3(0, 0, 0),
+                arrowLength,
+                0x4444ff,
+                arrowHeadLength,
+                arrowHeadWidth
+            );
+            arrowZ.name = "gizmo-z";
+            arrowZ.userData = { axis: 'z', type: 'move' };
+            moveArrows.z = arrowZ;
+            gizmoGroup.add(arrowZ);
+            
+            // Add plane helpers for easier selection
+            const planeSize = 0.5;
+            
+            // XY plane
+            const planeXYGeometry = new THREE.PlaneGeometry(planeSize, planeSize);
+            const planeXYMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0xffff00, 
+                transparent: true, 
+                opacity: 0.3,
+                side: THREE.DoubleSide 
+            });
+            const planeXY = new THREE.Mesh(planeXYGeometry, planeXYMaterial);
+            planeXY.position.set(planeSize/2, planeSize/2, 0);
+            planeXY.name = "gizmo-xy";
+            planeXY.userData = { axis: 'xy', type: 'move' };
+            gizmoGroup.add(planeXY);
+            
+            // XZ plane
+            const planeXZ = new THREE.Mesh(planeXYGeometry, planeXYMaterial);
+            planeXZ.position.set(planeSize/2, 0, planeSize/2);
+            planeXZ.rotation.x = Math.PI / 2;
+            planeXZ.name = "gizmo-xz";
+            planeXZ.userData = { axis: 'xz', type: 'move' };
+            gizmoGroup.add(planeXZ);
+            
+            // YZ plane
+            const planeYZ = new THREE.Mesh(planeXYGeometry, planeXYMaterial);
+            planeYZ.position.set(0, planeSize/2, planeSize/2);
+            planeYZ.rotation.y = Math.PI / 2;
+            planeYZ.name = "gizmo-yz";
+            planeYZ.userData = { axis: 'yz', type: 'move' };
+            gizmoGroup.add(planeYZ);
+        }
+        
+        // Create rotate gizmo (curved arrows)
+        function createRotateGizmo() {
+            // Clear existing gizmo
+            while(gizmoGroup.children.length > 0) { 
+                const child = gizmoGroup.children[0];
+                gizmoGroup.remove(child);
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+            }
+            
+            const radius = 1.2;
+            const tubeRadius = 0.03;
+            const radialSegments = 8;
+            const tubularSegments = 64;
+            const arc = Math.PI * 2;
+            
+            // X axis ring (red)
+            const ringXGeometry = new THREE.TorusGeometry(radius, tubeRadius, radialSegments, tubularSegments, arc);
+            const ringXMaterial = new THREE.MeshBasicMaterial({ color: 0xff4444 });
+            const ringX = new THREE.Mesh(ringXGeometry, ringXMaterial);
+            ringX.rotation.z = Math.PI / 2;
+            ringX.name = "gizmo-x";
+            ringX.userData = { axis: 'x', type: 'rotate' };
+            rotateRings.x = ringX;
+            gizmoGroup.add(ringX);
+            
+            // Y axis ring (green)
+            const ringY = new THREE.Mesh(ringXGeometry, new THREE.MeshBasicMaterial({ color: 0x44ff44 }));
+            ringY.name = "gizmo-y";
+            ringY.userData = { axis: 'y', type: 'rotate' };
+            rotateRings.y = ringY;
+            gizmoGroup.add(ringY);
+            
+            // Z axis ring (blue)
+            const ringZ = new THREE.Mesh(ringXGeometry, new THREE.MeshBasicMaterial({ color: 0x4444ff }));
+            ringZ.rotation.x = Math.PI / 2;
+            ringZ.name = "gizmo-z";
+            ringZ.userData = { axis: 'z', type: 'rotate' };
+            rotateRings.z = ringZ;
+            gizmoGroup.add(ringZ);
+            
+            // Add rotation handles
+            const handleGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+            
+            // X handle
+            const handleX = new THREE.Mesh(handleGeometry, new THREE.MeshBasicMaterial({ color: 0xff4444 }));
+            handleX.position.set(radius, 0, 0);
+            handleX.name = "handle-x";
+            handleX.userData = { axis: 'x', type: 'rotate-handle' };
+            gizmoGroup.add(handleX);
+            
+            // Y handle
+            const handleY = new THREE.Mesh(handleGeometry, new THREE.MeshBasicMaterial({ color: 0x44ff44 }));
+            handleY.position.set(0, radius, 0);
+            handleY.name = "handle-y";
+            handleY.userData = { axis: 'y', type: 'rotate-handle' };
+            gizmoGroup.add(handleY);
+            
+            // Z handle
+            const handleZ = new THREE.Mesh(handleGeometry, new THREE.MeshBasicMaterial({ color: 0x4444ff }));
+            handleZ.position.set(0, 0, radius);
+            handleZ.name = "handle-z";
+            handleZ.userData = { axis: 'z', type: 'rotate-handle' };
+            gizmoGroup.add(handleZ);
+        }
+        
+        // Create scale gizmo (boxes)
+        function createScaleGizmo() {
+            // Clear existing gizmo
+            while(gizmoGroup.children.length > 0) { 
+                const child = gizmoGroup.children[0];
+                gizmoGroup.remove(child);
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+            }
+            
+            const boxSize = 0.2;
+            const distance = 1.5;
+            
+            // X axis box (red)
+            const boxXGeometry = new THREE.BoxGeometry(boxSize, boxSize, boxSize);
+            const boxXMaterial = new THREE.MeshBasicMaterial({ color: 0xff4444 });
+            const boxX = new THREE.Mesh(boxXGeometry, boxXMaterial);
+            boxX.position.set(distance, 0, 0);
+            boxX.name = "gizmo-x";
+            boxX.userData = { axis: 'x', type: 'scale' };
+            scaleBoxes.x = boxX;
+            gizmoGroup.add(boxX);
+            
+            // Y axis box (green)
+            const boxY = new THREE.Mesh(boxXGeometry, new THREE.MeshBasicMaterial({ color: 0x44ff44 }));
+            boxY.position.set(0, distance, 0);
+            boxY.name = "gizmo-y";
+            boxY.userData = { axis: 'y', type: 'scale' };
+            scaleBoxes.y = boxY;
+            gizmoGroup.add(boxY);
+            
+            // Z axis box (blue)
+            const boxZ = new THREE.Mesh(boxXGeometry, new THREE.MeshBasicMaterial({ color: 0x4444ff }));
+            boxZ.position.set(0, 0, distance);
+            boxZ.name = "gizmo-z";
+            boxZ.userData = { axis: 'z', type: 'scale' };
+            scaleBoxes.z = boxZ;
+            gizmoGroup.add(boxZ);
+            
+            // Center box (white) for uniform scaling
+            const boxCenterGeometry = new THREE.BoxGeometry(boxSize * 1.5, boxSize * 1.5, boxSize * 1.5);
+            const boxCenterMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const boxCenter = new THREE.Mesh(boxCenterGeometry, boxCenterMaterial);
+            boxCenter.name = "gizmo-center";
+            boxCenter.userData = { axis: 'all', type: 'scale' };
+            scaleBoxes.center = boxCenter;
+            gizmoGroup.add(boxCenter);
+            
+            // Add scaling lines
+            const lineMaterial = new THREE.LineBasicMaterial({ color: 0x888888, transparent: true, opacity: 0.5 });
+            
+            // X line
+            const xLineGeometry = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(distance - boxSize/2, 0, 0)
+            ]);
+            const xLine = new THREE.Line(xLineGeometry, lineMaterial);
+            gizmoGroup.add(xLine);
+            
+            // Y line
+            const yLineGeometry = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(0, distance - boxSize/2, 0)
+            ]);
+            const yLine = new THREE.Line(yLineGeometry, lineMaterial);
+            gizmoGroup.add(yLine);
+            
+            // Z line
+            const zLineGeometry = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(0, 0, distance - boxSize/2)
+            ]);
+            const zLine = new THREE.Line(zLineGeometry, lineMaterial);
+            gizmoGroup.add(zLine);
+        }
+        
+        // Update gizmo based on selected tool
+        function updateGizmo() {
+            if (!cube) return;
+            
+            // Position gizmo at cube position
+            gizmoGroup.position.copy(cube.position);
+            gizmoGroup.rotation.copy(cube.rotation);
+            
+            switch(selectedTool) {
+                case 'move':
+                    createMoveGizmo();
+                    gizmoGroup.visible = true;
+                    highlightGizmo('move');
+                    break;
+                case 'rotate':
+                    createRotateGizmo();
+                    gizmoGroup.visible = true;
+                    highlightGizmo('rotate');
+                    break;
+                case 'scale':
+                    createScaleGizmo();
+                    gizmoGroup.visible = true;
+                    highlightGizmo('scale');
+                    break;
+                default:
+                    gizmoGroup.visible = false;
+                    break;
+            }
+            
+            // Update selection box
+            updateSelectionBox();
+        }
+        
+        // Highlight gizmo elements
+        function highlightGizmo(toolType) {
+            // Reset all highlights first
+            if (cube.material) {
+                cube.material.color.setHex(originalCubeColor);
+                cube.material.opacity = originalCubeOpacity;
+            }
+            
+            // Add specific highlights based on tool
+            switch(toolType) {
+                case 'move':
+                    if (cube.material) {
+                        cube.material.color.setHex(0x4444ff); // Blue tint
+                    }
+                    break;
+                case 'rotate':
+                    if (cube.material) {
+                        cube.material.color.setHex(0xff4444); // Red tint
+                    }
+                    break;
+                case 'scale':
+                    if (cube.material) {
+                        cube.material.color.setHex(0x44ff44); // Green tint
+                        cube.material.opacity = 0.7;
+                    }
+                    break;
+                case 'select':
+                    if (cube.material) {
+                        cube.material.color.setHex(originalCubeColor);
+                        cube.material.opacity = originalCubeOpacity;
+                    }
+                    break;
+            }
+        }
+        
+        // Update selection box
+        function updateSelectionBox() {
+            if (!cube || selectedTool !== 'select') {
+                selectionBox.visible = false;
+                return;
+            }
+            
+            const box = new THREE.Box3().setFromObject(cube);
+            const size = box.getSize(new THREE.Vector3());
+            const center = box.getCenter(new THREE.Vector3());
+            
+            selectionBox.position.copy(center);
+            selectionBox.scale.copy(size);
+            selectionBox.visible = true;
+            
+            // Pulse animation for selection box
+            selectionBox.material.opacity = 0.2 + Math.sin(Date.now() * 0.005) * 0.1;
+        }
+        
+        // Update cube color
+        function updateCubeColor(color) {
+            cubeColor = color;
+            originalCubeColor = color;
+            if (cube && cube.material) {
+                cube.material.color.setHex(color);
+            }
+            
+            // Update color picker display
+            document.getElementById('color-picker').style.backgroundColor = `#${color.toString(16).padStart(6, '0')}`;
+            document.getElementById('color-value').textContent = `#${color.toString(16).padStart(6, '0')}`;
+        }
+        
+        // Update cube opacity
+        function updateCubeOpacity(opacity) {
+            if (cube && cube.material) {
+                cube.material.opacity = opacity;
+                originalCubeOpacity = opacity;
+            }
+        }
+        
+        // Update cube wireframe
+        function updateWireframe(enabled) {
+            if (cube && cube.material) {
+                cube.material.wireframe = enabled;
+            }
+        }
+        
+        // Update cube position
+        function updateCubePosition(x, y, z) {
+            if (cube) {
+                cube.position.set(x, y, z);
+                updateGizmo();
+                
+                // Update axis display
+                document.getElementById('axis-x').textContent = `X: ${x.toFixed(2)}`;
+                document.getElementById('axis-y').textContent = `Y: ${y.toFixed(2)}`;
+                document.getElementById('axis-z').textContent = `Z: ${z.toFixed(2)}`;
+            }
+        }
+        
+        // Update cube rotation
+        function updateCubeRotation(x, y, z) {
+            if (cube) {
+                cube.rotation.x = THREE.MathUtils.degToRad(x);
+                cube.rotation.y = THREE.MathUtils.degToRad(y);
+                cube.rotation.z = THREE.MathUtils.degToRad(z);
+                updateGizmo();
+            }
+        }
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Update controls
+            controls.update();
+            
+            // Animate gizmo if visible
+            if (gizmoGroup.visible) {
+                const time = Date.now() * 0.001;
+                
+                // Gentle rotation for better visibility
+                gizmoGroup.rotation.y = time * 0.1;
+                
+                // Pulse effect for active gizmo
+                const pulse = Math.sin(time * 3) * 0.1 + 1;
+                gizmoGroup.scale.set(pulse, pulse, pulse);
+            }
+            
+            // Update selection box
+            updateSelectionBox();
+            
+            // Render the scene
+            renderer.render(scene, camera);
+        }
+        
+        // Handle window resize
+        function onWindowResize() {
+            const container = document.getElementById('cube-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+        
+        // Setup mouse interactions
+        function setupMouseInteractions() {
+            const canvas = renderer.domElement;
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            
+            canvas.addEventListener('mousedown', onMouseDown);
+            canvas.addEventListener('mousemove', onMouseMove);
+            canvas.addEventListener('mouseup', onMouseUp);
+            
+            // For box selection
+            const selectionRect = document.getElementById('selection-rect');
+            
+            function onMouseDown(event) {
+                if (!cube) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                mouse.x = ((event.clientX - rect.left) / canvas.width) * 2 - 1;
+                mouse.y = -((event.clientY - rect.top) / canvas.height) * 2 + 1;
+                
+                // For box selection tool
+                if (selectedTool === 'box-select' || selectedTool === 'circle-select') {
+                    selectionStart.x = event.clientX;
+                    selectionStart.y = event.clientY;
+                    isSelecting = true;
+                    selectionRect.style.left = `${event.clientX}px`;
+                    selectionRect.style.top = `${event.clientY}px`;
+                    selectionRect.style.width = '0px';
+                    selectionRect.style.height = '0px';
+                    selectionRect.style.display = 'block';
+                    return;
+                }
+                
+                // For select tool
+                if (selectedTool === 'select') {
+                    raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObject(cube);
+                    
+                    if (intersects.length > 0) {
+                        // Pulse effect on cube
+                        const originalColor = cube.material.color.getHex();
+                        cube.material.color.setHex(0xffff00);
+                        
+                        // Show selection feedback
+                        showToolVisualFeedback("✓ Selected", "#ff8000");
+                        
+                        setTimeout(() => {
+                            cube.material.color.setHex(originalColor);
+                        }, 300);
+                        
+                        // Update UI
+                        document.querySelectorAll('.object-item').forEach(item => {
+                            item.classList.remove('selected');
+                        });
+                        document.querySelector('.object-item[data-object="cube"]').classList.add('selected');
+                    }
+                    return;
+                }
+                
+                // Check if clicking on gizmo
+                if (gizmoGroup.visible) {
+                    raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObjects(gizmoGroup.children, true);
+                    
+                    if (intersects.length > 0) {
+                        const object = intersects[0].object;
+                        const axis = object.userData.axis;
+                        const type = object.userData.type;
+                        
+                        isDragging = true;
+                        controls.enabled = false;
+                        
+                        // Highlight the gizmo
+                        highlightActiveGizmo(object, true);
+                        
+                        // Store initial values
+                        const initialPosition = cube.position.clone();
+                        const initialRotation = cube.rotation.clone();
+                        const initialScale = cube.scale.clone();
+                        const initialMouse = mouse.clone();
+                        
+                        function onMouseMoveDrag(e) {
+                            if (!isDragging) return;
+                            
+                            const rect = canvas.getBoundingClientRect();
+                            const mouseX = ((e.clientX - rect.left) / canvas.width) * 2 - 1;
+                            const mouseY = -((e.clientY - rect.top) / canvas.height) * 2 + 1;
+                            
+                            const deltaX = mouseX - initialMouse.x;
+                            const deltaY = mouseY - initialMouse.y;
+                            
+                            switch(type) {
+                                case 'move':
+                                    if (axis === 'x') cube.position.x = initialPosition.x + deltaX * 10;
+                                    if (axis === 'y') cube.position.y = initialPosition.y - deltaY * 10;
+                                    if (axis === 'z') cube.position.z = initialPosition.z + deltaY * 10;
+                                    if (axis === 'xy') {
+                                        cube.position.x = initialPosition.x + deltaX * 10;
+                                        cube.position.y = initialPosition.y - deltaY * 10;
+                                    }
+                                    if (axis === 'xz') {
+                                        cube.position.x = initialPosition.x + deltaX * 10;
+                                        cube.position.z = initialPosition.z + deltaY * 10;
+                                    }
+                                    if (axis === 'yz') {
+                                        cube.position.y = initialPosition.y - deltaY * 10;
+                                        cube.position.z = initialPosition.z + deltaX * 10;
+                                    }
+                                    break;
+                                case 'rotate':
+                                    if (axis === 'x') cube.rotation.x = initialRotation.x + deltaY * 4;
+                                    if (axis === 'y') cube.rotation.y = initialRotation.y + deltaX * 4;
+                                    if (axis === 'z') cube.rotation.z = initialRotation.z + deltaX * 4;
+                                    break;
+                                case 'scale':
+                                    if (axis === 'x') cube.scale.x = Math.max(0.1, initialScale.x + deltaX * 3);
+                                    if (axis === 'y') cube.scale.y = Math.max(0.1, initialScale.y - deltaY * 3);
+                                    if (axis === 'z') cube.scale.z = Math.max(0.1, initialScale.z + deltaY * 3);
+                                    if (axis === 'all') {
+                                        const scale = Math.max(0.1, 1 + deltaX);
+                                        cube.scale.set(scale, scale, scale);
+                                    }
+                                    break;
+                            }
+                            
+                            updateGizmo();
+                            updateSlidersFromCube();
+                            updateToolVisualFeedback();
+                        }
+                        
+                        function onMouseUpDrag() {
+                            isDragging = false;
+                            controls.enabled = true;
+                            
+                            // Reset gizmo color
+                            highlightActiveGizmo(object, false);
+                            
+                            // Show completion feedback
+                            showToolVisualFeedback("✓ Applied", "#44ff44");
+                            
+                            canvas.removeEventListener('mousemove', onMouseMoveDrag);
+                            canvas.removeEventListener('mouseup', onMouseUpDrag);
+                        }
+                        
+                        canvas.addEventListener('mousemove', onMouseMoveDrag);
+                        canvas.addEventListener('mouseup', onMouseUpDrag);
+                        
+                        return;
+                    }
+                }
+            }
+            
+            function onMouseMove(event) {
+                // Handle box selection
+                if (isSelecting && (selectedTool === 'box-select' || selectedTool === 'circle-select')) {
+                    const width = event.clientX - selectionStart.x;
+                    const height = event.clientY - selectionStart.y;
+                    
+                    selectionRect.style.width = `${Math.abs(width)}px`;
+                    selectionRect.style.height = `${Math.abs(height)}px`;
+                    
+                    if (width < 0) {
+                        selectionRect.style.left = `${event.clientX}px`;
+                    }
+                    if (height < 0) {
+                        selectionRect.style.top = `${event.clientY}px`;
+                    }
+                    
+                    // For circle select, make it circular
+                    if (selectedTool === 'circle-select') {
+                        const radius = Math.max(Math.abs(width), Math.abs(height)) / 2;
+                        selectionRect.style.borderRadius = '50%';
+                        selectionRect.style.width = `${radius * 2}px`;
+                        selectionRect.style.height = `${radius * 2}px`;
+                    } else {
+                        selectionRect.style.borderRadius = '4px';
+                    }
+                    return;
+                }
+                
+                // Handle hover effects on gizmo
+                if (!isDragging && gizmoGroup.visible) {
+                    const rect = canvas.getBoundingClientRect();
+                    mouse.x = ((event.clientX - rect.left) / canvas.width) * 2 - 1;
+                    mouse.y = -((event.clientY - rect.top) / canvas.height) * 2 + 1;
+                    
+                    raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObjects(gizmoGroup.children, true);
+                    
+                    // Reset all gizmo colors
+                    resetGizmoColors();
+                    
+                    // Highlight hovered gizmo
+                    if (intersects.length > 0) {
+                        const object = intersects[0].object;
+                        highlightActiveGizmo(object, true, true);
+                        
+                        // Update cursor
+                        canvas.style.cursor = 'pointer';
+                    } else {
+                        canvas.style.cursor = 'default';
+                    }
+                }
+            }
+            
+            function onMouseUp(event) {
+                // Handle box selection end
+                if (isSelecting) {
+                    isSelecting = false;
+                    selectionRect.style.display = 'none';
+                    
+                    // Show selection feedback
+                    showToolVisualFeedback("✓ Area Selected", "#ff8000");
+                }
+            }
+        }
+        
+        // Highlight active gizmo
+        function highlightActiveGizmo(object, active, isHover = false) {
+            const axis = object.userData.axis;
+            const type = object.userData.type;
+            const color = isHover ? 0xffff00 : (active ? 0xffffff : getAxisColor(axis));
+            
+            if (object.material) {
+                object.material.color.setHex(color);
+            }
+            
+            // For arrows
+            if (object.children && object.children.length > 0) {
+                object.children.forEach(child => {
+                    if (child.material) {
+                        child.material.color.setHex(color);
+                    }
+                });
+            }
+        }
+        
+        // Reset gizmo colors
+        function resetGizmoColors() {
+            if (!gizmoGroup.visible) return;
+            
+            gizmoGroup.children.forEach(child => {
+                const axis = child.userData?.axis;
+                if (axis && child.material) {
+                    child.material.color.setHex(getAxisColor(axis));
+                }
+                
+                // Reset arrow helpers
+                if (child.children && child.children.length > 0) {
+                    child.children.forEach(subChild => {
+                        if (subChild.material) {
+                            const subAxis = child.userData?.axis;
+                            if (subAxis) {
+                                subChild.material.color.setHex(getAxisColor(subAxis));
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Get axis color
+        function getAxisColor(axis) {
+            switch(axis) {
+                case 'x': return 0xff4444;
+                case 'y': return 0x44ff44;
+                case 'z': return 0x4444ff;
+                case 'xy':
+                case 'xz':
+                case 'yz': return 0xffff00;
+                case 'all': return 0xffffff;
+                default: return 0x888888;
+            }
+        }
+        
+        // Update sliders from cube values
+        function updateSlidersFromCube() {
+            if (!cube) return;
+            
+            // Position
+            document.getElementById('pos-x').value = cube.position.x;
+            document.getElementById('pos-x-value').textContent = cube.position.x.toFixed(1);
+            document.getElementById('pos-y').value = cube.position.y;
+            document.getElementById('pos-y-value').textContent = cube.position.y.toFixed(1);
+            document.getElementById('pos-z').value = cube.position.z;
+            document.getElementById('pos-z-value').textContent = cube.position.z.toFixed(1);
+            
+            // Rotation
+            document.getElementById('rot-x').value = THREE.MathUtils.radToDeg(cube.rotation.x);
+            document.getElementById('rot-x-value').textContent = Math.round(THREE.MathUtils.radToDeg(cube.rotation.x)) + '°';
+            document.getElementById('rot-y').value = THREE.MathUtils.radToDeg(cube.rotation.y);
+            document.getElementById('rot-y-value').textContent = Math.round(THREE.MathUtils.radToDeg(cube.rotation.y)) + '°';
+            document.getElementById('rot-z').value = THREE.MathUtils.radToDeg(cube.rotation.z);
+            document.getElementById('rot-z-value').textContent = Math.round(THREE.MathUtils.radToDeg(cube.rotation.z)) + '°';
+            
+            // Update axis display
+            document.getElementById('axis-x').textContent = `X: ${cube.position.x.toFixed(2)}`;
+            document.getElementById('axis-y').textContent = `Y: ${cube.position.y.toFixed(2)}`;
+            document.getElementById('axis-z').textContent = `Z: ${cube.position.z.toFixed(2)}`;
+        }
+        
+        // Show tool visual feedback
+        function showToolVisualFeedback(message = "", color = "#ff8000") {
+            const feedback = document.getElementById('tool-visual-feedback');
+            
+            if (message) {
+                feedback.innerHTML = `<i class="fas fa-${getToolIcon()}"></i> ${message}`;
+                feedback.style.color = color;
+                feedback.style.opacity = 1;
+                
+                // Fade out after 1 second
+                setTimeout(() => {
+                    feedback.style.opacity = 0;
+                }, 1000);
+            } else {
+                // Show active tool icon
+                feedback.innerHTML = `<i class="fas fa-${getToolIcon()}"></i>`;
+                feedback.style.color = "#ff8000";
+                feedback.style.opacity = 0.3;
+                feedback.style.fontSize = "4rem";
+            }
+        }
+        
+        // Update tool visual feedback
+        function updateToolVisualFeedback() {
+            const feedback = document.getElementById('tool-visual-feedback');
+            feedback.style.opacity = 0.5;
+            feedback.style.fontSize = "2rem";
+            feedback.innerHTML = `<i class="fas fa-${getToolIcon()}"></i>`;
+        }
+        
+        // Get tool icon
+        function getToolIcon() {
+            switch(selectedTool) {
+                case 'select': return 'mouse-pointer';
+                case 'move': return 'arrows-alt';
+                case 'rotate': return 'sync-alt';
+                case 'scale': return 'expand-alt';
+                case 'draw': return 'pencil-alt';
+                case 'sketch': return 'paint-brush';
+                default: return 'cube';
+            }
+        }
+        
+        // Setup UI event listeners
+        function setupUI() {
+            // Tool buttons
+            const toolButtons = document.querySelectorAll('.tool-button');
+            toolButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all tools
+                    toolButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked tool
+                    this.classList.add('active');
+                    
+                    // Set selected tool
+                    selectedTool = this.id.replace('tool-', '');
+                    
+                    // Update tool status
+                    let toolName = this.getAttribute('title');
+                    const statusElement = document.getElementById('tool-status');
+                    statusElement.innerHTML = `<i class="fas fa-${getToolIcon()}"></i> <span>${toolName}</span>`;
+                    
+                    // Update tool visual feedback
+                    showToolVisualFeedback();
+                    
+                    // Update gizmo based on tool
+                    updateGizmo();
+                    
+                    // If tool has menu, show modal
+                    if (this.classList.contains('has-menu')) {
+                        showToolModal(this.id);
+                    }
+                    
+                    // Update tooltip
+                    showTooltip(this, this.getAttribute('title'));
+                });
+            });
+            
+            // Menu buttons
+            const menuButtons = document.querySelectorAll('.menu-button.has-dropdown');
+            menuButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const dropdownId = `dropdown-${this.id.replace('menu-', '')}`;
+                    const dropdown = document.getElementById(dropdownId);
+                    
+                    // Hide all dropdowns first
+                    document.querySelectorAll('.dropdown-menu').forEach(d => {
+                        d.style.display = 'none';
+                    });
+                    
+                    // Toggle current dropdown
+                    if (dropdown.style.display === 'block') {
+                        dropdown.style.display = 'none';
+                    } else {
+                        dropdown.style.display = 'block';
+                        // Position dropdown
+                        const rect = this.getBoundingClientRect();
+                        dropdown.style.top = `${rect.bottom + window.scrollY}px`;
+                        dropdown.style.left = `${rect.left + window.scrollX}px`;
+                    }
+                });
+            });
+            
+            // Close dropdowns when clicking elsewhere
+            document.addEventListener('click', function() {
+                document.querySelectorAll('.dropdown-menu').forEach(d => {
+                    d.style.display = 'none';
+                });
+            });
+            
+            // Object list items
+            const objectItems = document.querySelectorAll('.object-item');
+            objectItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Remove selected class from all items
+                    objectItems.forEach(i => i.classList.remove('selected'));
+                    
+                    // Add selected class to clicked item
+                    this.classList.add('selected');
+                    
+                    // Update selected object
+                    selectedObject = this.getAttribute('data-object');
+                    
+                    // Update properties panel header
+                    const propertyHeader = document.querySelector('.properties-panel .panel-header span:last-child');
+                    propertyHeader.textContent = this.querySelector('span').textContent;
+                    
+                    // Show selection feedback
+                    showToolVisualFeedback("✓ " + this.querySelector('span').textContent + " Selected", "#ff8000");
+                });
+            });
+            
+            // Transform sliders
+            const transformSliders = ['pos-x', 'pos-y', 'pos-z', 'rot-x', 'rot-y', 'rot-z'];
+            transformSliders.forEach(sliderId => {
+                const slider = document.getElementById(sliderId);
+                const valueDisplay = document.getElementById(`${sliderId}-value`);
+                
+                if (slider && valueDisplay) {
+                    slider.addEventListener('input', function() {
+                        const value = parseFloat(this.value);
+                        
+                        // Update value display
+                        if (sliderId.startsWith('rot')) {
+                            valueDisplay.textContent = `${value}°`;
+                        } else {
+                            valueDisplay.textContent = value.toFixed(1);
+                        }
+                        
+                        // Update cube properties
+                        if (selectedObject === 'cube') {
+                            if (sliderId.startsWith('pos')) {
+                                const axis = sliderId.split('-')[1];
+                                const position = [cube.position.x, cube.position.y, cube.position.z];
+                                
+                                if (axis === 'x') position[0] = value;
+                                if (axis === 'y') position[1] = value;
+                                if (axis === 'z') position[2] = value;
+                                
+                                updateCubePosition(position[0], position[1], position[2]);
+                            } else if (sliderId.startsWith('rot')) {
+                                const axis = sliderId.split('-')[1];
+                                const rotation = [cube.rotation.x, cube.rotation.y, cube.rotation.z];
+                                
+                                if (axis === 'x') rotation[0] = THREE.MathUtils.degToRad(value);
+                                if (axis === 'y') rotation[1] = THREE.MathUtils.degToRad(value);
+                                if (axis === 'z') rotation[2] = THREE.MathUtils.degToRad(value);
+                                
+                                updateCubeRotation(
+                                    THREE.MathUtils.radToDeg(rotation[0]), 
+                                    THREE.MathUtils.radToDeg(rotation[1]), 
+                                    THREE.MathUtils.radToDeg(rotation[2])
+                                );
+                            }
+                        }
+                    });
+                }
+            });
+            
+            // Material controls
+            const opacitySlider = document.getElementById('opacity');
+            const opacityValue = document.getElementById('opacity-value');
+            
+            opacitySlider.addEventListener('input', function() {
+                const opacity = parseFloat(this.value);
+                opacityValue.textContent = opacity.toFixed(1);
+                updateCubeOpacity(opacity);
+            });
+            
+            const wireframeSlider = document.getElementById('wireframe');
+            const wireframeValue = document.getElementById('wireframe-value');
+            
+            wireframeSlider.addEventListener('input', function() {
+                const enabled = parseInt(this.value) === 1;
+                wireframeValue.textContent = enabled ? "On" : "Off";
+                updateWireframe(enabled);
+            });
+            
+            // Color picker
+            const colorPicker = document.getElementById('color-picker');
+            colorPicker.addEventListener('click', function() {
+                // Simple color picker simulation
+                const colors = [0x808080, 0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff, 0xff6b6b, 0x4cc9f0, 0xff8000];
+                const currentIndex = colors.indexOf(cubeColor);
+                const nextIndex = (currentIndex + 1) % colors.length;
+                updateCubeColor(colors[nextIndex]);
+                
+                // Show feedback
+                showToolVisualFeedback("✓ Color Changed", `#${colors[nextIndex].toString(16).padStart(6, '0')}`);
+            });
+            
+            // Dropdown items
+            const dropdownItems = document.querySelectorAll('.dropdown-item');
+            dropdownItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const action = this.textContent;
+                    
+                    // Show feedback
+                    showToolVisualFeedback("✓ " + action, "#44ff44");
+                    
+                    // Close dropdown
+                    this.closest('.dropdown-menu').style.display = 'none';
+                });
+            });
+            
+            // Modal close button
+            document.getElementById('close-modal').addEventListener('click', function() {
+                document.getElementById('tool-modal').style.display = 'none';
+            });
+            
+            // Close modal when clicking outside
+            document.getElementById('tool-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                }
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                switch(e.key.toLowerCase()) {
+                    case 'q':
+                        document.getElementById('tool-select').click();
+                        break;
+                    case 'g':
+                        document.getElementById('tool-move').click();
+                        break;
+                    case 'r':
+                        document.getElementById('tool-rotate').click();
+                        break;
+                    case 's':
+                        document.getElementById('tool-scale').click();
+                        break;
+                    case 'b':
+                        document.getElementById('tool-box-select').click();
+                        break;
+                }
+            });
+            
+            // Initialize values
+            opacityValue.textContent = opacitySlider.value;
+            wireframeValue.textContent = "Off";
+            
+            // Initialize axis display
+            document.getElementById('axis-x').textContent = "X: 0.00";
+            document.getElementById('axis-y').textContent = "Y: 0.00";
+            document.getElementById('axis-z').textContent = "Z: 0.00";
+        }
+        
+        // Show tool options modal
+        function showToolModal(toolId) {
+            const modal = document.getElementById('tool-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalOptions = document.getElementById('modal-options');
+            
+            // Clear previous options
+            modalOptions.innerHTML = '';
+            
+            // Set modal title and options based on tool
+            if (toolId === 'tool-box-select') {
+                modalTitle.textContent = 'Selection Tools';
+                modalOptions.innerHTML = `
+                    <div class="modal-option">Box Select (B)</div>
+                    <div class="modal-option">Lasso Select</div>
+                    <div class="modal-option">Circle Select (C)</div>
+                `;
+            } else if (toolId === 'tool-transform') {
+                modalTitle.textContent = 'Transform Tools';
+                modalOptions.innerHTML = `
+                    <div class="modal-option">Move Tool (G)</div>
+                    <div class="modal-option">Rotate Tool (R)</div>
+                    <div class="modal-option">Scale Tool (S)</div>
+                    <div class="modal-option">Transform Gizmo</div>
+                `;
+            } else if (toolId === 'tool-add-shapes') {
+                modalTitle.textContent = 'Add Shapes';
+                modalOptions.innerHTML = `
+                    <div class="modal-option">Cube</div>
+                    <div class="modal-option">Sphere</div>
+                    <div class="modal-option">Cylinder</div>
+                    <div class="modal-option">Plane</div>
+                    <div class="modal-option">Cone</div>
+                `;
+            }
+            
+            // Add event listeners to modal options
+            const options = modalOptions.querySelectorAll('.modal-option');
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    showToolVisualFeedback("✓ " + this.textContent, "#ff8000");
+                    modal.style.display = 'none';
+                });
+            });
+            
+            // Show modal
+            modal.style.display = 'flex';
+        }
+        
+        // Show tooltip
+        function showTooltip(element, text, duration = 1000) {
+            // Remove existing tooltip
+            const existingTooltip = document.querySelector('.tooltip');
+            if (existingTooltip) {
+                existingTooltip.remove();
+            }
+            
+            // Create new tooltip
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip';
+            tooltip.textContent = text;
+            
+            // Position tooltip
+            const rect = element.getBoundingClientRect();
+            tooltip.style.top = `${rect.top + window.scrollY - 30}px`;
+            tooltip.style.left = `${rect.left + window.scrollX + rect.width / 2}px`;
+            tooltip.style.transform = 'translateX(-50%)';
+            
+            // Add to document
+            document.body.appendChild(tooltip);
+            
+            // Remove after duration
+            setTimeout(() => {
+                if (tooltip.parentNode) {
+                    tooltip.parentNode.removeChild(tooltip);
+                }
+            }, duration);
+        }
+        
+        // Initialize when page loads
+        window.onload = init;
+        
+        // Handle container resize when window loads completely
+        window.addEventListener('load', function() {
+            setTimeout(onWindowResize, 100);
+        });
+    </script>
+</body>
+</html>

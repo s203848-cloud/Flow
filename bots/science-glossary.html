@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Science Glossary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.8);
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            color: #ff8000;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .dictionary-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+
+        .words-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .word-card {
+            background: rgba(50, 50, 70, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .word-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 128, 0, 0.5);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.1);
+        }
+
+        .word {
+            color: #ff8000;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .definition {
+            color: #ddd;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .category {
+            display: inline-block;
+            background: rgba(255, 128, 0, 0.15);
+            color: #ff8000;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+
+        .search-container {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ff8000;
+            font-size: 1.2rem;
+        }
+
+        .footer {
+            text-align: center;
+            color: #aaa;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.2);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .words-container {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .words-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .navbar {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold; color: #ff8000;">Science Glossary</span>
+        <div style="width: 60px;"></div>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <h1><i class="fas fa-atom"></i> Science Glossary</h1>
+            <div class="dictionary-header">
+                <p>A comprehensive collection of 125 essential science terms from various scientific disciplines</p>
+            </div>
+            
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search for a science term...">
+            </div>
+            
+            <div class="words-container" id="wordsContainer">
+                <!-- Science words will be populated here by JavaScript -->
+            </div>
+            
+            <div class="footer">
+                <p>125 Science Terms | Dictionary | Color Theme Matched</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Array of 125 science words with definitions
+        const scienceWords = [
+            { word: "Atom", definition: "The basic unit of a chemical element, consisting of a nucleus surrounded by electrons.", category: "Chemistry" },
+            { word: "Molecule", definition: "A group of atoms bonded together, representing the smallest fundamental unit of a chemical compound.", category: "Chemistry" },
+            { word: "Cell", definition: "The smallest structural and functional unit of an organism, typically microscopic.", category: "Biology" },
+            { word: "Gravity", definition: "The force that attracts a body toward the center of the earth, or toward any other physical body having mass.", category: "Physics" },
+            { word: "DNA", definition: "Deoxyribonucleic acid, a self-replicating material present in nearly all living organisms as the main constituent of chromosomes.", category: "Biology" },
+            { word: "Evolution", definition: "The process by which different kinds of living organisms developed and diversified from earlier forms.", category: "Biology" },
+            { word: "Energy", definition: "The capacity to do work, existing in various forms such as kinetic, potential, thermal, etc.", category: "Physics" },
+            { word: "Force", definition: "An influence that can change the motion of an object, measured in newtons.", category: "Physics" },
+            { word: "Velocity", definition: "The speed of something in a given direction.", category: "Physics" },
+            { word: "Acceleration", definition: "The rate of change of velocity per unit of time.", category: "Physics" },
+            { word: "Photosynthesis", definition: "The process by which green plants use sunlight to synthesize nutrients from carbon dioxide and water.", category: "Biology" },
+            { word: "Ecosystem", definition: "A biological community of interacting organisms and their physical environment.", category: "Biology" },
+            { word: "Gene", definition: "A unit of heredity that is transferred from a parent to offspring and determines some characteristic.", category: "Biology" },
+            { word: "Mitosis", definition: "A type of cell division that results in two daughter cells each having the same number of chromosomes as the parent nucleus.", category: "Biology" },
+            { word: "Meiosis", definition: "A type of cell division that reduces the chromosome number by half, producing four haploid cells.", category: "Biology" },
+            { word: "Quantum", definition: "The minimum amount of any physical entity involved in an interaction.", category: "Physics" },
+            { word: "Electron", definition: "A stable subatomic particle with a charge of negative electricity, found in all atoms.", category: "Chemistry" },
+            { word: "Proton", definition: "A stable subatomic particle with a positive electric charge, found in atomic nuclei.", category: "Chemistry" },
+            { word: "Neutron", definition: "A subatomic particle with no net electric charge, found in atomic nuclei.", category: "Chemistry" },
+            { word: "Ion", definition: "An atom or molecule with a net electric charge due to the loss or gain of one or more electrons.", category: "Chemistry" },
+            { word: "Isotope", definition: "Atoms of the same element that have different numbers of neutrons.", category: "Chemistry" },
+            { word: "Compound", definition: "A substance formed when two or more chemical elements are chemically bonded together.", category: "Chemistry" },
+            { word: "Element", definition: "A substance that cannot be broken down into simpler substances by chemical means.", category: "Chemistry" },
+            { word: "pH", definition: "A measure of the acidity or alkalinity of a solution on a scale from 0 to 14.", category: "Chemistry" },
+            { word: "Catalyst", definition: "A substance that increases the rate of a chemical reaction without itself undergoing permanent change.", category: "Chemistry" },
+            { word: "Enzyme", definition: "A substance produced by a living organism that acts as a catalyst to bring about a specific biochemical reaction.", category: "Biology" },
+            { word: "Organelle", definition: "A specialized structure within a cell that performs a specific function.", category: "Biology" },
+            { word: "Mitochondrion", definition: "An organelle found in large numbers in most cells, where biochemical processes of respiration and energy production occur.", category: "Biology" },
+            { word: "Nucleus", definition: "The central and most important part of an object, movement, or group, forming the basis for its activity and growth.", category: "Biology" },
+            { word: "Ribosome", definition: "A minute particle consisting of RNA and associated proteins, found in large numbers in the cytoplasm of living cells.", category: "Biology" },
+            { word: "Homeostasis", definition: "The tendency toward a relatively stable equilibrium between interdependent elements, especially as maintained by physiological processes.", category: "Biology" },
+            { word: "Metabolism", definition: "The chemical processes that occur within a living organism in order to maintain life.", category: "Biology" },
+            { word: "Organism", definition: "An individual animal, plant, or single-celled life form.", category: "Biology" },
+            { word: "Species", definition: "A group of living organisms consisting of similar individuals capable of exchanging genes or interbreeding.", category: "Biology" },
+            { word: "Taxonomy", definition: "The branch of science concerned with classification, especially of organisms.", category: "Biology" },
+            { word: "Genome", definition: "The complete set of genes or genetic material present in a cell or organism.", category: "Biology" },
+            { word: "Chromosome", definition: "A thread-like structure of nucleic acids and protein found in the nucleus of most living cells, carrying genetic information.", category: "Biology" },
+            { word: "Mutation", definition: "The changing of the structure of a gene, resulting in a variant form that may be transmitted to subsequent generations.", category: "Biology" },
+            { word: "Natural Selection", definition: "The process whereby organisms better adapted to their environment tend to survive and produce more offspring.", category: "Biology" },
+            { word: "Adaptation", definition: "The process of change by which an organism or species becomes better suited to its environment.", category: "Biology" },
+            { word: "Biodiversity", definition: "The variety of life in the world or in a particular habitat or ecosystem.", category: "Biology" },
+            { word: "Biome", definition: "A large naturally occurring community of flora and fauna occupying a major habitat.", category: "Biology" },
+            { word: "Hypothesis", definition: "A supposition or proposed explanation made on the basis of limited evidence as a starting point for further investigation.", category: "General Science" },
+            { word: "Theory", definition: "A supposition or a system of ideas intended to explain something, based on general principles independent of the thing to be explained.", category: "General Science" },
+            { word: "Experiment", definition: "A scientific procedure undertaken to make a discovery, test a hypothesis, or demonstrate a known fact.", category: "General Science" },
+            { word: "Observation", definition: "The action or process of observing something or someone carefully in order to gain information.", category: "General Science" },
+            { word: "Variable", definition: "An element, feature, or factor that is liable to vary or change.", category: "General Science" },
+            { word: "Control", definition: "A group or individual used as a standard of comparison for checking the results of a survey or experiment.", category: "General Science" },
+            { word: "Data", definition: "Facts and statistics collected together for reference or analysis.", category: "General Science" },
+            { word: "Analysis", definition: "Detailed examination of the elements or structure of something.", category: "General Science" },
+            { word: "Conclusion", definition: "The end or finish of an event, process, or text, or a judgment or decision reached by reasoning.", category: "General Science" },
+            { word: "Matter", definition: "Physical substance in general, as distinct from mind and spirit; (in physics) that which occupies space and possesses mass.", category: "Physics" },
+            { word: "Mass", definition: "A large body of matter with no definite shape.", category: "Physics" },
+            { word: "Volume", definition: "The amount of space that a substance or object occupies, or that is enclosed within a container.", category: "Physics" },
+            { word: "Density", definition: "The degree of compactness of a substance, measured as mass per unit volume.", category: "Physics" },
+            { word: "Temperature", definition: "The degree or intensity of heat present in a substance or object.", category: "Physics" },
+            { word: "Pressure", definition: "Continuous physical force exerted on or against an object by something in contact with it.", category: "Physics" },
+            { word: "Magnetism", definition: "A physical phenomenon produced by the motion of electric charge, resulting in attractive and repulsive forces between objects.", category: "Physics" },
+            { word: "Electricity", definition: "A form of energy resulting from the existence of charged particles (such as electrons or protons).", category: "Physics" },
+            { word: "Circuit", definition: "A complete and closed path around which a circulating electric current can flow.", category: "Physics" },
+            { word: "Resistance", definition: "The measure of the opposition to current flow in an electrical circuit.", category: "Physics" },
+            { word: "Voltage", definition: "An electromotive force or potential difference expressed in volts.", category: "Physics" },
+            { word: "Current", definition: "A flow of electricity which results from the ordered directional movement of electrically charged particles.", category: "Physics" },
+            { word: "Wave", definition: "A disturbance traveling through a medium by which energy is transferred from one particle of the medium to another.", category: "Physics" },
+            { word: "Frequency", definition: "The rate at which something occurs over a particular period of time or in a given sample.", category: "Physics" },
+            { word: "Wavelength", definition: "The distance between successive crests of a wave, especially points in a sound wave or electromagnetic wave.", category: "Physics" },
+            { word: "Spectrum", definition: "A band of colors, as seen in a rainbow, produced by separation of the components of light.", category: "Physics" },
+            { word: "Radiation", definition: "The emission of energy as electromagnetic waves or as moving subatomic particles.", category: "Physics" },
+            { word: "Fission", definition: "The action of dividing or splitting something into two or more parts.", category: "Physics" },
+            { word: "Fusion", definition: "The process or result of joining two or more things together to form a single entity.", category: "Physics" },
+            { word: "Entropy", definition: "A measure of the disorder or randomness in a system.", category: "Physics" },
+            { word: "Inertia", definition: "A tendency to do nothing or to remain unchanged.", category: "Physics" },
+            { word: "Momentum", definition: "The quantity of motion of a moving body, measured as a product of its mass and velocity.", category: "Physics" },
+            { word: "Friction", definition: "The resistance that one surface or object encounters when moving over another.", category: "Physics" },
+            { word: "Thermodynamics", definition: "The branch of physical science that deals with the relations between heat and other forms of energy.", category: "Physics" },
+            { word: "Kinetics", definition: "The branch of chemistry or biochemistry concerned with measuring and studying the rates of reactions.", category: "Chemistry" },
+            { word: "Stoichiometry", definition: "The relationship between the relative quantities of substances taking part in a reaction or forming a compound.", category: "Chemistry" },
+            { word: "Oxidation", definition: "The process or result of oxidizing or being oxidized.", category: "Chemistry" },
+            { word: "Reduction", definition: "The action of reducing something.", category: "Chemistry" },
+            { word: "Solution", definition: "A liquid mixture in which the minor component (the solute) is uniformly distributed within the major component (the solvent).", category: "Chemistry" },
+            { word: "Solute", definition: "The minor component in a solution, dissolved in the solvent.", category: "Chemistry" },
+            { word: "Solvent", definition: "The liquid in which a solute is dissolved to form a solution.", category: "Chemistry" },
+            { word: "Concentration", definition: "The amount of a particular substance in a given amount of another substance.", category: "Chemistry" },
+            { word: "Polymer", definition: "A substance that has a molecular structure consisting chiefly or entirely of a large number of similar units bonded together.", category: "Chemistry" },
+            { word: "Monomer", definition: "A molecule that can be bonded to other identical molecules to form a polymer.", category: "Chemistry" },
+            { word: "Organic", definition: "Relating to or derived from living matter.", category: "Chemistry" },
+            { word: "Inorganic", definition: "Not consisting of or deriving from living matter.", category: "Chemistry" },
+            { word: "Acid", definition: "A molecule or other entity that can donate a proton or accept an electron pair in reactions.", category: "Chemistry" },
+            { word: "Base", definition: "A substance that can accept hydrogen ions (protons) or, more generally, donate electron pairs.", category: "Chemistry" },
+            { word: "Salt", definition: "A chemical compound formed from the reaction of an acid with a base, with all or part of the hydrogen of the acid replaced by a metal or other cation.", category: "Chemistry" },
+            { word: "Neutralization", definition: "A chemical reaction in which an acid and a base react quantitatively with each other.", category: "Chemistry" },
+            { word: "Precipitate", definition: "Cause (a substance) to be deposited in solid form from a solution.", category: "Chemistry" },
+            { word: "Reactant", definition: "A substance that takes part in and undergoes change during a reaction.", category: "Chemistry" },
+            { word: "Product", definition: "A substance produced during a natural, chemical, or manufacturing process.", category: "Chemistry" },
+            { word: "Exothermic", definition: "(of a reaction or process) accompanied by the release of heat.", category: "Chemistry" },
+            { word: "Endothermic", definition: "(of a reaction or process) accompanied by or requiring the absorption of heat.", category: "Chemistry" },
+            { word: "Equilibrium", definition: "A state in which opposing forces or influences are balanced.", category: "Chemistry" },
+            { word: "Cell Membrane", definition: "The semipermeable membrane surrounding the cytoplasm of a cell.", category: "Biology" },
+            { word: "Cytoplasm", definition: "The material or protoplasm within a living cell, excluding the nucleus.", category: "Biology" },
+            { word: "Chloroplast", definition: "A plastid that contains chlorophyll and in which photosynthesis takes place.", category: "Biology" },
+            { word: "Vacuole", definition: "A space or vesicle within the cytoplasm of a cell, enclosed by a membrane and typically containing fluid.", category: "Biology" },
+            { word: "Respiration", definition: "A process in living organisms involving the production of energy, typically with the intake of oxygen and the release of carbon dioxide.", category: "Biology" },
+            { word: "Transpiration", definition: "The process of water movement through a plant and its evaporation from aerial parts.", category: "Biology" },
+            { word: "Germination", definition: "The process by which a plant grows from a seed.", category: "Biology" },
+            { word: "Pollination", definition: "The transfer of pollen from an anther to a stigma.", category: "Biology" },
+            { word: "Fertilization", definition: "The action or process of fertilizing an egg, female animal, or plant, involving the fusion of male and female gametes.", category: "Biology" },
+            { word: "Embryo", definition: "An unborn or unhatched offspring in the process of development.", category: "Biology" },
+            { word: "Fetus", definition: "An unborn offspring of a mammal, in particular an unborn human baby more than eight weeks after conception.", category: "Biology" },
+            { word: "Habitat", definition: "The natural home or environment of an animal, plant, or other organism.", category: "Biology" },
+            { word: "Niche", definition: "A position or role taken by a kind of organism within its community.", category: "Biology" },
+            { word: "Food Chain", definition: "A series of organisms each dependent on the next as a source of food.", category: "Biology" },
+            { word: "Food Web", definition: "A system of interlocking and interdependent food chains.", category: "Biology" },
+            { word: "Producer", definition: "An organism, especially a plant, which produces its own food through photosynthesis.", category: "Biology" },
+            { word: "Consumer", definition: "An organism that feeds on other organisms in a food chain.", category: "Biology" },
+            { word: "Decomposer", definition: "An organism, especially a soil bacterium, fungus, or invertebrate, that decomposes organic material.", category: "Biology" },
+            { word: "Biosphere", definition: "The regions of the surface, atmosphere, and hydrosphere of the earth occupied by living organisms.", category: "Biology" },
+            { word: "Lithosphere", definition: "The rigid outer part of the earth, consisting of the crust and upper mantle.", category: "Earth Science" },
+            { word: "Hydrosphere", definition: "All the waters on the earth's surface, such as lakes and seas, and sometimes including water over the earth's surface, such as clouds.", category: "Earth Science" },
+            { word: "Atmosphere", definition: "The envelope of gases surrounding the earth or another planet.", category: "Earth Science" },
+            { word: "Weathering", definition: "The process of wearing or being worn by long exposure to the atmosphere.", category: "Earth Science" },
+            { word: "Erosion", definition: "The process of eroding or being eroded by wind, water, or other natural agents.", category: "Earth Science" },
+            { word: "Sediment", definition: "Matter that settles to the bottom of a liquid; dregs.", category: "Earth Science" },
+            { word: "Mineral", definition: "A solid inorganic substance of natural occurrence.", category: "Earth Science" },
+            { word: "Rock", definition: "The solid mineral material forming part of the surface of the earth and other similar planets.", category: "Earth Science" },
+            { word: "Fossil", definition: "The remains or impression of a prehistoric organism preserved in petrified form or as a mold or cast in rock.", category: "Earth Science" },
+            { word: "Tectonics", definition: "The study of the earth's structural features.", category: "Earth Science" },
+            { word: "Geology", definition: "The science that deals with the earth's physical structure and substance, its history, and the processes that act on it.", category: "Earth Science" },
+            { word: "Astronomy", definition: "The branch of science that deals with celestial objects, space, and the physical universe as a whole.", category: "Astronomy" },
+            { word: "Galaxy", definition: "A system of millions or billions of stars, together with gas and dust, held together by gravitational attraction.", category: "Astronomy" },
+            { word: "Nebula", definition: "A cloud of gas and dust in outer space, visible in the night sky either as an indistinct bright patch or as a dark silhouette.", category: "Astronomy" },
+            { word: "Black Hole", definition: "A region of space having a gravitational field so intense that no matter or radiation can escape.", category: "Astronomy" }
+        ];
+
+        // Function to display all science words
+        function displayWords(words) {
+            const container = document.getElementById('wordsContainer');
+            container.innerHTML = '';
+            
+            words.forEach(item => {
+                const wordCard = document.createElement('div');
+                wordCard.className = 'word-card';
+                wordCard.innerHTML = `
+                    <div class="word">${item.word}</div>
+                    <div class="definition">${item.definition}</div>
+                    <div class="category">${item.category}</div>
+                `;
+                container.appendChild(wordCard);
+            });
+        }
+
+        // Function to filter words based on search input
+        function filterWords() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredWords = scienceWords.filter(item => 
+                item.word.toLowerCase().includes(searchTerm) || 
+                item.definition.toLowerCase().includes(searchTerm) ||
+                item.category.toLowerCase().includes(searchTerm)
+            );
+            
+            displayWords(filteredWords);
+            
+            // Update the footer with count
+            const footer = document.querySelector('.footer p');
+            if (footer) {
+                footer.textContent = `${filteredWords.length} Science Terms | Dictionary | Color Theme Matched`;
+            }
+        }
+
+        // Initialize the page with all words
+        document.addEventListener('DOMContentLoaded', function() {
+            displayWords(scienceWords);
+            
+            // Add event listener to search input
+            document.getElementById('searchInput').addEventListener('input', filterWords);
+            
+            // Update the footer with total count
+            const footer = document.querySelector('.footer p');
+            if (footer) {
+                footer.textContent = `${scienceWords.length} Science Terms | Dictionary | Color Theme Matched`;
+            }
+        });
+    </script>
+</body>
+</html>

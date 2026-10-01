@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thesaurus</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 30px;
+    background: rgba(20, 20, 35, 0.9);
+    border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+    z-index: 100;
+}
+
+.back-btn {
+    padding: 8px 15px;
+    background: rgba(255, 128, 0, 0.2);
+    border: 1px solid #ff8000;
+    border-radius: 5px;
+    color: #ff8000;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.back-btn:hover {
+    background: rgba(255, 128, 0, 0.3);
+}
+
+.thesaurus {
+    background: linear-gradient(135deg, rgba(50, 30, 70, 0.8), rgba(30, 50, 80, 0.8));
+    border: 1px solid rgba(255, 69, 0, 0.3);
+    border-radius: 15px;
+    padding: 30px;
+    width: 100%;
+    max-width: 800px;
+    margin-top: 80px;
+    box-shadow: 0 10px 40px rgba(255, 69, 0, 0.3);
+}
+
+.search-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 128, 0, 0.5);
+    border-radius: 8px;
+    color: #ff8000;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.search-input::placeholder {
+    color: rgba(255, 128, 0, 0.5);
+}
+
+.search-btn {
+    padding: 0 25px;
+    background: linear-gradient(to right, #ff7e00, #ff4500);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 69, 0, 0.4);
+}
+
+.search-btn:active {
+    transform: translateY(0);
+}
+
+.result-container {
+    display: none;
+}
+
+.word-header {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(255, 128, 0, 0.3);
+}
+
+.word {
+    font-size: 2.5rem;
+    color: #ff8000;
+    margin-bottom: 5px;
+}
+
+.phonetic {
+    color: rgba(255, 255, 255, 0.7);
+    font-style: italic;
+    font-size: 1.2rem;
+}
+
+.category-section {
+    margin-bottom: 25px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 4px solid #ff8000;
+}
+
+.category-title {
+    color: #ff8000;
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.synonyms-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.synonym-tag {
+    padding: 8px 15px;
+    background: rgba(255, 128, 0, 0.15);
+    border: 1px solid rgba(255, 128, 0, 0.4);
+    border-radius: 20px;
+    color: #ffcc99;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.95rem;
+}
+
+.synonym-tag:hover {
+    background: rgba(255, 128, 0, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(255, 128, 0, 0.2);
+}
+
+.antonyms-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.antonym-tag {
+    padding: 8px 15px;
+    background: rgba(100, 100, 100, 0.2);
+    border: 1px solid rgba(200, 200, 200, 0.3);
+    border-radius: 20px;
+    color: #cccccc;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.95rem;
+}
+
+.antonym-tag:hover {
+    background: rgba(150, 150, 150, 0.3);
+    transform: translateY(-2px);
+}
+
+.definition-section {
+    margin-bottom: 15px;
+    padding: 15px;
+    background: rgba(255, 128, 0, 0.1);
+    border-radius: 8px;
+}
+
+.definition {
+    margin-bottom: 10px;
+    color: #ffffff;
+}
+
+.usage-note {
+    color: rgba(255, 255, 255, 0.7);
+    font-style: italic;
+    font-size: 0.9rem;
+    margin-top: 5px;
+    padding-left: 15px;
+    border-left: 2px solid rgba(255, 128, 0, 0.5);
+}
+
+.error-message {
+    color: #ff4500;
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 20px;
+    display: none;
+}
+
+.loading {
+    text-align: center;
+    padding: 30px;
+    display: none;
+}
+
+.loading-spinner {
+    color: #ff8000;
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.recent-searches {
+    margin-top: 25px;
+}
+
+.recent-title {
+    color: #ff8000;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.recent-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.recent-word {
+    padding: 8px 15px;
+    background: rgba(255, 128, 0, 0.2);
+    border: 1px solid rgba(255, 128, 0, 0.5);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.recent-word:hover {
+    background: rgba(255, 128, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+.stats-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+@media (max-width: 850px) {
+    .thesaurus {
+        max-width: 100%;
+        margin: 80px 10px 20px;
+    }
+    
+    .search-container {
+        flex-direction: column;
+    }
+    
+    .search-btn {
+        padding: 15px;
+    }
+    
+    .synonyms-list, .antonyms-list {
+        gap: 8px;
+    }
+}
+
+@media (max-width: 500px) {
+    .word {
+        font-size: 2rem;
+    }
+    
+    .navbar span {
+        font-size: 1.2rem;
+    }
+    
+    .synonym-tag, .antonym-tag {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold;">Thesaurus</span>
+        <div style="width: 60px;"></div>
+    </div>
+
+    <div class="thesaurus">
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" 
+                   placeholder="Find synonyms for any word..." 
+                   onkeypress="if(event.key === 'Enter') searchWord()">
+            <button class="search-btn" onclick="searchWord()">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <div>Searching thesaurus...</div>
+        </div>
+        
+        <div class="error-message" id="errorMessage">
+            Word not found. Please try another word.
+        </div>
+        
+        <div class="result-container" id="resultContainer">
+            <!-- Thesaurus results will be inserted here -->
+        </div>
+        
+        <div class="recent-searches" id="recentSearches">
+            <div class="recent-title">Recent Searches:</div>
+            <div class="recent-list" id="recentList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const searchInput = document.getElementById('searchInput');
+        const resultContainer = document.getElementById('resultContainer');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('errorMessage');
+        const recentList = document.getElementById('recentList');
+        const recentSearches = document.getElementById('recentSearches');
+
+        // Load recent searches from localStorage
+        let recentWords = JSON.parse(localStorage.getItem('recentThesaurusSearches')) || [];
+        updateRecentSearches();
+
+        // Focus on input on page load
+        searchInput.focus();
+
+        async function searchWord() {
+            const word = searchInput.value.trim().toLowerCase();
+            if (!word) return;
+            
+            // Show loading, hide other elements
+            loading.style.display = 'block';
+            resultContainer.style.display = 'none';
+            errorMessage.style.display = 'none';
+            
+            try {
+                // First get word details from Dictionary API
+                const dictApiUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`;
+                const dictResponse = await fetch(dictApiUrl);
+                
+                if (!dictResponse.ok) {
+                    throw new Error('Word not found');
+                }
+                
+                const dictData = await dictResponse.json();
+                const wordData = dictData[0];
+                
+                // Then get synonyms from Datamuse API
+                const thesaurusApiUrl = `https://api.datamuse.com/words?ml=${word}&max=50`;
+                const antonymApiUrl = `https://api.datamuse.com/words?rel_ant=${word}&max=20`;
+                
+                const [synonymsResponse, antonymsResponse] = await Promise.all([
+                    fetch(thesaurusApiUrl),
+                    fetch(antonymApiUrl)
+                ]);
+                
+                const synonymsData = await synonymsResponse.json();
+                const antonymsData = await antonymsResponse.json();
+                
+                displayThesaurusResults(wordData, synonymsData, antonymsData);
+                addToRecentSearches(word);
+                
+            } catch (error) {
+                showError();
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function displayThesaurusResults(wordData, synonymsData, antonymsData) {
+            const word = wordData.word;
+            const phonetic = wordData.phonetic || '';
+            
+            // Group synonyms by part of speech
+            const synonymsByPOS = {};
+            
+            // Process synonyms from Datamuse (these are related words)
+            const synonyms = synonymsData.map(item => item.word);
+            
+            // Also get synonyms from dictionary data if available
+            wordData.meanings.forEach(meaning => {
+                if (meaning.synonyms && meaning.synonyms.length > 0) {
+                    const pos = meaning.partOfSpeech;
+                    if (!synonymsByPOS[pos]) {
+                        synonymsByPOS[pos] = new Set();
+                    }
+                    meaning.synonyms.forEach(syn => synonymsByPOS[pos].add(syn));
+                }
+            });
+            
+            // Add Datamuse synonyms to appropriate categories
+            wordData.meanings.forEach(meaning => {
+                const pos = meaning.partOfSpeech;
+                if (!synonymsByPOS[pos]) {
+                    synonymsByPOS[pos] = new Set();
+                }
+                // Add some of the Datamuse synonyms
+                synonyms.slice(0, 15).forEach(syn => synonymsByPOS[pos].add(syn));
+            });
+            
+            let html = `
+                <div class="word-header">
+                    <div class="word">${word.charAt(0).toUpperCase() + word.slice(1)}</div>
+                    ${phonetic ? `<div class="phonetic">${phonetic}</div>` : ''}
+                </div>
+            `;
+            
+            // Display definitions and synonyms by part of speech
+            wordData.meanings.forEach((meaning, index) => {
+                const pos = meaning.partOfSpeech;
+                const posSynonyms = Array.from(synonymsByPOS[pos] || []).slice(0, 20);
+                const posAntonyms = meaning.antonyms || [];
+                
+                html += `
+                    <div class="category-section">
+                        <div class="category-title">
+                            <i class="fas fa-tag"></i> ${pos} (${posSynonyms.length} synonyms)
+                        </div>
+                `;
+                
+                // Display first definition
+                if (meaning.definitions && meaning.definitions.length > 0) {
+                    html += `
+                        <div class="definition-section">
+                            <div class="definition">
+                                <strong>Definition:</strong> ${meaning.definitions[0].definition}
+                            </div>
+                            ${meaning.definitions[0].example ? 
+                                `<div class="usage-note">Example: "${meaning.definitions[0].example}"</div>` : ''}
+                        </div>
+                    `;
+                }
+                
+                // Display synonyms
+                if (posSynonyms.length > 0) {
+                    html += `
+                        <div style="margin-top: 15px;">
+                            <div style="color: #ffcc99; margin-bottom: 8px; font-weight: bold;">
+                                <i class="fas fa-sync-alt"></i> Synonyms
+                            </div>
+                            <div class="synonyms-list">
+                    `;
+                    
+                    posSynonyms.forEach(synonym => {
+                        html += `<div class="synonym-tag" onclick="searchSynonym('${synonym}')">${synonym}</div>`;
+                    });
+                    
+                    html += `</div></div>`;
+                }
+                
+                // Display antonyms if available
+                if (posAntonyms.length > 0) {
+                    html += `
+                        <div style="margin-top: 15px;">
+                            <div style="color: #cccccc; margin-bottom: 8px; font-weight: bold;">
+                                <i class="fas fa-exchange-alt"></i> Antonyms
+                            </div>
+                            <div class="antonyms-list">
+                    `;
+                    
+                    posAntonyms.slice(0, 10).forEach(antonym => {
+                        html += `<div class="antonym-tag" onclick="searchSynonym('${antonym}')">${antonym}</div>`;
+                    });
+                    
+                    html += `</div></div>`;
+                }
+                
+                html += `</div>`;
+            });
+            
+            // Add stats bar
+            const totalSynonyms = Object.values(synonymsByPOS).reduce((total, set) => total + set.size, 0);
+            const totalAntonyms = wordData.meanings.reduce((total, meaning) => total + (meaning.antonyms ? meaning.antonyms.length : 0), 0);
+            
+            html += `
+                <div class="stats-bar">
+                    <div>Total synonyms found: <span style="color: #ff8000; font-weight: bold;">${totalSynonyms}</span></div>
+                    <div>Total antonyms: <span style="color: #cccccc; font-weight: bold;">${totalAntonyms}</span></div>
+                    <div>Parts of speech: <span style="color: #ff8000; font-weight: bold;">${wordData.meanings.length}</span></div>
+                </div>
+            `;
+            
+            resultContainer.innerHTML = html;
+            resultContainer.style.display = 'block';
+            errorMessage.style.display = 'none';
+            
+            // Scroll to results
+            resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function searchSynonym(word) {
+            searchInput.value = word;
+            searchWord();
+        }
+
+        function showError() {
+            resultContainer.style.display = 'none';
+            errorMessage.style.display = 'block';
+            errorMessage.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i><br>
+                Word not found in thesaurus. Please check the spelling or try another word.
+            `;
+        }
+
+        function addToRecentSearches(word) {
+            // Remove if already exists
+            recentWords = recentWords.filter(w => w !== word);
+            
+            // Add to beginning
+            recentWords.unshift(word);
+            
+            // Keep only last 6 searches
+            if (recentWords.length > 6) {
+                recentWords = recentWords.slice(0, 6);
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('recentThesaurusSearches', JSON.stringify(recentWords));
+            
+            // Update display
+            updateRecentSearches();
+        }
+
+        function updateRecentSearches() {
+            if (recentWords.length === 0) {
+                recentSearches.style.display = 'none';
+                return;
+            }
+            
+            recentSearches.style.display = 'block';
+            recentList.innerHTML = '';
+            
+            recentWords.forEach(word => {
+                const wordElement = document.createElement('div');
+                wordElement.className = 'recent-word';
+                wordElement.textContent = word;
+                wordElement.onclick = () => {
+                    searchInput.value = word;
+                    searchWord();
+                };
+                recentList.appendChild(wordElement);
+            });
+        }
+
+        // Allow pressing Enter to search
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchWord();
+            }
+        });
+
+        // Pre-load a sample word
+        window.addEventListener('load', function() {
+            // Optional: pre-load a word to demonstrate
+            // searchInput.value = 'happy';
+            // searchWord();
+        });
+    </script>
+</body>
+</html>

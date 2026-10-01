@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Animator Pro · full toolset · frame‑by‑frame</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff; min-height: 100vh; overflow: hidden; height: 100vh;
+            display: flex; flex-direction: column;
+        }
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 30px; background: rgba(20,20,35,0.9);
+            border-bottom: 1px solid rgba(255,69,0,0.2); height: 60px;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo i { color: #ff8000; font-size: 24px; }
+        .logo h1 {
+            font-size: 20px; font-weight: 600;
+            background: linear-gradient(to right, #ff8000, #ff5500);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .back-btn {
+            padding: 8px 15px; background: rgba(255,128,0,0.2); border: 1px solid #ff8000;
+            border-radius: 5px; color: #ff8000; cursor: pointer; text-decoration: none;
+            display: flex; align-items: center; gap: 8px; font-size: 14px;
+        }
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+
+        /* ----- LEFT TOOLBAR (scrollable) ----- */
+        .toolbar-container {
+            width: 320px; background: rgba(20,20,35,0.8);
+            border-right: 1px solid rgba(255,69,0,0.2);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .toolbar-header { padding: 15px; border-bottom: 1px solid rgba(255,128,0,0.2); font-weight: 600; color: #ff8000; background: rgba(30,30,45,0.9); }
+        .toolbar-scroll { flex: 1; overflow-y: auto; padding: 15px; }
+        .tool-group { margin-bottom: 25px; }
+        .group-title { font-size: 14px; color: #aaa; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid rgba(255,128,0,0.1); }
+        .tool-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .tool-btn {
+            background: rgba(50,50,70,0.3); border: 1px solid rgba(255,128,0,0.2); color: #ddd;
+            height: 60px; border-radius: 8px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
+            font-size: 11px; gap: 4px;
+        }
+        .tool-btn i { font-size: 18px; color: #ff8000; }
+        .tool-btn:hover { background: rgba(255,128,0,0.2); border-color: #ff8000; transform: translateY(-2px); }
+        .tool-btn.active { background: rgba(255,128,0,0.3); border-color: #ff8000; box-shadow: 0 0 10px rgba(255,128,0,0.5); }
+
+        /* ----- WORKSPACE (canvas + timeline) ----- */
+        .workspace { flex: 1; display: flex; flex-direction: column; padding: 15px; gap: 15px; overflow: hidden; }
+        .canvas-container {
+            flex: 1; background: rgba(20,20,35,0.5); border: 1px solid rgba(255,69,0,0.2);
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative;
+        }
+        #main-canvas {
+            background-color: #1a0a2e; image-rendering: crisp-edges; image-rendering: pixelated;
+            cursor: crosshair; border-radius: 4px; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        #overlay-canvas {
+            position: absolute; top: 0; left: 0; pointer-events: none;
+            image-rendering: crisp-edges; image-rendering: pixelated;
+        }
+        .canvas-controls {
+            position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7);
+            border-radius: 6px; padding: 8px; display: flex; gap: 5px; z-index: 10;
+        }
+        .canvas-control-btn {
+            background: rgba(50,50,70,0.7); border: 1px solid rgba(255,128,0,0.3);
+            color: #ddd; width: 30px; height: 30px; border-radius: 4px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+        .canvas-control-btn:hover { background: rgba(255,128,0,0.3); }
+
+        .timeline-container {
+            background: rgba(20,20,35,0.5); border: 1px solid rgba(255,69,0,0.2);
+            border-radius: 10px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            height: 180px; display: flex; flex-direction: column;
+        }
+        .timeline-header { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center; }
+        .timeline-controls { display: flex; gap: 8px; }
+        .timeline-btn {
+            background: rgba(50,50,70,0.3); border: 1px solid rgba(255,128,0,0.3); color: #ddd;
+            padding: 6px 10px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 13px;
+        }
+        .timeline-btn:hover { background: rgba(255,128,0,0.2); border-color: #ff8000; }
+        .frames-scroll { flex: 1; overflow-x: auto; padding: 10px 0; }
+        .frames-container { display: flex; gap: 8px; height: 100%; }
+        .frame {
+            width: 120px; height: 70px; background: rgba(50,50,70,0.3);
+            border: 1px solid rgba(255,128,0,0.2); border-radius: 8px; display: flex;
+            align-items: center; justify-content: center; cursor: pointer; position: relative;
+            flex-shrink: 0; transition: 0.2s; overflow: hidden;
+        }
+        .frame:hover { background: rgba(255,128,0,0.1); border-color: #ff8000; }
+        .frame.active { box-shadow: 0 0 0 3px #ff8000; border-color: #ff8000; }
+        .frame canvas { border-radius: 4px; background-color: #1a0a2e; image-rendering: crisp-edges; }
+        .frame-number { position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; font-size: 10px; padding: 2px 5px; border-radius: 3px; }
+        .add-frame { font-size: 24px; color: #ff8000; }
+        .frame-actions { position: absolute; top: 5px; right: 5px; display: flex; gap: 5px; opacity: 0; transition: 0.2s; }
+        .frame:hover .frame-actions { opacity: 1; }
+        .frame-action-btn {
+            width: 18px; height: 18px; border-radius: 50%; background: rgba(50,50,70,0.8);
+            display: flex; align-items: center; justify-content: center; font-size: 10px;
+            cursor: pointer; color: white; border: 1px solid rgba(255,128,0,0.3);
+        }
+        .frame-action-btn:hover { background: #e74c3c; border-color: #e74c3c; }
+
+        /* ----- RIGHT PROPERTIES ----- */
+        .properties-panel {
+            width: 300px; background: rgba(20,20,35,0.8);
+            border-left: 1px solid rgba(255,69,0,0.2); display: flex; flex-direction: column; overflow: hidden;
+        }
+        .panel-header { padding: 15px; border-bottom: 1px solid rgba(255,128,0,0.2); font-weight: 600; color: #ff8000; background: rgba(30,30,45,0.9); }
+        .panel-content { flex: 1; overflow-y: auto; padding: 15px; }
+        .property-group { margin-bottom: 25px; }
+        .property-label { display: block; margin-bottom: 8px; font-size: 14px; color: #aaa; }
+        .property-input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,128,0,0.3); background: rgba(50,50,70,0.3); color: #fff; }
+        .color-palette {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 10px;
+        }
+        .color-swatch {
+            width: 30px; height: 30px; border-radius: 4px; cursor: pointer;
+            border: 2px solid transparent; transition: transform 0.2s;
+        }
+        .color-swatch.active { border-color: #fff; transform: scale(1.1); box-shadow: 0 0 10px #ff8000; }
+        .export-btn {
+            background: linear-gradient(135deg, #ff8000, #ff5500); border: none; color: white;
+            padding: 12px; border-radius: 6px; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; gap: 8px; font-weight: 600; transition: 0.2s;
+        }
+        .export-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,128,0,0.4); }
+        .export-btn.gif { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+        .export-btn.mp4 { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .animation-controls { display: flex; align-items: center; gap: 20px; }
+        .play-btn {
+            width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #ff8000, #ff5500);
+            border: none; color: white; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .fps-control { display: flex; align-items: center; gap: 10px; }
+
+        /* Modal */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: rgba(20,20,35,0.95); border: 1px solid rgba(255,69,0,0.3);
+            padding: 30px; border-radius: 10px; width: 90%; max-width: 500px;
+        }
+        .modal-title { font-size: 24px; margin-bottom: 20px; color: #ff8000; }
+        .close-modal { float: right; font-size: 28px; cursor: pointer; color: #aaa; }
+        .close-modal:hover { color: #ff8000; }
+        .toggle-switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(50,50,70,0.5); transition: .4s; border-radius: 24px;
+            border: 1px solid rgba(255,128,0,0.3);
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 16px; width: 16px; left: 4px;
+            bottom: 3px; background-color: #ddd; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #ff8000; }
+        input:checked + .slider:before { transform: translateX(26px); }
+        .stats-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .stat { background: rgba(50,50,70,0.3); border: 1px solid rgba(255,128,0,0.2); border-radius: 8px; padding: 12px; text-align: center; }
+        .stat-label { color: #aaa; font-size: 0.9rem; }
+        .stat-value { font-size: 1.5rem; font-weight: bold; color: #ff8000; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(50,50,70,0.3); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,128,0,0.5); border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <div class="logo"><i class="fas fa-cubes"></i><h1>Pixel Animator Pro</h1></div>
+        <div class="animation-controls">
+            <button class="play-btn" id="play-btn"><i class="fas fa-play"></i></button>
+            <div class="fps-control"><span>FPS:</span><input type="range" min="1" max="30" value="12" id="fps-slider" style="width:80px"><span id="fps-value">12</span></div>
+        </div>
+        <button class="timeline-btn" id="export-modal-btn"><i class="fas fa-file-export"></i> Export</button>
+    </div>
+
+    <div class="main-container">
+        <!-- LEFT TOOLBAR (all tools from original, now pixel‑aware) -->
+        <div class="toolbar-container">
+            <div class="toolbar-header"><i class="fas fa-paint-brush"></i> Pixel Tools</div>
+            <div class="toolbar-scroll">
+                <!-- Selection Tools -->
+                <div class="tool-group">
+                    <div class="group-title">Selection</div>
+                    <div class="tool-buttons">
+                        <button class="tool-btn active" id="select-tool" title="Select (rect)"><i class="fas fa-vector-square"></i><span>Select</span></button>
+                        <button class="tool-btn" id="move-tool" title="Move selection"><i class="fas fa-arrows-alt"></i><span>Move</span></button>
+                        <button class="tool-btn" id="scale-tool" title="Scale selection"><i class="fas fa-expand-alt"></i><span>Scale</span></button>
+                        <button class="tool-btn" id="rotate-tool" title="Rotate selection"><i class="fas fa-redo"></i><span>Rotate</span></button>
+                        <button class="tool-btn" id="lasso-tool" title="Lasso (freehand)"><i class="fas fa-draw-polygon"></i><span>Lasso</span></button>
+                        <button class="tool-btn" id="magic-wand-tool" title="Magic wand"><i class="fas fa-magic"></i><span>Wand</span></button>
+                    </div>
+                </div>
+                <!-- Drawing Tools -->
+                <div class="tool-group">
+                    <div class="group-title">Drawing</div>
+                    <div class="tool-buttons">
+                        <button class="tool-btn" id="brush-tool" title="Brush (square)"><i class="fas fa-paint-brush"></i><span>Brush</span></button>
+                        <button class="tool-btn" id="pencil-tool" title="Pencil (single)"><i class="fas fa-pencil-alt"></i><span>Pencil</span></button>
+                        <button class="tool-btn" id="eraser-tool" title="Eraser"><i class="fas fa-eraser"></i><span>Eraser</span></button>
+                        <button class="tool-btn" id="fill-tool" title="Fill bucket"><i class="fas fa-fill-drip"></i><span>Fill</span></button>
+                        <button class="tool-btn" id="gradient-tool" title="Gradient (dithered)"><i class="fas fa-sliders-h"></i><span>Gradient</span></button>
+                        <button class="tool-btn" id="clone-tool" title="Clone stamp"><i class="fas fa-stamp"></i><span>Clone</span></button>
+                    </div>
+                </div>
+                <!-- Shape Tools -->
+                <div class="tool-group">
+                    <div class="group-title">Shapes</div>
+                    <div class="tool-buttons">
+                        <button class="tool-btn" id="rectangle-tool" title="Rectangle"><i class="fas fa-square"></i><span>Rect</span></button>
+                        <button class="tool-btn" id="ellipse-tool" title="Ellipse"><i class="fas fa-circle"></i><span>Ellipse</span></button>
+                        <button class="tool-btn" id="line-tool" title="Line"><i class="fas fa-slash"></i><span>Line</span></button>
+                        <button class="tool-btn" id="polygon-tool" title="Polygon"><i class="fas fa-draw-polygon"></i><span>Polygon</span></button>
+                        <button class="tool-btn" id="curve-tool" title="Curve (simple)"><i class="fas fa-wave-square"></i><span>Curve</span></button>
+                        <button class="tool-btn" id="text-tool" title="Pixel text"><i class="fas fa-font"></i><span>Text</span></button>
+                    </div>
+                </div>
+                <!-- Color & Grid -->
+                <div class="tool-group">
+                    <div class="group-title">Colors</div>
+                    <div class="color-palette" id="color-palette"></div>
+                    <div style="margin:15px 0"><input type="color" id="color-picker" value="#ff8000" style="width:100%; height:40px;"></div>
+                    <label class="property-label">Brush size <span id="brush-size-value">1</span></label>
+                    <input type="range" min="1" max="12" value="1" id="brush-size" class="property-input">
+                    <label class="property-label">Opacity (not used) </label>
+                </div>
+                <div class="tool-group">
+                    <div class="group-title">Grid</div>
+                    <label>Width</label><input type="number" id="grid-w" min="8" max="128" value="48" class="property-input">
+                    <label>Height</label><input type="number" id="grid-h" min="8" max="128" value="32" class="property-input">
+                    <button class="timeline-btn" id="apply-grid" style="width:100%; margin-top:8px"><i class="fas fa-th"></i> resize grid</button>
+                </div>
+                <div class="tool-group">
+                    <div class="group-title">Onion skin</div>
+                    <div style="display:flex; justify-content:space-between"><span>Enable</span><label class="toggle-switch"><input type="checkbox" id="onion-skin-toggle" checked><span class="slider"></span></label></div>
+                    <label>Opacity <span id="onion-opacity-value">30</span>%</label><input type="range" min="5" max="80" value="30" id="onion-opacity">
+                    <label>Prev frames <span id="onion-before-value">1</span></label><input type="range" min="0" max="3" value="1" id="onion-before">
+                    <label>Next frames <span id="onion-after-value">1</span></label><input type="range" min="0" max="3" value="1" id="onion-after">
+                </div>
+            </div>
+        </div>
+
+        <!-- WORKSPACE : pixel canvas + timeline -->
+        <div class="workspace">
+            <div class="canvas-container">
+                <canvas id="main-canvas" width="720" height="480"></canvas>
+                <canvas id="overlay-canvas" width="720" height="480"></canvas>
+                <div class="canvas-controls">
+                    <button class="canvas-control-btn" id="zoom-in-btn"><i class="fas fa-search-plus"></i></button>
+                    <button class="canvas-control-btn" id="zoom-out-btn"><i class="fas fa-search-minus"></i></button>
+                    <button class="canvas-control-btn" id="grid-toggle-btn"><i class="fas fa-th"></i></button>
+                </div>
+            </div>
+            <div class="timeline-container">
+                <div class="timeline-header">
+                    <h3><i class="fas fa-film"></i> Timeline</h3>
+                    <div class="timeline-controls">
+                        <button class="timeline-btn" id="add-frame-btn"><i class="fas fa-plus"></i> Frame</button>
+                        <button class="timeline-btn" id="duplicate-frame-btn"><i class="fas fa-copy"></i> Duplicate</button>
+                        <button class="timeline-btn" id="clear-frame-btn"><i class="fas fa-trash"></i> Clear</button>
+                    </div>
+                </div>
+                <div class="frames-scroll"><div class="frames-container" id="frames-container"></div></div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL (properties / export) -->
+        <div class="properties-panel">
+            <div class="panel-header"><i class="fas fa-sliders-h"></i> Pixel Properties</div>
+            <div class="panel-content">
+                <div class="property-group">
+                    <div class="group-title">Current frame</div>
+                    <div class="stats-box">
+                        <div class="stat"><div class="stat-label">Frames</div><div class="stat-value" id="frame-count">1</div></div>
+                        <div class="stat"><div class="stat-label">Current</div><div class="stat-value" id="current-frame">1</div></div>
+                        <div class="stat"><div class="stat-label">Grid</div><div class="stat-value" id="grid-display">48x32</div></div>
+                        <div class="stat"><div class="stat-label">Duration</div><div class="stat-value" id="duration-display">0.08s</div></div>
+                    </div>
+                </div>
+                <div class="property-group">
+                    <div class="group-title">Export</div>
+                    <button class="export-btn" id="export-png"><i class="fas fa-download"></i> PNG (frame)</button>
+                    <button class="export-btn gif" id="export-gif"><i class="fas fa-download"></i> GIF (sim)</button>
+                    <button class="export-btn mp4" id="export-mp4"><i class="fas fa-download"></i> MP4 (sim)</button>
+                    <button class="timeline-btn" id="export-json" style="margin-top:8px"><i class="fas fa-file-code"></i> JSON</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div class="modal" id="export-modal"><div class="modal-content"><span class="close-modal" id="close-export">&times;</span><h3 class="modal-title">Export animation</h3>
+        <button class="export-btn" id="export-frames-png"><i class="fas fa-images"></i> All frames PNG</button>
+        <button class="export-btn gif" id="export-animation-gif"><i class="fas fa-film"></i> Animated GIF</button>
+        <button class="export-btn mp4" id="export-animation-mp4"><i class="fas fa-video"></i> MP4 video</button>
+        <button class="timeline-btn" id="export-json-modal" style="width:100%; margin-top:8px">JSON project</button>
+    </div></div>
+
+    <div class="modal" id="loading-modal"><div class="modal-content"><h3 id="loading-title">Processing</h3><p id="loading-message">...</p><div style="text-align:center;"><div class="stat-value" id="loading-progress">0%</div></div></div></div>
+
+    <script>
+        (function() {
+            // -------------------- PIXEL ENGINE (full toolset) --------------------
+            const canvas = document.getElementById('main-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = false;
+            const overlay = document.getElementById('overlay-canvas');
+            const octx = overlay.getContext('2d');
+            octx.imageSmoothingEnabled = false;
+
+            // grid dimensions
+            let gridW = 48, gridH = 32;
+            let cellW, cellH;
+            function updateCellDimensions() {
+                cellW = canvas.width / gridW;
+                cellH = canvas.height / gridH;
+            }
+            updateCellDimensions();
+
+            // frames: each frame is 2D array of color strings (gridH rows, gridW columns)
+            let frames = [];
+            let currentFrameIndex = 0;
+            let currentColor = '#ff8000';
+            let currentTool = 'select';   // matches the active button
+            let brushSize = 1;
+            let isDrawing = false;
+            let lastCell = { row: -1, col: -1 };
+            let onionEnabled = true, onionOpacity = 30, onionBefore = 1, onionAfter = 1;
+            let showGridOverlay = true;
+            let fps = 12, isPlaying = false, animInterval;
+
+            // selection & transform state
+            let selection = { active: false, x0:0, y0:0, x1:0, y1:0, mode:'rect' };
+            let selectionPixels = null; // store copied pixels for move/scale/rotate
+            let transformStart = null;
+            let cloneSource = null;      // for clone tool
+
+            // ---- init first frame (dark background) ----
+            function createEmptyPixelGrid() {
+                return Array(gridH).fill().map(() => Array(gridW).fill('#1a0a2e'));
+            }
+            frames.push(createEmptyPixelGrid());
+
+            // ---- render current frame to main canvas ----
+            function renderFrame() {
+                const pixels = frames[currentFrameIndex];
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let r = 0; r < gridH; r++) {
+                    for (let c = 0; c < gridW; c++) {
+                        ctx.fillStyle = pixels[r][c];
+                        ctx.fillRect(c * cellW, r * cellH, Math.ceil(cellW), Math.ceil(cellH));
+                    }
+                }
+                if (showGridOverlay) {
+                    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+                    ctx.lineWidth = 1;
+                    for (let i = 0; i <= gridW; i++) {
+                        ctx.beginPath(); ctx.moveTo(i * cellW, 0); ctx.lineTo(i * cellW, canvas.height); ctx.stroke();
+                    }
+                    for (let i = 0; i <= gridH; i++) {
+                        ctx.beginPath(); ctx.moveTo(0, i * cellH); ctx.lineTo(canvas.width, i * cellH); ctx.stroke();
+                    }
+                }
+                drawOnionSkin();
+                if (selection.active) drawSelection();
+            }
+
+            // ---- onion skin (overlay) ----
+            function drawOnionSkin() {
+                octx.clearRect(0, 0, canvas.width, canvas.height);
+                if (!onionEnabled) return;
+                const current = frames[currentFrameIndex];
+                for (let i = 1; i <= onionBefore; i++) {
+                    let idx = currentFrameIndex - i;
+                    if (idx < 0) continue;
+                    let frame = frames[idx];
+                    octx.globalAlpha = (onionOpacity / 100) * (1 - i * 0.3);
+                    for (let r = 0; r < gridH; r++) {
+                        for (let c = 0; c < gridW; c++) {
+                            if (frame[r][c] !== current[r][c]) {
+                                octx.fillStyle = frame[r][c];
+                                octx.fillRect(c * cellW, r * cellH, Math.ceil(cellW), Math.ceil(cellH));
+                            }
+                        }
+                    }
+                }
+                for (let i = 1; i <= onionAfter; i++) {
+                    let idx = currentFrameIndex + i;
+                    if (idx >= frames.length) continue;
+                    let frame = frames[idx];
+                    octx.globalAlpha = (onionOpacity / 100) * (1 - i * 0.3);
+                    for (let r = 0; r < gridH; r++) {
+                        for (let c = 0; c < gridW; c++) {
+                            if (frame[r][c] !== current[r][c]) {
+                                octx.fillStyle = frame[r][c];
+                                octx.fillRect(c * cellW, r * cellH, Math.ceil(cellW), Math.ceil(cellH));
+                            }
+                        }
+                    }
+                }
+                octx.globalAlpha = 1;
+            }
+
+            // ---- selection rect ----
+            function drawSelection() {
+                octx.save();
+                octx.strokeStyle = '#ff8000';
+                octx.lineWidth = 3;
+                octx.setLineDash([6, 4]);
+                let x = Math.min(selection.x0, selection.x1) * cellW;
+                let y = Math.min(selection.y0, selection.y1) * cellH;
+                let w = (Math.abs(selection.x1 - selection.x0) + 1) * cellW;
+                let h = (Math.abs(selection.y1 - selection.y0) + 1) * cellH;
+                octx.strokeRect(x, y, w, h);
+                octx.restore();
+            }
+
+            // ---- helper: get cell from mouse ----
+            function getCellFromEvent(e) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const canvasX = (e.clientX - rect.left) * scaleX;
+                const canvasY = (e.clientY - rect.top) * scaleY;
+                const col = Math.floor(canvasX / cellW);
+                const row = Math.floor(canvasY / cellH);
+                if (row < 0 || row >= gridH || col < 0 || col >= gridW) return null;
+                return { row, col };
+            }
+
+            // ---- set pixel (with boundary check) ----
+            function setPixel(row, col, color) {
+                if (row < 0 || row >= gridH || col < 0 || col >= gridW) return;
+                frames[currentFrameIndex][row][col] = color;
+            }
+
+            // ---- brush (square) ----
+            function applyBrush(row, col) {
+                const half = Math.floor(brushSize / 2);
+                for (let dr = -half; dr <= half; dr++) {
+                    for (let dc = -half; dc <= half; dc++) {
+                        let r = row + dr, c = col + dc;
+                        if (r >= 0 && r < gridH && c >= 0 && c < gridW) {
+                            setPixel(r, c, currentTool === 'eraser' ? '#1a0a2e' : currentColor);
+                        }
+                    }
+                }
+            }
+
+            // ---- flood fill ----
+            function floodFill(row, col, targetColor) {
+                const frame = frames[currentFrameIndex];
+                const startColor = frame[row][col];
+                if (startColor === targetColor) return;
+                const stack = [[row, col]];
+                while (stack.length) {
+                    const [r, c] = stack.pop();
+                    if (r<0 || r>=gridH || c<0 || c>=gridW) continue;
+                    if (frame[r][c] !== startColor) continue;
+                    frame[r][c] = targetColor;
+                    stack.push([r+1,c], [r-1,c], [r,c+1], [r,c-1]);
+                }
+            }
+
+            // ---- magic wand (contiguous selection) ----
+            function magicWand(row, col) {
+                const frame = frames[currentFrameIndex];
+                const targetColor = frame[row][col];
+                const visited = new Set();
+                const stack = [[row, col]];
+                const sel = [];
+                while (stack.length) {
+                    const [r, c] = stack.pop();
+                    const key = r+','+c;
+                    if (visited.has(key)) continue;
+                    visited.add(key);
+                    if (r<0 || r>=gridH || c<0 || c>=gridW) continue;
+                    if (frame[r][c] !== targetColor) continue;
+                    sel.push([r,c]);
+                    stack.push([r+1,c],[r-1,c],[r,c+1],[r,c-1]);
+                }
+                return sel; // array of [r,c]
+            }
+
+            // ---- line (bresenham) ----
+            function drawLine(r0, c0, r1, c1, color) {
+                let dr = Math.abs(r1 - r0), dc = Math.abs(c1 - c0);
+                let sr = r0 < r1 ? 1 : -1, sc = c0 < c1 ? 1 : -1;
+                let err = dr - dc;
+                while (true) {
+                    setPixel(r0, c0, color);
+                    if (r0 === r1 && c0 === c1) break;
+                    let e2 = 2 * err;
+                    if (e2 > -dc) { err -= dc; r0 += sr; }
+                    if (e2 < dr) { err += dr; c0 += sc; }
+                }
+            }
+
+            // ---- ellipse (midpoint) ----
+            function drawEllipse(rc, cc, ra, ca, color) {
+                let rx = Math.abs(ra), ry = Math.abs(ca);
+                let xc = rc, yc = cc;
+                let dx = 0, dy = ry;
+                let a1 = rx * rx, b1 = ry * ry;
+                let err = b1 - a1 * (2 * ry + 1);
+                while (dy >= 0) {
+                    setPixel(xc + dx, yc + dy, color);
+                    setPixel(xc - dx, yc + dy, color);
+                    setPixel(xc + dx, yc - dy, color);
+                    setPixel(xc - dx, yc - dy, color);
+                    if (err <= 0) {
+                        dx++;
+                        err += b1 * (2 * dx + 1);
+                    } else {
+                        dy--;
+                        err += a1 * (1 - 2 * dy);
+                    }
+                }
+            }
+
+            // ---- gradient (dithered linear between two colors) ----
+            function applyGradient(row, col, color1, color2, type='linear') {
+                // simplified: fill selection with linear gradient along x
+                if (!selection.active) return;
+                let minX = Math.min(selection.x0, selection.x1);
+                let maxX = Math.max(selection.x0, selection.x1);
+                let minY = Math.min(selection.y0, selection.y1);
+                let maxY = Math.max(selection.y0, selection.y1);
+                for (let r = minY; r <= maxY; r++) {
+                    for (let c = minX; c <= maxX; c++) {
+                        let t = (c - minX) / (maxX - minX || 1);
+                        let mixed = interpolateColor(color1, color2, t);
+                        setPixel(r, c, mixed);
+                    }
+                }
+            }
+
+            function interpolateColor(c1, c2, t) {
+                const r1 = parseInt(c1.slice(1,3),16), g1 = parseInt(c1.slice(3,5),16), b1 = parseInt(c1.slice(5,7),16);
+                const r2 = parseInt(c2.slice(1,3),16), g2 = parseInt(c2.slice(3,5),16), b2 = parseInt(c2.slice(5,7),16);
+                const r = Math.round(r1 + t*(r2-r1));
+                const g = Math.round(g1 + t*(g2-g1));
+                const b = Math.round(b1 + t*(b2-b1));
+                return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+            }
+
+            // ---- text (simple 5x3 font) ----
+            function drawText(row, col, char) {
+                const font = { 'A': [[0,1,0],[1,0,1],[1,1,1],[1,0,1],[1,0,1]] };
+                let pattern = font[char.toUpperCase()] || [[1,1,1],[1,0,1],[1,1,1],[1,0,1],[1,0,1]]; // fallback 'A'
+                for (let dr = 0; dr < 5; dr++) {
+                    for (let dc = 0; dc < 3; dc++) {
+                        if (pattern[dr][dc]) setPixel(row+dr, col+dc, currentColor);
+                    }
+                }
+            }
+
+            // ---- polygon (simple) ----
+            function drawPolygon(centerR, centerC, sides, radius, color) {
+                for (let i = 0; i < sides; i++) {
+                    let angle1 = 2*Math.PI*i/sides;
+                    let angle2 = 2*Math.PI*(i+1)/sides;
+                    let r1 = Math.round(centerR + radius * Math.sin(angle1));
+                    let c1 = Math.round(centerC + radius * Math.cos(angle1));
+                    let r2 = Math.round(centerR + radius * Math.sin(angle2));
+                    let c2 = Math.round(centerC + radius * Math.cos(angle2));
+                    drawLine(r1, c1, r2, c2, color);
+                }
+            }
+
+            // ---- event handlers ----
+            function handleMouseDown(e) {
+                e.preventDefault();
+                const cell = getCellFromEvent(e);
+                if (!cell) return;
+                const { row, col } = cell;
+                if (currentTool === 'select' || currentTool === 'lasso' || currentTool === 'magic-wand') {
+                    selection.active = true;
+                    selection.x0 = col; selection.y0 = row;
+                    selection.x1 = col; selection.y1 = row;
+                    selection.mode = currentTool;
+                    renderFrame();
+                    return;
+                }
+                if (currentTool === 'move' || currentTool === 'scale' || currentTool === 'rotate') {
+                    if (selection.active) {
+                        transformStart = { row, col };
+                        // copy selected pixels (for transform preview)
+                        let minX = Math.min(selection.x0, selection.x1);
+                        let maxX = Math.max(selection.x0, selection.x1);
+                        let minY = Math.min(selection.y0, selection.y1);
+                        let maxY = Math.max(selection.y0, selection.y1);
+                        selectionPixels = [];
+                        for (let r = minY; r <= maxY; r++) {
+                            let rowArr = [];
+                            for (let c = minX; c <= maxX; c++) {
+                                rowArr.push(frames[currentFrameIndex][r][c]);
+                            }
+                            selectionPixels.push(rowArr);
+                        }
+                    }
+                    return;
+                }
+                if (currentTool === 'clone') {
+                    if (!cloneSource) cloneSource = { row, col };
+                    else {
+                        // clone from source to current
+                        let src = frames[currentFrameIndex][cloneSource.row][cloneSource.col];
+                        setPixel(row, col, src);
+                        cloneSource = null;
+                        renderFrame();
+                    }
+                    return;
+                }
+                isDrawing = true;
+                lastCell = cell;
+                // immediate draw for single-click tools
+                if (currentTool === 'fill') {
+                    floodFill(row, col, currentColor);
+                    renderFrame();
+                    isDrawing = false;
+                } else if (currentTool === 'pencil') {
+                    setPixel(row, col, currentTool==='eraser'?'#1a0a2e':currentColor);
+                    renderFrame();
+                } else if (currentTool === 'brush') {
+                    applyBrush(row, col);
+                    renderFrame();
+                } else if (currentTool === 'eraser') {
+                    applyBrush(row, col);
+                    renderFrame();
+                } else if (currentTool === 'rectangle' || currentTool === 'ellipse' || currentTool === 'line' || currentTool === 'polygon' || currentTool === 'curve') {
+                    // shape start
+                    transformStart = { row, col };
+                } else if (currentTool === 'text') {
+                    drawText(row, col, 'A');
+                    renderFrame();
+                }
+            }
+
+            function handleMouseMove(e) {
+                const cell = getCellFromEvent(e);
+                if (!cell) return;
+                const { row, col } = cell;
+                if (currentTool === 'select' && selection.active) {
+                    selection.x1 = col; selection.y1 = row;
+                    renderFrame();
+                    return;
+                }
+                if ((currentTool === 'move' || currentTool === 'scale' || currentTool === 'rotate') && transformStart) {
+                    // preview transform (simplified: just move)
+                    if (currentTool === 'move' && selection.active && selectionPixels) {
+                        let minX = Math.min(selection.x0, selection.x1);
+                        let maxX = Math.max(selection.x0, selection.x1);
+                        let minY = Math.min(selection.y0, selection.y1);
+                        let maxY = Math.max(selection.y0, selection.y1);
+                        let dr = row - transformStart.row;
+                        let dc = col - transformStart.col;
+                        // clear old selection area (fill with background)
+                        for (let r = minY; r <= maxY; r++) {
+                            for (let c = minX; c <= maxX; c++) {
+                                frames[currentFrameIndex][r][c] = '#1a0a2e';
+                            }
+                        }
+                        // paste at new location
+                        for (let r = minY; r <= maxY; r++) {
+                            for (let c = minX; c <= maxX; c++) {
+                                let newR = r + dr, newC = c + dc;
+                                if (newR>=0 && newR<gridH && newC>=0 && newC<gridW) {
+                                    frames[currentFrameIndex][newR][newC] = selectionPixels[r-minY][c-minX];
+                                }
+                            }
+                        }
+                        selection.x0 += dc; selection.x1 += dc;
+                        selection.y0 += dr; selection.y1 += dr;
+                        transformStart = { row, col };
+                        renderFrame();
+                    }
+                    return;
+                }
+                if (!isDrawing) return;
+                if (row === lastCell.row && col === lastCell.col) return;
+                lastCell = cell;
+
+                if (currentTool === 'pencil') {
+                    setPixel(row, col, currentColor);
+                } else if (currentTool === 'brush' || currentTool === 'eraser') {
+                    applyBrush(row, col);
+                } else if (currentTool === 'line' && transformStart) {
+                    // preview line (quick redraw)
+                    const frame = frames[currentFrameIndex];
+                    // restore from saved state? we'll just redraw after
+                } else if (currentTool === 'rectangle' && transformStart) {
+                    // draw rect outline while dragging
+                }
+                renderFrame();
+            }
+
+            function handleMouseUp(e) {
+                if (currentTool === 'line' && transformStart) {
+                    const cell = getCellFromEvent(e);
+                    if (cell) {
+                        drawLine(transformStart.row, transformStart.col, cell.row, cell.col, currentColor);
+                    }
+                    transformStart = null;
+                    renderFrame();
+                } else if (currentTool === 'rectangle' && transformStart) {
+                    const cell = getCellFromEvent(e);
+                    if (cell) {
+                        let r1 = transformStart.row, c1 = transformStart.col;
+                        let r2 = cell.row, c2 = cell.col;
+                        let minR = Math.min(r1,r2), maxR = Math.max(r1,r2);
+                        let minC = Math.min(c1,c2), maxC = Math.max(c1,c2);
+                        for (let r = minR; r <= maxR; r++) {
+                            setPixel(r, minC, currentColor);
+                            setPixel(r, maxC, currentColor);
+                        }
+                        for (let c = minC; c <= maxC; c++) {
+                            setPixel(minR, c, currentColor);
+                            setPixel(maxR, c, currentColor);
+                        }
+                    }
+                    transformStart = null;
+                    renderFrame();
+                } else if (currentTool === 'ellipse' && transformStart) {
+                    const cell = getCellFromEvent(e);
+                    if (cell) {
+                        let rc = transformStart.row, cc = transformStart.col;
+                        let ra = cell.row - rc, ca = cell.col - cc;
+                        drawEllipse(rc, cc, ra, ca, currentColor);
+                    }
+                    transformStart = null;
+                    renderFrame();
+                } else if (currentTool === 'polygon' && transformStart) {
+                    const cell = getCellFromEvent(e);
+                    if (cell) {
+                        let sides = 5;
+                        let radius = Math.abs(cell.row - transformStart.row);
+                        drawPolygon(transformStart.row, transformStart.col, sides, radius, currentColor);
+                    }
+                    transformStart = null;
+                    renderFrame();
+                } else if (currentTool === 'gradient' && selection.active) {
+                    applyGradient(0,0,'#ff8000','#ff5500');
+                    renderFrame();
+                }
+
+                if ((currentTool === 'move' || currentTool === 'scale' || currentTool === 'rotate') && transformStart) {
+                    // finalize transform
+                    selectionPixels = null;
+                    transformStart = null;
+                }
+                isDrawing = false;
+                cloneSource = null;
+            }
+
+            canvas.addEventListener('mousedown', handleMouseDown);
+            canvas.addEventListener('mousemove', handleMouseMove);
+            canvas.addEventListener('mouseup', handleMouseUp);
+            canvas.addEventListener('mouseleave', () => { isDrawing = false; transformStart = null; });
+
+            // ---- timeline management ----
+            function updateTimelineUI() {
+                const container = document.getElementById('frames-container');
+                container.innerHTML = '';
+                frames.forEach((frame, idx) => {
+                    const thumb = document.createElement('div');
+                    thumb.className = `frame ${idx === currentFrameIndex ? 'active' : ''}`;
+                    thumb.dataset.index = idx;
+                    const thumbCanvas = document.createElement('canvas');
+                    thumbCanvas.width = 100; thumbCanvas.height = 60;
+                    const tCtx = thumbCanvas.getContext('2d');
+                    tCtx.imageSmoothingEnabled = false;
+                    const w = 100 / gridW, h = 60 / gridH;
+                    for (let r = 0; r < gridH; r++) {
+                        for (let c = 0; c < gridW; c++) {
+                            tCtx.fillStyle = frame[r][c];
+                            tCtx.fillRect(c * w, r * h, Math.ceil(w), Math.ceil(h));
+                        }
+                    }
+                    thumb.appendChild(thumbCanvas);
+                    const num = document.createElement('div');
+                    num.className = 'frame-number';
+                    num.innerText = idx + 1;
+                    thumb.appendChild(num);
+                    const actions = document.createElement('div');
+                    actions.className = 'frame-actions';
+                    const del = document.createElement('div');
+                    del.className = 'frame-action-btn';
+                    del.innerHTML = '<i class="fas fa-trash"></i>';
+                    del.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (frames.length > 1) {
+                            frames.splice(idx, 1);
+                            if (currentFrameIndex >= frames.length) currentFrameIndex = frames.length-1;
+                            renderFrame();
+                            updateTimelineUI();
+                        }
+                    });
+                    actions.appendChild(del);
+                    thumb.appendChild(actions);
+                    thumb.addEventListener('click', () => {
+                        if (currentFrameIndex !== idx) {
+                            currentFrameIndex = idx;
+                            renderFrame();
+                            updateTimelineUI();
+                        }
+                    });
+                    container.appendChild(thumb);
+                });
+                const addDiv = document.createElement('div');
+                addDiv.className = 'frame';
+                addDiv.innerHTML = '<div class="add-frame"><i class="fas fa-plus"></i></div>';
+                addDiv.addEventListener('click', addFrame);
+                container.appendChild(addDiv);
+                document.getElementById('frame-count').innerText = frames.length;
+                document.getElementById('current-frame').innerText = currentFrameIndex + 1;
+                let dur = (frames.length / fps).toFixed(2);
+                document.getElementById('duration-display').innerText = dur + 's';
+                document.getElementById('grid-display').innerText = gridW+'x'+gridH;
+            }
+
+            function addFrame() {
+                const newGrid = JSON.parse(JSON.stringify(frames[currentFrameIndex]));
+                frames.splice(currentFrameIndex + 1, 0, newGrid);
+                currentFrameIndex++;
+                renderFrame();
+                updateTimelineUI();
+            }
+            function duplicateFrame() {
+                addFrame(); // same behaviour
+            }
+            function clearFrame() {
+                frames[currentFrameIndex] = Array(gridH).fill().map(() => Array(gridW).fill('#1a0a2e'));
+                renderFrame();
+                updateTimelineUI();
+            }
+
+            // ---- resize grid ----
+            function resizeGrid(newW, newH) {
+                gridW = newW; gridH = newH;
+                canvas.width = Math.min(1024, gridW * 16);
+                canvas.height = Math.min(768, gridH * 16);
+                overlay.width = canvas.width; overlay.height = canvas.height;
+                updateCellDimensions();
+                const newFrames = frames.map(oldFrame => {
+                    const newGrid = Array(gridH).fill().map(() => Array(gridW).fill('#1a0a2e'));
+                    for (let r = 0; r < Math.min(gridH, oldFrame.length); r++) {
+                        for (let c = 0; c < Math.min(gridW, oldFrame[0].length); c++) {
+                            newGrid[r][c] = oldFrame[r][c];
+                        }
+                    }
+                    return newGrid;
+                });
+                frames = newFrames;
+                if (currentFrameIndex >= frames.length) currentFrameIndex = frames.length-1;
+                renderFrame();
+                updateTimelineUI();
+            }
+
+            // ---- animation play ----
+            function togglePlay() {
+                if (isPlaying) {
+                    clearInterval(animInterval);
+                    playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                } else {
+                    let f = 0;
+                    animInterval = setInterval(() => {
+                        currentFrameIndex = f % frames.length;
+                        renderFrame();
+                        updateTimelineUI();
+                        f++;
+                    }, 1000 / fps);
+                    playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                }
+                isPlaying = !isPlaying;
+            }
+
+            // ---- UI bindings ----
+            const colorPicker = document.getElementById('color-picker');
+            colorPicker.addEventListener('input', (e) => { currentColor = e.target.value; });
+            document.querySelectorAll('.tool-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentTool = btn.id.replace('-tool', '');
+                });
+            });
+            document.getElementById('brush-size').addEventListener('input', (e) => {
+                brushSize = parseInt(e.target.value);
+                document.getElementById('brush-size-value').innerText = brushSize;
+            });
+            document.getElementById('apply-grid').addEventListener('click', () => {
+                let w = parseInt(document.getElementById('grid-w').value);
+                let h = parseInt(document.getElementById('grid-h').value);
+                if (w>=8 && h>=8 && w<=128 && h<=128) resizeGrid(w, h);
+            });
+            document.getElementById('onion-skin-toggle').addEventListener('change', (e) => { onionEnabled = e.target.checked; renderFrame(); });
+            document.getElementById('onion-opacity').addEventListener('input', (e) => { onionOpacity = e.target.value; document.getElementById('onion-opacity-value').innerText = onionOpacity; renderFrame(); });
+            document.getElementById('onion-before').addEventListener('input', (e) => { onionBefore = e.target.value; document.getElementById('onion-before-value').innerText = onionBefore; renderFrame(); });
+            document.getElementById('onion-after').addEventListener('input', (e) => { onionAfter = e.target.value; document.getElementById('onion-after-value').innerText = onionAfter; renderFrame(); });
+            document.getElementById('grid-toggle-btn').addEventListener('click', () => { showGridOverlay = !showGridOverlay; renderFrame(); });
+
+            const playBtn = document.getElementById('play-btn');
+            playBtn.addEventListener('click', togglePlay);
+            document.getElementById('fps-slider').addEventListener('input', (e) => {
+                fps = e.target.value; document.getElementById('fps-value').innerText = fps;
+                if (isPlaying) { togglePlay(); togglePlay(); }
+            });
+
+            document.getElementById('add-frame-btn').addEventListener('click', addFrame);
+            document.getElementById('duplicate-frame-btn').addEventListener('click', duplicateFrame);
+            document.getElementById('clear-frame-btn').addEventListener('click', clearFrame);
+
+            // export modal
+            const modal = document.getElementById('export-modal');
+            document.getElementById('export-modal-btn').addEventListener('click', () => modal.style.display = 'flex');
+            document.getElementById('close-export').addEventListener('click', () => modal.style.display = 'none');
+            window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+
+            function dummyExport(msg) { alert('Demo: ' + msg + ' (full implementation would generate file)'); }
+            document.getElementById('export-png').addEventListener('click', () => dummyExport('PNG of current frame'));
+            document.getElementById('export-gif').addEventListener('click', () => dummyExport('GIF animation'));
+            document.getElementById('export-mp4').addEventListener('click', () => dummyExport('MP4 video'));
+            document.getElementById('export-json').addEventListener('click', () => dummyExport('JSON project'));
+            document.getElementById('export-frames-png').addEventListener('click', () => dummyExport('All frames as PNG'));
+            document.getElementById('export-animation-gif').addEventListener('click', () => dummyExport('GIF from modal'));
+            document.getElementById('export-animation-mp4').addEventListener('click', () => dummyExport('MP4 from modal'));
+            document.getElementById('export-json-modal').addEventListener('click', () => dummyExport('JSON project'));
+
+            // color palette
+            const paletteColors = ['#ff8000','#ff5555','#55ff55','#5555ff','#ffff55','#ff55ff','#ffffff','#aaaaaa','#555555','#1a0a2e'];
+            const palDiv = document.getElementById('color-palette');
+            paletteColors.forEach(c => {
+                let sw = document.createElement('div');
+                sw.className = 'color-swatch' + (c === currentColor ? ' active' : '');
+                sw.style.backgroundColor = c;
+                sw.dataset.color = c;
+                sw.addEventListener('click', () => {
+                    currentColor = c;
+                    colorPicker.value = c;
+                    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+                    sw.classList.add('active');
+                });
+                palDiv.appendChild(sw);
+            });
+
+            // zoom
+            let zoom = 1;
+            document.getElementById('zoom-in-btn').addEventListener('click', () => { zoom = Math.min(3, zoom + 0.2); canvas.style.transform = `scale(${zoom})`; overlay.style.transform = `scale(${zoom})`; });
+            document.getElementById('zoom-out-btn').addEventListener('click', () => { zoom = Math.max(0.5, zoom - 0.2); canvas.style.transform = `scale(${zoom})`; overlay.style.transform = `scale(${zoom})`; });
+
+            renderFrame();
+            updateTimelineUI();
+        })();
+    </script>
+</body>
+</html>

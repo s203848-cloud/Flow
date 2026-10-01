@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Typing Trainer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .app-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ff8000;
+            text-align: center;
+            flex-grow: 1;
+        }
+        
+        /* Main layout */
+        .main-content {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .left-panel {
+            flex: 1;
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .right-panel {
+            flex: 2;
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .panel-title {
+            font-size: 20px;
+            color: #ff8000;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        /* Difficulty scale */
+        .difficulty-scale {
+            margin-bottom: 25px;
+        }
+        
+        .difficulty-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background: rgba(10, 10, 20, 0.8);
+            border-radius: 5px;
+            border-left: 4px solid rgba(255, 128, 0, 0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .difficulty-item:hover {
+            background: rgba(255, 128, 0, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .difficulty-item.active {
+            background: rgba(255, 128, 0, 0.2);
+            border-left: 4px solid #ff8000;
+        }
+        
+        .difficulty-name {
+            font-weight: 600;
+        }
+        
+        .difficulty-stats {
+            color: #aaa;
+            font-size: 14px;
+        }
+        
+        /* Controls */
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .control-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #aaa;
+            font-size: 14px;
+        }
+        
+        .control-btn {
+            padding: 12px 20px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 16px;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .control-btn.primary {
+            background: rgba(255, 128, 0, 0.8);
+            color: white;
+        }
+        
+        .control-btn.primary:hover {
+            background: rgba(255, 128, 0, 0.9);
+        }
+        
+        /* Stats */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .stat-box {
+            background: rgba(10, 10, 20, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ff8000;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #aaa;
+        }
+        
+        /* Text display - FIXED SPACING */
+        .text-display-container {
+            background: rgba(10, 10, 20, 0.8);
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            min-height: 200px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        
+        .text-display {
+            font-size: 22px;
+            line-height: 1.8;
+            letter-spacing: 1px;
+            white-space: pre-wrap; /* This preserves spaces and newlines */
+            word-wrap: break-word;
+        }
+        
+        .text-char {
+            display: inline-block;
+            transition: all 0.1s;
+            position: relative;
+        }
+        
+        .text-char.correct {
+            color: #4CAF50;
+        }
+        
+        .text-char.incorrect {
+            color: #F44336;
+            background: rgba(244, 67, 54, 0.1);
+            border-radius: 3px;
+        }
+        
+        .text-char.current {
+            background: rgba(255, 128, 0, 0.2);
+            border-radius: 3px;
+            position: relative;
+        }
+        
+        .text-char.current::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #ff8000;
+            animation: blink 1s infinite;
+        }
+        
+        .paragraph-break {
+            height: 20px;
+            margin: 15px 0;
+            border-bottom: 1px dashed rgba(255, 128, 0, 0.3);
+            position: relative;
+        }
+        
+        .paragraph-break::before {
+            content: 'Press Enter ↵';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(20, 20, 40, 0.9);
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: #ff8000;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        /* Textarea input for better handling */
+        .input-container {
+            margin-top: 20px;
+        }
+        
+        #typing-input {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(10, 10, 20, 0.8);
+            border: 2px solid rgba(255, 128, 0, 0.5);
+            border-radius: 10px;
+            color: white;
+            font-size: 18px;
+            outline: none;
+            transition: border 0.3s;
+            font-family: 'Segoe UI', sans-serif;
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        #typing-input:focus {
+            border-color: #ff8000;
+        }
+        
+        .input-note {
+            color: #aaa;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        /* Progress */
+        .progress-container {
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #ff8000, #ffaa00);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+            font-size: 14px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Responsive */
+        @media (max-width: 900px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .text-display {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navbar -->
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+            <div class="app-title">Enhanced Typing Trainer</div>
+            <div style="width: 80px;"></div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel: Difficulty & Controls -->
+            <div class="left-panel">
+                <h3 class="panel-title">Difficulty Scale</h3>
+                
+                <div class="difficulty-scale" id="difficulty-scale">
+                    <!-- Difficulty items will be generated here -->
+                </div>
+                
+                <div class="controls">
+                    <button class="control-btn primary" id="generate-btn">
+                        <i class="fas fa-bolt"></i> Generate Practice Text
+                    </button>
+                    
+                    <button class="control-btn" id="reset-btn">
+                        <i class="fas fa-redo"></i> Reset Practice
+                    </button>
+                    
+                    <button class="control-btn" id="hint-btn">
+                        <i class="fas fa-lightbulb"></i> Show Next Word
+                    </button>
+                </div>
+                
+                <!-- Stats -->
+                <div class="stats-container">
+                    <div class="stat-box">
+                        <div class="stat-value" id="wpm">0</div>
+                        <div class="stat-label">WPM</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="accuracy">100%</div>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="timer">60s</div>
+                        <div class="stat-label">Time Left</div>
+                    </div>
+                </div>
+                
+                <div class="stats-container" style="margin-top: 15px;">
+                    <div class="stat-box">
+                        <div class="stat-value" id="sentences">0</div>
+                        <div class="stat-label">Sentences</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="paragraphs">0</div>
+                        <div class="stat-label">Paragraphs</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="errors">0</div>
+                        <div class="stat-label">Errors</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Panel: Typing Practice -->
+            <div class="right-panel">
+                <h3 class="panel-title">Typing Practice</h3>
+                
+                <!-- Progress Bar -->
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 14px; color: #aaa;">
+                        <span>Progress: <span id="current-char">0</span>/<span id="total-chars">0</span> chars</span>
+                        <span id="progress-text">0%</span>
+                    </div>
+                </div>
+                
+                <!-- Text Display -->
+                <div class="text-display-container">
+                    <div class="text-display" id="text-display">
+                        <div style="text-align: center; color: #666; padding: 50px;">
+                            <i class="fas fa-keyboard" style="font-size: 48px; margin-bottom: 15px;"></i>
+                            <p>Select a difficulty level and click "Generate Practice Text" to start!</p>
+                            <p style="font-size: 14px; margin-top: 10px;">Press Enter ↵ at paragraph breaks</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Textarea Input -->
+                <div class="input-container">
+                    <textarea id="typing-input" placeholder="Start typing here... Press Enter at paragraph breaks. Make sure to include spaces between words!" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+                    <p class="input-note">Type the text exactly as shown above. Include spaces between words. Press Enter at paragraph breaks.</p>
+                </div>
+                
+                <!-- Current Status -->
+                <div style="margin-top: 20px; padding: 15px; background: rgba(10, 10, 20, 0.8); border-radius: 8px; border: 1px solid rgba(255, 128, 0, 0.2);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-size: 14px; color: #aaa;">Current Difficulty</div>
+                            <div id="current-difficulty" style="font-size: 18px; color: #ff8000; font-weight: 600;">Not selected</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 14px; color: #aaa;">Time per Sentence</div>
+                            <div id="time-per-sentence" style="font-size: 18px; color: #4CAF50; font-weight: 600;">-</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 14px; color: #aaa;">Required WPM</div>
+                            <div id="required-wpm" style="font-size: 18px; color: #FF9800; font-weight: 600;">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Enhanced Typing Trainer - Fixed spacing between words | Difficulty scale with paragraph breaks</p>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced Typing Trainer with Fixed Spacing & Difficulty Scale
+        class EnhancedTypingTrainer {
+            constructor() {
+                // Difficulty scale configuration
+                this.difficultyLevels = [
+                    { name: "Too Easy", sentences: 1, time: 35, color: "#4CAF50" },
+                    { name: "Very Easy", sentences: 2, time: 40, color: "#4CAF50" },
+                    { name: "Easy", sentences: 3, time: 45, color: "#8BC34A" },
+                    { name: "Medium", sentences: 4, time: 55, color: "#CDDC39" },
+                    { name: "Moderate", sentences: 5, time: 55, color: "#FFEB3B" },
+                    { name: "Difficult", sentences: 6, time: 65, color: "#FFC107" },
+                    { name: "Challenging", sentences: 7, time: 65, color: "#FF9800" },
+                    { name: "Hard", sentences: 8, time: 65, color: "#FF5722" },
+                    { name: "Very Hard", sentences: 9, time: 75, color: "#F44336" },
+                    { name: "Insane", sentences: 10, time: 85, color: "#E91E63" },
+                    { name: "Impossible", sentences: 11, time: 85, color: "#9C27B0" }
+                ];
+                
+                // Word banks for sentence generation
+                this.wordBanks = {
+                    subjects: [
+                        "The programmer", "The developer", "The designer", "The writer", "The student", 
+                        "The teacher", "The engineer", "The analyst", "The manager", "The researcher",
+                        "The scientist", "The artist", "The musician", "The doctor", "The lawyer"
+                    ],
+                    verbs: [
+                        "creates", "builds", "writes", "designs", "develops", "analyzes", "implements",
+                        "studies", "teaches", "researches", "paints", "composes", "examines", "solves",
+                        "calculates", "evaluates", "optimizes", "organizes", "manages", "directs"
+                    ],
+                    objects: [
+                        "applications", "websites", "programs", "algorithms", "databases", "interfaces",
+                        "documents", "reports", "systems", "networks", "models", "theories", "paintings",
+                        "symphonies", "experiments", "equations", "strategies", "frameworks", "solutions"
+                    ],
+                    adjectives: [
+                        "efficient", "effective", "innovative", "reliable", "scalable", "user-friendly",
+                        "complex", "simple", "elegant", "robust", "flexible", "secure", "powerful",
+                        "creative", "original", "detailed", "comprehensive", "advanced", "sophisticated"
+                    ],
+                    adverbs: [
+                        "carefully", "efficiently", "effectively", "creatively", "precisely", "quickly",
+                        "thoroughly", "systematically", "meticulously", "diligently", "skillfully", "expertly"
+                    ],
+                    linkingVerbs: ["is", "are", "was", "were", "becomes", "seems", "appears", "feels", "looks"],
+                    conjunctions: ["and", "but", "or", "so", "because", "although", "while", "since"]
+                };
+                
+                // Practice state
+                this.currentText = '';
+                this.currentCharIndex = 0;
+                this.errors = 0;
+                this.totalTyped = 0;
+                this.correctChars = 0;
+                this.startTime = null;
+                this.timerInterval = null;
+                this.timeLeft = 60;
+                this.totalTime = 60;
+                this.isActive = false;
+                this.isComplete = false;
+                this.currentDifficulty = null;
+                this.currentParagraph = 0;
+                this.maxParagraphs = 0;
+                
+                // DOM Elements
+                this.textDisplay = document.getElementById('text-display');
+                this.typingInput = document.getElementById('typing-input');
+                this.wpmElement = document.getElementById('wpm');
+                this.accuracyElement = document.getElementById('accuracy');
+                this.timerElement = document.getElementById('timer');
+                this.progressFill = document.getElementById('progress-fill');
+                this.progressText = document.getElementById('progress-text');
+                this.generateBtn = document.getElementById('generate-btn');
+                this.resetBtn = document.getElementById('reset-btn');
+                this.hintBtn = document.getElementById('hint-btn');
+                this.difficultyScale = document.getElementById('difficulty-scale');
+                this.currentCharElement = document.getElementById('current-char');
+                this.totalCharsElement = document.getElementById('total-chars');
+                this.sentencesElement = document.getElementById('sentences');
+                this.paragraphsElement = document.getElementById('paragraphs');
+                this.errorsElement = document.getElementById('errors');
+                this.currentDifficultyElement = document.getElementById('current-difficulty');
+                this.timePerSentenceElement = document.getElementById('time-per-sentence');
+                this.requiredWpmElement = document.getElementById('required-wpm');
+                
+                // Initialize
+                this.init();
+            }
+            
+            init() {
+                // Render difficulty scale
+                this.renderDifficultyScale();
+                
+                // Set up event listeners
+                this.setupEventListeners();
+                
+                // Select medium difficulty by default
+                this.selectDifficulty(3); // Index 3 = Medium
+            }
+            
+            renderDifficultyScale() {
+                this.difficultyScale.innerHTML = '';
+                
+                this.difficultyLevels.forEach((level, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'difficulty-item';
+                    item.dataset.index = index;
+                    
+                    item.innerHTML = `
+                        <div class="difficulty-name">${level.name}</div>
+                        <div class="difficulty-stats">${level.sentences} sentences | ${level.time}s</div>
+                    `;
+                    
+                    item.addEventListener('click', () => {
+                        this.selectDifficulty(index);
+                    });
+                    
+                    this.difficultyScale.appendChild(item);
+                });
+            }
+            
+            selectDifficulty(index) {
+                // Remove active class from all items
+                document.querySelectorAll('.difficulty-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Add active class to selected item
+                const selectedItem = document.querySelector(`.difficulty-item[data-index="${index}"]`);
+                if (selectedItem) {
+                    selectedItem.classList.add('active');
+                }
+                
+                // Update current difficulty
+                this.currentDifficulty = this.difficultyLevels[index];
+                
+                // Update display
+                this.currentDifficultyElement.textContent = this.currentDifficulty.name;
+                this.currentDifficultyElement.style.color = this.currentDifficulty.color;
+                
+                // Calculate time per sentence
+                const timePerSentence = (this.currentDifficulty.time / this.currentDifficulty.sentences).toFixed(1);
+                this.timePerSentenceElement.textContent = `${timePerSentence}s/sentence`;
+                
+                // Calculate required WPM (assuming 5 chars per word)
+                const estimatedChars = this.currentDifficulty.sentences * 40; // Rough estimate
+                const estimatedWords = estimatedChars / 5;
+                const requiredWpm = Math.round((estimatedWords / this.currentDifficulty.time) * 60);
+                this.requiredWpmElement.textContent = `${requiredWpm} WPM`;
+            }
+            
+            setupEventListeners() {
+                // Generate button
+                this.generateBtn.addEventListener('click', () => {
+                    if (!this.currentDifficulty) {
+                        alert('Please select a difficulty level first!');
+                        return;
+                    }
+                    this.generateNewPracticeText();
+                    this.typingInput.focus();
+                });
+                
+                // Reset button
+                this.resetBtn.addEventListener('click', () => {
+                    this.resetPractice();
+                });
+                
+                // Hint button
+                this.hintBtn.addEventListener('click', () => {
+                    this.showHint();
+                });
+                
+                // Typing input - FIXED: Now properly handles spaces
+                this.typingInput.addEventListener('input', (e) => {
+                    this.handleTypingInput(e);
+                });
+                
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    // Ctrl+Enter to generate new text
+                    if (e.ctrlKey && e.key === 'Enter') {
+                        this.generateNewPracticeText();
+                        this.typingInput.focus();
+                        e.preventDefault();
+                    }
+                    
+                    // Escape to reset
+                    if (e.key === 'Escape') {
+                        this.resetPractice();
+                    }
+                    
+                    // Tab to focus input
+                    if (e.key === 'Tab' && !e.ctrlKey) {
+                        this.typingInput.focus();
+                        e.preventDefault();
+                    }
+                });
+                
+                // Handle Enter key for paragraph breaks
+                this.typingInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        // Check if we're at a paragraph break position
+                        const currentText = this.typingInput.value;
+                        const expectedText = this.currentText.substring(0, currentText.length);
+                        
+                        // If we're at a newline in the expected text, allow it
+                        if (this.currentText.charAt(currentText.length) === '\n') {
+                            // Allow the Enter key (default behavior)
+                            return;
+                        } else {
+                            // Prevent Enter key if not at a paragraph break
+                            e.preventDefault();
+                            // Instead, add a space
+                            this.typingInput.value = currentText + ' ';
+                            this.handleTypingInput({ target: this.typingInput });
+                        }
+                    }
+                });
+            }
+            
+            generateNewPracticeText() {
+                if (!this.currentDifficulty) return;
+                
+                // Reset practice state
+                this.resetPracticeState();
+                
+                // Generate sentences based on difficulty
+                const sentences = [];
+                for (let i = 0; i < this.currentDifficulty.sentences; i++) {
+                    const sentence = this.generateSentence();
+                    sentences.push(sentence);
+                }
+                
+                // Group sentences into paragraphs (every 4 sentences)
+                let paragraphs = [];
+                let currentParagraph = [];
+                
+                for (let i = 0; i < sentences.length; i++) {
+                    currentParagraph.push(sentences[i]);
+                    
+                    // Every 4 sentences, or at the end, create a paragraph
+                    if ((i + 1) % 4 === 0 || i === sentences.length - 1) {
+                        paragraphs.push(currentParagraph.join(' '));
+                        currentParagraph = [];
+                    }
+                }
+                
+                // Join paragraphs with newlines
+                this.currentText = paragraphs.join('\n');
+                this.maxParagraphs = paragraphs.length;
+                
+                // Set time limit
+                this.totalTime = this.currentDifficulty.time;
+                this.timeLeft = this.totalTime;
+                this.timerElement.textContent = `${this.timeLeft}s`;
+                
+                // Display the text with proper formatting
+                this.displayPracticeText();
+                
+                // Update stats
+                this.updateStats();
+                
+                // Focus on input
+                this.typingInput.value = '';
+                this.typingInput.focus();
+                
+                // Start timer if not already running
+                if (!this.isActive) {
+                    this.startTimer();
+                }
+            }
+            
+            generateSentence() {
+                // Randomly choose a sentence pattern
+                const patterns = ['SVO', 'SV', 'SVC', 'SVOO'];
+                const pattern = patterns[Math.floor(Math.random() * patterns.length)];
+                
+                let sentence = '';
+                
+                switch(pattern) {
+                    case 'SV': // Subject + Verb
+                        sentence = `${this.getRandomElement(this.wordBanks.subjects)} ${this.getRandomElement(this.wordBanks.verbs)}.`;
+                        break;
+                        
+                    case 'SVO': // Subject + Verb + Object (most common)
+                        sentence = `${this.getRandomElement(this.wordBanks.subjects)} ${this.getRandomElement(this.wordBanks.verbs)} ${this.getRandomElement(this.wordBanks.adjectives)} ${this.getRandomElement(this.wordBanks.objects)}.`;
+                        break;
+                        
+                    case 'SVC': // Subject + Verb + Complement
+                        sentence = `${this.getRandomElement(this.wordBanks.subjects)} ${this.getRandomElement(this.wordBanks.linkingVerbs)} ${this.getRandomElement(this.wordBanks.adjectives)}.`;
+                        break;
+                        
+                    case 'SVOO': // Subject + Verb + Indirect Object + Direct Object
+                        sentence = `${this.getRandomElement(this.wordBanks.subjects)} ${this.getRandomElement(this.wordBanks.verbs)} ${this.getRandomElement(this.wordBanks.subjects).toLowerCase()} ${this.getRandomElement(this.wordBanks.adjectives)} ${this.getRandomElement(this.wordBanks.objects)}.`;
+                        break;
+                }
+                
+                // Sometimes add an adverb
+                if (Math.random() > 0.7) {
+                    const words = sentence.split(' ');
+                    const verbIndex = words.findIndex(word => this.wordBanks.verbs.includes(word) || this.wordBanks.linkingVerbs.includes(word));
+                    if (verbIndex !== -1) {
+                        words[verbIndex] = `${words[verbIndex]} ${this.getRandomElement(this.wordBanks.adverbs)}`;
+                        sentence = words.join(' ');
+                    }
+                }
+                
+                return sentence;
+            }
+            
+            getRandomElement(array) {
+                return array[Math.floor(Math.random() * array.length)];
+            }
+            
+            displayPracticeText() {
+                this.textDisplay.innerHTML = '';
+                
+                // Create a container for the text with proper paragraph breaks
+                const textContainer = document.createElement('div');
+                textContainer.className = 'text-display';
+                
+                // Split by paragraphs
+                const paragraphs = this.currentText.split('\n');
+                
+                paragraphs.forEach((paragraph, pIndex) => {
+                    // Add paragraph text
+                    for (let i = 0; i < paragraph.length; i++) {
+                        const charSpan = document.createElement('span');
+                        charSpan.className = 'text-char';
+                        charSpan.textContent = paragraph[i];
+                        charSpan.dataset.index = this.getGlobalIndex(pIndex, i, paragraphs);
+                        textContainer.appendChild(charSpan);
+                    }
+                    
+                    // Add paragraph break (except after last paragraph)
+                    if (pIndex < paragraphs.length - 1) {
+                        const breakDiv = document.createElement('div');
+                        breakDiv.className = 'paragraph-break';
+                        textContainer.appendChild(breakDiv);
+                    }
+                });
+                
+                this.textDisplay.appendChild(textContainer);
+                
+                // Update character counts
+                this.totalCharsElement.textContent = this.currentText.replace(/\n/g, '').length;
+                this.sentencesElement.textContent = this.currentDifficulty.sentences;
+                this.paragraphsElement.textContent = this.maxParagraphs;
+                
+                // Update character highlighting
+                this.updateCharHighlighting();
+            }
+            
+            getGlobalIndex(paragraphIndex, charIndex, paragraphs) {
+                // Calculate global index from paragraph and character position
+                let globalIndex = 0;
+                
+                for (let i = 0; i < paragraphIndex; i++) {
+                    globalIndex += paragraphs[i].length + 1; // +1 for newline
+                }
+                
+                globalIndex += charIndex;
+                return globalIndex;
+            }
+            
+            updateCharHighlighting() {
+                const chars = this.textDisplay.querySelectorAll('.text-char');
+                const inputText = this.typingInput.value;
+                
+                chars.forEach((char, index) => {
+                    char.classList.remove('correct', 'incorrect', 'current');
+                    
+                    if (index < inputText.length) {
+                        // Check if character was typed correctly
+                        if (this.currentText[index] === inputText[index]) {
+                            char.classList.add('correct');
+                        } else {
+                            char.classList.add('incorrect');
+                        }
+                    } else if (index === inputText.length) {
+                        char.classList.add('current');
+                    }
+                });
+                
+                // Update current character position
+                this.currentCharIndex = inputText.length;
+                this.currentCharElement.textContent = this.currentCharIndex;
+                
+                // Scroll to keep current character in view
+                const currentChar = this.textDisplay.querySelector('.current');
+                if (currentChar) {
+                    currentChar.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                }
+            }
+            
+            handleTypingInput(e) {
+                if (!this.currentText || this.isComplete) return;
+                
+                if (!this.isActive) {
+                    this.startTimer();
+                }
+                
+                const inputText = e.target.value;
+                this.totalTyped++;
+                
+                // Check current character
+                const expectedChar = this.currentText[this.currentCharIndex];
+                const inputChar = inputText[this.currentCharIndex] || '';
+                
+                if (expectedChar === inputChar) {
+                    // Correct character
+                    this.correctChars++;
+                } else {
+                    // Incorrect character
+                    this.errors++;
+                    
+                    // Visual feedback for error
+                    const chars = this.textDisplay.querySelectorAll('.text-char');
+                    if (chars[this.currentCharIndex]) {
+                        chars[this.currentCharIndex].classList.add('incorrect');
+                        setTimeout(() => {
+                            if (chars[this.currentCharIndex]) {
+                                chars[this.currentCharIndex].classList.remove('incorrect');
+                            }
+                        }, 300);
+                    }
+                }
+                
+                // Update UI
+                this.updateCharHighlighting();
+                this.updateProgress();
+                this.updateStats();
+                
+                // Check if text is complete
+                if (this.currentCharIndex >= this.currentText.length) {
+                    this.completePractice();
+                }
+            }
+            
+            startTimer() {
+                if (this.timerInterval) clearInterval(this.timerInterval);
+                
+                this.isActive = true;
+                this.startTime = Date.now();
+                
+                this.timerInterval = setInterval(() => {
+                    this.timeLeft--;
+                    this.timerElement.textContent = `${this.timeLeft}s`;
+                    
+                    if (this.timeLeft <= 0) {
+                        this.completePractice();
+                    }
+                }, 1000);
+            }
+            
+            updateProgress() {
+                const progress = (this.currentCharIndex / this.currentText.length) * 100;
+                this.progressFill.style.width = `${progress}%`;
+                this.progressText.textContent = `${Math.round(progress)}%`;
+            }
+            
+            updateStats() {
+                // Calculate WPM
+                const timeInMinutes = (this.totalTime - this.timeLeft) / 60;
+                let wpm = 0;
+                if (timeInMinutes > 0) {
+                    // WPM = (correct characters / 5) / minutes
+                    const words = this.correctChars / 5;
+                    wpm = Math.round(words / timeInMinutes);
+                }
+                
+                // Calculate accuracy
+                let accuracy = 100;
+                if (this.totalTyped > 0) {
+                    accuracy = Math.round(((this.totalTyped - this.errors) / this.totalTyped) * 100);
+                }
+                
+                this.wpmElement.textContent = wpm;
+                this.accuracyElement.textContent = `${accuracy}%`;
+                this.errorsElement.textContent = this.errors;
+            }
+            
+            completePractice() {
+                this.isActive = false;
+                this.isComplete = true;
+                
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+                
+                // Calculate final stats
+                this.updateStats();
+                
+                // Show completion message
+                const finalWPM = parseInt(this.wpmElement.textContent);
+                const finalAccuracy = parseInt(this.accuracyElement.textContent);
+                
+                let message = '';
+                if (finalAccuracy >= 95 && finalWPM >= 40) {
+                    message = 'Excellent typing! Great speed and accuracy!';
+                } else if (finalAccuracy >= 90) {
+                    message = 'Good job! Your accuracy is solid.';
+                } else if (finalWPM >= 30) {
+                    message = 'Good speed! Work on accuracy for better results.';
+                } else {
+                    message = 'Keep practicing! Focus on both speed and accuracy.';
+                }
+                
+                // Add completion indicator to text display
+                const completionDiv = document.createElement('div');
+                completionDiv.style.cssText = `
+                    text-align: center;
+                    margin-top: 20px;
+                    padding: 15px;
+                    background: rgba(76, 175, 80, 0.1);
+                    border-radius: 8px;
+                    border: 1px solid rgba(76, 175, 80, 0.3);
+                `;
+                completionDiv.innerHTML = `
+                    <h4 style="color: #4CAF50; margin-bottom: 10px;">Practice Complete!</h4>
+                    <p>${message}</p>
+                    <p style="font-size: 14px; margin-top: 10px;">
+                        WPM: ${finalWPM} | Accuracy: ${finalAccuracy}% | 
+                        Errors: ${this.errors} | Time: ${this.totalTime - this.timeLeft}s
+                    </p>
+                `;
+                
+                this.textDisplay.appendChild(completionDiv);
+            }
+            
+            resetPracticeState() {
+                this.currentCharIndex = 0;
+                this.errors = 0;
+                this.totalTyped = 0;
+                this.correctChars = 0;
+                this.isActive = false;
+                this.isComplete = false;
+                this.currentParagraph = 0;
+                
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+                
+                this.timeLeft = this.totalTime;
+                if (this.timerElement) {
+                    this.timerElement.textContent = `${this.timeLeft}s`;
+                }
+                
+                if (this.wpmElement) this.wpmElement.textContent = '0';
+                if (this.accuracyElement) this.accuracyElement.textContent = '100%';
+                if (this.progressFill) this.progressFill.style.width = '0%';
+                if (this.progressText) this.progressText.textContent = '0%';
+                if (this.currentCharElement) this.currentCharElement.textContent = '0';
+                if (this.errorsElement) this.errorsElement.textContent = '0';
+            }
+            
+            resetPractice() {
+                this.resetPracticeState();
+                if (this.typingInput) {
+                    this.typingInput.value = '';
+                }
+                
+                if (this.currentText) {
+                    this.displayPracticeText();
+                }
+                
+                if (this.typingInput) {
+                    this.typingInput.focus();
+                }
+            }
+            
+            showHint() {
+                if (!this.currentText || this.currentCharIndex >= this.currentText.length) return;
+                
+                // Find the next word
+                const remainingText = this.currentText.substring(this.currentCharIndex);
+                const nextSpace = remainingText.indexOf(' ');
+                const nextNewline = remainingText.indexOf('\n');
+                
+                let hintLength = 0;
+                if (nextSpace !== -1 && (nextNewline === -1 || nextSpace < nextNewline)) {
+                    hintLength = nextSpace + 1; // Include the space
+                } else if (nextNewline !== -1) {
+                    hintLength = nextNewline + 1; // Include the newline
+                } else {
+                    hintLength = remainingText.length; // Last word
+                }
+                
+                const hint = remainingText.substring(0, hintLength);
+                alert(`Next: "${hint}"`);
+            }
+        }
+        
+        // Initialize the application when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const typingTrainer = new EnhancedTypingTrainer();
+            
+            // Make it globally accessible for debugging
+            window.typingTrainer = typingTrainer;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Sheet Creator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, .8);
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, .2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, .4);
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 25px;
+        }
+        
+        .section {
+            background: rgba(20, 20, 35, .5);
+            border: 1px solid rgba(255, 69, 0, .2);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .music-staff {
+            background: rgba(50, 50, 70, .3);
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        
+        .staff-container {
+            position: relative;
+            min-height: 200px;
+            background: rgba(10, 10, 20, .7);
+            padding: 20px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .staff-line {
+            height: 2px;
+            background-color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 15px;
+        }
+        
+        .staff-line:last-child {
+            margin-bottom: 0;
+        }
+        
+        .note-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .control-btn {
+            padding: 10px 15px;
+            background: rgba(30, 30, 50, 0.7);
+            border: 1px solid rgba(255, 128, 0, 0.4);
+            border-radius: 5px;
+            color: #ffa94d;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 128, 0, .2);
+            transform: translateY(-3px);
+        }
+        
+        .control-btn.active {
+            background: rgba(255, 128, 0, .3);
+            border-color: #ff8000;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+        }
+        
+        .note {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .note:hover {
+            transform: scale(1.1);
+        }
+        
+        .quarter-note {
+            color: #ff8000;
+            font-size: 28px;
+        }
+        
+        .half-note {
+            color: #ffb347;
+            font-size: 32px;
+        }
+        
+        .whole-note {
+            color: #ffcc99;
+            font-size: 36px;
+        }
+        
+        .eighth-note {
+            color: #ff7043;
+            font-size: 26px;
+        }
+        
+        .rest {
+            color: #6ab7ff;
+            font-size: 28px;
+        }
+        
+        .clef {
+            color: #fff;
+            font-size: 40px;
+            position: absolute;
+            left: 10px;
+        }
+        
+        .music-title {
+            color: #ff8000;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+        
+        .music-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 12px 25px;
+            background: rgba(255, 128, 0, .15);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ffa94d;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 128, 0, .3);
+            transform: translateY(-3px);
+        }
+        
+        .action-btn.clear {
+            background: rgba(255, 69, 0, .15);
+            border-color: #ff4500;
+        }
+        
+        .action-btn.clear:hover {
+            background: rgba(255, 69, 0, .3);
+        }
+        
+        .action-btn.export {
+            background: rgba(59, 130, 246, .15);
+            border-color: #3b82f6;
+        }
+        
+        .action-btn.export:hover {
+            background: rgba(59, 130, 246, .3);
+        }
+        
+        .sidebar-title {
+            color: #ff8000;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+        
+        .note-list {
+            background: rgba(30, 30, 50, 0.5);
+            border-radius: 5px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        
+        .note-item {
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            background: rgba(40, 40, 60, 0.5);
+            border-left: 3px solid #ff8000;
+            border-radius: 3px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .note-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .note-item .delete-note {
+            color: #ff7043;
+            cursor: pointer;
+        }
+        
+        .instructions {
+            background: rgba(30, 30, 50, 0.5);
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .instructions h3 {
+            color: #ff8000;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .audio-controls {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(30, 30, 50, 0.5);
+            border-radius: 5px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .audio-btn {
+            padding: 8px 15px;
+            background: rgba(59, 130, 246, .2);
+            border: 1px solid #3b82f6;
+            border-radius: 5px;
+            color: #93c5fd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 120px;
+            justify-content: center;
+        }
+        
+        .audio-btn:hover {
+            background: rgba(59, 130, 246, .3);
+        }
+        
+        .audio-btn.playing {
+            background: rgba(59, 130, 246, .4);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        
+        .tempo-control {
+            margin-top: 15px;
+        }
+        
+        .tempo-control label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ffa94d;
+        }
+        
+        .tempo-control input {
+            width: 100%;
+            padding: 8px;
+            background: rgba(30, 30, 50, 0.7);
+            border: 1px solid rgba(255, 128, 0, 0.4);
+            border-radius: 5px;
+            color: white;
+        }
+        
+        .export-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .export-modal-content {
+            background: rgba(20, 20, 35, .95);
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid #ff8000;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .export-modal h3 {
+            color: #ff8000;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .export-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .export-option {
+            padding: 12px;
+            background: rgba(30, 30, 50, 0.7);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .export-option:hover {
+            background: rgba(255, 128, 0, .2);
+            border-color: #ff8000;
+        }
+        
+        .export-option i {
+            margin-right: 10px;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .modal-btn {
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .modal-btn.cancel {
+            background: rgba(255, 69, 0, .2);
+            color: #ff7043;
+            border: 1px solid #ff4500;
+        }
+        
+        .modal-btn.export {
+            background: rgba(59, 130, 246, .2);
+            color: #93c5fd;
+            border: 1px solid #3b82f6;
+        }
+        
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .note-controls {
+                justify-content: center;
+            }
+            
+            .music-actions {
+                justify-content: center;
+            }
+            
+            .action-btn {
+                min-width: 140px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold">Music Sheet Creator</span>
+    </div>
+    
+    <div class="container">
+        <div class="main-content">
+            <div class="section">
+                <h2 class="music-title"><i class="fas fa-music"></i> Create Your Music Sheet</h2>
+                
+                <div class="music-staff">
+                    <div class="staff-container" id="staffContainer">
+                        <!-- Staff lines will be generated by JavaScript -->
+                        <!-- Treble clef -->
+                        <div class="clef" style="top: 40px;">&#x1d11e;</div>
+                        
+                        <!-- Notes will be added here dynamically -->
+                    </div>
+                </div>
+                
+                <div class="note-controls">
+                    <div class="control-btn active" data-note="quarter" id="quarterNoteBtn">
+                        <i class="fas fa-music"></i> Quarter Note
+                    </div>
+                    <div class="control-btn" data-note="half" id="halfNoteBtn">
+                        <i class="fas fa-music"></i> Half Note
+                    </div>
+                    <div class="control-btn" data-note="whole" id="wholeNoteBtn">
+                        <i class="fas fa-music"></i> Whole Note
+                    </div>
+                    <div class="control-btn" data-note="eighth" id="eighthNoteBtn">
+                        <i class="fas fa-music"></i> Eighth Note
+                    </div>
+                    <div class="control-btn" data-note="rest" id="restBtn">
+                        <i class="fas fa-minus"></i> Rest
+                    </div>
+                    <div class="control-btn" id="deleteBtn">
+                        <i class="fas fa-trash"></i> Delete
+                    </div>
+                </div>
+                
+                <div class="tempo-control">
+                    <label for="tempoInput"><i class="fas fa-tachometer-alt"></i> Tempo (BPM):</label>
+                    <input type="range" id="tempoInput" min="40" max="200" value="120">
+                    <span id="tempoValue">120 BPM</span>
+                </div>
+                
+                <div class="audio-controls">
+                    <div class="audio-btn" id="playBtn">
+                        <i class="fas fa-play"></i> Play Music
+                    </div>
+                    <div class="audio-btn" id="stopBtn">
+                        <i class="fas fa-stop"></i> Stop
+                    </div>
+                    <div class="audio-btn" id="exportAudioBtn">
+                        <i class="fas fa-file-export"></i> Export Audio
+                    </div>
+                </div>
+                
+                <div class="music-actions">
+                    <div class="action-btn" id="saveBtn">
+                        <i class="fas fa-save"></i> Save Sheet
+                    </div>
+                    <div class="action-btn" id="loadBtn">
+                        <i class="fas fa-folder-open"></i> Load Sheet
+                    </div>
+                    <div class="action-btn clear" id="clearBtn">
+                        <i class="fas fa-broom"></i> Clear All
+                    </div>
+                    <div class="action-btn" id="printBtn">
+                        <i class="fas fa-print"></i> Print
+                    </div>
+                    <div class="action-btn export" id="exportBtn">
+                        <i class="fas fa-download"></i> Export
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sidebar">
+            <div class="section">
+                <h3 class="sidebar-title"><i class="fas fa-list"></i> Notes on Staff</h3>
+                <div class="note-list" id="noteList">
+                    <!-- Note list will be populated by JavaScript -->
+                    <div class="note-item">
+                        <span>Treble Clef</span>
+                        <span>Start of staff</span>
+                    </div>
+                </div>
+                
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> How to Use</h3>
+                    <ul>
+                        <li>Select a note type from the controls above</li>
+                        <li>Click on the staff to place notes</li>
+                        <li>Drag notes to reposition them</li>
+                        <li>Click a note and select "Delete" mode to remove it</li>
+                        <li>Adjust tempo with the slider</li>
+                        <li>Play your composition or export it as MP3</li>
+                        <li>Save your composition to load it later</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Export Modal -->
+    <div class="export-modal" id="exportModal">
+        <div class="export-modal-content">
+            <h3><i class="fas fa-download"></i> Export Options</h3>
+            <div class="export-options">
+                <div class="export-option" data-export="mp3">
+                    <i class="fas fa-file-audio"></i> Export as MP3 Audio
+                </div>
+                <div class="export-option" data-export="wav">
+                    <i class="fas fa-volume-up"></i> Export as WAV Audio
+                </div>
+                <div class="export-option" data-export="midi">
+                    <i class="fas fa-music"></i> Export as MIDI File
+                </div>
+                <div class="export-option" data-export="json">
+                    <i class="fas fa-code"></i> Export as JSON Data
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" id="cancelExport">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add required libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.6.2/RecordRTC.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <script>
+        // State variables
+        let selectedNoteType = 'quarter';
+        let isDeleteMode = false;
+        let notes = [];
+        let nextNoteId = 1;
+        let tempo = 120;
+        let isPlaying = false;
+        const staffContainer = document.getElementById('staffContainer');
+        const noteList = document.getElementById('noteList');
+        const tempoInput = document.getElementById('tempoInput');
+        const tempoValue = document.getElementById('tempoValue');
+        const exportModal = document.getElementById('exportModal');
+        const cancelExportBtn = document.getElementById('cancelExport');
+        
+        // Audio variables
+        let synth;
+        let recorder;
+        let recording = false;
+        let audioContext;
+        let destination;
+        
+        // Initialize audio
+        function initAudio() {
+            if (!window.AudioContext && !window.webkitAudioContext) {
+                console.log("Web Audio API not supported");
+                return;
+            }
+            
+            try {
+                Tone.start();
+                synth = new Tone.Synth().toDestination();
+            } catch (e) {
+                console.log("Audio initialization error:", e);
+            }
+        }
+        
+        // Create staff lines
+        function createStaffLines() {
+            staffContainer.innerHTML = '<div class="clef" style="top: 40px;">&#x1d11e;</div>';
+            
+            for (let i = 0; i < 5; i++) {
+                const line = document.createElement('div');
+                line.className = 'staff-line';
+                line.style.top = `${40 + i * 30}px`;
+                staffContainer.appendChild(line);
+            }
+            
+            // Re-add existing notes
+            notes.forEach(note => {
+                addNoteToStaff(note);
+            });
+        }
+        
+        // Add a note to the staff visually
+        function addNoteToStaff(note) {
+            const noteElement = document.createElement('div');
+            noteElement.className = `note ${note.type}-note`;
+            noteElement.id = `note-${note.id}`;
+            noteElement.style.left = `${note.x}px`;
+            noteElement.style.top = `${note.y}px`;
+            noteElement.dataset.id = note.id;
+            
+            // Set the appropriate symbol for the note type
+            let noteSymbol = '♩'; // quarter note
+            if (note.type === 'half') noteSymbol = '♪';
+            if (note.type === 'whole') noteSymbol = '♫';
+            if (note.type === 'eighth') noteSymbol = '♬';
+            if (note.type === 'rest') noteSymbol = '𝄽';
+            
+            noteElement.innerHTML = noteSymbol;
+            
+            // Make note draggable
+            makeDraggable(noteElement, note.id);
+            
+            staffContainer.appendChild(noteElement);
+            updateNoteList();
+        }
+        
+        // Make an element draggable
+        function makeDraggable(element, noteId) {
+            let isDragging = false;
+            let offsetX, offsetY;
+            
+            element.addEventListener('mousedown', startDrag);
+            
+            function startDrag(e) {
+                if (isDeleteMode) {
+                    deleteNote(noteId);
+                    return;
+                }
+                
+                isDragging = true;
+                offsetX = e.clientX - element.getBoundingClientRect().left;
+                offsetY = e.clientY - element.getBoundingClientRect().top;
+                
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', stopDrag);
+                
+                e.preventDefault();
+            }
+            
+            function drag(e) {
+                if (!isDragging) return;
+                
+                const containerRect = staffContainer.getBoundingClientRect();
+                let x = e.clientX - containerRect.left - offsetX;
+                let y = e.clientY - containerRect.top - offsetY;
+                
+                // Constrain to container bounds
+                x = Math.max(60, Math.min(x, containerRect.width - 40));
+                y = Math.max(20, Math.min(y, containerRect.height - 40));
+                
+                element.style.left = `${x}px`;
+                element.style.top = `${y}px`;
+                
+                // Update note data
+                const noteIndex = notes.findIndex(n => n.id === noteId);
+                if (noteIndex !== -1) {
+                    notes[noteIndex].x = x;
+                    notes[noteIndex].y = y;
+                    updateNoteList();
+                }
+            }
+            
+            function stopDrag() {
+                isDragging = false;
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('mouseup', stopDrag);
+            }
+        }
+        
+        // Add a note at a specific position
+        function addNote(x, y, type) {
+            const note = {
+                id: nextNoteId++,
+                x: x,
+                y: y,
+                type: type,
+                time: new Date().toLocaleTimeString(),
+                pitch: getPitchFromYPosition(y)
+            };
+            
+            notes.push(note);
+            addNoteToStaff(note);
+        }
+        
+        // Convert y-position to musical pitch
+        function getPitchFromYPosition(y) {
+            // Map y position to musical notes (treble clef)
+            // Starting from top line E5 to bottom line F4
+            const pitches = ['E5', 'D5', 'C5', 'B4', 'A4', 'G4', 'F4'];
+            const positions = [40, 70, 100, 130, 160, 190, 220];
+            
+            let closestIndex = 0;
+            let minDiff = Math.abs(y - positions[0]);
+            
+            for (let i = 1; i < positions.length; i++) {
+                const diff = Math.abs(y - positions[i]);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestIndex = i;
+                }
+            }
+            
+            return pitches[closestIndex];
+        }
+        
+        // Get duration based on note type
+        function getDurationFromNoteType(type) {
+            switch(type) {
+                case 'whole': return 4;
+                case 'half': return 2;
+                case 'quarter': return 1;
+                case 'eighth': return 0.5;
+                case 'rest': return 1;
+                default: return 1;
+            }
+        }
+        
+        // Play the music
+        async function playMusic() {
+            if (isPlaying) return;
+            
+            try {
+                isPlaying = true;
+                document.getElementById('playBtn').classList.add('playing');
+                
+                // Sort notes by x position (left to right)
+                const sortedNotes = [...notes].sort((a, b) => a.x - b.x);
+                
+                if (sortedNotes.length === 0) {
+                    alert("No notes to play!");
+                    isPlaying = false;
+                    document.getElementById('playBtn').classList.remove('playing');
+                    return;
+                }
+                
+                // Calculate beat duration in seconds
+                const beatDuration = 60 / tempo;
+                
+                // Play each note
+                for (let i = 0; i < sortedNotes.length; i++) {
+                    if (!isPlaying) break;
+                    
+                    const note = sortedNotes[i];
+                    const duration = getDurationFromNoteType(note.type) * beatDuration;
+                    
+                    // Calculate delay based on x position
+                    const xPosition = note.x - 60; // Adjust for clef offset
+                    const delay = (xPosition / 50) * beatDuration; // 50px per beat
+                    
+                    if (note.type !== 'rest' && synth) {
+                        // Schedule note
+                        setTimeout(() => {
+                            if (synth && isPlaying) {
+                                synth.triggerAttackRelease(note.pitch, duration);
+                            }
+                        }, delay * 1000);
+                    }
+                    
+                    // Highlight the note being played
+                    const noteElement = document.getElementById(`note-${note.id}`);
+                    if (noteElement) {
+                        setTimeout(() => {
+                            noteElement.style.transform = 'scale(1.2)';
+                            noteElement.style.color = '#00ff00';
+                        }, delay * 1000);
+                        
+                        setTimeout(() => {
+                            if (noteElement) {
+                                noteElement.style.transform = '';
+                                noteElement.style.color = '';
+                            }
+                        }, (delay + duration) * 1000);
+                    }
+                }
+                
+                // Reset after playing
+                setTimeout(() => {
+                    isPlaying = false;
+                    document.getElementById('playBtn').classList.remove('playing');
+                }, (sortedNotes[sortedNotes.length - 1].x / 50) * beatDuration * 1000);
+                
+            } catch (error) {
+                console.error("Playback error:", error);
+                isPlaying = false;
+                document.getElementById('playBtn').classList.remove('playing');
+            }
+        }
+        
+        // Stop playing music
+        function stopMusic() {
+            isPlaying = false;
+            document.getElementById('playBtn').classList.remove('playing');
+            
+            // Reset all note colors
+            notes.forEach(note => {
+                const noteElement = document.getElementById(`note-${note.id}`);
+                if (noteElement) {
+                    noteElement.style.transform = '';
+                    noteElement.style.color = '';
+                }
+            });
+        }
+        
+        // Export as MP3 using RecordRTC
+        async function exportAsMP3() {
+            if (notes.length === 0) {
+                alert("No notes to export!");
+                return;
+            }
+            
+            try {
+                // Create audio context for recording
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const destination = audioContext.createMediaStreamDestination();
+                
+                // Create synth for recording
+                const recordSynth = new Tone.Synth().connect(destination);
+                
+                // Create media recorder
+                const mediaRecorder = new MediaRecorder(destination.stream);
+                const chunks = [];
+                
+                mediaRecorder.ondataavailable = (e) => {
+                    chunks.push(e.data);
+                };
+                
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'audio/mp3' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `music-sheet-${Date.now()}.mp3`;
+                    a.click();
+                    
+                    // Clean up
+                    URL.revokeObjectURL(url);
+                    audioContext.close();
+                };
+                
+                // Start recording
+                mediaRecorder.start();
+                
+                // Play notes for recording
+                const sortedNotes = [...notes].sort((a, b) => a.x - b.x);
+                const beatDuration = 60 / tempo;
+                
+                for (const note of sortedNotes) {
+                    if (note.type !== 'rest') {
+                        const duration = getDurationFromNoteType(note.type) * beatDuration;
+                        const delay = ((note.x - 60) / 50) * beatDuration;
+                        
+                        await new Promise(resolve => setTimeout(resolve, delay * 1000));
+                        recordSynth.triggerAttackRelease(note.pitch, duration);
+                        await new Promise(resolve => setTimeout(resolve, duration * 1000));
+                    }
+                }
+                
+                // Stop recording after all notes
+                setTimeout(() => {
+                    mediaRecorder.stop();
+                }, (sortedNotes[sortedNotes.length - 1].x / 50) * beatDuration * 1000 + 1000);
+                
+            } catch (error) {
+                console.error("MP3 export error:", error);
+                alert("MP3 export failed. Trying alternative method...");
+                exportAsWAV();
+            }
+        }
+        
+        // Export as WAV (fallback)
+        async function exportAsWAV() {
+            if (notes.length === 0) {
+                alert("No notes to export!");
+                return;
+            }
+            
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const offlineContext = new OfflineAudioContext(1, 44100 * 10, 44100);
+                
+                const synth = new Tone.Synth().connect(offlineContext.destination);
+                
+                const sortedNotes = [...notes].sort((a, b) => a.x - b.x);
+                const beatDuration = 60 / tempo;
+                
+                for (const note of sortedNotes) {
+                    if (note.type !== 'rest') {
+                        const duration = getDurationFromNoteType(note.type) * beatDuration;
+                        const startTime = ((note.x - 60) / 50) * beatDuration;
+                        
+                        synth.triggerAttackRelease(note.pitch, duration, startTime);
+                    }
+                }
+                
+                const buffer = await offlineContext.startRendering();
+                const wavData = audioBufferToWav(buffer);
+                const blob = new Blob([wavData], { type: 'audio/wav' });
+                
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `music-sheet-${Date.now()}.wav`;
+                a.click();
+                
+                URL.revokeObjectURL(url);
+                audioContext.close();
+                
+            } catch (error) {
+                console.error("WAV export error:", error);
+                alert("Audio export failed. Please try again.");
+            }
+        }
+        
+        // Convert AudioBuffer to WAV
+        function audioBufferToWav(buffer) {
+            const numChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const format = 1; // PCM
+            const bitDepth = 16;
+            
+            const bytesPerSample = bitDepth / 8;
+            const blockAlign = numChannels * bytesPerSample;
+            
+            const bufferLength = buffer.length;
+            const data = new DataView(new ArrayBuffer(44 + bufferLength * numChannels * bytesPerSample));
+            
+            // Write WAV header
+            writeString(data, 0, 'RIFF');
+            data.setUint32(4, 36 + bufferLength * numChannels * bytesPerSample, true);
+            writeString(data, 8, 'WAVE');
+            writeString(data, 12, 'fmt ');
+            data.setUint32(16, 16, true);
+            data.setUint16(20, format, true);
+            data.setUint16(22, numChannels, true);
+            data.setUint32(24, sampleRate, true);
+            data.setUint32(28, sampleRate * numChannels * bytesPerSample, true);
+            data.setUint16(32, blockAlign, true);
+            data.setUint16(34, bitDepth, true);
+            writeString(data, 36, 'data');
+            data.setUint32(40, bufferLength * numChannels * bytesPerSample, true);
+            
+            // Write audio data
+            const channels = [];
+            for (let i = 0; i < numChannels; i++) {
+                channels.push(buffer.getChannelData(i));
+            }
+            
+            let offset = 44;
+            for (let i = 0; i < bufferLength; i++) {
+                for (let channel = 0; channel < numChannels; channel++) {
+                    const sample = Math.max(-1, Math.min(1, channels[channel][i]));
+                    data.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+                    offset += 2;
+                }
+            }
+            
+            return data;
+        }
+        
+        function writeString(data, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                data.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+        
+        // Export as MIDI (simplified)
+        function exportAsMIDI() {
+            if (notes.length === 0) {
+                alert("No notes to export!");
+                return;
+            }
+            
+            // Create a simple MIDI-like JSON file
+            const midiData = {
+                tempo: tempo,
+                notes: notes.map(note => ({
+                    pitch: note.pitch,
+                    type: note.type,
+                    duration: getDurationFromNoteType(note.type),
+                    position: (note.x - 60) / 50 // in beats
+                }))
+            };
+            
+            const jsonStr = JSON.stringify(midiData, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `music-sheet-${Date.now()}.midi.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Export as JSON
+        function exportAsJSON() {
+            if (notes.length === 0) {
+                alert("No notes to export!");
+                return;
+            }
+            
+            const exportData = {
+                title: "Music Sheet Composition",
+                created: new Date().toISOString(),
+                tempo: tempo,
+                notes: notes,
+                version: "1.0"
+            };
+            
+            const jsonStr = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `music-sheet-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Delete a note
+        function deleteNote(noteId) {
+            notes = notes.filter(note => note.id !== noteId);
+            const noteElement = document.getElementById(`note-${noteId}`);
+            if (noteElement) {
+                noteElement.remove();
+            }
+            updateNoteList();
+        }
+        
+        // Update the note list in the sidebar
+        function updateNoteList() {
+            noteList.innerHTML = '';
+            
+            // Add treble clef as first item
+            const clefItem = document.createElement('div');
+            clefItem.className = 'note-item';
+            clefItem.innerHTML = '<span>Treble Clef</span><span>Start of staff</span>';
+            noteList.appendChild(clefItem);
+            
+            // Add each note to the list
+            notes.forEach(note => {
+                const noteItem = document.createElement('div');
+                noteItem.className = 'note-item';
+                
+                let noteName = 'Quarter Note';
+                if (note.type === 'half') noteName = 'Half Note';
+                if (note.type === 'whole') noteName = 'Whole Note';
+                if (note.type === 'eighth') noteName = 'Eighth Note';
+                if (note.type === 'rest') noteName = 'Rest';
+                
+                const position = getNotePositionName(note.y);
+                
+                noteItem.innerHTML = `
+                    <span>${noteName}</span>
+                    <span>${position} (${note.pitch})</span>
+                    <span class="delete-note" data-id="${note.id}"><i class="fas fa-times"></i></span>
+                `;
+                
+                noteList.appendChild(noteItem);
+            });
+            
+            // Add delete event listeners
+            document.querySelectorAll('.delete-note').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.dataset.id);
+                    deleteNote(id);
+                });
+            });
+        }
+        
+        // Convert y-position to musical position name
+        function getNotePositionName(y) {
+            if (y < 50) return "Top Line";
+            if (y < 80) return "Fourth Space";
+            if (y < 110) return "Fourth Line";
+            if (y < 140) return "Third Space";
+            if (y < 170) return "Third Line";
+            if (y < 200) return "Second Space";
+            if (y < 230) return "Second Line";
+            if (y < 260) return "First Space";
+            if (y < 290) return "First Line";
+            return "Below Staff";
+        }
+        
+        // Set up note type buttons
+        document.querySelectorAll('.control-btn[data-note]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all note buttons
+                document.querySelectorAll('.control-btn[data-note]').forEach(b => {
+                    b.classList.remove('active');
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Set selected note type
+                selectedNoteType = this.dataset.note;
+                isDeleteMode = false;
+                document.getElementById('deleteBtn').classList.remove('active');
+            });
+        });
+        
+        // Set up delete button
+        document.getElementById('deleteBtn').addEventListener('click', function() {
+            isDeleteMode = !isDeleteMode;
+            this.classList.toggle('active');
+            
+            // Remove active class from note buttons
+            document.querySelectorAll('.control-btn[data-note]').forEach(b => {
+                b.classList.remove('active');
+            });
+        });
+        
+        // Add note when staff is clicked
+        staffContainer.addEventListener('click', function(e) {
+            if (isDeleteMode) return;
+            
+            const rect = staffContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left - 15;
+            const y = e.clientY - rect.top - 15;
+            
+            // Only add if click is within reasonable bounds
+            if (x > 60 && x < rect.width - 40 && y > 20 && y < rect.height - 40) {
+                addNote(x, y, selectedNoteType);
+            }
+        });
+        
+        // Tempo control
+        tempoInput.addEventListener('input', function() {
+            tempo = parseInt(this.value);
+            tempoValue.textContent = `${tempo} BPM`;
+        });
+        
+        // Play button
+        document.getElementById('playBtn').addEventListener('click', function() {
+            if (!isPlaying) {
+                playMusic();
+            } else {
+                stopMusic();
+            }
+        });
+        
+        // Stop button
+        document.getElementById('stopBtn').addEventListener('click', function() {
+            stopMusic();
+        });
+        
+        // Export audio button
+        document.getElementById('exportAudioBtn').addEventListener('click', function() {
+            if (notes.length === 0) {
+                alert("Please add some notes to your music sheet before exporting.");
+                return;
+            }
+            exportAsMP3();
+        });
+        
+        // Export button (opens modal)
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (notes.length === 0) {
+                alert("Please add some notes to your music sheet before exporting.");
+                return;
+            }
+            exportModal.style.display = 'flex';
+        });
+        
+        // Export options
+        document.querySelectorAll('.export-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const exportType = this.dataset.export;
+                exportModal.style.display = 'none';
+                
+                switch(exportType) {
+                    case 'mp3':
+                        exportAsMP3();
+                        break;
+                    case 'wav':
+                        exportAsWAV();
+                        break;
+                    case 'midi':
+                        exportAsMIDI();
+                        break;
+                    case 'json':
+                        exportAsJSON();
+                        break;
+                }
+            });
+        });
+        
+        // Cancel export
+        cancelExportBtn.addEventListener('click', function() {
+            exportModal.style.display = 'none';
+        });
+        
+        // Close modal when clicking outside
+        exportModal.addEventListener('click', function(e) {
+            if (e.target === exportModal) {
+                exportModal.style.display = 'none';
+            }
+        });
+        
+        // Action buttons
+        document.getElementById('saveBtn').addEventListener('click', function() {
+            if (notes.length === 0) {
+                alert("Please add some notes to your music sheet before saving.");
+                return;
+            }
+            
+            const musicData = {
+                notes: notes,
+                tempo: tempo,
+                savedAt: new Date().toISOString()
+            };
+            
+            localStorage.setItem('musicSheetData', JSON.stringify(musicData));
+            alert('Music sheet saved successfully! You can load it anytime.');
+        });
+        
+        document.getElementById('loadBtn').addEventListener('click', function() {
+            const savedData = localStorage.getItem('musicSheetData');
+            if (!savedData) {
+                alert("No saved music sheet found. Create one and save it first.");
+                return;
+            }
+            
+            if (confirm("Load saved music sheet? This will replace your current sheet.")) {
+                const musicData = JSON.parse(savedData);
+                notes = musicData.notes;
+                tempo = musicData.tempo || 120;
+                tempoInput.value = tempo;
+                tempoValue.textContent = `${tempo} BPM`;
+                nextNoteId = Math.max(...notes.map(n => n.id)) + 1;
+                createStaffLines();
+                alert('Music sheet loaded successfully!');
+            }
+        });
+        
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (notes.length === 0) {
+                alert("The staff is already empty.");
+                return;
+            }
+            
+            if (confirm("Clear the entire music sheet? This cannot be undone.")) {
+                notes = [];
+                createStaffLines();
+            }
+        });
+        
+        document.getElementById('printBtn').addEventListener('click', function() {
+            window.print();
+        });
+        
+        // Initialize the staff and audio
+        createStaffLines();
+        initAudio();
+        
+        // Add some example notes
+        setTimeout(() => {
+            addNote(100, 80, 'quarter');
+            addNote(150, 140, 'quarter');
+            addNote(200, 110, 'half');
+            addNote(250, 170, 'eighth');
+            addNote(300, 200, 'rest');
+        }, 500);
+    </script>
+</body>
+</html>

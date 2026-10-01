@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Periodic Table</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.8);
+            margin-bottom: 30px;
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .search-container {
+            display: flex;
+            align-items: center;
+            background: rgba(40, 40, 60, 0.8);
+            border-radius: 5px;
+            padding: 5px 10px;
+            width: 300px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .search-container i {
+            color: #ff8000;
+            margin-right: 8px;
+        }
+        
+        #searchInput {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            padding: 8px;
+            outline: none;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .table-container {
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            overflow-x: auto;
+        }
+        
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, 70px);
+            grid-template-rows: repeat(7, 80px);
+            gap: 5px;
+            min-width: 1260px;
+        }
+        
+        .element {
+            background: rgba(50, 50, 70, 0.5);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .element:hover {
+            border-color: #ff8000;
+            background: rgba(50, 50, 70, 0.8);
+            transform: scale(1.05);
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(255, 128, 0, 0.5);
+        }
+        
+        .element.active {
+            border-color: #ff8000;
+            background: rgba(80, 50, 70, 0.8);
+            transform: scale(1.05);
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(255, 128, 0, 0.7);
+        }
+        
+        .element .atomic-number {
+            font-size: 0.7rem;
+            color: #aaa;
+            align-self: flex-start;
+        }
+        
+        .element .symbol {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ff8000;
+            margin: 2px 0;
+        }
+        
+        .element .name {
+            font-size: 0.7rem;
+            color: #ccc;
+        }
+        
+        .element .atomic-weight {
+            font-size: 0.65rem;
+            color: #aaa;
+            margin-top: 3px;
+        }
+        
+        .details-panel {
+            background: rgba(20, 20, 35, 0.8);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .details-panel h3 {
+            color: #ff8000;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .details-content {
+            display: none;
+        }
+        
+        .details-content.active {
+            display: block;
+        }
+        
+        .element-properties {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .property-group {
+            background: rgba(40, 40, 60, 0.5);
+            border-radius: 8px;
+            padding: 12px;
+        }
+        
+        .property-group h4 {
+            color: #ff8000;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .property {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .property:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .property-label {
+            color: #aaa;
+        }
+        
+        .property-value {
+            color: #fff;
+            font-weight: 500;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px 0;
+            color: #888;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #444;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            background: rgba(40, 40, 60, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #ccc;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #777;
+            font-size: 0.9rem;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @media (max-width: 1100px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .details-panel {
+                position: static;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .search-container {
+                width: 100%;
+            }
+            
+            .table-container {
+                padding: 10px;
+            }
+            
+            .periodic-table {
+                grid-template-columns: repeat(18, 50px);
+                grid-template-rows: repeat(7, 60px);
+                min-width: 900px;
+            }
+            
+            .element {
+                padding: 4px;
+            }
+            
+            .element .symbol {
+                font-size: 1rem;
+            }
+            
+            .element .name {
+                font-size: 0.6rem;
+            }
+        }
+        
+        /* Element category colors */
+        .alkali-metal { background: rgba(255, 50, 50, 0.3); }
+        .alkaline-earth { background: rgba(255, 150, 50, 0.3); }
+        .transition-metal { background: rgba(255, 255, 50, 0.3); }
+        .basic-metal { background: rgba(100, 200, 100, 0.3); }
+        .metalloid { background: rgba(50, 200, 200, 0.3); }
+        .nonmetal { background: rgba(100, 150, 255, 0.3); }
+        .halogen { background: rgba(200, 100, 255, 0.3); }
+        .noble-gas { background: rgba(255, 100, 200, 0.3); }
+        .lanthanide { background: rgba(255, 200, 100, 0.3); }
+        .actinide { background: rgba(200, 255, 100, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold;">Enhanced Periodic Table</span>
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search elements by name, symbol, or atomic number...">
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="main-content">
+            <div class="table-container">
+                <div class="periodic-table" id="periodicTable">
+                    <!-- Elements will be generated here -->
+                </div>
+            </div>
+            
+            <div class="legend">
+                <div class="legend-item"><div class="legend-color alkali-metal"></div>Alkali Metal</div>
+                <div class="legend-item"><div class="legend-color alkaline-earth"></div>Alkaline Earth</div>
+                <div class="legend-item"><div class="legend-color transition-metal"></div>Transition Metal</div>
+                <div class="legend-item"><div class="legend-color basic-metal"></div>Basic Metal</div>
+                <div class="legend-item"><div class="legend-color metalloid"></div>Metalloid</div>
+                <div class="legend-item"><div class="legend-color nonmetal"></div>Nonmetal</div>
+                <div class="legend-item"><div class="legend-color halogen"></div>Halogen</div>
+                <div class="legend-item"><div class="legend-color noble-gas"></div>Noble Gas</div>
+                <div class="legend-item"><div class="legend-color lanthanide"></div>Lanthanide</div>
+                <div class="legend-item"><div class="legend-color actinide"></div>Actinide</div>
+            </div>
+        </div>
+        
+        <div class="details-panel">
+            <h3>Element Details</h3>
+            <div class="empty-state" id="emptyState">
+                <i class="fas fa-atom"></i>
+                <p>Select an element to view its properties</p>
+            </div>
+            <div class="details-content" id="detailsContent">
+                <div class="element-properties">
+                    <div class="property-group">
+                        <h4><i class="fas fa-atom"></i> Atomic Properties</h4>
+                        <div class="property">
+                            <span class="property-label">Atomic Number:</span>
+                            <span class="property-value" id="atomicNumber">-</span>
+                        </div>
+                        <div class="property">
+                            <span class="property-label">Symbol:</span>
+                            <span class="property-value" id="symbol">-</span>
+                        </div>
+                        <div class="property">
+                            <span class="property-label">Protons:</span>
+                            <span class="property-value" id="protons">-</span>
+                        </div>
+                        <div class="property">
+                            <span class="property-label">Neutrons:</span>
+                            <span class="property-value" id="neutrons">-</span>
+                        </div>
+                        <div class="property">
+                            <span class="property-label">Electrons:</span>
+                            <span class="property-value" id="electrons">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="property-group">
+                        <h4><i class="fas fa-weight"></i> Physical Properties</h4>
+                        <div class="property">
+                            <span class="property-label">Atomic Weight:</span>
+                            <span class="property-value" id="atomicWeight">-</span>
+                        </div>
+                        <div class="property">
+                            <span class="property-label">Density:</span>
+                            <span class="property-value" id="density">-</span>
+                        </div>
+                        <div class="property">
+                            <span class="property-label">Category:</span>
+                            <span class="property-value" id="category">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="property-group">
+                        <h4><i class="fas fa-thermometer-half"></i> Phase Transition Points</h4>
+                        <div class="property">
+                            <span class="property-label">Melting Point:</span>
+                            <span class="property-value" id="meltingPoint">-</span>
+                        </div>
+                        <div class="property">
+                            <span class="property-label">Boiling Point:</span>
+                            <span class="property-value" id="boilingPoint">-</span>
+                        </div>
+                        <div class="property">
+                            <span class="property-label">Freezing Point:</span>
+                            <span class="property-value" id="freezingPoint">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="property-group">
+                        <h4><i class="fas fa-info-circle"></i> Other Information</h4>
+                        <div class="property">
+                            <span class="property-label">Discovered:</span>
+                            <span class="property-value" id="discovered">-</span>
+                        </div>
+                        <div class="property">
+                            <span class="property-label">State at STP:</span>
+                            <span class="property-value" id="state">-</span>
+                        </div>
+                        <div class="property">
+                            <span class="property-label">Electron Configuration:</span>
+                            <span class="property-value" id="electronConfig">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="property-group">
+                    <h4><i class="fas fa-file-alt"></i> Description</h4>
+                    <p id="description" style="color: #ccc; font-size: 0.9rem; line-height: 1.4;">-</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>Enhanced Periodic Table with Search Function | Data sourced from scientific references</p>
+    </div>
+    
+    <script>
+        // Extended element data with more properties
+        const elements = [
+            {
+                symbol: 'H', name: 'Hydrogen', num: 1, weight: 1.008,
+                category: 'nonmetal', protons: 1, neutrons: 0, electrons: 1,
+                meltingPoint: '-259.14°C', boilingPoint: '-252.87°C', freezingPoint: '-259.14°C',
+                density: '0.08988 g/L', discovered: '1766', state: 'Gas',
+                electronConfig: '1s¹',
+                description: 'Hydrogen is the lightest and most abundant element in the universe. It is a colorless, odorless gas that is highly flammable.',
+                group: 1, period: 1
+            },
+            {
+                symbol: 'He', name: 'Helium', num: 2, weight: 4.0026,
+                category: 'noble-gas', protons: 2, neutrons: 2, electrons: 2,
+                meltingPoint: '-272.2°C', boilingPoint: '-268.93°C', freezingPoint: '-272.2°C',
+                density: '0.1785 g/L', discovered: '1868', state: 'Gas',
+                electronConfig: '1s²',
+                description: 'Helium is a noble gas, colorless, odorless, and non-flammable. It has the lowest boiling point of all elements.',
+                group: 18, period: 1
+            },
+            {
+                symbol: 'Li', name: 'Lithium', num: 3, weight: 6.94,
+                category: 'alkali-metal', protons: 3, neutrons: 4, electrons: 3,
+                meltingPoint: '180.5°C', boilingPoint: '1342°C', freezingPoint: '180.5°C',
+                density: '0.534 g/cm³', discovered: '1817', state: 'Solid',
+                electronConfig: '[He] 2s¹',
+                description: 'Lithium is the lightest metal and the least dense solid element. It is highly reactive and flammable.',
+                group: 1, period: 2
+            },
+            {
+                symbol: 'Be', name: 'Beryllium', num: 4, weight: 9.0122,
+                category: 'alkaline-earth', protons: 4, neutrons: 5, electrons: 4,
+                meltingPoint: '1287°C', boilingPoint: '2470°C', freezingPoint: '1287°C',
+                density: '1.85 g/cm³', discovered: '1797', state: 'Solid',
+                electronConfig: '[He] 2s²',
+                description: 'Beryllium is a lightweight but strong metal. It has a high melting point and is used in aerospace applications.',
+                group: 2, period: 2
+            },
+            {
+                symbol: 'B', name: 'Boron', num: 5, weight: 10.81,
+                category: 'metalloid', protons: 5, neutrons: 6, electrons: 5,
+                meltingPoint: '2076°C', boilingPoint: '3927°C', freezingPoint: '2076°C',
+                density: '2.34 g/cm³', discovered: '1808', state: 'Solid',
+                electronConfig: '[He] 2s² 2p¹',
+                description: 'Boron is a metalloid with properties between metals and nonmetals. It is essential for plant growth.',
+                group: 13, period: 2
+            },
+            {
+                symbol: 'C', name: 'Carbon', num: 6, weight: 12.011,
+                category: 'nonmetal', protons: 6, neutrons: 6, electrons: 6,
+                meltingPoint: '3550°C', boilingPoint: '4827°C', freezingPoint: '3550°C',
+                density: '2.267 g/cm³', discovered: 'Ancient', state: 'Solid',
+                electronConfig: '[He] 2s² 2p²',
+                description: 'Carbon is the basis of all known life. It can form many different compounds and has several allotropes including diamond and graphite.',
+                group: 14, period: 2
+            },
+            {
+                symbol: 'N', name: 'Nitrogen', num: 7, weight: 14.007,
+                category: 'nonmetal', protons: 7, neutrons: 7, electrons: 7,
+                meltingPoint: '-210°C', boilingPoint: '-195.8°C', freezingPoint: '-210°C',
+                density: '1.251 g/L', discovered: '1772', state: 'Gas',
+                electronConfig: '[He] 2s² 2p³',
+                description: 'Nitrogen makes up about 78% of Earth\'s atmosphere. It is essential for proteins and nucleic acids in living organisms.',
+                group: 15, period: 2
+            },
+            {
+                symbol: 'O', name: 'Oxygen', num: 8, weight: 15.999,
+                category: 'nonmetal', protons: 8, neutrons: 8, electrons: 8,
+                meltingPoint: '-218.8°C', boilingPoint: '-183°C', freezingPoint: '-218.8°C',
+                density: '1.429 g/L', discovered: '1774', state: 'Gas',
+                electronConfig: '[He] 2s² 2p⁴',
+                description: 'Oxygen is essential for respiration and combustion. It makes up about 21% of Earth\'s atmosphere and is the most abundant element in the Earth\'s crust.',
+                group: 16, period: 2
+            },
+            {
+                symbol: 'F', name: 'Fluorine', num: 9, weight: 18.998,
+                category: 'halogen', protons: 9, neutrons: 10, electrons: 9,
+                meltingPoint: '-219.7°C', boilingPoint: '-188.1°C', freezingPoint: '-219.7°C',
+                density: '1.696 g/L', discovered: '1886', state: 'Gas',
+                electronConfig: '[He] 2s² 2p⁵',
+                description: 'Fluorine is the most reactive and electronegative of all elements. It is a pale yellow gas that is highly corrosive.',
+                group: 17, period: 2
+            },
+            {
+                symbol: 'Ne', name: 'Neon', num: 10, weight: 20.18,
+                category: 'noble-gas', protons: 10, neutrons: 10, electrons: 10,
+                meltingPoint: '-248.6°C', boilingPoint: '-246°C', freezingPoint: '-248.6°C',
+                density: '0.9002 g/L', discovered: '1898', state: 'Gas',
+                electronConfig: '[He] 2s² 2p⁶',
+                description: 'Neon is a noble gas that produces a distinctive bright reddish-orange glow when used in discharge tubes and neon signs.',
+                group: 18, period: 2
+            },
+            {
+                symbol: 'Na', name: 'Sodium', num: 11, weight: 22.990,
+                category: 'alkali-metal', protons: 11, neutrons: 12, electrons: 11,
+                meltingPoint: '97.8°C', boilingPoint: '883°C', freezingPoint: '97.8°C',
+                density: '0.968 g/cm³', discovered: '1807', state: 'Solid',
+                electronConfig: '[Ne] 3s¹',
+                description: 'Sodium is a soft, silvery-white metal that is highly reactive. It is essential for many biological processes.',
+                group: 1, period: 3
+            },
+            {
+                symbol: 'Mg', name: 'Magnesium', num: 12, weight: 24.305,
+                category: 'alkaline-earth', protons: 12, neutrons: 12, electrons: 12,
+                meltingPoint: '650°C', boilingPoint: '1091°C', freezingPoint: '650°C',
+                density: '1.738 g/cm³', discovered: '1755', state: 'Solid',
+                electronConfig: '[Ne] 3s²',
+                description: 'Magnesium is a lightweight metal that is important for biological function and industrial applications.',
+                group: 2, period: 3
+            },
+            {
+                symbol: 'Al', name: 'Aluminum', num: 13, weight: 26.982,
+                category: 'basic-metal', protons: 13, neutrons: 14, electrons: 13,
+                meltingPoint: '660.32°C', boilingPoint: '2519°C', freezingPoint: '660.32°C',
+                density: '2.70 g/cm³', discovered: '1825', state: 'Solid',
+                electronConfig: '[Ne] 3s² 3p¹',
+                description: 'Aluminum is a lightweight, silvery-white metal. It is the most abundant metal in Earth\'s crust and is known for its resistance to corrosion.',
+                group: 13, period: 3
+            },
+            {
+                symbol: 'Si', name: 'Silicon', num: 14, weight: 28.085,
+                category: 'metalloid', protons: 14, neutrons: 14, electrons: 14,
+                meltingPoint: '1414°C', boilingPoint: '3265°C', freezingPoint: '1414°C',
+                density: '2.33 g/cm³', discovered: '1824', state: 'Solid',
+                electronConfig: '[Ne] 3s² 3p²',
+                description: 'Silicon is a metalloid essential for electronics and computer technology. It is the second most abundant element in Earth\'s crust after oxygen.',
+                group: 14, period: 3
+            },
+            {
+                symbol: 'P', name: 'Phosphorus', num: 15, weight: 30.974,
+                category: 'nonmetal', protons: 15, neutrons: 16, electrons: 15,
+                meltingPoint: '44.15°C', boilingPoint: '280.5°C', freezingPoint: '44.15°C',
+                density: '1.82 g/cm³ (white)', discovered: '1669', state: 'Solid',
+                electronConfig: '[Ne] 3s² 3p³',
+                description: 'Phosphorus is essential for life and is found in DNA, RNA, and ATP. It exists in several allotropes including white, red, and black phosphorus.',
+                group: 15, period: 3
+            },
+            {
+                symbol: 'S', name: 'Sulfur', num: 16, weight: 32.06,
+                category: 'nonmetal', protons: 16, neutrons: 16, electrons: 16,
+                meltingPoint: '115.21°C', boilingPoint: '444.6°C', freezingPoint: '115.21°C',
+                density: '2.07 g/cm³', discovered: 'Ancient', state: 'Solid',
+                electronConfig: '[Ne] 3s² 3p⁴',
+                description: 'Sulfur is a bright yellow, crystalline solid. It is essential for all living cells and is used in fertilizers, gunpowder, and matches.',
+                group: 16, period: 3
+            },
+            {
+                symbol: 'Cl', name: 'Chlorine', num: 17, weight: 35.45,
+                category: 'halogen', protons: 17, neutrons: 18, electrons: 17,
+                meltingPoint: '-101.5°C', boilingPoint: '-34.04°C', freezingPoint: '-101.5°C',
+                density: '3.2 g/L', discovered: '1774', state: 'Gas',
+                electronConfig: '[Ne] 3s² 3p⁵',
+                description: 'Chlorine is a yellow-green gas with a strong odor. It is widely used for water purification and in the production of many industrial chemicals.',
+                group: 17, period: 3
+            },
+            {
+                symbol: 'Ar', name: 'Argon', num: 18, weight: 39.948,
+                category: 'noble-gas', protons: 18, neutrons: 22, electrons: 18,
+                meltingPoint: '-189.3°C', boilingPoint: '-185.9°C', freezingPoint: '-189.3°C',
+                density: '1.784 g/L', discovered: '1894', state: 'Gas',
+                electronConfig: '[Ne] 3s² 3p⁶',
+                description: 'Argon is a noble gas that makes up about 0.93% of Earth\'s atmosphere. It is used in lighting, welding, and as an inert gas shield.',
+                group: 18, period: 3
+            },
+            {
+                symbol: 'K', name: 'Potassium', num: 19, weight: 39.098,
+                category: 'alkali-metal', protons: 19, neutrons: 20, electrons: 19,
+                meltingPoint: '63.5°C', boilingPoint: '759°C', freezingPoint: '63.5°C',
+                density: '0.862 g/cm³', discovered: '1807', state: 'Solid',
+                electronConfig: '[Ar] 4s¹',
+                description: 'Potassium is a soft, silvery-white alkali metal that reacts violently with water. It is essential for nerve function and plant growth.',
+                group: 1, period: 4
+            },
+            {
+                symbol: 'Ca', name: 'Calcium', num: 20, weight: 40.078,
+                category: 'alkaline-earth', protons: 20, neutrons: 20, electrons: 20,
+                meltingPoint: '842°C', boilingPoint: '1484°C', freezingPoint: '842°C',
+                density: '1.54 g/cm³', discovered: '1808', state: 'Solid',
+                electronConfig: '[Ar] 4s²',
+                description: 'Calcium is essential for living organisms, particularly in cell physiology and bone formation. It is the fifth most abundant element in Earth\'s crust.',
+                group: 2, period: 4
+            },
+            {
+                symbol: 'Sc', name: 'Scandium', num: 21, weight: 44.956,
+                category: 'transition-metal', protons: 21, neutrons: 24, electrons: 21,
+                meltingPoint: '1541°C', boilingPoint: '2836°C', freezingPoint: '1541°C',
+                density: '2.99 g/cm³', discovered: '1879', state: 'Solid',
+                electronConfig: '[Ar] 3d¹ 4s²',
+                description: 'Scandium is a silvery-white metallic transition metal. It is used in aerospace components and high-intensity metal halide lamps.',
+                group: 3, period: 4
+            },
+            {
+                symbol: 'Ti', name: 'Titanium', num: 22, weight: 47.867,
+                category: 'transition-metal', protons: 22, neutrons: 26, electrons: 22,
+                meltingPoint: '1668°C', boilingPoint: '3287°C', freezingPoint: '1668°C',
+                density: '4.506 g/cm³', discovered: '1791', state: 'Solid',
+                electronConfig: '[Ar] 3d² 4s²',
+                description: 'Titanium is a strong, lightweight, corrosion-resistant transition metal. It is used in aerospace, medical implants, and high-performance applications.',
+                group: 4, period: 4
+            },
+            {
+                symbol: 'V', name: 'Vanadium', num: 23, weight: 50.942,
+                category: 'transition-metal', protons: 23, neutrons: 28, electrons: 23,
+                meltingPoint: '1910°C', boilingPoint: '3407°C', freezingPoint: '1910°C',
+                density: '6.0 g/cm³', discovered: '1801', state: 'Solid',
+                electronConfig: '[Ar] 3d³ 4s²',
+                description: 'Vanadium is a hard, silvery-grey, ductile transition metal. It is mainly used as an additive to steel to increase strength and corrosion resistance.',
+                group: 5, period: 4
+            },
+            {
+                symbol: 'Cr', name: 'Chromium', num: 24, weight: 51.996,
+                category: 'transition-metal', protons: 24, neutrons: 28, electrons: 24,
+                meltingPoint: '1907°C', boilingPoint: '2671°C', freezingPoint: '1907°C',
+                density: '7.19 g/cm³', discovered: '1797', state: 'Solid',
+                electronConfig: '[Ar] 3d⁵ 4s¹',
+                description: 'Chromium is a steely-grey, lustrous, hard metal known for its high corrosion resistance. It is widely used in stainless steel and chrome plating.',
+                group: 6, period: 4
+            },
+            {
+                symbol: 'Mn', name: 'Manganese', num: 25, weight: 54.938,
+                category: 'transition-metal', protons: 25, neutrons: 30, electrons: 25,
+                meltingPoint: '1246°C', boilingPoint: '2061°C', freezingPoint: '1246°C',
+                density: '7.21 g/cm³', discovered: '1774', state: 'Solid',
+                electronConfig: '[Ar] 3d⁵ 4s²',
+                description: 'Manganese is a gray-white metal resembling iron. It is essential for steel production and important in biological systems as an enzyme cofactor.',
+                group: 7, period: 4
+            },
+            {
+                symbol: 'Fe', name: 'Iron', num: 26, weight: 55.845,
+                category: 'transition-metal', protons: 26, neutrons: 30, electrons: 26,
+                meltingPoint: '1538°C', boilingPoint: '2862°C', freezingPoint: '1538°C',
+                density: '7.87 g/cm³', discovered: 'Ancient', state: 'Solid',
+                electronConfig: '[Ar] 3d⁶ 4s²',
+                description: 'Iron is the most common element on Earth by mass, forming much of Earth\'s outer and inner core. It is essential for hemoglobin and steel production.',
+                group: 8, period: 4
+            },
+            {
+                symbol: 'Co', name: 'Cobalt', num: 27, weight: 58.933,
+                category: 'transition-metal', protons: 27, neutrons: 32, electrons: 27,
+                meltingPoint: '1495°C', boilingPoint: '2927°C', freezingPoint: '1495°C',
+                density: '8.90 g/cm³', discovered: '1735', state: 'Solid',
+                electronConfig: '[Ar] 3d⁷ 4s²',
+                description: 'Cobalt is a hard, lustrous, silver-gray metal. It is used in magnetic, wear-resistant, and high-strength alloys, and in lithium-ion batteries.',
+                group: 9, period: 4
+            },
+            {
+                symbol: 'Ni', name: 'Nickel', num: 28, weight: 58.693,
+                category: 'transition-metal', protons: 28, neutrons: 31, electrons: 28,
+                meltingPoint: '1455°C', boilingPoint: '2913°C', freezingPoint: '1455°C',
+                density: '8.908 g/cm³', discovered: '1751', state: 'Solid',
+                electronConfig: '[Ar] 3d⁸ 4s²',
+                description: 'Nickel is a silvery-white lustrous metal with a slight golden tinge. It is widely used in stainless steel, coins, and rechargeable batteries.',
+                group: 10, period: 4
+            },
+            {
+                symbol: 'Cu', name: 'Copper', num: 29, weight: 63.546,
+                category: 'transition-metal', protons: 29, neutrons: 35, electrons: 29,
+                meltingPoint: '1084.6°C', boilingPoint: '2562°C', freezingPoint: '1084.6°C',
+                density: '8.96 g/cm³', discovered: 'Ancient', state: 'Solid',
+                electronConfig: '[Ar] 3d¹⁰ 4s¹',
+                description: 'Copper is a soft, malleable, and ductile metal with very high thermal and electrical conductivity. It has been used for thousands of years.',
+                group: 11, period: 4
+            },
+            {
+                symbol: 'Zn', name: 'Zinc', num: 30, weight: 65.38,
+                category: 'transition-metal', protons: 30, neutrons: 35, electrons: 30,
+                meltingPoint: '419.5°C', boilingPoint: '907°C', freezingPoint: '419.5°C',
+                density: '7.14 g/cm³', discovered: '1746', state: 'Solid',
+                electronConfig: '[Ar] 3d¹⁰ 4s²',
+                description: 'Zinc is a slightly brittle metal at room temperature. It is essential for biological processes and is primarily used for galvanizing steel.',
+                group: 12, period: 4
+            },
+            {
+                symbol: 'Ga', name: 'Gallium', num: 31, weight: 69.723,
+                category: 'basic-metal', protons: 31, neutrons: 39, electrons: 31,
+                meltingPoint: '29.76°C', boilingPoint: '2204°C', freezingPoint: '29.76°C',
+                density: '5.91 g/cm³', discovered: '1875', state: 'Solid',
+                electronConfig: '[Ar] 3d¹⁰ 4s² 4p¹',
+                description: 'Gallium is a soft, silvery metal that melts near room temperature. It is used in semiconductors, LEDs, and high-temperature thermometers.',
+                group: 13, period: 4
+            },
+            {
+                symbol: 'Ge', name: 'Germanium', num: 32, weight: 72.630,
+                category: 'metalloid', protons: 32, neutrons: 41, electrons: 32,
+                meltingPoint: '938.3°C', boilingPoint: '2833°C', freezingPoint: '938.3°C',
+                density: '5.323 g/cm³', discovered: '1886', state: 'Solid',
+                electronConfig: '[Ar] 3d¹⁰ 4s² 4p²',
+                description: 'Germanium is a lustrous, hard, grayish-white metalloid. It is an important semiconductor material used in transistors and infrared optics.',
+                group: 14, period: 4
+            },
+            {
+                symbol: 'As', name: 'Arsenic', num: 33, weight: 74.922,
+                category: 'metalloid', protons: 33, neutrons: 42, electrons: 33,
+                meltingPoint: '817°C', boilingPoint: '614°C (sublimes)', freezingPoint: '817°C',
+                density: '5.727 g/cm³', discovered: '1250', state: 'Solid',
+                electronConfig: '[Ar] 3d¹⁰ 4s² 4p³',
+                description: 'Arsenic is a metalloid known for its toxicity. It has various allotropes and is used in semiconductors, wood preservatives, and insecticides.',
+                group: 15, period: 4
+            },
+            {
+                symbol: 'Se', name: 'Selenium', num: 34, weight: 78.971,
+                category: 'nonmetal', protons: 34, neutrons: 45, electrons: 34,
+                meltingPoint: '221°C', boilingPoint: '685°C', freezingPoint: '221°C',
+                density: '4.81 g/cm³', discovered: '1817', state: 'Solid',
+                electronConfig: '[Ar] 3d¹⁰ 4s² 4p⁴',
+                description: 'Selenium is a nonmetal with properties intermediate between sulfur and tellurium. It is essential for many organisms and used in photocells.',
+                group: 16, period: 4
+            },
+            {
+                symbol: 'Br', name: 'Bromine', num: 35, weight: 79.904,
+                category: 'halogen', protons: 35, neutrons: 45, electrons: 35,
+                meltingPoint: '-7.2°C', boilingPoint: '58.8°C', freezingPoint: '-7.2°C',
+                density: '3.1028 g/cm³ (liquid)', discovered: '1826', state: 'Liquid',
+                electronConfig: '[Ar] 3d¹⁰ 4s² 4p⁵',
+                description: 'Bromine is the only nonmetallic element that is liquid at room temperature. It is a reddish-brown liquid with a strong odor, used in flame retardants and pharmaceuticals.',
+                group: 17, period: 4
+            },
+            {
+                symbol: 'Kr', name: 'Krypton', num: 36, weight: 83.798,
+                category: 'noble-gas', protons: 36, neutrons: 48, electrons: 36,
+                meltingPoint: '-157.4°C', boilingPoint: '-153.4°C', freezingPoint: '-157.4°C',
+                density: '3.749 g/L', discovered: '1898', state: 'Gas',
+                electronConfig: '[Ar] 3d¹⁰ 4s² 4p⁶',
+                description: 'Krypton is a colorless, odorless, tasteless noble gas that occurs in trace amounts in the atmosphere. It is used in certain photographic flash lamps and high-performance light bulbs.',
+                group: 18, period: 4
+            },
+            {
+                symbol: 'Rb', name: 'Rubidium', num: 37, weight: 85.468,
+                category: 'alkali-metal', protons: 37, neutrons: 48, electrons: 37,
+                meltingPoint: '39.3°C', boilingPoint: '688°C', freezingPoint: '39.3°C',
+                density: '1.53 g/cm³', discovered: '1861', state: 'Solid',
+                electronConfig: '[Kr] 5s¹',
+                description: 'Rubidium is a very soft, silvery-white metal that is highly reactive. It ignites spontaneously in air and reacts violently with water. Used in atomic clocks and certain medical applications.',
+                group: 1, period: 5
+            },
+            {
+                symbol: 'Sr', name: 'Strontium', num: 38, weight: 87.62,
+                category: 'alkaline-earth', protons: 38, neutrons: 50, electrons: 38,
+                meltingPoint: '777°C', boilingPoint: '1382°C', freezingPoint: '777°C',
+                density: '2.64 g/cm³', discovered: '1790', state: 'Solid',
+                electronConfig: '[Kr] 5s²',
+                description: 'Strontium is a soft, silvery-white alkaline earth metal that reacts with water and air. It is used in fireworks for red colors, in glass for cathode ray tubes, and in ferrite magnets.',
+                group: 2, period: 5
+            },
+            {
+                symbol: 'Y', name: 'Yttrium', num: 39, weight: 88.906,
+                category: 'transition-metal', protons: 39, neutrons: 50, electrons: 39,
+                meltingPoint: '1526°C', boilingPoint: '3345°C', freezingPoint: '1526°C',
+                density: '4.47 g/cm³', discovered: '1794', state: 'Solid',
+                electronConfig: '[Kr] 4d¹ 5s²',
+                description: 'Yttrium is a silvery-metallic transition metal chemically similar to the lanthanides. It is used in LEDs, phosphors, camera lenses, and superconductors.',
+                group: 3, period: 5
+            },
+            {
+                symbol: 'Zr', name: 'Zirconium', num: 40, weight: 91.224,
+                category: 'transition-metal', protons: 40, neutrons: 51, electrons: 40,
+                meltingPoint: '1855°C', boilingPoint: '4409°C', freezingPoint: '1855°C',
+                density: '6.52 g/cm³', discovered: '1789', state: 'Solid',
+                electronConfig: '[Kr] 4d² 5s²',
+                description: 'Zirconium is a lustrous, gray-white, strong transition metal that resembles hafnium and titanium. It is highly resistant to corrosion and used in nuclear reactors and surgical instruments.',
+                group: 4, period: 5
+            },
+            {
+                symbol: 'Nb', name: 'Niobium', num: 41, weight: 92.906,
+                category: 'transition-metal', protons: 41, neutrons: 52, electrons: 41,
+                meltingPoint: '2477°C', boilingPoint: '4744°C', freezingPoint: '2477°C',
+                density: '8.57 g/cm³', discovered: '1801', state: 'Solid',
+                electronConfig: '[Kr] 4d⁴ 5s¹',
+                description: 'Niobium is a soft, gray, ductile transition metal. It is used in superconducting magnets, jet engines, and MRI scanners. It is also known as columbium.',
+                group: 5, period: 5
+            },
+            {
+                symbol: 'Mo', name: 'Molybdenum', num: 42, weight: 95.95,
+                category: 'transition-metal', protons: 42, neutrons: 54, electrons: 42,
+                meltingPoint: '2623°C', boilingPoint: '4639°C', freezingPoint: '2623°C',
+                density: '10.28 g/cm³', discovered: '1778', state: 'Solid',
+                electronConfig: '[Kr] 4d⁵ 5s¹',
+                description: 'Molybdenum is a silvery-white metal with one of the highest melting points of all pure elements. It is used in steel alloys, electrical contacts, and industrial lubricants.',
+                group: 6, period: 5
+            },
+            {
+                symbol: 'Tc', name: 'Technetium', num: 43, weight: 98,
+                category: 'transition-metal', protons: 43, neutrons: 55, electrons: 43,
+                meltingPoint: '2157°C', boilingPoint: '4265°C', freezingPoint: '2157°C',
+                density: '11 g/cm³', discovered: '1937', state: 'Solid',
+                electronConfig: '[Kr] 4d⁵ 5s²',
+                description: 'Technetium is the lightest element whose isotopes are all radioactive. It is produced artificially and used as a radioactive tracer in medicine.',
+                group: 7, period: 5
+            },
+            {
+                symbol: 'Ru', name: 'Ruthenium', num: 44, weight: 101.07,
+                category: 'transition-metal', protons: 44, neutrons: 57, electrons: 44,
+                meltingPoint: '2334°C', boilingPoint: '4150°C', freezingPoint: '2334°C',
+                density: '12.45 g/cm³', discovered: '1844', state: 'Solid',
+                electronConfig: '[Kr] 4d⁷ 5s¹',
+                description: 'Ruthenium is a rare transition metal belonging to the platinum group. It is used in electrical contacts, wear-resistant electrical contacts, and as a catalyst.',
+                group: 8, period: 5
+            },
+            {
+                symbol: 'Rh', name: 'Rhodium', num: 45, weight: 102.906,
+                category: 'transition-metal', protons: 45, neutrons: 58, electrons: 45,
+                meltingPoint: '1964°C', boilingPoint: '3695°C', freezingPoint: '1964°C',
+                density: '12.41 g/cm³', discovered: '1803', state: 'Solid',
+                electronConfig: '[Kr] 4d⁸ 5s¹',
+                description: 'Rhodium is a rare, silvery-white, hard, corrosion-resistant transition metal. It is one of the most expensive precious metals, used in catalytic converters and jewelry plating.',
+                group: 9, period: 5
+            },
+            {
+                symbol: 'Pd', name: 'Palladium', num: 46, weight: 106.42,
+                category: 'transition-metal', protons: 46, neutrons: 60, electrons: 46,
+                meltingPoint: '1554.9°C', boilingPoint: '2963°C', freezingPoint: '1554.9°C',
+                density: '12.02 g/cm³', discovered: '1803', state: 'Solid',
+                electronConfig: '[Kr] 4d¹⁰',
+                description: 'Palladium is a rare, silvery-white metal belonging to the platinum group. It is used in catalytic converters, electronics, dentistry, and jewelry.',
+                group: 10, period: 5
+            },
+            {
+                symbol: 'Ag', name: 'Silver', num: 47, weight: 107.868,
+                category: 'transition-metal', protons: 47, neutrons: 61, electrons: 47,
+                meltingPoint: '961.8°C', boilingPoint: '2162°C', freezingPoint: '961.8°C',
+                density: '10.49 g/cm³', discovered: 'Ancient', state: 'Solid',
+                electronConfig: '[Kr] 4d¹⁰ 5s¹',
+                description: 'Silver is a soft, white, lustrous transition metal with the highest electrical conductivity, thermal conductivity, and reflectivity of any metal. Used in jewelry, coins, electronics, and photography.',
+                group: 11, period: 5
+            },
+            {
+                symbol: 'Cd', name: 'Cadmium', num: 48, weight: 112.414,
+                category: 'transition-metal', protons: 48, neutrons: 64, electrons: 48,
+                meltingPoint: '321.1°C', boilingPoint: '767°C', freezingPoint: '321.1°C',
+                density: '8.65 g/cm³', discovered: '1817', state: 'Solid',
+                electronConfig: '[Kr] 4d¹⁰ 5s²',
+                description: 'Cadmium is a soft, bluish-white metal chemically similar to zinc and mercury. It is used in batteries, pigments, and electroplating, but is toxic and environmentally concerning.',
+                group: 12, period: 5
+            },
+            {
+                symbol: 'In', name: 'Indium', num: 49, weight: 114.818,
+                category: 'basic-metal', protons: 49, neutrons: 66, electrons: 49,
+                meltingPoint: '156.6°C', boilingPoint: '2072°C', freezingPoint: '156.6°C',
+                density: '7.31 g/cm³', discovered: '1863', state: 'Solid',
+                electronConfig: '[Kr] 4d¹⁰ 5s² 5p¹',
+                description: 'Indium is a post-transition metal that is very soft, malleable, and easily fusible. It is used in touch screens, flat-panel displays, and solar panels.',
+                group: 13, period: 5
+            },
+            {
+                symbol: 'Sn', name: 'Tin', num: 50, weight: 118.710,
+                category: 'basic-metal', protons: 50, neutrons: 69, electrons: 50,
+                meltingPoint: '231.9°C', boilingPoint: '2602°C', freezingPoint: '231.9°C',
+                density: '7.287 g/cm³ (white)', discovered: 'Ancient', state: 'Solid',
+                electronConfig: '[Kr] 4d¹⁰ 5s² 5p²',
+                description: 'Tin is a silvery-white metal that is malleable and somewhat ductile. It has been used since antiquity in bronze and as a coating for steel cans (tin cans).',
+                group: 14, period: 5
+            },
+            {
+                symbol: 'Sb', name: 'Antimony', num: 51, weight: 121.760,
+                category: 'metalloid', protons: 51, neutrons: 71, electrons: 51,
+                meltingPoint: '630.6°C', boilingPoint: '1587°C', freezingPoint: '630.6°C',
+                density: '6.685 g/cm³', discovered: 'Ancient', state: 'Solid',
+                electronConfig: '[Kr] 4d¹⁰ 5s² 5p³',
+                description: 'Antimony is a lustrous gray metalloid found mainly as the sulfide mineral stibnite. It is used in flame retardants, batteries, and alloys like pewter.',
+                group: 15, period: 5
+            },
+            {
+                symbol: 'Te', name: 'Tellurium', num: 52, weight: 127.60,
+                category: 'metalloid', protons: 52, neutrons: 76, electrons: 52,
+                meltingPoint: '449.5°C', boilingPoint: '988°C', freezingPoint: '449.5°C',
+                density: '6.24 g/cm³', discovered: '1782', state: 'Solid',
+                electronConfig: '[Kr] 4d¹⁰ 5s² 5p⁴',
+                description: 'Tellurium is a brittle, mildly toxic, silver-white metalloid. It is used in solar panels, thermoelectric devices, and as an alloying agent in steel and copper.',
+                group: 16, period: 5
+            },
+            {
+                symbol: 'I', name: 'Iodine', num: 53, weight: 126.904,
+                category: 'halogen', protons: 53, neutrons: 74, electrons: 53,
+                meltingPoint: '113.7°C', boilingPoint: '184.3°C', freezingPoint: '113.7°C',
+                density: '4.933 g/cm³', discovered: '1811', state: 'Solid',
+                electronConfig: '[Kr] 4d¹⁰ 5s² 5p⁵',
+                description: 'Iodine is a lustrous, purple-black nonmetal that sublimes easily to form a violet gas. It is essential for thyroid function and used as a disinfectant and in photography.',
+                group: 17, period: 5
+            },
+            {
+                symbol: 'Xe', name: 'Xenon', num: 54, weight: 131.293,
+                category: 'noble-gas', protons: 54, neutrons: 77, electrons: 54,
+                meltingPoint: '-111.8°C', boilingPoint: '-108.1°C', freezingPoint: '-111.8°C',
+                density: '5.894 g/L', discovered: '1898', state: 'Gas',
+                electronConfig: '[Kr] 4d¹⁰ 5s² 5p⁶',
+                description: 'Xenon is a dense, colorless, odorless noble gas found in trace amounts in Earth\'s atmosphere. It is used in flash lamps, ion propulsion engines, and as a general anesthetic.',
+                group: 18, period: 5
+            },
+            {
+                symbol: 'Cs', name: 'Cesium', num: 55, weight: 132.905,
+                category: 'alkali-metal', protons: 55, neutrons: 78, electrons: 55,
+                meltingPoint: '28.4°C', boilingPoint: '671°C', freezingPoint: '28.4°C',
+                density: '1.93 g/cm³', discovered: '1860', state: 'Solid',
+                electronConfig: '[Xe] 6s¹',
+                description: 'Cesium is a soft, silvery-gold alkali metal with a melting point just above room temperature. It is extremely reactive and pyrophoric. Used in atomic clocks, drilling fluids, and photoelectric cells.',
+                group: 1, period: 6
+            },
+            {
+                symbol: 'Ba', name: 'Barium', num: 56, weight: 137.327,
+                category: 'alkaline-earth', protons: 56, neutrons: 81, electrons: 56,
+                meltingPoint: '727°C', boilingPoint: '1870°C', freezingPoint: '727°C',
+                density: '3.51 g/cm³', discovered: '1808', state: 'Solid',
+                electronConfig: '[Xe] 6s²',
+                description: 'Barium is a soft, silvery alkaline earth metal. It is never found in nature in its pure form due to its high reactivity. Used in X-ray imaging, fireworks, and glassmaking.',
+                group: 2, period: 6
+            },
+            {
+                symbol: 'La', name: 'Lanthanum', num: 57, weight: 138.905,
+                category: 'lanthanide', protons: 57, neutrons: 82, electrons: 57,
+                meltingPoint: '920°C', boilingPoint: '3464°C', freezingPoint: '920°C',
+                density: '6.15 g/cm³', discovered: '1839', state: 'Solid',
+                electronConfig: '[Xe] 5d¹ 6s²',
+                description: 'Lanthanum is a soft, ductile, silvery-white metal that tarnishes rapidly in air. It gives its name to the lanthanide series and is used in camera lenses, battery electrodes, and petroleum refining.',
+                group: 3, period: 6
+            },
+            {
+                symbol: 'Ce', name: 'Cerium', num: 58, weight: 140.116,
+                category: 'lanthanide', protons: 58, neutrons: 82, electrons: 58,
+                meltingPoint: '795°C', boilingPoint: '3443°C', freezingPoint: '795°C',
+                density: '6.77 g/cm³', discovered: '1803', state: 'Solid',
+                electronConfig: '[Xe] 4f¹ 5d¹ 6s²',
+                description: 'Cerium is the most abundant of the rare earth elements. It is used in catalytic converters, self-cleaning ovens, glass polishing, and as a flint in lighters.',
+                group: 3, period: 6
+            },
+            {
+                symbol: 'Pr', name: 'Praseodymium', num: 59, weight: 140.908,
+                category: 'lanthanide', protons: 59, neutrons: 82, electrons: 59,
+                meltingPoint: '935°C', boilingPoint: '3520°C', freezingPoint: '935°C',
+                density: '6.77 g/cm³', discovered: '1885', state: 'Solid',
+                electronConfig: '[Xe] 4f³ 6s²',
+                description: 'Praseodymium is a soft, silvery, malleable and ductile metal. It is used in aircraft engines, studio lighting, glass coloring (yellow), and in making strong permanent magnets.',
+                group: 3, period: 6
+            },
+            {
+                symbol: 'Nd', name: 'Neodymium', num: 60, weight: 144.242,
+                category: 'lanthanide', protons: 60, neutrons: 84, electrons: 60,
+                meltingPoint: '1024°C', boilingPoint: '3074°C', freezingPoint: '1024°C',
+                density: '7.01 g/cm³', discovered: '1885', state: 'Solid',
+                electronConfig: '[Xe] 4f⁴ 6s²',
+                description: 'Neodymium is used to make powerful permanent magnets (the strongest known) found in wind turbines, electric vehicles, headphones, and computer hard drives.',
+                group: 3, period: 6
+            },
+            {
+                symbol: 'Pm', name: 'Promethium', num: 61, weight: 145,
+                category: 'lanthanide', protons: 61, neutrons: 84, electrons: 61,
+                meltingPoint: '1042°C', boilingPoint: '3000°C', freezingPoint: '1042°C',
+                density: '7.26 g/cm³', discovered: '1945', state: 'Solid',
+                electronConfig: '[Xe] 4f⁵ 6s²',
+                description: 'Promethium is radioactive and has no stable isotopes. It is used in luminous paint, atomic batteries, and thickness gauges. It is produced artificially in nuclear reactors.',
+                group: 3, period: 6
+            },
+            {
+                symbol: 'Sm', name: 'Samarium', num: 62, weight: 150.36,
+                category: 'lanthanide', protons: 62, neutrons: 88, electrons: 62,
+                meltingPoint: '1072°C', boilingPoint: '1900°C', freezingPoint: '1072°C',
+                density: '7.52 g/cm³', discovered: '1879', state: 'Solid',
+                electronConfig: '[Xe] 4f⁶ 6s²',
+                description: 'Samarium is used in permanent magnets, cancer treatment, nuclear reactors, and earphones. Samarium-cobalt magnets are highly resistant to demagnetization.',
+                group: 3, period: 6
+            },
+            {
+                symbol: 'Eu', name: 'Europium', num: 63, weight: 151.964,
+                category: 'lanthanide', protons: 63, neutrons: 89, electrons: 63,
+                meltingPoint: '822°C', boilingPoint: '1529°C', freezingPoint: '822°C',
+                density: '5.24 g/cm³', discovered: '1901', state: 'Solid',
+                electronConfig: '[Xe] 4f⁷ 6s²',
+                description: 'Europium is the most reactive rare earth element. It is used in phosphors for color TV screens, fluorescent lamps, and as a neutron absorber in nuclear reactors.',
+                group: 3, period: 6
+            },
+            {
+                symbol: 'Gd', name: 'Gadolinium', num: 64, weight: 157.25,
+                category: 'lanthanide', protons: 64, neutrons: 93, electrons: 64,
+                meltingPoint: '1312°C', boilingPoint: '3273°C', freezingPoint: '1312°C',
+                density: '7.90 g/cm³', discovered: '1880', state: 'Solid',
+                electronConfig: '[Xe] 4f⁷ 5d¹ 6s²',
+                description: 'Gadolinium has exceptional properties for magnetic resonance imaging (MRI) contrast agents. It is also used in nuclear reactors, electronics, and data storage.',
+                group: 3, period: 6
+            },
+            {
+                symbol: 'Tb', name: 'Terbium', num: 65, weight: 158.925,
+                category: 'lanthanide', protons: 65, neutrons: 94, electrons: 65,
+                meltingPoint: '1356°C', boilingPoint: '3230°C', freezingPoint: '1356°C',
+                density: '8.23 g/cm³', discovered: '1843', state: 'Solid',
+                electronConfig: '[Xe] 4f⁹ 6s²',
+                description: 'Terbium is used in solid-state devices, fuel cells, fluorescent lamps, and as a dopant in calcium fluoride, calcium tungstate and strontium molybdate.',
+                group: 3, period: 6
+            },
+            {
+                symbol: 'Dy', name: 'Dysprosium', num: 66, weight: 162.500,
+                category: 'lanthanide', protons: 66, neutrons: 97, electrons: 66,
+                meltingPoint: '1407°C', boilingPoint: '2567°C', freezingPoint: '1407°C',
+                density: '8.55 g/cm³', discovered: '1886', state: 'Solid',
+                electronConfig: '[Xe] 4f¹⁰ 6s²',
+                description: 'Dysprosium is used in neodymium-iron-boron magnets to improve their high-temperature performance, in nuclear reactors, and in data storage applications.',
+                group: 3, period: 6
+            },
+            {
+                symbol: 'Ho', name: 'Holmium', num: 67, weight: 164.930,
+                category: 'lanthanide', protons: 67, neutrons: 98, electrons: 67,
+                meltingPoint: '1461°C', boilingPoint: '2720°C', freezingPoint: '1461°C',
+                density: '8.80 g/cm³', discovered: '1878', state: 'Solid',
+                electronConfig: '[Xe] 4f¹¹ 6s²',
+                description: 'Holmium has the highest magnetic strength of any element. It is used in nuclear control rods, solid-state lasers, and as a colorant for cubic zirconia and glass.',
+                group: 3, period: 6
+            },
+            {
+                symbol: 'Er', name: 'Erbium', num: 68, weight: 167.259,
+                category: 'lanthanide', protons: 68, neutrons: 99, electrons: 68,
+                meltingPoint: '1529°C', boilingPoint: '2868°C', freezingPoint: '1529°C',
+                density: '9.07 g/cm³', discovered: '1843', state: 'Solid',
+                electronConfig: '[Xe] 4f¹² 6s²',
+                description: 'Erbium is used in fiber optic communication systems, lasers for medical applications, and as a pink colorant for glass and porcelain glaze.',
+                group: 3, period: 6
+            },
+            {
+                symbol: 'Tm', name: 'Thulium', num: 69, weight: 168.934,
+                category: 'lanthanide', protons: 69, neutrons: 100, electrons: 69,
+                meltingPoint: '1545°C', boilingPoint: '1950°C', freezingPoint: '1545°C',
+                density: '9.32 g/cm³', discovered: '1879', state: 'Solid',
+                electronConfig: '[Xe] 4f¹³ 6s²',
+                description: 'Thulium is the least abundant of the naturally occurring rare earth elements. It is used in portable X-ray devices, lasers, and superconductors.',
+                group: 3, period: 6
+            },
+            {
+                symbol: 'Yb', name: 'Ytterbium', num: 70, weight: 173.045,
+                category: 'lanthanide', protons: 70, neutrons: 103, electrons: 70,
+                meltingPoint: '819°C', boilingPoint: '1196°C', freezingPoint: '819°C',
+                density: '6.90 g/cm³', discovered: '1878', state: 'Solid',
+                electronConfig: '[Xe] 4f¹⁴ 6s²',
+                description: 'Ytterbium is a soft, malleable, and ductile rare earth metal. It is used in stainless steel, stress gauges, nuclear medicine, and as a doping agent in fiber lasers.',
+                group: 3, period: 6
+            },
+            {
+                symbol: 'Lu', name: 'Lutetium', num: 71, weight: 174.967,
+                category: 'lanthanide', protons: 71, neutrons: 104, electrons: 71,
+                meltingPoint: '1663°C', boilingPoint: '3402°C', freezingPoint: '1663°C',
+                density: '9.84 g/cm³', discovered: '1907', state: 'Solid',
+                electronConfig: '[Xe] 4f¹⁴ 5d¹ 6s²',
+                description: 'Lutetium is the last element in the lanthanide series and one of the rarest and most expensive rare earth metals. It is used in petroleum cracking catalysts and LED light bulbs.',
+                group: 3, period: 6
+            },
+            {
+                symbol: 'Hf', name: 'Hafnium', num: 72, weight: 178.49,
+                category: 'transition-metal', protons: 72, neutrons: 106, electrons: 72,
+                meltingPoint: '2233°C', boilingPoint: '4603°C', freezingPoint: '2233°C',
+                density: '13.31 g/cm³', discovered: '1923', state: 'Solid',
+                electronConfig: '[Xe] 4f¹⁴ 5d² 6s²',
+                description: 'Hafnium is a lustrous, silvery gray, tetravalent transition metal. It is used in nuclear reactor control rods, plasma cutting tips, and integrated circuits.',
+                group: 4, period: 6
+            },
+            {
+                symbol: 'Ta', name: 'Tantalum', num: 73, weight: 180.948,
+                category: 'transition-metal', protons: 73, neutrons: 108, electrons: 73,
+                meltingPoint: '3017°C', boilingPoint: '5458°C', freezingPoint: '3017°C',
+                density: '16.69 g/cm³', discovered: '1802', state: 'Solid',
+                electronConfig: '[Xe] 4f¹⁴ 5d³ 6s²',
+                description: 'Tantalum is a rare, hard, blue-gray, lustrous transition metal highly corrosion-resistant. It is used in electronic components, surgical implants, and chemical processing equipment.',
+                group: 5, period: 6
+            },
+            {
+                symbol: 'W', name: 'Tungsten', num: 74, weight: 183.84,
+                category: 'transition-metal', protons: 74, neutrons: 110, electrons: 74,
+                meltingPoint: '3422°C', boilingPoint: '5555°C', freezingPoint: '3422°C',
+                density: '19.25 g/cm³', discovered: '1783', state: 'Solid',
+                electronConfig: '[Xe] 4f¹⁴ 5d⁴ 6s²',
+                description: 'Tungsten has the highest melting point of all metals (3422°C). It is used in light bulb filaments, electrical contacts, radiation shielding, and heavy metal alloys.',
+                group: 6, period: 6
+            },
+            {
+                symbol: 'Re', name: 'Rhenium', num: 75, weight: 186.207,
+                category: 'transition-metal', protons: 75, neutrons: 111, electrons: 75,
+                meltingPoint: '3186°C', boilingPoint: '5596°C', freezingPoint: '3186°C',
+                density: '21.02 g/cm³', discovered: '1925', state: 'Solid',
+                electronConfig: '[Xe] 4f¹⁴ 5d⁵ 6s²',
+                description: 'Rhenium has the third-highest melting point of all elements. It is used in high-temperature superalloys for jet engines, thermocouples, and as a catalyst in petroleum refining.',
+                group: 7, period: 6
+            },
+            {
+                symbol: 'Os', name: 'Osmium', num: 76, weight: 190.23,
+                category: 'transition-metal', protons: 76, neutrons: 114, electrons: 76,
+                meltingPoint: '3033°C', boilingPoint: '5012°C', freezingPoint: '3033°C',
+                density: '22.59 g/cm³', discovered: '1803', state: 'Solid',
+                electronConfig: '[Xe] 4f¹⁴ 5d⁶ 6s²',
+                description: 'Osmium is the densest naturally occurring element (22.59 g/cm³). It is extremely hard and brittle, used in alloy tips for fountain pens, electrical contacts, and instrument pivots.',
+                group: 8, period: 6
+            },
+            {
+                symbol: 'Ir', name: 'Iridium', num: 77, weight: 192.217,
+                category: 'transition-metal', protons: 77, neutrons: 115, electrons: 77,
+                meltingPoint: '2466°C', boilingPoint: '4428°C', freezingPoint: '2466°C',
+                density: '22.56 g/cm³', discovered: '1803', state: 'Solid',
+                electronConfig: '[Xe] 4f¹⁴ 5d⁷ 6s²',
+                description: 'Iridium is the most corrosion-resistant metal, even at high temperatures. It is used in spark plugs, crucibles for crystal growth, and the international prototype kilogram.',
+                group: 9, period: 6
+            },
+            {
+                symbol: 'Pt', name: 'Platinum', num: 78, weight: 195.084,
+                category: 'transition-metal', protons: 78, neutrons: 117, electrons: 78,
+                meltingPoint: '1768.3°C', boilingPoint: '3825°C', freezingPoint: '1768.3°C',
+                density: '21.45 g/cm³', discovered: '1735', state: 'Solid',
+                electronConfig: '[Xe] 4f¹⁴ 5d⁹ 6s¹',
+                description: 'Platinum is a dense, malleable, ductile, highly unreactive, precious, silverish-white transition metal. It is used in catalytic converters, jewelry, laboratory equipment, and electrodes.',
+                group: 10, period: 6
+            },
+            {
+                symbol: 'Au', name: 'Gold', num: 79, weight: 196.967,
+                category: 'transition-metal', protons: 79, neutrons: 118, electrons: 79,
+                meltingPoint: '1064.2°C', boilingPoint: '2970°C', freezingPoint: '1064.2°C',
+                density: '19.32 g/cm³', discovered: 'Ancient', state: 'Solid',
+                electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s¹',
+                description: 'Gold is a bright, slightly reddish yellow, dense, soft, malleable, and ductile metal. It has been a valuable and highly sought-after precious metal for coinage, jewelry, and other arts.',
+                group: 11, period: 6
+            },
+            {
+                symbol: 'Hg', name: 'Mercury', num: 80, weight: 200.592,
+                category: 'transition-metal', protons: 80, neutrons: 121, electrons: 80,
+                meltingPoint: '-38.8°C', boilingPoint: '356.7°C', freezingPoint: '-38.8°C',
+                density: '13.534 g/cm³', discovered: 'Ancient', state: 'Liquid',
+                electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s²',
+                description: 'Mercury is the only metallic element that is liquid at standard conditions for temperature and pressure. It is used in thermometers, barometers, fluorescent lamps, and dental amalgams.',
+                group: 12, period: 6
+            },
+            {
+                symbol: 'Tl', name: 'Thallium', num: 81, weight: 204.38,
+                category: 'basic-metal', protons: 81, neutrons: 123, electrons: 81,
+                meltingPoint: '304°C', boilingPoint: '1473°C', freezingPoint: '304°C',
+                density: '11.85 g/cm³', discovered: '1861', state: 'Solid',
+                electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p¹',
+                description: 'Thallium is a soft, malleable, gray post-transition metal. It is highly toxic and was used in rat poisons and insecticides. Today it is used in infrared optics and superconductors.',
+                group: 13, period: 6
+            },
+            {
+                symbol: 'Pb', name: 'Lead', num: 82, weight: 207.2,
+                category: 'basic-metal', protons: 82, neutrons: 125, electrons: 82,
+                meltingPoint: '327.5°C', boilingPoint: '1749°C', freezingPoint: '327.5°C',
+                density: '11.34 g/cm³', discovered: 'Ancient', state: 'Solid',
+                electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p²',
+                description: 'Lead is a heavy metal that is denser than most common materials. It is soft, malleable, and has a relatively low melting point. Used historically in pipes, paints, and gasoline additives.',
+                group: 14, period: 6
+            },
+            {
+                symbol: 'Bi', name: 'Bismuth', num: 83, weight: 208.980,
+                category: 'basic-metal', protons: 83, neutrons: 126, electrons: 83,
+                meltingPoint: '271.4°C', boilingPoint: '1564°C', freezingPoint: '271.4°C',
+                density: '9.78 g/cm³', discovered: '1753', state: 'Solid',
+                electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p³',
+                description: 'Bismuth is a brittle metal with a silvery white color when freshly produced, but surface oxidation gives it a pink tinge. It is used in pharmaceuticals, cosmetics, and low-melting alloys.',
+                group: 15, period: 6
+            },
+            {
+                symbol: 'Po', name: 'Polonium', num: 84, weight: 209,
+                category: 'metalloid', protons: 84, neutrons: 125, electrons: 84,
+                meltingPoint: '254°C', boilingPoint: '962°C', freezingPoint: '254°C',
+                density: '9.32 g/cm³', discovered: '1898', state: 'Solid',
+                electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁴',
+                description: 'Polonium is a rare and highly radioactive metal with no stable isotopes. It was discovered by Marie Curie and named after her native Poland. Used in static eliminators and nuclear batteries.',
+                group: 16, period: 6
+            },
+            {
+                symbol: 'At', name: 'Astatine', num: 85, weight: 210,
+                category: 'halogen', protons: 85, neutrons: 125, electrons: 85,
+                meltingPoint: '302°C', boilingPoint: '337°C', freezingPoint: '302°C',
+                density: '7 g/cm³', discovered: '1940', state: 'Solid',
+                electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁵',
+                description: 'Astatine is the rarest naturally occurring element in Earth\'s crust. It is highly radioactive and exists only in trace amounts. Potential medical uses in cancer treatment.',
+                group: 17, period: 6
+            },
+            {
+                symbol: 'Rn', name: 'Radon', num: 86, weight: 222,
+                category: 'noble-gas', protons: 86, neutrons: 136, electrons: 86,
+                meltingPoint: '-71°C', boilingPoint: '-61.7°C', freezingPoint: '-71°C',
+                density: '9.73 g/L', discovered: '1900', state: 'Gas',
+                electronConfig: '[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁶',
+                description: 'Radon is a radioactive, colorless, odorless, tasteless noble gas. It is formed from the decay of radium and is the heaviest known gas. Major cause of lung cancer after smoking.',
+                group: 18, period: 6
+            },
+            {
+                symbol: 'Fr', name: 'Francium', num: 87, weight: 223,
+                category: 'alkali-metal', protons: 87, neutrons: 136, electrons: 87,
+                meltingPoint: '27°C', boilingPoint: '677°C', freezingPoint: '27°C',
+                density: '2.48 g/cm³', discovered: '1939', state: 'Solid',
+                electronConfig: '[Rn] 7s¹',
+                description: 'Francium is the second rarest naturally occurring element and most unstable of the first 101 elements. It is extremely radioactive and exists only in trace amounts.',
+                group: 1, period: 7
+            },
+            {
+                symbol: 'Ra', name: 'Radium', num: 88, weight: 226,
+                category: 'alkaline-earth', protons: 88, neutrons: 138, electrons: 88,
+                meltingPoint: '700°C', boilingPoint: '1737°C', freezingPoint: '700°C',
+                density: '5.5 g/cm³', discovered: '1898', state: 'Solid',
+                electronConfig: '[Rn] 7s²',
+                description: 'Radium is a brilliant white radioactive metal discovered by Marie and Pierre Curie. It was once used in luminescent paint for watch dials and instrument panels.',
+                group: 2, period: 7
+            },
+            {
+                symbol: 'Ac', name: 'Actinium', num: 89, weight: 227,
+                category: 'actinide', protons: 89, neutrons: 138, electrons: 89,
+                meltingPoint: '1050°C', boilingPoint: '3200°C', freezingPoint: '1050°C',
+                density: '10.07 g/cm³', discovered: '1899', state: 'Solid',
+                electronConfig: '[Rn] 6d¹ 7s²',
+                description: 'Actinium is a soft, silvery-white radioactive metal that glows blue in the dark due to its intense radioactivity. It gives its name to the actinide series of elements.',
+                group: 3, period: 7
+            },
+            {
+                symbol: 'Th', name: 'Thorium', num: 90, weight: 232.038,
+                category: 'actinide', protons: 90, neutrons: 142, electrons: 90,
+                meltingPoint: '1750°C', boilingPoint: '4788°C', freezingPoint: '1750°C',
+                density: '11.72 g/cm³', discovered: '1829', state: 'Solid',
+                electronConfig: '[Rn] 6d² 7s²',
+                description: 'Thorium is a weakly radioactive metallic chemical element. It is more abundant than uranium and is being investigated as a nuclear fuel in thorium-based nuclear power.',
+                group: 3, period: 7
+            },
+            {
+                symbol: 'Pa', name: 'Protactinium', num: 91, weight: 231.036,
+                category: 'actinide', protons: 91, neutrons: 140, electrons: 91,
+                meltingPoint: '1568°C', boilingPoint: '4027°C', freezingPoint: '1568°C',
+                density: '15.37 g/cm³', discovered: '1913', state: 'Solid',
+                electronConfig: '[Rn] 5f² 6d¹ 7s²',
+                description: 'Protactinium is a dense, silvery-gray metal that is highly radioactive and toxic. It is one of the rarest and most expensive naturally occurring elements.',
+                group: 3, period: 7
+            },
+            {
+                symbol: 'U', name: 'Uranium', num: 92, weight: 238.029,
+                category: 'actinide', protons: 92, neutrons: 146, electrons: 92,
+                meltingPoint: '1135°C', boilingPoint: '4131°C', freezingPoint: '1135°C',
+                density: '19.1 g/cm³', discovered: '1789', state: 'Solid',
+                electronConfig: '[Rn] 5f³ 6d¹ 7s²',
+                description: 'Uranium is a silvery-gray metal in the actinide series. It is weakly radioactive and is the fuel for nuclear power plants and nuclear weapons. Naturally occurs in several isotopes.',
+                group: 3, period: 7
+            },
+            {
+                symbol: 'Np', name: 'Neptunium', num: 93, weight: 237,
+                category: 'actinide', protons: 93, neutrons: 144, electrons: 93,
+                meltingPoint: '637°C', boilingPoint: '4000°C', freezingPoint: '637°C',
+                density: '20.45 g/cm³', discovered: '1940', state: 'Solid',
+                electronConfig: '[Rn] 5f⁴ 6d¹ 7s²',
+                description: 'Neptunium was the first synthetic transuranium element of the actinide series. It is used in neutron detection equipment and as a precursor for plutonium-238 production.',
+                group: 3, period: 7
+            },
+            {
+                symbol: 'Pu', name: 'Plutonium', num: 94, weight: 244,
+                category: 'actinide', protons: 94, neutrons: 150, electrons: 94,
+                meltingPoint: '639.4°C', boilingPoint: '3228°C', freezingPoint: '639.4°C',
+                density: '19.86 g/cm³', discovered: '1940', state: 'Solid',
+                electronConfig: '[Rn] 5f⁶ 7s²',
+                description: 'Plutonium is a radioactive actinide metal used in nuclear reactors and nuclear weapons. The isotope Pu-238 is used in radioisotope thermoelectric generators for spacecraft.',
+                group: 3, period: 7
+            },
+            {
+                symbol: 'Am', name: 'Americium', num: 95, weight: 243,
+                category: 'actinide', protons: 95, neutrons: 148, electrons: 95,
+                meltingPoint: '1176°C', boilingPoint: '2011°C', freezingPoint: '1176°C',
+                density: '12 g/cm³', discovered: '1944', state: 'Solid',
+                electronConfig: '[Rn] 5f⁷ 7s²',
+                description: 'Americium is a radioactive transuranic element. It is used in smoke detectors as Am-241, which ionizes air to detect smoke particles. Named after the Americas.',
+                group: 3, period: 7
+            },
+            {
+                symbol: 'Cm', name: 'Curium', num: 96, weight: 247,
+                category: 'actinide', protons: 96, neutrons: 151, electrons: 96,
+                meltingPoint: '1345°C', boilingPoint: '3110°C', freezingPoint: '1345°C',
+                density: '13.51 g/cm³', discovered: '1944', state: 'Solid',
+                electronConfig: '[Rn] 5f⁷ 6d¹ 7s²',
+                description: 'Curium is a hard, dense, silvery metal with a relatively high melting point. It is named after Marie and Pierre Curie. Used in alpha particle X-ray spectrometers on Mars rovers.',
+                group: 3, period: 7
+            },
+            {
+                symbol: 'Bk', name: 'Berkelium', num: 97, weight: 247,
+                category: 'actinide', protons: 97, neutrons: 150, electrons: 97,
+                meltingPoint: '986°C', boilingPoint: '2627°C', freezingPoint: '986°C',
+                density: '14.78 g/cm³', discovered: '1949', state: 'Solid',
+                electronConfig: '[Rn] 5f⁹ 7s²',
+                description: 'Berkelium is a radioactive metallic element named after Berkeley, California. It has no practical applications outside basic scientific research and is produced in minute amounts.',
+                group: 3, period: 7
+            },
+            {
+                symbol: 'Cf', name: 'Californium', num: 98, weight: 251,
+                category: 'actinide', protons: 98, neutrons: 153, electrons: 98,
+                meltingPoint: '900°C', boilingPoint: '1470°C', freezingPoint: '900°C',
+                density: '15.1 g/cm³', discovered: '1950', state: 'Solid',
+                electronConfig: '[Rn] 5f¹⁰ 7s²',
+                description: 'Californium is a radioactive metallic chemical element. Cf-252 is used as a neutron source for neutron activation analysis and in neutron radiography of aircraft components.',
+                group: 3, period: 7
+            },
+            {
+                symbol: 'Es', name: 'Einsteinium', num: 99, weight: 252,
+                category: 'actinide', protons: 99, neutrons: 153, electrons: 99,
+                meltingPoint: '860°C', boilingPoint: '996°C', freezingPoint: '860°C',
+                density: '8.84 g/cm³', discovered: '1952', state: 'Solid',
+                electronConfig: '[Rn] 5f¹¹ 7s²',
+                description: 'Einsteinium is a synthetic element named after Albert Einstein. It was discovered in the debris of the first hydrogen bomb explosion. Only milligram quantities have ever been produced.',
+                group: 3, period: 7
+            },
+            {
+                symbol: 'Fm', name: 'Fermium', num: 100, weight: 257,
+                category: 'actinide', protons: 100, neutrons: 157, electrons: 100,
+                meltingPoint: '1527°C', boilingPoint: 'Unknown', freezingPoint: '1527°C',
+                density: 'Unknown', discovered: '1952', state: 'Solid',
+                electronConfig: '[Rn] 5f¹² 7s²',
+                description: 'Fermium is a synthetic element named after Enrico Fermi. Like einsteinium, it was discovered in nuclear weapon test debris. It has no uses outside basic scientific research.',
+                group: 3, period: 7
+            },
+            {
+                symbol: 'Md', name: 'Mendelevium', num: 101, weight: 258,
+                category: 'actinide', protons: 101, neutrons: 157, electrons: 101,
+                meltingPoint: '827°C', boilingPoint: 'Unknown', freezingPoint: '827°C',
+                density: 'Unknown', discovered: '1955', state: 'Solid',
+                electronConfig: '[Rn] 5f¹³ 7s²',
+                description: 'Mendelevium is a synthetic element named after Dmitri Mendeleev, creator of the periodic table. It was the first element to be produced one atom at a time.',
+                group: 3, period: 7
+            },
+            {
+                symbol: 'No', name: 'Nobelium', num: 102, weight: 259,
+                category: 'actinide', protons: 102, neutrons: 157, electrons: 102,
+                meltingPoint: '827°C', boilingPoint: 'Unknown', freezingPoint: '827°C',
+                density: 'Unknown', discovered: '1966', state: 'Solid',
+                electronConfig: '[Rn] 5f¹⁴ 7s²',
+                description: 'Nobelium is a synthetic element named after Alfred Nobel. It is produced by bombarding curium with carbon ions. Only a few atoms have ever been produced.',
+                group: 3, period: 7
+            },
+            {
+                symbol: 'Lr', name: 'Lawrencium', num: 103, weight: 266,
+                category: 'actinide', protons: 103, neutrons: 163, electrons: 103,
+                meltingPoint: '1627°C', boilingPoint: 'Unknown', freezingPoint: '1627°C',
+                density: 'Unknown', discovered: '1961', state: 'Solid',
+                electronConfig: '[Rn] 5f¹⁴ 7s² 7p¹',
+                description: 'Lawrencium is a synthetic element named after Ernest Lawrence, inventor of the cyclotron. It is the last element in the actinide series. Only a few atoms have ever been produced.',
+                group: 3, period: 7
+            },
+            {
+                symbol: 'Rf', name: 'Rutherfordium', num: 104, weight: 267,
+                category: 'transition-metal', protons: 104, neutrons: 163, electrons: 104,
+                meltingPoint: '2100°C', boilingPoint: '5500°C', freezingPoint: '2100°C',
+                density: '23 g/cm³', discovered: '1969', state: 'Solid',
+                electronConfig: '[Rn] 5f¹⁴ 6d² 7s²',
+                description: 'Rutherfordium is a synthetic element named after Ernest Rutherford. It is the first transactinide element and a member of the 6d transition metals. Only a few atoms have ever been made.',
+                group: 4, period: 7
+            },
+            {
+                symbol: 'Db', name: 'Dubnium', num: 105, weight: 268,
+                category: 'transition-metal', protons: 105, neutrons: 163, electrons: 105,
+                meltingPoint: 'Unknown', boilingPoint: 'Unknown', freezingPoint: 'Unknown',
+                density: '29 g/cm³', discovered: '1970', state: 'Solid',
+                electronConfig: '[Rn] 5f¹⁴ 6d³ 7s²',
+                description: 'Dubnium is a synthetic element named after Dubna, Russia, where it was first produced. It is highly radioactive and only a few atoms have ever been synthesized.',
+                group: 5, period: 7
+            },
+            {
+                symbol: 'Sg', name: 'Seaborgium', num: 106, weight: 269,
+                category: 'transition-metal', protons: 106, neutrons: 163, electrons: 106,
+                meltingPoint: 'Unknown', boilingPoint: 'Unknown', freezingPoint: 'Unknown',
+                density: '35 g/cm³', discovered: '1974', state: 'Solid',
+                electronConfig: '[Rn] 5f¹⁴ 6d⁴ 7s²',
+                description: 'Seaborgium is a synthetic element named after Glenn T. Seaborg. It was the first element named after a living person. Only a few atoms have ever been produced.',
+                group: 6, period: 7
+            },
+            {
+                symbol: 'Bh', name: 'Bohrium', num: 107, weight: 270,
+                category: 'transition-metal', protons: 107, neutrons: 163, electrons: 107,
+                meltingPoint: 'Unknown', boilingPoint: 'Unknown', freezingPoint: 'Unknown',
+                density: '37 g/cm³', discovered: '1981', state: 'Solid',
+                electronConfig: '[Rn] 5f¹⁴ 6d⁵ 7s²',
+                description: 'Bohrium is a synthetic element named after Niels Bohr. It is extremely radioactive and decays quickly. Only a few atoms have ever been produced in laboratories.',
+                group: 7, period: 7
+            },
+            {
+                symbol: 'Hs', name: 'Hassium', num: 108, weight: 269,
+                category: 'transition-metal', protons: 108, neutrons: 161, electrons: 108,
+                meltingPoint: 'Unknown', boilingPoint: 'Unknown', freezingPoint: 'Unknown',
+                density: '41 g/cm³', discovered: '1984', state: 'Solid',
+                electronConfig: '[Rn] 5f¹⁴ 6d⁶ 7s²',
+                description: 'Hassium is a synthetic element named after the German state of Hesse. It is highly radioactive and its most stable isotope has a half-life of approximately 10 seconds.',
+                group: 8, period: 7
+            },
+            {
+                symbol: 'Mt', name: 'Meitnerium', num: 109, weight: 278,
+                category: 'transition-metal', protons: 109, neutrons: 169, electrons: 109,
+                meltingPoint: 'Unknown', boilingPoint: 'Unknown', freezingPoint: 'Unknown',
+                density: '37.4 g/cm³', discovered: '1982', state: 'Solid',
+                electronConfig: '[Rn] 5f¹⁴ 6d⁷ 7s²',
+                description: 'Meitnerium is a synthetic element named after Lise Meitner, an Austrian-Swedish physicist who contributed to the discovery of nuclear fission. Only a few atoms have ever been produced.',
+                group: 9, period: 7
+            },
+            {
+                symbol: 'Ds', name: 'Darmstadtium', num: 110, weight: 281,
+                category: 'transition-metal', protons: 110, neutrons: 171, electrons: 110,
+                meltingPoint: 'Unknown', boilingPoint: 'Unknown', freezingPoint: 'Unknown',
+                density: '34.8 g/cm³', discovered: '1994', state: 'Solid',
+                electronConfig: '[Rn] 5f¹⁴ 6d⁸ 7s²',
+                description: 'Darmstadtium is a synthetic element named after Darmstadt, Germany, where it was first produced at the GSI Helmholtz Centre for Heavy Ion Research.',
+                group: 10, period: 7
+            },
+            {
+                symbol: 'Rg', name: 'Roentgenium', num: 111, weight: 282,
+                category: 'transition-metal', protons: 111, neutrons: 171, electrons: 111,
+                meltingPoint: 'Unknown', boilingPoint: 'Unknown', freezingPoint: 'Unknown',
+                density: '28.7 g/cm³', discovered: '1994', state: 'Solid',
+                electronConfig: '[Rn] 5f¹⁴ 6d⁹ 7s²',
+                description: 'Roentgenium is a synthetic element named after Wilhelm Conrad Röntgen, the German physicist who discovered X-rays. It is extremely radioactive with a very short half-life.',
+                group: 11, period: 7
+            },
+            {
+                symbol: 'Cn', name: 'Copernicium', num: 112, weight: 285,
+                category: 'transition-metal', protons: 112, neutrons: 173, electrons: 112,
+                meltingPoint: 'Unknown', boilingPoint: '357°C (estimated)', freezingPoint: 'Unknown',
+                density: '23.7 g/cm³', discovered: '1996', state: 'Liquid (predicted)',
+                electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s²',
+                description: 'Copernicium is a synthetic element named after Nicolaus Copernicus. It is predicted to be a liquid metal at room temperature, similar to mercury. Only a few atoms have been produced.',
+                group: 12, period: 7
+            },
+            {
+                symbol: 'Nh', name: 'Nihonium', num: 113, weight: 286,
+                category: 'basic-metal', protons: 113, neutrons: 173, electrons: 113,
+                meltingPoint: 'Unknown', boilingPoint: 'Unknown', freezingPoint: 'Unknown',
+                density: '16 g/cm³', discovered: '2004', state: 'Solid',
+                electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p¹',
+                description: 'Nihonium is a synthetic element named after Japan (Nihon means "Japan" in Japanese). It is the first element discovered in Asia and is extremely unstable with a very short half-life.',
+                group: 13, period: 7
+            },
+            {
+                symbol: 'Fl', name: 'Flerovium', num: 114, weight: 289,
+                category: 'basic-metal', protons: 114, neutrons: 175, electrons: 114,
+                meltingPoint: 'Unknown', boilingPoint: 'Unknown', freezingPoint: 'Unknown',
+                density: '14 g/cm³', discovered: '1999', state: 'Solid',
+                electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p²',
+                description: 'Flerovium is a synthetic element named after Georgy Flyorov, founder of the Joint Institute for Nuclear Research in Dubna, Russia. It is part of the "island of stability" theoretical concept.',
+                group: 14, period: 7
+            },
+            {
+                symbol: 'Mc', name: 'Moscovium', num: 115, weight: 290,
+                category: 'basic-metal', protons: 115, neutrons: 175, electrons: 115,
+                meltingPoint: 'Unknown', boilingPoint: 'Unknown', freezingPoint: 'Unknown',
+                density: '13.5 g/cm³', discovered: '2003', state: 'Solid',
+                electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p³',
+                description: 'Moscovium is a synthetic element named after Moscow, Russia, where the Joint Institute for Nuclear Research is located. It is extremely radioactive and decays within seconds.',
+                group: 15, period: 7
+            },
+            {
+                symbol: 'Lv', name: 'Livermorium', num: 116, weight: 293,
+                category: 'basic-metal', protons: 116, neutrons: 177, electrons: 116,
+                meltingPoint: 'Unknown', boilingPoint: 'Unknown', freezingPoint: 'Unknown',
+                density: '12.9 g/cm³', discovered: '2000', state: 'Solid',
+                electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁴',
+                description: 'Livermorium is a synthetic element named after Lawrence Livermore National Laboratory in California. It was produced by bombarding curium with calcium ions.',
+                group: 16, period: 7
+            },
+            {
+                symbol: 'Ts', name: 'Tennessine', num: 117, weight: 294,
+                category: 'halogen', protons: 117, neutrons: 177, electrons: 117,
+                meltingPoint: 'Unknown', boilingPoint: 'Unknown', freezingPoint: 'Unknown',
+                density: '7.2 g/cm³', discovered: '2010', state: 'Solid',
+                electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁵',
+                description: 'Tennessine is a synthetic element named after Tennessee, USA, recognizing the contributions of Oak Ridge National Laboratory and Vanderbilt University. It is the second-heaviest known element.',
+                group: 17, period: 7
+            },
+            {
+                symbol: 'Og', name: 'Oganesson', num: 118, weight: 294,
+                category: 'noble-gas', protons: 118, neutrons: 176, electrons: 118,
+                meltingPoint: 'Unknown', boilingPoint: 'Unknown', freezingPoint: 'Unknown',
+                density: '5.0 g/cm³', discovered: '2006', state: 'Solid (predicted)',
+                electronConfig: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶',
+                description: 'Oganesson is a synthetic element named after Yuri Oganessian, a Russian-Armenian nuclear physicist. It is the heaviest element currently known and completes the 7th period of the periodic table.',
+                group: 18, period: 7
+            }
+        ];
+        
+        // Periodic table layout positions (group, period)
+        const elementPositions = {
+            1: { group: 1, period: 1 },    // H
+            2: { group: 18, period: 1 },   // He
+            3: { group: 1, period: 2 },    // Li
+            4: { group: 2, period: 2 },    // Be
+            5: { group: 13, period: 2 },   // B
+            6: { group: 14, period: 2 },   // C
+            7: { group: 15, period: 2 },   // N
+            8: { group: 16, period: 2 },   // O
+            9: { group: 17, period: 2 },   // F
+            10: { group: 18, period: 2 },  // Ne
+            11: { group: 1, period: 3 },   // Na
+            12: { group: 2, period: 3 },   // Mg
+            13: { group: 13, period: 3 },  // Al
+            14: { group: 14, period: 3 },  // Si
+            15: { group: 15, period: 3 },  // P
+            16: { group: 16, period: 3 },  // S
+            17: { group: 17, period: 3 },  // Cl
+            18: { group: 18, period: 3 },  // Ar
+            19: { group: 1, period: 4 },   // K
+            20: { group: 2, period: 4 },   // Ca
+            21: { group: 3, period: 4 },   // Sc
+            22: { group: 4, period: 4 },   // Ti
+            23: { group: 5, period: 4 },   // V
+            24: { group: 6, period: 4 },   // Cr
+            25: { group: 7, period: 4 },   // Mn
+            26: { group: 8, period: 4 },   // Fe
+            27: { group: 9, period: 4 },   // Co
+            28: { group: 10, period: 4 },  // Ni
+            29: { group: 11, period: 4 },  // Cu
+            30: { group: 12, period: 4 },  // Zn
+            31: { group: 13, period: 4 },  // Ga
+            32: { group: 14, period: 4 },  // Ge
+            33: { group: 15, period: 4 },  // As
+            34: { group: 16, period: 4 },  // Se
+            35: { group: 17, period: 4 },  // Br
+            36: { group: 18, period: 4 },  // Kr
+            37: { group: 1, period: 5 },   // Rb
+            38: { group: 2, period: 5 },   // Sr
+            39: { group: 3, period: 5 },   // Y
+            40: { group: 4, period: 5 },   // Zr
+            41: { group: 5, period: 5 },   // Nb
+            42: { group: 6, period: 5 },   // Mo
+            43: { group: 7, period: 5 },   // Tc
+            44: { group: 8, period: 5 },   // Ru
+            45: { group: 9, period: 5 },   // Rh
+            46: { group: 10, period: 5 },  // Pd
+            47: { group: 11, period: 5 },  // Ag
+            48: { group: 12, period: 5 },  // Cd
+            49: { group: 13, period: 5 },  // In
+            50: { group: 14, period: 5 },  // Sn
+            51: { group: 15, period: 5 },  // Sb
+            52: { group: 16, period: 5 },  // Te
+            53: { group: 17, period: 5 },  // I
+            54: { group: 18, period: 5 },  // Xe
+            55: { group: 1, period: 6 },   // Cs
+            56: { group: 2, period: 6 },   // Ba
+            57: { group: 3, period: 6 },   // La
+            58: { group: 4, period: 6 },   // Ce
+            59: { group: 5, period: 6 },   // Pr
+            60: { group: 6, period: 6 },   // Nd
+            61: { group: 7, period: 6 },   // Pm
+            62: { group: 8, period: 6 },   // Sm
+            63: { group: 9, period: 6 },   // Eu
+            64: { group: 10, period: 6 },  // Gd
+            65: { group: 11, period: 6 },  // Tb
+            66: { group: 12, period: 6 },  // Dy
+            67: { group: 13, period: 6 },  // Ho
+            68: { group: 14, period: 6 },  // Er
+            69: { group: 15, period: 6 },  // Tm
+            70: { group: 16, period: 6 },  // Yb
+            71: { group: 17, period: 6 },  // Lu
+            72: { group: 4, period: 6 },   // Hf
+            73: { group: 5, period: 6 },   // Ta
+            74: { group: 6, period: 6 },   // W
+            75: { group: 7, period: 6 },   // Re
+            76: { group: 8, period: 6 },   // Os
+            77: { group: 9, period: 6 },   // Ir
+            78: { group: 10, period: 6 },  // Pt
+            79: { group: 11, period: 6 },  // Au
+            80: { group: 12, period: 6 },  // Hg
+            81: { group: 13, period: 6 },  // Tl
+            82: { group: 14, period: 6 },  // Pb
+            83: { group: 15, period: 6 },  // Bi
+            84: { group: 16, period: 6 },  // Po
+            85: { group: 17, period: 6 },  // At
+            86: { group: 18, period: 6 },  // Rn
+            87: { group: 1, period: 7 },   // Fr
+            88: { group: 2, period: 7 },   // Ra
+            89: { group: 3, period: 7 },   // Ac
+            90: { group: 4, period: 7 },   // Th
+            91: { group: 5, period: 7 },   // Pa
+            92: { group: 6, period: 7 },   // U
+            93: { group: 7, period: 7 },   // Np
+            94: { group: 8, period: 7 },   // Pu
+            95: { group: 9, period: 7 },   // Am
+            96: { group: 10, period: 7 },  // Cm
+            97: { group: 11, period: 7 },  // Bk
+            98: { group: 12, period: 7 },  // Cf
+            99: { group: 13, period: 7 },  // Es
+            100: { group: 14, period: 7 }, // Fm
+            101: { group: 15, period: 7 }, // Md
+            102: { group: 16, period: 7 }, // No
+            103: { group: 17, period: 7 }, // Lr
+            104: { group: 4, period: 7 },  // Rf
+            105: { group: 5, period: 7 },  // Db
+            106: { group: 6, period: 7 },  // Sg
+            107: { group: 7, period: 7 },  // Bh
+            108: { group: 8, period: 7 },  // Hs
+            109: { group: 9, period: 7 },   // Mt
+            110: { group: 10, period: 7 },  // Ds
+            111: { group: 11, period: 7 },  // Rg
+            112: { group: 12, period: 7 },  // Cn
+            113: { group: 13, period: 7 },  // Nh
+            114: { group: 14, period: 7 },  // Fl
+            115: { group: 15, period: 7 },  // Mc
+            116: { group: 16, period: 7 },  // Lv
+            117: { group: 17, period: 7 },  // Ts
+            118: { group: 18, period: 7 }   // Og
+        };
+        
+        // Initialize the periodic table
+        const periodicTable = document.getElementById('periodicTable');
+        const detailsContent = document.getElementById('detailsContent');
+        const emptyState = document.getElementById('emptyState');
+        const searchInput = document.getElementById('searchInput');
+        
+        // Generate empty cells for the periodic table
+        function generatePeriodicTable() {
+            // Clear the table
+            periodicTable.innerHTML = '';
+            
+            // Create 7 rows with 18 columns each
+            for (let period = 1; period <= 7; period++) {
+                for (let group = 1; group <= 18; group++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'element empty-cell';
+                    cell.style.visibility = 'hidden';
+                    cell.dataset.group = group;
+                    cell.dataset.period = period;
+                    
+                    periodicTable.appendChild(cell);
+                }
+            }
+            
+            // Place elements in their correct positions
+            elements.forEach(element => {
+                const pos = elementPositions[element.num];
+                if (pos) {
+                    const index = (pos.period - 1) * 18 + (pos.group - 1);
+                    const cell = periodicTable.children[index];
+                    
+                    if (cell) {
+                        cell.className = `element ${element.category}`;
+                        cell.style.visibility = 'visible';
+                        cell.innerHTML = `
+                            <div class="atomic-number">${element.num}</div>
+                            <div class="symbol">${element.symbol}</div>
+                            <div class="name">${element.name}</div>
+                            <div class="atomic-weight">${element.weight}</div>
+                        `;
+                        
+                        cell.dataset.elementIndex = elements.indexOf(element);
+                        cell.addEventListener('click', () => showElementDetails(element));
+                    }
+                }
+            });
+        }
+        
+        // Show element details in the panel
+        function showElementDetails(element) {
+            // Remove active class from all elements
+            document.querySelectorAll('.element').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Add active class to clicked element
+            const activeElement = document.querySelector(`[data-element-index="${elements.indexOf(element)}"]`);
+            if (activeElement) {
+                activeElement.classList.add('active');
+            }
+            
+            // Update details panel
+            document.getElementById('atomicNumber').textContent = element.num;
+            document.getElementById('symbol').textContent = element.symbol;
+            document.getElementById('protons').textContent = element.protons;
+            document.getElementById('neutrons').textContent = element.neutrons;
+            document.getElementById('electrons').textContent = element.electrons;
+            document.getElementById('atomicWeight').textContent = element.weight;
+            document.getElementById('density').textContent = element.density;
+            document.getElementById('category').textContent = element.category.charAt(0).toUpperCase() + element.category.slice(1);
+            document.getElementById('meltingPoint').textContent = element.meltingPoint;
+            document.getElementById('boilingPoint').textContent = element.boilingPoint;
+            document.getElementById('freezingPoint').textContent = element.freezingPoint;
+            document.getElementById('discovered').textContent = element.discovered;
+            document.getElementById('state').textContent = element.state;
+            document.getElementById('electronConfig').textContent = element.electronConfig;
+            document.getElementById('description').textContent = element.description;
+            
+            // Show details panel, hide empty state
+            detailsContent.classList.add('active');
+            emptyState.style.display = 'none';
+        }
+        
+        // Search function
+        function searchElements(query) {
+            const searchTerm = query.toLowerCase().trim();
+            
+            if (!searchTerm) {
+                // Reset all elements to visible
+                document.querySelectorAll('.element').forEach(el => {
+                    if (!el.classList.contains('empty-cell')) {
+                        el.style.display = 'flex';
+                    }
+                });
+                return;
+            }
+            
+            // Hide all elements first
+            document.querySelectorAll('.element').forEach(el => {
+                el.style.display = 'none';
+            });
+            
+            // Show matching elements
+            elements.forEach(element => {
+                if (
+                    element.name.toLowerCase().includes(searchTerm) ||
+                    element.symbol.toLowerCase().includes(searchTerm) ||
+                    element.num.toString().includes(searchTerm)
+                ) {
+                    const pos = elementPositions[element.num];
+                    if (pos) {
+                        const index = (pos.period - 1) * 18 + (pos.group - 1);
+                        const cell = periodicTable.children[index];
+                        if (cell) {
+                            cell.style.display = 'flex';
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Event listeners
+        searchInput.addEventListener('input', (e) => {
+            searchElements(e.target.value);
+        });
+        
+        // Initialize the table
+        generatePeriodicTable();
+        
+        // Show first element details by default
+        if (elements.length > 0) {
+            showElementDetails(elements[0]);
+        }
+        
+        // Add keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                searchInput.value = '';
+                searchElements('');
+                searchInput.focus();
+            }
+        });
+    </script>
+</body>
+</html>

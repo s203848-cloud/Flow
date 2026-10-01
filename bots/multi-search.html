@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Search Tool | Academic & Web Search</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .back-btn i {
+            margin-right: 5px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #ff8000, #ffaa55);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            color: #aaa;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        .search-container {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 15px 20px;
+            background: rgba(10, 10, 25, 0.8);
+            border: 1px solid #333;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 15px rgba(255, 128, 0, 0.2);
+        }
+        
+        .search-btn {
+            padding: 0 30px;
+            background: linear-gradient(to right, #ff8000, #ff5500);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+        
+        .search-btn:hover {
+            background: linear-gradient(to right, #ff9500, #ff6a00);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.4);
+        }
+        
+        .source-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .source-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: rgba(30, 30, 60, 0.7);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .source-option:hover {
+            background: rgba(40, 40, 80, 0.9);
+        }
+        
+        .source-option.active {
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+        }
+        
+        .source-checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: #ff8000;
+        }
+        
+        .results-container {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .results-column {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .column-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .column-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .academic-icon {
+            background: rgba(0, 150, 255, 0.2);
+            color: #0096ff;
+        }
+        
+        .library-icon {
+            background: rgba(0, 200, 150, 0.2);
+            color: #00c896;
+        }
+        
+        .web-icon {
+            background: rgba(255, 100, 100, 0.2);
+            color: #ff6464;
+        }
+        
+        .column-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .result-count {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-top: 3px;
+        }
+        
+        .results-list {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 600px;
+            padding-right: 10px;
+        }
+        
+        .result-item {
+            background: rgba(10, 10, 25, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .result-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .academic-item {
+            border-left-color: #0096ff;
+        }
+        
+        .library-item {
+            border-left-color: #00c896;
+        }
+        
+        .web-item {
+            border-left-color: #ff6464;
+        }
+        
+        .result-title {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: #fff;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .result-title:hover {
+            color: #ff8000;
+        }
+        
+        .result-source {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .result-abstract {
+            color: #ccc;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+        
+        .result-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #888;
+            font-size: 0.85rem;
+        }
+        
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 128, 0, 0.3);
+            border-top: 4px solid #ff8000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .instructions {
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 30px;
+            font-size: 0.95rem;
+            color: #ffcc99;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #777;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+        }
+        
+        @media (max-width: 1100px) {
+            .results-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        
+        <header>
+            <h1>Multi-Search Tool</h1>
+            <p class="tagline">Unified search across academic databases, library catalogs, and web sources</p>
+        </header>
+        
+        <div class="search-container">
+            <div class="search-bar">
+                <input type="text" class="search-input" id="searchInput" placeholder="Enter your search query (e.g., 'machine learning', 'quantum computing', 'climate change')" value="machine learning applications">
+                <button class="search-btn" id="searchBtn">Search</button>
+            </div>
+            
+            <div class="source-selector">
+                <div class="source-option active">
+                    <input type="checkbox" class="source-checkbox" id="academicCheck" checked>
+                    <label for="academicCheck">Academic Databases</label>
+                </div>
+                <div class="source-option active">
+                    <input type="checkbox" class="source-checkbox" id="libraryCheck" checked>
+                    <label for="libraryCheck">Library Catalogs</label>
+                </div>
+                <div class="source-option active">
+                    <input type="checkbox" class="source-checkbox" id="webCheck" checked>
+                    <label for="webCheck">General Web</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="results-container" id="resultsContainer">
+            <!-- Academic Results Column -->
+            <div class="results-column">
+                <div class="column-header">
+                    <div class="column-icon academic-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <div class="column-title">Academic</div>
+                        <div class="result-count" id="academicCount">Loading...</div>
+                    </div>
+                </div>
+                <div class="results-list" id="academicResults">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Fetching academic results...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Library Results Column -->
+            <div class="results-column">
+                <div class="column-header">
+                    <div class="column-icon library-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div>
+                        <div class="column-title">Library</div>
+                        <div class="result-count" id="libraryCount">Loading...</div>
+                    </div>
+                </div>
+                <div class="results-list" id="libraryResults">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Fetching library results...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Web Results Column -->
+            <div class="results-column">
+                <div class="column-header">
+                    <div class="column-icon web-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div>
+                        <div class="column-title">Web</div>
+                        <div class="result-count" id="webCount">Loading...</div>
+                    </div>
+                </div>
+                <div class="results-list" id="webResults">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Fetching web results...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <i class="fas fa-info-circle"></i> This is a demonstration of a multi-search tool. In a real implementation, this would connect to actual APIs like Google Scholar, library catalogs (WorldCat, local libraries), and web search engines. Try searching for topics like "artificial intelligence", "renewable energy", or "data science".
+        </div>
+        
+        <div class="footer">
+            <p>Multi-Search Tool v1.0 | Simulated results for demonstration purposes</p>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for different search sources
+        const academicResults = [
+            {
+                title: "Deep Learning: A Comprehensive Review",
+                source: "Google Scholar | Nature Machine Intelligence",
+                abstract: "This paper reviews the recent advances in deep learning, including architectures, applications, and challenges. The authors discuss convolutional neural networks, recurrent neural networks, and transformers.",
+                authors: "Zhang, Y., Li, Q., Wang, J., et al.",
+                year: "2023",
+                citations: "142",
+                link: "#"
+            },
+            {
+                title: "Machine Learning Applications in Healthcare",
+                source: "IEEE Transactions on Medical Imaging",
+                abstract: "This study explores various machine learning techniques applied to medical diagnostics, including image analysis, predictive modeling, and patient outcome prediction.",
+                authors: "Johnson, M., Smith, A., Chen, L.",
+                year: "2022",
+                citations: "89",
+                link: "#"
+            },
+            {
+                title: "Reinforcement Learning for Autonomous Systems",
+                source: "Journal of Artificial Intelligence Research",
+                abstract: "An investigation into reinforcement learning algorithms applied to autonomous vehicles and robotics, focusing on safety and efficiency improvements.",
+                authors: "Rodriguez, P., Kim, S., Tanaka, H.",
+                year: "2023",
+                citations: "56",
+                link: "#"
+            },
+            {
+                title: "Ethical Considerations in AI Development",
+                source: "AI & Society Journal",
+                abstract: "This paper examines the ethical implications of artificial intelligence systems, addressing bias, transparency, and accountability in machine learning models.",
+                authors: "Williams, R., Davis, K., Patel, S.",
+                year: "2022",
+                citations: "203",
+                link: "#"
+            },
+            {
+                title: "Natural Language Processing: Current State and Future Directions",
+                source: "Computational Linguistics",
+                abstract: "A comprehensive survey of natural language processing techniques, covering transformer models, attention mechanisms, and their applications across domains.",
+                authors: "Chen, X., Wang, L., Gupta, R.",
+                year: "2023",
+                citations: "78",
+                link: "#"
+            }
+        ];
+        
+        const libraryResults = [
+            {
+                title: "Machine Learning: A Probabilistic Perspective",
+                source: "University Library Catalog",
+                abstract: "Comprehensive textbook covering the probabilistic approach to machine learning, including Bayesian methods, graphical models, and inference algorithms.",
+                author: "Kevin P. Murphy",
+                year: "2012",
+                availability: "Available (3 copies)",
+                link: "#"
+            },
+            {
+                title: "Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow",
+                source: "Public Library System",
+                abstract: "Practical guide to implementing machine learning algorithms using popular Python frameworks with real-world examples and projects.",
+                author: "Aurélien Géron",
+                year: "2019",
+                availability: "Checked out (Reserve available)",
+                link: "#"
+            },
+            {
+                title: "Pattern Recognition and Machine Learning",
+                source: "Digital Library Archive",
+                abstract: "Foundational text covering pattern recognition techniques and their mathematical foundations, with emphasis on Bayesian perspectives.",
+                author: "Christopher M. Bishop",
+                year: "2006",
+                availability: "E-book available",
+                link: "#"
+            },
+            {
+                title: "The Hundred-Page Machine Learning Book",
+                source: "Community College Library",
+                abstract: "Concise introduction to core machine learning concepts, algorithms, and practical considerations for beginners and practitioners.",
+                author: "Andriy Burkov",
+                year: "2019",
+                availability: "Available (5 copies)",
+                link: "#"
+            },
+            {
+                title: "Deep Learning with Python",
+                source: "Technical Library",
+                abstract: "Practical introduction to deep learning using Python and Keras, covering neural networks, CNNs, RNNs, and generative models.",
+                author: "François Chollet",
+                year: "2017",
+                availability: "Available (2 copies)",
+                link: "#"
+            }
+        ];
+        
+        const webResults = [
+            {
+                title: "Machine Learning Explained: A Beginner's Guide",
+                source: "Towards Data Science",
+                abstract: "An accessible introduction to machine learning concepts, covering supervised and unsupervised learning, common algorithms, and real-world applications.",
+                date: "March 2023",
+                readTime: "8 min",
+                link: "#"
+            },
+            {
+                title: "Top 10 Machine Learning Projects for Beginners",
+                source: "Medium Tech Blog",
+                abstract: "Practical project ideas for those new to machine learning, including datasets, implementation tips, and expected outcomes.",
+                date: "January 2023",
+                readTime: "6 min",
+                link: "#"
+            },
+            {
+                title: "How Machine Learning is Transforming Industries",
+                source: "Forbes Technology",
+                abstract: "Analysis of machine learning applications across healthcare, finance, retail, and manufacturing, with case studies and future predictions.",
+                date: "April 2023",
+                readTime: "12 min",
+                link: "#"
+            },
+            {
+                title: "Machine Learning vs. Deep Learning: What's the Difference?",
+                source: "TechCrunch",
+                abstract: "Comparison of traditional machine learning approaches and deep learning, explaining when each is appropriate and their respective strengths.",
+                date: "February 2023",
+                readTime: "7 min",
+                link: "#"
+            },
+            {
+                title: "Free Resources to Learn Machine Learning in 2023",
+                source: "FreeCodeCamp",
+                abstract: "Curated list of free courses, tutorials, and datasets for learning machine learning, from beginner to advanced levels.",
+                date: "May 2023",
+                readTime: "10 min",
+                link: "#"
+            }
+        ];
+        
+        // DOM elements
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const academicCheck = document.getElementById('academicCheck');
+        const libraryCheck = document.getElementById('libraryCheck');
+        const webCheck = document.getElementById('webCheck');
+        const academicResultsDiv = document.getElementById('academicResults');
+        const libraryResultsDiv = document.getElementById('libraryResults');
+        const webResultsDiv = document.getElementById('webResults');
+        const academicCount = document.getElementById('academicCount');
+        const libraryCount = document.getElementById('libraryCount');
+        const webCount = document.getElementById('webCount');
+        
+        // Function to simulate API delay
+        const simulateDelay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        
+        // Function to update source option styling
+        function updateSourceOptions() {
+            const sourceOptions = document.querySelectorAll('.source-option');
+            sourceOptions.forEach(option => {
+                const checkbox = option.querySelector('.source-checkbox');
+                if (checkbox.checked) {
+                    option.classList.add('active');
+                } else {
+                    option.classList.remove('active');
+                }
+            });
+        }
+        
+        // Function to render results
+        async function renderResults(query) {
+            // Show loading state
+            academicResultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Fetching academic results...</p></div>';
+            libraryResultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Fetching library results...</p></div>';
+            webResultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Fetching web results...</p></div>';
+            
+            // Simulate network delay
+            await simulateDelay(800);
+            
+            // Filter results based on query (simplified simulation)
+            const filteredAcademic = academicResults.filter(item => 
+                item.title.toLowerCase().includes(query.toLowerCase()) || 
+                item.abstract.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            const filteredLibrary = libraryResults.filter(item => 
+                item.title.toLowerCase().includes(query.toLowerCase()) || 
+                item.abstract.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            const filteredWeb = webResults.filter(item => 
+                item.title.toLowerCase().includes(query.toLowerCase()) || 
+                item.abstract.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            // Update result counts
+            academicCount.textContent = `${filteredAcademic.length} results found`;
+            libraryCount.textContent = `${filteredLibrary.length} results found`;
+            webCount.textContent = `${filteredWeb.length} results found`;
+            
+            // Render academic results if checked
+            if (academicCheck.checked) {
+                academicResultsDiv.innerHTML = '';
+                if (filteredAcademic.length === 0) {
+                    academicResultsDiv.innerHTML = '<div class="loading"><p>No academic results found for your query.</p></div>';
+                } else {
+                    filteredAcademic.forEach(result => {
+                        const resultElement = document.createElement('div');
+                        resultElement.className = 'result-item academic-item';
+                        resultElement.innerHTML = `
+                            <a href="${result.link}" class="result-title">${result.title}</a>
+                            <div class="result-source">${result.source}</div>
+                            <div class="result-abstract">${result.abstract}</div>
+                            <div class="result-meta">
+                                <span><i class="fas fa-user"></i> ${result.authors}</span>
+                                <span><i class="fas fa-calendar"></i> ${result.year}</span>
+                                <span><i class="fas fa-quote-right"></i> ${result.citations} citations</span>
+                            </div>
+                        `;
+                        academicResultsDiv.appendChild(resultElement);
+                    });
+                }
+            } else {
+                academicResultsDiv.innerHTML = '<div class="loading"><p>Academic search disabled. Enable via checkbox above.</p></div>';
+                academicCount.textContent = 'Search disabled';
+            }
+            
+            // Render library results if checked
+            if (libraryCheck.checked) {
+                libraryResultsDiv.innerHTML = '';
+                if (filteredLibrary.length === 0) {
+                    libraryResultsDiv.innerHTML = '<div class="loading"><p>No library results found for your query.</p></div>';
+                } else {
+                    filteredLibrary.forEach(result => {
+                        const resultElement = document.createElement('div');
+                        resultElement.className = 'result-item library-item';
+                        resultElement.innerHTML = `
+                            <a href="${result.link}" class="result-title">${result.title}</a>
+                            <div class="result-source">${result.source}</div>
+                            <div class="result-abstract">${result.abstract}</div>
+                            <div class="result-meta">
+                                <span><i class="fas fa-user"></i> ${result.author}</span>
+                                <span><i class="fas fa-calendar"></i> ${result.year}</span>
+                                <span><i class="fas fa-bookmark"></i> ${result.availability}</span>
+                            </div>
+                        `;
+                        libraryResultsDiv.appendChild(resultElement);
+                    });
+                }
+            } else {
+                libraryResultsDiv.innerHTML = '<div class="loading"><p>Library search disabled. Enable via checkbox above.</p></div>';
+                libraryCount.textContent = 'Search disabled';
+            }
+            
+            // Render web results if checked
+            if (webCheck.checked) {
+                webResultsDiv.innerHTML = '';
+                if (filteredWeb.length === 0) {
+                    webResultsDiv.innerHTML = '<div class="loading"><p>No web results found for your query.</p></div>';
+                } else {
+                    filteredWeb.forEach(result => {
+                        const resultElement = document.createElement('div');
+                        resultElement.className = 'result-item web-item';
+                        resultElement.innerHTML = `
+                            <a href="${result.link}" class="result-title">${result.title}</a>
+                            <div class="result-source">${result.source}</div>
+                            <div class="result-abstract">${result.abstract}</div>
+                            <div class="result-meta">
+                                <span><i class="fas fa-calendar"></i> ${result.date}</span>
+                                <span><i class="fas fa-clock"></i> ${result.readTime} read</span>
+                            </div>
+                        `;
+                        webResultsDiv.appendChild(resultElement);
+                    });
+                }
+            } else {
+                webResultsDiv.innerHTML = '<div class="loading"><p>Web search disabled. Enable via checkbox above.</p></div>';
+                webCount.textContent = 'Search disabled';
+            }
+        }
+        
+        // Event listeners
+        searchBtn.addEventListener('click', () => {
+            const query = searchInput.value.trim();
+            if (query) {
+                renderResults(query);
+            } else {
+                searchInput.focus();
+            }
+        });
+        
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = searchInput.value.trim();
+                if (query) {
+                    renderResults(query);
+                }
+            }
+        });
+        
+        // Add event listeners to checkboxes
+        academicCheck.addEventListener('change', () => {
+            updateSourceOptions();
+            const query = searchInput.value.trim();
+            if (query) renderResults(query);
+        });
+        
+        libraryCheck.addEventListener('change', () => {
+            updateSourceOptions();
+            const query = searchInput.value.trim();
+            if (query) renderResults(query);
+        });
+        
+        webCheck.addEventListener('change', () => {
+            updateSourceOptions();
+            const query = searchInput.value.trim();
+            if (query) renderResults(query);
+        });
+        
+        // Initialize with sample search
+        document.addEventListener('DOMContentLoaded', () => {
+            updateSourceOptions();
+            renderResults('machine learning applications');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.8);
+            margin-bottom: 30px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 69, 0, 0.2);
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.4);
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .section {
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        h1, h2, h3 {
+            color: #ff8000;
+            margin-bottom: 15px;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        h2 {
+            font-size: 1.3rem;
+            border-bottom: 1px solid rgba(255, 69, 0, 0.3);
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        label {
+            color: #ffcc99;
+            font-weight: 500;
+        }
+        
+        input, textarea, select {
+            padding: 12px 15px;
+            background: rgba(50, 50, 70, 0.3);
+            border: 1px solid rgba(255, 69, 0, 0.3);
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 5px rgba(255, 128, 0, 0.3);
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .calculate-btn {
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            color: #ff8000;
+        }
+        
+        .calculate-btn:hover {
+            background: rgba(255, 128, 0, 0.4);
+        }
+        
+        .clear-btn {
+            background: rgba(100, 100, 120, 0.3);
+            border: 1px solid rgba(200, 200, 220, 0.5);
+            color: #ccc;
+        }
+        
+        .clear-btn:hover {
+            background: rgba(100, 100, 120, 0.5);
+        }
+        
+        .results-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(50, 50, 70, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid #ff8000;
+        }
+        
+        .stat-title {
+            font-size: 0.9rem;
+            color: #ffcc99;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .data-display {
+            margin-top: 20px;
+            background: rgba(50, 50, 70, 0.2);
+            border-radius: 5px;
+            padding: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .data-item {
+            display: inline-block;
+            background: rgba(255, 128, 0, 0.1);
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 3px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .instructions {
+            background: rgba(255, 128, 0, 0.05);
+            border-left: 4px solid rgba(255, 128, 0, 0.5);
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+            color: #ccc;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 69, 0, 0.2);
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .error {
+            color: #ff5555;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 85, 85, 0.1);
+            border-radius: 5px;
+            border: 1px solid rgba(255, 85, 85, 0.3);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .results-container {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        <h1><i class="fas fa-calculator"></i> Statistics Calculator</h1>
+    </div>
+    
+    <div class="container">
+        <div class="section">
+            <h2><i class="fas fa-chart-bar"></i> Input Data</h2>
+            
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="dataInput"><i class="fas fa-list-ol"></i> Enter numbers (comma, space, or line separated):</label>
+                    <textarea id="dataInput" placeholder="Example: 12, 15, 18, 22, 25, 30, 32, 35, 40, 42">12, 15, 18, 22, 25, 30, 32, 35, 40, 42</textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label for="dataType"><i class="fas fa-sliders-h"></i> Data Type:</label>
+                    <select id="dataType">
+                        <option value="sample">Sample Data</option>
+                        <option value="population">Population Data</option>
+                    </select>
+                </div>
+                
+                <div class="buttons">
+                    <button class="calculate-btn" id="calculateBtn">
+                        <i class="fas fa-calculator"></i> Calculate Statistics
+                    </button>
+                    <button class="clear-btn" id="clearBtn">
+                        <i class="fas fa-eraser"></i> Clear Data
+                    </button>
+                </div>
+                
+                <div id="errorMessage" class="error hidden">
+                    <i class="fas fa-exclamation-triangle"></i> Please enter valid numeric data.
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2><i class="fas fa-chart-line"></i> Statistical Results</h2>
+            
+            <div class="results-container" id="resultsContainer">
+                <!-- Results will be populated here by JavaScript -->
+                <div class="stat-card">
+                    <div class="stat-title">Mean (Average)</div>
+                    <div class="stat-value" id="meanValue">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Median</div>
+                    <div class="stat-value" id="medianValue">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Mode</div>
+                    <div class="stat-value" id="modeValue">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Range</div>
+                    <div class="stat-value" id="rangeValue">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Variance</div>
+                    <div class="stat-value" id="varianceValue">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Std Deviation</div>
+                    <div class="stat-value" id="stdDevValue">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Minimum</div>
+                    <div class="stat-value" id="minValue">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Maximum</div>
+                    <div class="stat-value" id="maxValue">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Sum</div>
+                    <div class="stat-value" id="sumValue">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Count</div>
+                    <div class="stat-value" id="countValue">--</div>
+                </div>
+            </div>
+            
+            <div class="data-display">
+                <h3><i class="fas fa-database"></i> Your Data Points:</h3>
+                <div id="dataPoints">No data entered yet.</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2><i class="fas fa-info-circle"></i> Instructions</h2>
+            <div class="instructions">
+                <p>This calculator computes common statistical measures for a dataset:</p>
+                <ul>
+                    <li><strong>Mean (Average)</strong>: The sum of all values divided by the count</li>
+                    <li><strong>Median</strong>: The middle value when data is sorted</li>
+                    <li><strong>Mode</strong>: The most frequently occurring value(s)</li>
+                    <li><strong>Range</strong>: Difference between maximum and minimum values</li>
+                    <li><strong>Variance</strong>: Measure of data dispersion (sample or population)</li>
+                    <li><strong>Standard Deviation</strong>: Square root of variance</li>
+                </ul>
+                <p><strong>Note</strong>: Choose "Sample Data" if your data is a sample from a larger population, or "Population Data" if it represents the entire population.</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Statistics Calculator &copy; 2023 | Built with JavaScript</p>
+        </div>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const dataInput = document.getElementById('dataInput');
+        const dataType = document.getElementById('dataType');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const dataPoints = document.getElementById('dataPoints');
+        
+        // Result elements
+        const meanValue = document.getElementById('meanValue');
+        const medianValue = document.getElementById('medianValue');
+        const modeValue = document.getElementById('modeValue');
+        const rangeValue = document.getElementById('rangeValue');
+        const varianceValue = document.getElementById('varianceValue');
+        const stdDevValue = document.getElementById('stdDevValue');
+        const minValue = document.getElementById('minValue');
+        const maxValue = document.getElementById('maxValue');
+        const sumValue = document.getElementById('sumValue');
+        const countValue = document.getElementById('countValue');
+        
+        // Parse input data into an array of numbers
+        function parseData(input) {
+            // Split by commas, spaces, or new lines
+            const values = input.split(/[\s,]+/).filter(val => val.trim() !== '');
+            
+            // Convert to numbers and filter out non-numeric values
+            const numbers = values.map(val => parseFloat(val)).filter(num => !isNaN(num));
+            
+            return numbers;
+        }
+        
+        // Calculate statistics
+        function calculateStatistics(data, isPopulation) {
+            if (data.length === 0) return null;
+            
+            // Sort data for some calculations
+            const sortedData = [...data].sort((a, b) => a - b);
+            const n = data.length;
+            
+            // Basic calculations
+            const sum = data.reduce((acc, val) => acc + val, 0);
+            const mean = sum / n;
+            const min = Math.min(...data);
+            const max = Math.max(...data);
+            const range = max - min;
+            
+            // Median
+            let median;
+            if (n % 2 === 0) {
+                median = (sortedData[n/2 - 1] + sortedData[n/2]) / 2;
+            } else {
+                median = sortedData[Math.floor(n/2)];
+            }
+            
+            // Mode
+            const frequency = {};
+            data.forEach(num => {
+                frequency[num] = (frequency[num] || 0) + 1;
+            });
+            
+            let maxFrequency = 0;
+            let modes = [];
+            
+            for (const num in frequency) {
+                if (frequency[num] > maxFrequency) {
+                    maxFrequency = frequency[num];
+                    modes = [parseFloat(num)];
+                } else if (frequency[num] === maxFrequency) {
+                    modes.push(parseFloat(num));
+                }
+            }
+            
+            const modeText = modes.length === Object.keys(frequency).length 
+                ? "No mode" 
+                : modes.length > 3 
+                    ? `${modes.slice(0, 3).join(", ")}...` 
+                    : modes.join(", ");
+            
+            // Variance and Standard Deviation
+            const varianceSum = data.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0);
+            const variance = isPopulation ? varianceSum / n : varianceSum / (n - 1);
+            const stdDev = Math.sqrt(variance);
+            
+            return {
+                mean,
+                median,
+                mode: modeText,
+                range,
+                variance,
+                stdDev,
+                min,
+                max,
+                sum,
+                count: n,
+                sortedData
+            };
+        }
+        
+        // Update UI with results
+        function updateResults(results) {
+            meanValue.textContent = results.mean.toFixed(4);
+            medianValue.textContent = results.median.toFixed(4);
+            modeValue.textContent = results.mode;
+            rangeValue.textContent = results.range.toFixed(4);
+            varianceValue.textContent = results.variance.toFixed(4);
+            stdDevValue.textContent = results.stdDev.toFixed(4);
+            minValue.textContent = results.min.toFixed(4);
+            maxValue.textContent = results.max.toFixed(4);
+            sumValue.textContent = results.sum.toFixed(4);
+            countValue.textContent = results.count;
+            
+            // Display data points
+            dataPoints.innerHTML = results.sortedData.map(num => 
+                `<span class="data-item">${num}</span>`
+            ).join('');
+        }
+        
+        // Reset all results to default
+        function resetResults() {
+            meanValue.textContent = '--';
+            medianValue.textContent = '--';
+            modeValue.textContent = '--';
+            rangeValue.textContent = '--';
+            varianceValue.textContent = '--';
+            stdDevValue.textContent = '--';
+            minValue.textContent = '--';
+            maxValue.textContent = '--';
+            sumValue.textContent = '--';
+            countValue.textContent = '--';
+            dataPoints.innerHTML = 'No data entered yet.';
+            errorMessage.classList.add('hidden');
+        }
+        
+        // Event Listeners
+        calculateBtn.addEventListener('click', () => {
+            const input = dataInput.value.trim();
+            
+            if (!input) {
+                errorMessage.textContent = "Please enter some data.";
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+            
+            const data = parseData(input);
+            
+            if (data.length === 0) {
+                errorMessage.textContent = "Please enter valid numeric data.";
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+            
+            errorMessage.classList.add('hidden');
+            
+            const isPopulation = dataType.value === 'population';
+            const results = calculateStatistics(data, isPopulation);
+            
+            if (results) {
+                updateResults(results);
+            }
+        });
+        
+        clearBtn.addEventListener('click', () => {
+            dataInput.value = '';
+            resetResults();
+        });
+        
+        // Initialize with example data
+        window.addEventListener('DOMContentLoaded', () => {
+            const data = parseData(dataInput.value);
+            const isPopulation = dataType.value === 'population';
+            const results = calculateStatistics(data, isPopulation);
+            
+            if (results) {
+                updateResults(results);
+            }
+        });
+    </script>
+</body>
+</html>

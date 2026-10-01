@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocal Harmony Generator with MP3 Export</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.0/lame.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Back button styling from template */
+        .navbar {
+            margin-bottom: 30px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-3px);
+        }
+        
+        /* Header styling */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        h1 {
+            color: #ff8000;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #aaa;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Card styling */
+        .card {
+            background: rgba(20, 15, 40, 0.7);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-title {
+            color: #ffaa60;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i {
+            color: #ff8000;
+        }
+        
+        /* Input area */
+        .input-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffaa60;
+            font-weight: 500;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(10, 10, 30, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 0 2px rgba(255, 128, 0, 0.2);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: monospace;
+        }
+        
+        /* Harmony selection */
+        .harmony-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .harmony-option {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .harmony-option label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            background: rgba(10, 10, 30, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .harmony-option input {
+            width: auto;
+            margin: 0;
+        }
+        
+        .harmony-option label:hover {
+            background: rgba(255, 128, 0, 0.1);
+        }
+        
+        .harmony-option input:checked + span {
+            color: #ff8000;
+            font-weight: bold;
+        }
+        
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-width: 160px;
+        }
+        
+        .btn-primary {
+            background: #ff8000;
+            color: #0a0a1a;
+            flex: 2;
+        }
+        
+        .btn-primary:hover {
+            background: #ff9933;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 128, 0, 0.1);
+            color: #ff8000;
+            border: 1px solid #ff8000;
+            flex: 1;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 128, 0, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+        }
+        
+        .btn-success:hover {
+            background: rgba(76, 175, 80, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* Results section */
+        .results-container {
+            display: none;
+        }
+        
+        .results-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .harmony-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .harmony-line {
+            background: rgba(10, 10, 30, 0.9);
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid;
+        }
+        
+        .harmony-line.third {
+            border-left-color: #4CAF50;
+        }
+        
+        .harmony-line.fifth {
+            border-left-color: #2196F3;
+        }
+        
+        .harmony-line.octave {
+            border-left-color: #9C27B0;
+        }
+        
+        .harmony-line .title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .harmony-line .notes {
+            font-family: monospace;
+            font-size: 1.3rem;
+            line-height: 1.8;
+            min-height: 100px;
+            word-break: break-word;
+        }
+        
+        .note {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .original-note {
+            background: rgba(255, 128, 0, 0.2);
+            color: #ffaa60;
+        }
+        
+        .third-note {
+            background: rgba(76, 175, 80, 0.2);
+            color: #a5d6a7;
+        }
+        
+        .fifth-note {
+            background: rgba(33, 150, 243, 0.2);
+            color: #90caf9;
+        }
+        
+        .octave-note {
+            background: rgba(156, 39, 176, 0.2);
+            color: #ce93d8;
+        }
+        
+        /* Audio controls */
+        .audio-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .audio-btn {
+            padding: 8px 15px;
+            background: rgba(33, 150, 243, 0.1);
+            border: 1px solid #2196F3;
+            border-radius: 5px;
+            color: #90caf9;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .audio-btn:hover {
+            background: rgba(33, 150, 243, 0.2);
+        }
+        
+        .audio-btn.stop {
+            background: rgba(244, 67, 54, 0.1);
+            border-color: #F44336;
+            color: #ff8a80;
+        }
+        
+        .audio-btn.stop:hover {
+            background: rgba(244, 67, 54, 0.2);
+        }
+        
+        /* Export section */
+        .export-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .export-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .export-option {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .export-option label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: rgba(10, 10, 30, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .export-option input {
+            width: auto;
+        }
+        
+        .export-option label:hover {
+            background: rgba(255, 128, 0, 0.1);
+        }
+        
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .loading-overlay.active {
+            display: flex;
+        }
+        
+        .loading-content {
+            background: rgba(20, 15, 40, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #ff8000;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 128, 0, 0.3);
+            border-top: 4px solid #ff8000;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Instructions */
+        .instructions {
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #aaa;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+        }
+        
+        .instructions h3 {
+            color: #ffaa60;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+        /* Music theory info */
+        .theory-info {
+            background: rgba(255, 128, 0, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 3px solid #ff8000;
+        }
+        
+        .theory-info p {
+            margin-bottom: 10px;
+        }
+        
+        .interval-list {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .interval-item {
+            text-align: center;
+        }
+        
+        .interval-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff8000;
+        }
+        
+        .interval-name {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .harmony-display {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Tools
+            </a>
+        </div>
+        
+        <!-- Header -->
+        <header>
+            <h1><i class="fas fa-music"></i> Vocal Harmony Generator</h1>
+            <p class="subtitle">Input a melody and generate 3rd, 5th, and octave harmony lines with MP3 export functionality.</p>
+        </header>
+        
+        <!-- Input Section -->
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-edit"></i> Input Your Melody</h2>
+            
+            <div class="input-section">
+                <div>
+                    <div class="input-group">
+                        <label for="melody-input"><i class="fas fa-keyboard"></i> Enter Melody Notes</label>
+                        <textarea id="melody-input" placeholder="Enter notes separated by commas (e.g., C, E, G, A, C, E, G, A) or spaces"></textarea>
+                        <div class="theory-info">
+                            <p><strong>Tip:</strong> Use standard note names (A, B, C, D, E, F, G) with optional sharps (#) or flats (b).</p>
+                            <div class="interval-list">
+                                <div class="interval-item">
+                                    <div class="interval-value">3rd</div>
+                                    <div class="interval-name">Major Third</div>
+                                </div>
+                                <div class="interval-item">
+                                    <div class="interval-value">5th</div>
+                                    <div class="interval-name">Perfect Fifth</div>
+                                </div>
+                                <div class="interval-item">
+                                    <div class="interval-value">8va</div>
+                                    <div class="interval-name">Octave</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="tempo-input"><i class="fas fa-tachometer-alt"></i> Tempo (BPM)</label>
+                        <input type="number" id="tempo-input" min="40" max="240" value="120">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="key-select"><i class="fas fa-key"></i> Select Key</label>
+                        <select id="key-select">
+                            <option value="C">C Major</option>
+                            <option value="G">G Major</option>
+                            <option value="D">D Major</option>
+                            <option value="A">A Major</option>
+                            <option value="E">E Major</option>
+                            <option value="B">B Major</option>
+                            <option value="F#">F# Major</option>
+                            <option value="C#">C# Major</option>
+                            <option value="F">F Major</option>
+                            <option value="Bb">Bb Major</option>
+                            <option value="Eb">Eb Major</option>
+                            <option value="Ab">Ab Major</option>
+                            <option value="Db">Db Major</option>
+                            <option value="Gb">Gb Major</option>
+                            <option value="Cb">Cb Major</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="input-group">
+                        <label><i class="fas fa-layer-group"></i> Select Harmony Intervals</label>
+                        <div class="harmony-options">
+                            <div class="harmony-option">
+                                <label>
+                                    <input type="checkbox" id="third-checkbox" checked>
+                                    <span>3rd Harmony</span>
+                                </label>
+                            </div>
+                            <div class="harmony-option">
+                                <label>
+                                    <input type="checkbox" id="fifth-checkbox" checked>
+                                    <span>5th Harmony</span>
+                                </label>
+                            </div>
+                            <div class="harmony-option">
+                                <label>
+                                    <input type="checkbox" id="octave-checkbox" checked>
+                                    <span>Octave</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="direction-select"><i class="fas fa-arrows-alt-v"></i> Harmony Direction</label>
+                        <select id="direction-select">
+                            <option value="above">Above Melody</option>
+                            <option value="below">Below Melody</option>
+                            <option value="both">Both Above & Below</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="waveform-select"><i class="fas fa-wave-square"></i> Sound Type</label>
+                        <select id="waveform-select">
+                            <option value="sine">Sine Wave (Pure)</option>
+                            <option value="sawtooth">Sawtooth (Rich)</option>
+                            <option value="square">Square Wave (Hollow)</option>
+                            <option value="triangle">Triangle Wave (Mellow)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="example-select"><i class="fas fa-lightbulb"></i> Quick Examples</label>
+                        <select id="example-select">
+                            <option value="">Select an example melody</option>
+                            <option value="simple">Simple C Major Scale</option>
+                            <option value="chorus">Chorus Progression</option>
+                            <option value="folk">Folk Melody</option>
+                            <option value="blues">Blues Line</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn btn-primary" id="generate-btn">
+                    <i class="fas fa-bolt"></i> Generate Harmonies
+                </button>
+                <button class="btn btn-secondary" id="clear-btn">
+                    <i class="fas fa-redo"></i> Clear
+                </button>
+                <button class="btn btn-success" id="export-btn">
+                    <i class="fas fa-file-export"></i> Export MP3
+                </button>
+            </div>
+        </div>
+        
+        <!-- Results Section -->
+        <div class="card results-container" id="results-container">
+            <h2 class="card-title"><i class="fas fa-wave-square"></i> Generated Harmony Lines</h2>
+            
+            <div class="harmony-display" id="harmony-display">
+                <!-- Harmony lines will be inserted here by JavaScript -->
+            </div>
+            
+            <!-- Audio Preview Controls -->
+            <div class="export-section">
+                <h3 class="card-title"><i class="fas fa-play-circle"></i> Audio Preview</h3>
+                <div class="audio-controls">
+                    <button class="audio-btn" id="play-melody-btn">
+                        <i class="fas fa-play"></i> Play Melody
+                    </button>
+                    <button class="audio-btn" id="play-harmonies-btn">
+                        <i class="fas fa-play"></i> Play All Harmonies
+                    </button>
+                    <button class="audio-btn stop" id="stop-audio-btn">
+                        <i class="fas fa-stop"></i> Stop Audio
+                    </button>
+                </div>
+                
+                <div class="audio-controls">
+                    <button class="audio-btn" id="play-third-btn">
+                        <i class="fas fa-play"></i> Play 3rd Harmony
+                    </button>
+                    <button class="audio-btn" id="play-fifth-btn">
+                        <i class="fas fa-play"></i> Play 5th Harmony
+                    </button>
+                    <button class="audio-btn" id="play-octave-btn">
+                        <i class="fas fa-play"></i> Play Octave
+                    </button>
+                </div>
+                
+                <h3 class="card-title" style="margin-top: 30px;"><i class="fas fa-file-export"></i> Export Options</h3>
+                <div class="export-options">
+                    <div class="export-option">
+                        <label>
+                            <input type="checkbox" id="export-melody" checked>
+                            <span><i class="fas fa-microphone"></i> Include Melody</span>
+                        </label>
+                    </div>
+                    <div class="export-option">
+                        <label>
+                            <input type="checkbox" id="export-third" checked>
+                            <span><i class="fas fa-guitar"></i> Include 3rd Harmony</span>
+                        </label>
+                    </div>
+                    <div class="export-option">
+                        <label>
+                            <input type="checkbox" id="export-fifth" checked>
+                            <span><i class="fas fa-drum"></i> Include 5th Harmony</span>
+                        </label>
+                    </div>
+                    <div class="export-option">
+                        <label>
+                            <input type="checkbox" id="export-octave" checked>
+                            <span><i class="fas fa-volume-up"></i> Include Octave</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="button-group" style="margin-top: 20px;">
+                    <button class="btn btn-success" id="generate-audio-btn">
+                        <i class="fas fa-music"></i> Generate & Download MP3
+                    </button>
+                </div>
+            </div>
+            
+            <div class="instructions">
+                <h3><i class="fas fa-info-circle"></i> How to Use These Harmonies</h3>
+                <ul>
+                    <li><strong>3rd Harmony</strong>: Creates a rich, full sound and is commonly used in pop and rock music.</li>
+                    <li><strong>5th Harmony</strong>: Adds power and stability, often used in choruses for emphasis.</li>
+                    <li><strong>Octave</strong>: Doubles the melody at a higher or lower pitch, adding depth without changing harmonic function.</li>
+                </ul>
+                <p>Use the audio preview to hear how the harmonies sound, then export an MP3 file to use in your projects.</p>
+            </div>
+        </div>
+        
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <h3>Generating MP3 Audio</h3>
+                <p id="loading-text">This may take a few moments...</p>
+                <div id="progress-bar" style="width: 100%; height: 10px; background: rgba(255, 128, 0, 0.2); border-radius: 5px; margin-top: 20px; overflow: hidden;">
+                    <div id="progress-fill" style="width: 0%; height: 100%; background: #ff8000; transition: width 0.3s ease;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer>
+            <p>Vocal Harmony Generator with MP3 Export &copy; 2026 | Created with music theory fundamentals</p>
+            <p>Works best with major keys. For minor keys, the 3rd harmony will be a minor third.</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const melodyInput = document.getElementById('melody-input');
+        const keySelect = document.getElementById('key-select');
+        const tempoInput = document.getElementById('tempo-input');
+        const thirdCheckbox = document.getElementById('third-checkbox');
+        const fifthCheckbox = document.getElementById('fifth-checkbox');
+        const octaveCheckbox = document.getElementById('octave-checkbox');
+        const directionSelect = document.getElementById('direction-select');
+        const waveformSelect = document.getElementById('waveform-select');
+        const exampleSelect = document.getElementById('example-select');
+        const generateBtn = document.getElementById('generate-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const resultsContainer = document.getElementById('results-container');
+        const harmonyDisplay = document.getElementById('harmony-display');
+        
+        // Audio control elements
+        const playMelodyBtn = document.getElementById('play-melody-btn');
+        const playHarmoniesBtn = document.getElementById('play-harmonies-btn');
+        const stopAudioBtn = document.getElementById('stop-audio-btn');
+        const playThirdBtn = document.getElementById('play-third-btn');
+        const playFifthBtn = document.getElementById('play-fifth-btn');
+        const playOctaveBtn = document.getElementById('play-octave-btn');
+        const generateAudioBtn = document.getElementById('generate-audio-btn');
+        
+        // Export options
+        const exportMelodyCheckbox = document.getElementById('export-melody');
+        const exportThirdCheckbox = document.getElementById('export-third');
+        const exportFifthCheckbox = document.getElementById('export-fifth');
+        const exportOctaveCheckbox = document.getElementById('export-octave');
+        
+        // Loading overlay
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+        const progressFill = document.getElementById('progress-fill');
+        
+        // Audio context
+        let audioContext;
+        let currentAudioSource = null;
+        
+        // Music data
+        let melodyNotes = [];
+        let harmonyNotes = {
+            third: [],
+            fifth: [],
+            octave: []
+        };
+        let noteFrequencies = {
+            melody: [],
+            third: [],
+            fifth: [],
+            octave: []
+        };
+        
+        // Example melodies
+        const exampleMelodies = {
+            simple: "C, D, E, F, G, A, B, C",
+            chorus: "G, E, C, D, G, E, C, D",
+            folk: "D, F#, A, G, F#, E, D",
+            blues: "C, E, G, A, B, B, A, G, F, E, D, C"
+        };
+        
+        // Music theory data - note sequences and their harmonies
+        const noteSequence = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const noteFreqMap = {
+            'C': 261.63, 'C#': 277.18, 'D': 293.66, 'D#': 311.13,
+            'E': 329.63, 'F': 349.23, 'F#': 369.99, 'G': 392.00,
+            'G#': 415.30, 'A': 440.00, 'A#': 466.16, 'B': 493.88
+        };
+        
+        // Initialize with an example
+        melodyInput.value = exampleMelodies.simple;
+        
+        // Event Listeners
+        exampleSelect.addEventListener('change', function() {
+            if (exampleSelect.value && exampleMelodies[exampleSelect.value]) {
+                melodyInput.value = exampleMelodies[exampleSelect.value];
+            }
+        });
+        
+        generateBtn.addEventListener('click', generateHarmonies);
+        clearBtn.addEventListener('click', clearAll);
+        exportBtn.addEventListener('click', generateHarmonies);
+        
+        // Audio control event listeners
+        playMelodyBtn.addEventListener('click', () => playAudio('melody'));
+        playHarmoniesBtn.addEventListener('click', () => playAudio('all'));
+        stopAudioBtn.addEventListener('click', stopAudio);
+        playThirdBtn.addEventListener('click', () => playAudio('third'));
+        playFifthBtn.addEventListener('click', () => playAudio('fifth'));
+        playOctaveBtn.addEventListener('click', () => playAudio('octave'));
+        generateAudioBtn.addEventListener('click', generateMP3);
+        
+        // Initialize audio context on first user interaction
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+        
+        // Generate harmonies function
+        function generateHarmonies() {
+            // Get input values
+            const melodyText = melodyInput.value.trim();
+            const key = keySelect.value;
+            const direction = directionSelect.value;
+            
+            // Check if at least one harmony is selected
+            if (!thirdCheckbox.checked && !fifthCheckbox.checked && !octaveCheckbox.checked) {
+                alert('Please select at least one harmony interval to generate.');
+                return;
+            }
+            
+            // Parse melody notes
+            melodyNotes = parseMelody(melodyText);
+            
+            if (melodyNotes.length === 0) {
+                alert('Please enter valid melody notes (e.g., C, E, G, A)');
+                return;
+            }
+            
+            // Generate harmonies
+            harmonyNotes.third = thirdCheckbox.checked ? 
+                generateHarmonyLine(melodyNotes, 4, direction, key) : [];
+            harmonyNotes.fifth = fifthCheckbox.checked ? 
+                generateHarmonyLine(melodyNotes, 7, direction, key) : [];
+            harmonyNotes.octave = octaveCheckbox.checked ? 
+                generateHarmonyLine(melodyNotes, 12, direction, key) : [];
+            
+            // Calculate frequencies for audio playback
+            calculateFrequencies();
+            
+            // Display results
+            displayHarmonies(melodyNotes, harmonyNotes);
+            
+            // Show results container
+            resultsContainer.classList.add('active');
+        }
+        
+        // Parse melody text into note array
+        function parseMelody(text) {
+            // Split by commas or spaces
+            const tokens = text.split(/[, \n]+/).filter(token => token.trim() !== '');
+            
+            // Convert to standardized note names
+            const notes = tokens.map(token => {
+                // Remove any extra characters and standardize
+                let note = token.trim().toUpperCase();
+                
+                // Handle sharps and flats
+                if (note.includes('B') && note.length > 1 && note[1] === 'B') {
+                    note = note.replace('B', 'b');
+                }
+                
+                // Validate note
+                const validNotes = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'];
+                const isValid = validNotes.includes(note) || 
+                               (note.length === 2 && (note[1] === '#' || note[1] === 'b') && validNotes.includes(note));
+                
+                return isValid ? note : null;
+            }).filter(note => note !== null);
+            
+            return notes;
+        }
+        
+        // Generate a harmony line based on interval and direction
+        function generateHarmonyLine(melodyNotes, interval, direction, key) {
+            // Convert key to index
+            const keyIndex = noteSequence.indexOf(key.length === 1 ? key : key.replace('b', '#'));
+            
+            // Determine if we're going above, below, or both
+            const directions = direction === 'both' ? ['above', 'below'] : [direction];
+            
+            let harmonyNotes = [];
+            
+            directions.forEach(dir => {
+                melodyNotes.forEach(note => {
+                    // Find the index of the note
+                    let noteIndex = noteSequence.indexOf(
+                        note.length === 1 ? note : 
+                        note.includes('#') ? note : 
+                        note.includes('b') ? convertFlatToSharp(note) : note
+                    );
+                    
+                    if (noteIndex === -1) return;
+                    
+                    // Calculate harmony note index
+                    let harmonyIndex;
+                    if (dir === 'above') {
+                        harmonyIndex = (noteIndex + interval) % 12;
+                    } else { // below
+                        harmonyIndex = (noteIndex - interval + 12) % 12;
+                    }
+                    
+                    // Get harmony note name
+                    let harmonyNote = noteSequence[harmonyIndex];
+                    
+                    harmonyNotes.push(harmonyNote);
+                });
+            });
+            
+            return harmonyNotes;
+        }
+        
+        // Convert flat notes to sharps for consistency
+        function convertFlatToSharp(note) {
+            const flatToSharp = {
+                'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#'
+            };
+            return flatToSharp[note] || note;
+        }
+        
+        // Calculate frequencies for all notes
+        function calculateFrequencies() {
+            noteFrequencies.melody = melodyNotes.map(note => {
+                const cleanNote = note.length === 1 ? note : 
+                                 note.includes('#') ? note : 
+                                 note.includes('b') ? convertFlatToSharp(note) : note;
+                return noteFreqMap[cleanNote] || 440;
+            });
+            
+            noteFrequencies.third = harmonyNotes.third.map(note => {
+                const cleanNote = note.length === 1 ? note : 
+                                 note.includes('#') ? note : 
+                                 note.includes('b') ? convertFlatToSharp(note) : note;
+                return noteFreqMap[cleanNote] || 440;
+            });
+            
+            noteFrequencies.fifth = harmonyNotes.fifth.map(note => {
+                const cleanNote = note.length === 1 ? note : 
+                                 note.includes('#') ? note : 
+                                 note.includes('b') ? convertFlatToSharp(note) : note;
+                return noteFreqMap[cleanNote] || 440;
+            });
+            
+            noteFrequencies.octave = harmonyNotes.octave.map(note => {
+                const cleanNote = note.length === 1 ? note : 
+                                 note.includes('#') ? note : 
+                                 note.includes('b') ? convertFlatToSharp(note) : note;
+                return noteFreqMap[cleanNote] || 440;
+            });
+        }
+        
+        // Display harmonies in the UI
+        function displayHarmonies(melodyNotes, harmonies) {
+            harmonyDisplay.innerHTML = '';
+            
+            // Display original melody
+            const melodyElement = document.createElement('div');
+            melodyElement.className = 'harmony-line';
+            melodyElement.innerHTML = `
+                <div class="title">
+                    <span><i class="fas fa-microphone"></i> Original Melody</span>
+                    <span>${melodyNotes.length} notes</span>
+                </div>
+                <div class="notes" id="original-notes">
+                    ${melodyNotes.map(note => `<span class="note original-note">${note}</span>`).join('')}
+                </div>
+                <div class="audio-controls">
+                    <button class="audio-btn play-melody-btn">
+                        <i class="fas fa-play"></i> Play
+                    </button>
+                </div>
+            `;
+            harmonyDisplay.appendChild(melodyElement);
+            
+            // Add event listener to the play button
+            melodyElement.querySelector('.play-melody-btn').addEventListener('click', () => playAudio('melody'));
+            
+            // Display 3rd harmony if selected
+            if (harmonies.third && harmonies.third.length > 0) {
+                const thirdElement = document.createElement('div');
+                thirdElement.className = 'harmony-line third';
+                thirdElement.innerHTML = `
+                    <div class="title">
+                        <span><i class="fas fa-guitar"></i> 3rd Harmony</span>
+                        <span>Major Third</span>
+                    </div>
+                    <div class="notes" id="third-notes">
+                        ${harmonies.third.map(note => `<span class="note third-note">${note}</span>`).join('')}
+                    </div>
+                    <div class="audio-controls">
+                        <button class="audio-btn play-third-btn">
+                            <i class="fas fa-play"></i> Play
+                        </button>
+                    </div>
+                    <p style="margin-top: 10px; font-size: 0.9rem; color: #aaa;">
+                        <i class="fas fa-info-circle"></i> Adds richness and fullness to your melody.
+                    </p>
+                `;
+                harmonyDisplay.appendChild(thirdElement);
+                
+                // Add event listener to the play button
+                thirdElement.querySelector('.play-third-btn').addEventListener('click', () => playAudio('third'));
+            }
+            
+            // Display 5th harmony if selected
+            if (harmonies.fifth && harmonies.fifth.length > 0) {
+                const fifthElement = document.createElement('div');
+                fifthElement.className = 'harmony-line fifth';
+                fifthElement.innerHTML = `
+                    <div class="title">
+                        <span><i class="fas fa-drum"></i> 5th Harmony</span>
+                        <span>Perfect Fifth</span>
+                    </div>
+                    <div class="notes" id="fifth-notes">
+                        ${harmonies.fifth.map(note => `<span class="note fifth-note">${note}</span>`).join('')}
+                    </div>
+                    <div class="audio-controls">
+                        <button class="audio-btn play-fifth-btn">
+                            <i class="fas fa-play"></i> Play
+                        </button>
+                    </div>
+                    <p style="margin-top: 10px; font-size: 0.9rem; color: #aaa;">
+                        <i class="fas fa-info-circle"></i> Creates power and stability in choruses.
+                    </p>
+                `;
+                harmonyDisplay.appendChild(fifthElement);
+                
+                // Add event listener to the play button
+                fifthElement.querySelector('.play-fifth-btn').addEventListener('click', () => playAudio('fifth'));
+            }
+            
+            // Display octave harmony if selected
+            if (harmonies.octave && harmonies.octave.length > 0) {
+                const octaveElement = document.createElement('div');
+                octaveElement.className = 'harmony-line octave';
+                octaveElement.innerHTML = `
+                    <div class="title">
+                        <span><i class="fas fa-volume-up"></i> Octave Harmony</span>
+                        <span>Same note, different pitch</span>
+                    </div>
+                    <div class="notes" id="octave-notes">
+                        ${harmonies.octave.map(note => `<span class="note octave-note">${note}</span>`).join('')}
+                    </div>
+                    <div class="audio-controls">
+                        <button class="audio-btn play-octave-btn">
+                            <i class="fas fa-play"></i> Play
+                        </button>
+                    </div>
+                    <p style="margin-top: 10px; font-size: 0.9rem; color: #aaa;">
+                        <i class="fas fa-info-circle"></i> Adds depth by doubling the melody at a higher or lower pitch.
+                    </p>
+                `;
+                harmonyDisplay.appendChild(octaveElement);
+                
+                // Add event listener to the play button
+                octaveElement.querySelector('.play-octave-btn').addEventListener('click', () => playAudio('octave'));
+            }
+        }
+        
+        // Play audio function
+        function playAudio(type) {
+            initAudioContext();
+            stopAudio(); // Stop any currently playing audio
+            
+            const tempo = parseInt(tempoInput.value) || 120;
+            const noteDuration = 60 / tempo; // Duration in seconds
+            const waveform = waveformSelect.value;
+            
+            let frequencies = [];
+            
+            switch(type) {
+                case 'melody':
+                    frequencies = noteFrequencies.melody;
+                    break;
+                case 'third':
+                    frequencies = noteFrequencies.third;
+                    break;
+                case 'fifth':
+                    frequencies = noteFrequencies.fifth;
+                    break;
+                case 'octave':
+                    frequencies = noteFrequencies.octave;
+                    break;
+                case 'all':
+                    // Combine all frequencies (melody + harmonies)
+                    frequencies = [
+                        ...noteFrequencies.melody,
+                        ...noteFrequencies.third,
+                        ...noteFrequencies.fifth,
+                        ...noteFrequencies.octave
+                    ];
+                    break;
+                default:
+                    frequencies = noteFrequencies.melody;
+            }
+            
+            if (frequencies.length === 0) {
+                alert('No audio to play. Please generate harmonies first.');
+                return;
+            }
+            
+            // Create audio source
+            const source = audioContext.createBufferSource();
+            const gainNode = audioContext.createGain();
+            
+            // Create buffer for the audio
+            const sampleRate = audioContext.sampleRate;
+            const buffer = audioContext.createBuffer(2, sampleRate * noteDuration * frequencies.length, sampleRate);
+            
+            // Fill buffer with audio data
+            for (let channel = 0; channel < 2; channel++) {
+                const bufferData = buffer.getChannelData(channel);
+                
+                for (let i = 0; i < frequencies.length; i++) {
+                    const freq = frequencies[i];
+                    const startSample = i * noteDuration * sampleRate;
+                    const endSample = startSample + noteDuration * sampleRate;
+                    
+                    for (let j = startSample; j < endSample; j++) {
+                        const time = (j - startSample) / sampleRate;
+                        let sampleValue;
+                        
+                        // Generate different waveforms
+                        switch(waveform) {
+                            case 'sine':
+                                sampleValue = Math.sin(2 * Math.PI * freq * time);
+                                break;
+                            case 'sawtooth':
+                                sampleValue = 2 * (time * freq % 1) - 1;
+                                break;
+                            case 'square':
+                                sampleValue = Math.sin(2 * Math.PI * freq * time) > 0 ? 0.5 : -0.5;
+                                break;
+                            case 'triangle':
+                                sampleValue = Math.asin(Math.sin(2 * Math.PI * freq * time)) * (2 / Math.PI);
+                                break;
+                            default:
+                                sampleValue = Math.sin(2 * Math.PI * freq * time);
+                        }
+                        
+                        // Apply envelope to avoid clicks
+                        const envelope = applyEnvelope(time, noteDuration);
+                        bufferData[j] = sampleValue * envelope * 0.2;
+                    }
+                }
+            }
+            
+            source.buffer = buffer;
+            source.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            source.start();
+            currentAudioSource = source;
+            
+            // Set timeout to stop audio after it finishes
+            const totalDuration = noteDuration * frequencies.length * 1000;
+            setTimeout(() => {
+                if (currentAudioSource === source) {
+                    stopAudio();
+                }
+            }, totalDuration);
+        }
+        
+        // Apply envelope to avoid clicks
+        function applyEnvelope(time, duration) {
+            const attackTime = 0.05;
+            const releaseTime = 0.1;
+            
+            if (time < attackTime) {
+                return time / attackTime;
+            } else if (time > duration - releaseTime) {
+                return (duration - time) / releaseTime;
+            } else {
+                return 1;
+            }
+        }
+        
+        // Stop audio playback
+        function stopAudio() {
+            if (currentAudioSource) {
+                currentAudioSource.stop();
+                currentAudioSource = null;
+            }
+        }
+        
+        // Generate MP3 file
+        function generateMP3() {
+            if (melodyNotes.length === 0) {
+                alert('Please generate harmonies first.');
+                return;
+            }
+            
+            // Check if at least one track is selected for export
+            if (!exportMelodyCheckbox.checked && !exportThirdCheckbox.checked && 
+                !exportFifthCheckbox.checked && !exportOctaveCheckbox.checked) {
+                alert('Please select at least one track to export.');
+                return;
+            }
+            
+            // Show loading overlay
+            loadingOverlay.classList.add('active');
+            loadingText.textContent = 'Generating MP3 audio...';
+            progressFill.style.width = '0%';
+            
+            // Generate audio in chunks to avoid blocking UI
+            setTimeout(() => generateMP3Step1(), 100);
+        }
+        
+        // Step 1: Prepare audio data
+        function generateMP3Step1() {
+            progressFill.style.width = '25%';
+            loadingText.textContent = 'Preparing audio data...';
+            
+            const tempo = parseInt(tempoInput.value) || 120;
+            const noteDuration = 60 / tempo;
+            const waveform = waveformSelect.value;
+            
+            // Collect frequencies for export based on selected tracks
+            const exportTracks = [];
+            const trackNames = [];
+            
+            if (exportMelodyCheckbox.checked && noteFrequencies.melody.length > 0) {
+                exportTracks.push(noteFrequencies.melody);
+                trackNames.push('Melody');
+            }
+            
+            if (exportThirdCheckbox.checked && noteFrequencies.third.length > 0) {
+                exportTracks.push(noteFrequencies.third);
+                trackNames.push('3rd Harmony');
+            }
+            
+            if (exportFifthCheckbox.checked && noteFrequencies.fifth.length > 0) {
+                exportTracks.push(noteFrequencies.fifth);
+                trackNames.push('5th Harmony');
+            }
+            
+            if (exportOctaveCheckbox.checked && noteFrequencies.octave.length > 0) {
+                exportTracks.push(noteFrequencies.octave);
+                trackNames.push('Octave Harmony');
+            }
+            
+            if (exportTracks.length === 0) {
+                loadingOverlay.classList.remove('active');
+                alert('No tracks selected for export.');
+                return;
+            }
+            
+            // Calculate total samples needed
+            const maxLength = Math.max(...exportTracks.map(track => track.length));
+            const totalSamples = Math.ceil(maxLength * noteDuration * 44100);
+            
+            setTimeout(() => generateMP3Step2(exportTracks, trackNames, totalSamples, noteDuration, waveform), 100);
+        }
+        
+        // Step 2: Generate audio buffer
+        function generateMP3Step2(exportTracks, trackNames, totalSamples, noteDuration, waveform) {
+            progressFill.style.width = '50%';
+            loadingText.textContent = 'Generating audio buffer...';
+            
+            // Create offline audio context for rendering
+            const offlineContext = new OfflineAudioContext(2, totalSamples, 44100);
+            
+            // Create gain nodes for each track
+            const trackGains = exportTracks.map(() => offlineContext.createGain());
+            const masterGain = offlineContext.createGain();
+            masterGain.gain.value = 0.5; // Reduce volume to prevent clipping
+            
+            // Connect all tracks to master gain
+            trackGains.forEach(gain => {
+                gain.connect(masterGain);
+                gain.gain.value = 1 / exportTracks.length; // Balance volume between tracks
+            });
+            
+            masterGain.connect(offlineContext.destination);
+            
+            // Schedule notes for each track
+            exportTracks.forEach((frequencies, trackIndex) => {
+                frequencies.forEach((freq, noteIndex) => {
+                    const startTime = noteIndex * noteDuration;
+                    
+                    // Create oscillator for this note
+                    const oscillator = offlineContext.createOscillator();
+                    const noteGain = offlineContext.createGain();
+                    
+                    // Set oscillator type based on waveform
+                    switch(waveform) {
+                        case 'sine':
+                            oscillator.type = 'sine';
+                            break;
+                        case 'sawtooth':
+                            oscillator.type = 'sawtooth';
+                            break;
+                        case 'square':
+                            oscillator.type = 'square';
+                            break;
+                        case 'triangle':
+                            oscillator.type = 'triangle';
+                            break;
+                        default:
+                            oscillator.type = 'sine';
+                    }
+                    
+                    oscillator.frequency.setValueAtTime(freq, startTime);
+                    
+                    // Apply envelope
+                    noteGain.gain.setValueAtTime(0, startTime);
+                    noteGain.gain.linearRampToValueAtTime(0.5, startTime + 0.05);
+                    noteGain.gain.setValueAtTime(0.5, startTime + noteDuration - 0.1);
+                    noteGain.gain.linearRampToValueAtTime(0, startTime + noteDuration);
+                    
+                    // Connect nodes
+                    oscillator.connect(noteGain);
+                    noteGain.connect(trackGains[trackIndex]);
+                    
+                    // Schedule start and stop
+                    oscillator.start(startTime);
+                    oscillator.stop(startTime + noteDuration);
+                });
+            });
+            
+            // Render audio
+            offlineContext.startRendering().then(renderedBuffer => {
+                setTimeout(() => generateMP3Step3(renderedBuffer, trackNames), 100);
+            });
+        }
+        
+        // Step 3: Encode as MP3
+        function generateMP3Step3(audioBuffer, trackNames) {
+            progressFill.style.width = '75%';
+            loadingText.textContent = 'Encoding MP3...';
+            
+            // Get audio data from buffer
+            const leftChannel = audioBuffer.getChannelData(0);
+            const rightChannel = audioBuffer.getChannelData(1);
+            
+            // Convert float audio data to 16-bit integers
+            const samples = new Int16Array(leftChannel.length);
+            for (let i = 0; i < leftChannel.length; i++) {
+                const sample = Math.max(-1, Math.min(1, leftChannel[i]));
+                samples[i] = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+            }
+            
+            // Create MP3 encoder
+            const mp3Encoder = new lamejs.Mp3Encoder(2, 44100, 128);
+            const sampleBlockSize = 1152;
+            const mp3Data = [];
+            
+            // Encode samples in blocks
+            for (let i = 0; i < samples.length; i += sampleBlockSize) {
+                const leftChunk = samples.subarray(i, i + sampleBlockSize);
+                const rightChunk = rightChannel ? 
+                    new Int16Array(rightChannel.subarray(i, i + sampleBlockSize).map(s => 
+                        s < 0 ? s * 0x8000 : s * 0x7FFF
+                    )) : leftChunk;
+                
+                const mp3buf = mp3Encoder.encodeBuffer(leftChunk, rightChunk);
+                if (mp3buf.length > 0) {
+                    mp3Data.push(mp3buf);
+                }
+            }
+            
+            // Finalize encoding
+            const mp3buf = mp3Encoder.flush();
+            if (mp3buf.length > 0) {
+                mp3Data.push(mp3buf);
+            }
+            
+            setTimeout(() => generateMP3Step4(mp3Data, trackNames), 100);
+        }
+        
+        // Step 4: Create and download MP3 file
+        function generateMP3Step4(mp3Data, trackNames) {
+            progressFill.style.width = '100%';
+            loadingText.textContent = 'Creating download...';
+            
+            // Combine MP3 data
+            const combinedData = new Uint8Array(mp3Data.reduce((acc, arr) => acc + arr.length, 0));
+            let offset = 0;
+            mp3Data.forEach(arr => {
+                combinedData.set(arr, offset);
+                offset += arr.length;
+            });
+            
+            // Create blob and download link
+            const blob = new Blob([combinedData], { type: 'audio/mp3' });
+            const url = URL.createObjectURL(blob);
+            
+            // Create download link
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `vocal_harmonies_${new Date().getTime()}.mp3`;
+            document.body.appendChild(a);
+            a.click();
+            
+            // Clean up
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                loadingOverlay.classList.remove('active');
+            }, 100);
+        }
+        
+        // Clear all inputs and results
+        function clearAll() {
+            melodyInput.value = '';
+            tempoInput.value = 120;
+            exampleSelect.selectedIndex = 0;
+            thirdCheckbox.checked = true;
+            fifthCheckbox.checked = true;
+            octaveCheckbox.checked = true;
+            directionSelect.selectedIndex = 0;
+            waveformSelect.selectedIndex = 0;
+            keySelect.selectedIndex = 0;
+            
+            exportMelodyCheckbox.checked = true;
+            exportThirdCheckbox.checked = true;
+            exportFifthCheckbox.checked = true;
+            exportOctaveCheckbox.checked = true;
+            
+            melodyNotes = [];
+            harmonyNotes = { third: [], fifth: [], octave: [] };
+            noteFrequencies = { melody: [], third: [], fifth: [], octave: [] };
+            
+            resultsContainer.classList.remove('active');
+            harmonyDisplay.innerHTML = '';
+            
+            stopAudio();
+        }
+        
+        // Generate harmonies on page load with example
+        window.addEventListener('DOMContentLoaded', function() {
+            setTimeout(generateHarmonies, 500);
+        });
+        
+        // Initialize audio context on first user interaction
+        document.addEventListener('click', function initAudioOnFirstClick() {
+            initAudioContext();
+            document.removeEventListener('click', initAudioOnFirstClick);
+        }, { once: true });
+    </script>
+</body>
+</html>

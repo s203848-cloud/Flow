@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Structure Builder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Include the required libraries for MP3 export -->
+    <script src="https://unpkg.com/lamejs@1.2.0/lame.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/wavefile@11.0.0/wavefile.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #ff8000;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: #aaa;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .sections-palette {
+            background: rgba(10, 10, 26, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #222244;
+        }
+        
+        .palette-title {
+            color: #ff8000;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .palette-title i {
+            font-size: 1.3rem;
+        }
+        
+        .section-types {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .section-item {
+            padding: 15px;
+            border-radius: 8px;
+            cursor: grab;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            user-select: none;
+        }
+        
+        .section-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .section-item:active {
+            cursor: grabbing;
+        }
+        
+        .section-item i {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .verse {
+            background: rgba(30, 60, 114, 0.7);
+            border: 1px solid #3a6bc5;
+        }
+        
+        .chorus {
+            background: rgba(114, 30, 60, 0.7);
+            border: 1px solid #c53a6b;
+        }
+        
+        .bridge {
+            background: rgba(60, 114, 30, 0.7);
+            border: 1px solid #6bc53a;
+        }
+        
+        .pre-chorus {
+            background: rgba(114, 60, 30, 0.7);
+            border: 1px solid #c56b3a;
+        }
+        
+        .outro {
+            background: rgba(60, 30, 114, 0.7);
+            border: 1px solid #6b3ac5;
+        }
+        
+        .intro {
+            background: rgba(30, 114, 114, 0.7);
+            border: 1px solid #3ac5c5;
+        }
+        
+        .song-structure {
+            background: rgba(10, 10, 26, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #222244;
+            min-height: 500px;
+        }
+        
+        .structure-title {
+            color: #ff8000;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .structure-title i {
+            font-size: 1.3rem;
+        }
+        
+        .clear-btn {
+            background: rgba(255, 80, 80, 0.2);
+            border: 1px solid #ff5050;
+            color: #ff8080;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .clear-btn:hover {
+            background: rgba(255, 80, 80, 0.3);
+        }
+        
+        .drop-zone {
+            min-height: 400px;
+            border: 2px dashed #444466;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-content: flex-start;
+            transition: all 0.3s;
+        }
+        
+        .drop-zone.active {
+            border-color: #ff8000;
+            background: rgba(255, 128, 0, 0.05);
+        }
+        
+        .dropped-section {
+            padding: 15px;
+            border-radius: 8px;
+            min-width: 120px;
+            text-align: center;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .dropped-section:hover {
+            transform: scale(1.05);
+        }
+        
+        .delete-section {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: rgba(255, 80, 80, 0.9);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .dropped-section:hover .delete-section {
+            opacity: 1;
+        }
+        
+        .section-counter {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: rgba(0, 0, 0, 0.5);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .instructions {
+            background: rgba(10, 10, 26, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #222244;
+        }
+        
+        .instructions h3 {
+            color: #ff8000;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .instructions-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .instruction-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .instruction-item i {
+            color: #ff8000;
+        }
+        
+        .song-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .empty-message {
+            color: #666;
+            text-align: center;
+            width: 100%;
+            padding: 40px 0;
+            font-style: italic;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .export-btn {
+            background: rgba(30, 114, 30, 0.2);
+            border: 1px solid #3ac5a0;
+            color: #3ac5a0;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .export-btn:hover {
+            background: rgba(30, 114, 30, 0.3);
+        }
+        
+        .export-btn.mp3 {
+            background: rgba(114, 30, 114, 0.2);
+            border: 1px solid #c53ac5;
+            color: #c53ac5;
+        }
+        
+        .export-btn.mp3:hover {
+            background: rgba(114, 30, 114, 0.3);
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(30, 60, 114, 0.9);
+            border: 1px solid #3a6bc5;
+            padding: 15px 20px;
+            border-radius: 8px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.5s;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #333;
+            border-top: 5px solid #ff8000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-text {
+            color: #ff8000;
+            margin-top: 20px;
+            font-size: 1.2rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid #222244;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        </div>
+        
+        <header>
+            <h1>Song Structure Builder</h1>
+            <p class="subtitle">Drag and drop sections to plan your song structure</p>
+        </header>
+        
+        <div class="app-container">
+            <div class="sections-palette">
+                <h2 class="palette-title"><i class="fas fa-th"></i> Song Sections</h2>
+                <p style="margin-bottom: 15px; color: #aaa;">Drag these sections to the structure area</p>
+                
+                <div class="section-types">
+                    <div class="section-item intro" draggable="true" data-type="intro">
+                        <i class="fas fa-play"></i>
+                        <h3>Intro</h3>
+                        <p>Start of the song</p>
+                    </div>
+                    
+                    <div class="section-item verse" draggable="true" data-type="verse">
+                        <i class="fas fa-align-left"></i>
+                        <h3>Verse</h3>
+                        <p>Tells the story</p>
+                    </div>
+                    
+                    <div class="section-item pre-chorus" draggable="true" data-type="pre-chorus">
+                        <i class="fas fa-arrow-up"></i>
+                        <h3>Pre-Chorus</h3>
+                        <p>Builds tension</p>
+                    </div>
+                    
+                    <div class="section-item chorus" draggable="true" data-type="chorus">
+                        <i class="fas fa-volume-up"></i>
+                        <h3>Chorus</h3>
+                        <p>Main hook/message</p>
+                    </div>
+                    
+                    <div class="section-item bridge" draggable="true" data-type="bridge">
+                        <i class="fas fa-exchange-alt"></i>
+                        <h3>Bridge</h3>
+                        <p>New perspective</p>
+                    </div>
+                    
+                    <div class="section-item outro" draggable="true" data-type="outro">
+                        <i class="fas fa-stop"></i>
+                        <h3>Outro</h3>
+                        <p>End of the song</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="song-structure">
+                <div class="structure-title">
+                    <span><i class="fas fa-project-diagram"></i> Song Structure</span>
+                    <button class="clear-btn" id="clearBtn">Clear All</button>
+                </div>
+                <p style="margin-bottom: 15px; color: #aaa;">Drop sections here to build your song</p>
+                
+                <div class="drop-zone" id="dropZone">
+                    <div class="empty-message">No sections added yet. Drag sections from the left panel to start building your song structure.</div>
+                </div>
+                
+                <div class="song-info">
+                    <div>Total Sections: <span id="sectionCount">0</span></div>
+                    <div>Song Length: <span id="songLength">0:00</span></div>
+                </div>
+                
+                <div class="export-buttons">
+                    <button class="export-btn" id="exportBtn">
+                        <i class="fas fa-file-alt"></i> Export as Text
+                    </button>
+                    <button class="export-btn mp3" id="exportMp3Btn">
+                        <i class="fas fa-music"></i> Export as MP3
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> How to Use This Tool</h3>
+            <div class="instructions-list">
+                <div class="instruction-item">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <div>Drag sections from the left panel and drop them into the structure area</div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-trash-alt"></i>
+                    <div>Hover over a section in the structure and click the X to remove it</div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-arrows-alt"></i>
+                    <div>Drag and drop sections within the structure area to reorder them</div>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-download"></i>
+                    <div>Export your structure as text or generate an MP3 preview</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="loading-overlay" id="loadingOverlay">
+            <div style="text-align: center;">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Generating MP3...</div>
+            </div>
+        </div>
+        
+        <div class="notification" id="notification">
+            Section added to your song structure!
+        </div>
+        
+        <footer>
+            <p>Song Structure Builder &copy; 2023 | Drag and drop to plan your next hit song</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropZone = document.getElementById('dropZone');
+            const sectionItems = document.querySelectorAll('.section-item');
+            const clearBtn = document.getElementById('clearBtn');
+            const exportBtn = document.getElementById('exportBtn');
+            const exportMp3Btn = document.getElementById('exportMp3Btn');
+            const notification = document.getElementById('notification');
+            const sectionCount = document.getElementById('sectionCount');
+            const songLength = document.getElementById('songLength');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            
+            let sectionCounter = {
+                'intro': 0,
+                'verse': 0,
+                'pre-chorus': 0,
+                'chorus': 0,
+                'bridge': 0,
+                'outro': 0
+            };
+            
+            let draggedElement = null;
+            
+            // Make section items draggable
+            sectionItems.forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    draggedElement = this.cloneNode(true);
+                    draggedElement.classList.add('dropped-section');
+                    e.dataTransfer.setData('text/plain', this.getAttribute('data-type'));
+                    this.style.opacity = '0.5';
+                });
+                
+                item.addEventListener('dragend', function() {
+                    this.style.opacity = '1';
+                });
+            });
+            
+            // Drop zone event handlers
+            dropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('active');
+            });
+            
+            dropZone.addEventListener('dragleave', function() {
+                this.classList.remove('active');
+            });
+            
+            dropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('active');
+                
+                const sectionType = e.dataTransfer.getData('text/plain');
+                if (sectionType) {
+                    addSectionToStructure(sectionType, this);
+                    showNotification(`${sectionType.charAt(0).toUpperCase() + sectionType.slice(1)} added to structure`);
+                    updateSongInfo();
+                }
+            });
+            
+            // Clear button functionality
+            clearBtn.addEventListener('click', function() {
+                const sections = dropZone.querySelectorAll('.dropped-section');
+                if (sections.length > 0) {
+                    if (confirm('Are you sure you want to clear all sections?')) {
+                        sections.forEach(section => {
+                            dropZone.removeChild(section);
+                        });
+                        
+                        // Reset counters
+                        for (let key in sectionCounter) {
+                            sectionCounter[key] = 0;
+                        }
+                        
+                        // Show empty message
+                        const emptyMsg = document.querySelector('.empty-message');
+                        if (!emptyMsg) {
+                            const msg = document.createElement('div');
+                            msg.className = 'empty-message';
+                            msg.textContent = 'No sections added yet. Drag sections from the left panel to start building your song structure.';
+                            dropZone.appendChild(msg);
+                        }
+                        
+                        updateSongInfo();
+                        showNotification('All sections cleared');
+                    }
+                }
+            });
+            
+            // Export button functionality
+            exportBtn.addEventListener('click', function() {
+                const sections = dropZone.querySelectorAll('.dropped-section');
+                if (sections.length === 0) {
+                    alert('No sections to export. Add some sections first.');
+                    return;
+                }
+                
+                let structureText = "Song Structure:\n================\n\n";
+                
+                sections.forEach((section, index) => {
+                    const sectionType = section.getAttribute('data-type');
+                    const sectionNumber = section.querySelector('.section-counter').textContent;
+                    structureText += `${index + 1}. ${sectionType.charAt(0).toUpperCase() + sectionType.slice(1)} ${sectionNumber}\n`;
+                });
+                
+                structureText += `\nTotal Sections: ${sections.length}\n`;
+                structureText += `Estimated Length: ${songLength.textContent}\n\n`;
+                structureText += `Exported from Song Structure Builder`;
+                
+                // Create a blob and download link
+                const blob = new Blob([structureText], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'song-structure.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showNotification('Song structure exported!');
+            });
+            
+            // MP3 Export button functionality
+            exportMp3Btn.addEventListener('click', async function() {
+                const sections = dropZone.querySelectorAll('.dropped-section');
+                if (sections.length === 0) {
+                    alert('No sections to export. Add some sections first.');
+                    return;
+                }
+                
+                // Show loading overlay
+                loadingOverlay.classList.add('active');
+                
+                try {
+                    // Get the song structure as an array
+                    const songStructure = Array.from(sections).map(section => 
+                        section.getAttribute('data-type')
+                    );
+                    
+                    // Generate MP3
+                    const mp3Blob = await generateMP3FromStructure(songStructure);
+                    
+                    // Create download link
+                    const url = URL.createObjectURL(mp3Blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `song-structure-${Date.now()}.mp3`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    showNotification('MP3 generated successfully!');
+                } catch (error) {
+                    console.error('Error generating MP3:', error);
+                    showNotification('Error generating MP3. Please try again.');
+                } finally {
+                    // Hide loading overlay
+                    loadingOverlay.classList.remove('active');
+                }
+            });
+            
+            // Function to generate MP3 from song structure
+            async function generateMP3FromStructure(structure) {
+                return new Promise((resolve, reject) => {
+                    try {
+                        // Sample rate and duration settings
+                        const sampleRate = 44100;
+                        const sectionDuration = 2; // seconds per section
+                        const totalSamples = sampleRate * sectionDuration * structure.length;
+                        
+                        // Create audio buffer
+                        const leftChannel = [];
+                        const rightChannel = [];
+                        
+                        // Define frequencies for different section types
+                        const frequencyMap = {
+                            'intro': 220,    // A3
+                            'verse': 261.63, // C4
+                            'pre-chorus': 293.66, // D4
+                            'chorus': 329.63, // E4
+                            'bridge': 392,    // G4
+                            'outro': 440      // A4
+                        };
+                        
+                        // Generate audio for each section
+                        let sampleIndex = 0;
+                        
+                        structure.forEach((sectionType, sectionIndex) => {
+                            const frequency = frequencyMap[sectionType] || 440;
+                            const sectionStart = sectionIndex * sectionDuration * sampleRate;
+                            const sectionEnd = (sectionIndex + 1) * sectionDuration * sampleRate;
+                            
+                            for (let i = sectionStart; i < sectionEnd && i < totalSamples; i++) {
+                                // Create a simple sine wave for this section
+                                const time = i / sampleRate;
+                                
+                                // Add some variation to make it more musical
+                                const volume = 0.3 * Math.exp(-0.5 * (time % sectionDuration));
+                                const sample = volume * Math.sin(2 * Math.PI * frequency * time);
+                                
+                                // Add a gentle fade in/out for each section
+                                const sectionProgress = (i - sectionStart) / (sectionEnd - sectionStart);
+                                let fade = 1;
+                                if (sectionProgress < 0.1) fade = sectionProgress / 0.1; // Fade in
+                                if (sectionProgress > 0.9) fade = (1 - sectionProgress) / 0.1; // Fade out
+                                
+                                const finalSample = sample * fade;
+                                
+                                leftChannel.push(finalSample);
+                                rightChannel.push(finalSample);
+                                sampleIndex++;
+                            }
+                            
+                            // Add a small pause between sections (silence)
+                            const pauseSamples = sampleRate * 0.1; // 0.1 second pause
+                            for (let i = 0; i < pauseSamples; i++) {
+                                leftChannel.push(0);
+                                rightChannel.push(0);
+                            }
+                        });
+                        
+                        // Convert to 16-bit PCM
+                        const pcmData = new Int16Array(leftChannel.length * 2);
+                        for (let i = 0; i < leftChannel.length; i++) {
+                            // Convert from float (-1 to 1) to 16-bit integer (-32768 to 32767)
+                            pcmData[i * 2] = Math.max(-32768, Math.min(32767, leftChannel[i] * 32767));
+                            pcmData[i * 2 + 1] = Math.max(-32768, Math.min(32767, rightChannel[i] * 32767));
+                        }
+                        
+                        // Encode to MP3 using lamejs
+                        const mp3encoder = new lamejs.Mp3Encoder(2, sampleRate, 128);
+                        const samplesPerFrame = 1152;
+                        const mp3Data = [];
+                        
+                        for (let i = 0; i < pcmData.length; i += samplesPerFrame * 2) {
+                            const leftChunk = pcmData.subarray(i, i + samplesPerFrame);
+                            const rightChunk = pcmData.subarray(i + samplesPerFrame, i + samplesPerFrame * 2);
+                            
+                            const mp3buf = mp3encoder.encodeBuffer(leftChunk, rightChunk);
+                            if (mp3buf.length > 0) {
+                                mp3Data.push(mp3buf);
+                            }
+                        }
+                        
+                        const mp3buf = mp3encoder.flush();
+                        if (mp3buf.length > 0) {
+                            mp3Data.push(mp3buf);
+                        }
+                        
+                        // Combine all MP3 data
+                        const combined = new Uint8Array(mp3Data.reduce((a, b) => a + b.length, 0));
+                        let offset = 0;
+                        mp3Data.forEach(arr => {
+                            combined.set(arr, offset);
+                            offset += arr.length;
+                        });
+                        
+                        // Create blob
+                        const mp3Blob = new Blob([combined], { type: 'audio/mp3' });
+                        resolve(mp3Blob);
+                    } catch (error) {
+                        reject(error);
+                    }
+                });
+            }
+            
+            // Function to add a section to the structure
+            function addSectionToStructure(sectionType, targetZone) {
+                // Hide empty message if it exists
+                const emptyMsg = targetZone.querySelector('.empty-message');
+                if (emptyMsg) {
+                    emptyMsg.remove();
+                }
+                
+                // Increment counter for this section type
+                sectionCounter[sectionType]++;
+                
+                // Create new section element
+                const newSection = document.createElement('div');
+                newSection.className = `dropped-section ${sectionType}`;
+                newSection.setAttribute('data-type', sectionType);
+                newSection.setAttribute('draggable', 'true');
+                
+                // Get icon based on section type
+                let iconClass = 'fas fa-music';
+                if (sectionType === 'intro') iconClass = 'fas fa-play';
+                if (sectionType === 'verse') iconClass = 'fas fa-align-left';
+                if (sectionType === 'pre-chorus') iconClass = 'fas fa-arrow-up';
+                if (sectionType === 'chorus') iconClass = 'fas fa-volume-up';
+                if (sectionType === 'bridge') iconClass = 'fas fa-exchange-alt';
+                if (sectionType === 'outro') iconClass = 'fas fa-stop';
+                
+                // Set section content
+                newSection.innerHTML = `
+                    <div class="section-counter">${sectionCounter[sectionType]}</div>
+                    <div class="delete-section">×</div>
+                    <i class="${iconClass}"></i>
+                    <h3>${sectionType.charAt(0).toUpperCase() + sectionType.slice(1)}</h3>
+                    <p>${getSectionDescription(sectionType)}</p>
+                `;
+                
+                // Add event listeners for the new section
+                newSection.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    e.dataTransfer.setData('text/plain', this.getAttribute('data-type'));
+                    this.style.opacity = '0.5';
+                });
+                
+                newSection.addEventListener('dragend', function() {
+                    this.style.opacity = '1';
+                });
+                
+                newSection.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                });
+                
+                newSection.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    if (draggedElement && draggedElement !== this) {
+                        // Swap the positions of dragged element and drop target
+                        const allSections = Array.from(dropZone.querySelectorAll('.dropped-section'));
+                        const draggedIndex = allSections.indexOf(draggedElement);
+                        const targetIndex = allSections.indexOf(this);
+                        
+                        if (draggedIndex < targetIndex) {
+                            dropZone.insertBefore(draggedElement, this.nextSibling);
+                        } else {
+                            dropZone.insertBefore(draggedElement, this);
+                        }
+                        
+                        updateSongInfo();
+                        showNotification('Section order updated');
+                    }
+                });
+                
+                // Add delete functionality
+                const deleteBtn = newSection.querySelector('.delete-section');
+                deleteBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const section = this.closest('.dropped-section');
+                    const sectionType = section.getAttribute('data-type');
+                    section.remove();
+                    
+                    // Update counters
+                    sectionCounter[sectionType]--;
+                    
+                    // If no sections left, show empty message
+                    if (dropZone.querySelectorAll('.dropped-section').length === 0) {
+                        const msg = document.createElement('div');
+                        msg.className = 'empty-message';
+                        msg.textContent = 'No sections added yet. Drag sections from the left panel to start building your song structure.';
+                        dropZone.appendChild(msg);
+                    }
+                    
+                    updateSongInfo();
+                    showNotification('Section removed');
+                });
+                
+                // Append to drop zone
+                targetZone.appendChild(newSection);
+            }
+            
+            // Function to get section description
+            function getSectionDescription(type) {
+                const descriptions = {
+                    'intro': 'Sets the mood',
+                    'verse': 'Tells the story',
+                    'pre-chorus': 'Builds tension',
+                    'chorus': 'Main hook',
+                    'bridge': 'New perspective',
+                    'outro': 'Fades out'
+                };
+                return descriptions[type] || 'Song section';
+            }
+            
+            // Function to show notification
+            function showNotification(message) {
+                notification.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Function to update song info
+            function updateSongInfo() {
+                const sections = dropZone.querySelectorAll('.dropped-section');
+                sectionCount.textContent = sections.length;
+                
+                // Calculate estimated song length (average 3-5 minutes)
+                const avgSectionTime = 30; // seconds per section
+                const totalSeconds = sections.length * avgSectionTime;
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                songLength.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            // Initialize with a sample structure
+            function initializeSampleStructure() {
+                // Add a common song structure: Intro, Verse, Chorus, Verse, Chorus, Bridge, Chorus, Outro
+                const sampleStructure = ['intro', 'verse', 'chorus', 'verse', 'chorus', 'bridge', 'chorus', 'outro'];
+                
+                sampleStructure.forEach(type => {
+                    addSectionToStructure(type, dropZone);
+                });
+                
+                updateSongInfo();
+                showNotification('Sample song structure loaded. Feel free to modify it!');
+            }
+            
+            // Initialize with a sample structure after a short delay
+            setTimeout(initializeSampleStructure, 500);
+        });
+    </script>
+</body>
+</html>

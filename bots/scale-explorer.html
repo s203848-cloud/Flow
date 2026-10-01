@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Scale Explorer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #ff8000;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .header p {
+            color: #aaa;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .controls {
+            background: rgba(10, 10, 26, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 200px;
+        }
+        
+        .control-group label {
+            margin-bottom: 8px;
+            color: #ff8000;
+            font-weight: 600;
+        }
+        
+        select, input {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.5);
+            border-radius: 5px;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        select option {
+            background: #1a0a2e;
+        }
+        
+        .visualizations {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .visualization-container {
+            background: rgba(10, 10, 26, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .visualization-title {
+            color: #ff8000;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .keyboard {
+            display: flex;
+            position: relative;
+            height: 180px;
+            margin-top: 20px;
+        }
+        
+        .key {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0 0 5px 5px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .white-key {
+            background: rgba(255, 255, 255, 0.9);
+            height: 160px;
+            width: 40px;
+            z-index: 1;
+            color: #333;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .black-key {
+            background: #222;
+            height: 100px;
+            width: 24px;
+            z-index: 2;
+            margin-left: -12px;
+            margin-right: -12px;
+            color: white;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+        }
+        
+        .fretboard {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+            position: relative;
+        }
+        
+        .string {
+            display: flex;
+            height: 40px;
+            position: relative;
+        }
+        
+        .string:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.3);
+            z-index: 1;
+        }
+        
+        .fret {
+            flex: 1;
+            border-right: 2px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .fret:first-child {
+            border-left: 5px solid rgba(255, 128, 0, 0.7);
+            min-width: 40px;
+            flex: none;
+        }
+        
+        .note {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            z-index: 3;
+            transition: all 0.2s ease;
+        }
+        
+        .note-keyboard {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            z-index: 3;
+        }
+        
+        .scale-info {
+            background: rgba(10, 10, 26, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .scale-formula {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .formula-step {
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.5);
+            border-radius: 5px;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 60px;
+        }
+        
+        .step-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ff8000;
+        }
+        
+        .step-interval {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-top: 3px;
+        }
+        
+        .footer {
+            text-align: center;
+            color: #aaa;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @media (min-width: 992px) {
+            .visualizations {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .highlighted {
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        
+        <div class="header">
+            <h1>Scale Explorer</h1>
+            <p>Visualize musical scales on an interactive keyboard and fretboard. Select a root note and scale type to see the notes, formulas, and patterns.</p>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="root-note"><i class="fas fa-music"></i> Root Note</label>
+                <select id="root-note">
+                    <option value="C">C</option>
+                    <option value="C#">C# / Db</option>
+                    <option value="D">D</option>
+                    <option value="D#">D# / Eb</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="F#">F# / Gb</option>
+                    <option value="G">G</option>
+                    <option value="G#">G# / Ab</option>
+                    <option value="A">A</option>
+                    <option value="A#">A# / Bb</option>
+                    <option value="B">B</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="scale-type"><i class="fas fa-sliders-h"></i> Scale Type</label>
+                <select id="scale-type">
+                    <option value="major">Major Scale</option>
+                    <option value="minor">Natural Minor</option>
+                    <option value="harmonic-minor">Harmonic Minor</option>
+                    <option value="melodic-minor">Melodic Minor</option>
+                    <option value="pentatonic-major">Major Pentatonic</option>
+                    <option value="pentatonic-minor">Minor Pentatonic</option>
+                    <option value="blues">Blues Scale</option>
+                    <option value="dorian">Dorian Mode</option>
+                    <option value="mixolydian">Mixolydian Mode</option>
+                    <option value="phrygian">Phrygian Mode</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="fret-range"><i class="fas fa-guitar"></i> Fretboard Range</label>
+                <input type="range" id="fret-range" min="12" max="24" value="15">
+                <span id="fret-count">15 frets</span>
+            </div>
+        </div>
+        
+        <div class="scale-info">
+            <h3 class="visualization-title">
+                <i class="fas fa-info-circle"></i> Scale Information
+            </h3>
+            <div id="scale-name">C Major Scale</div>
+            <div id="scale-notes">Notes: C, D, E, F, G, A, B</div>
+            <div id="scale-formula">Formula: W-W-H-W-W-W-H</div>
+            
+            <div class="scale-formula" id="formula-steps">
+                <!-- Formula steps will be inserted here by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="visualizations">
+            <div class="visualization-container">
+                <h3 class="visualization-title">
+                    <i class="fas fa-keyboard"></i> Piano Keyboard
+                </h3>
+                <div id="keyboard" class="keyboard">
+                    <!-- Keyboard will be generated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="visualization-container">
+                <h3 class="visualization-title">
+                    <i class="fas fa-guitar"></i> Guitar Fretboard
+                </h3>
+                <div id="fretboard" class="fretboard">
+                    <!-- Fretboard will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Scale Explorer &copy; 2023 | Use the controls to explore different scales and their patterns on the keyboard and fretboard.</p>
+        </div>
+    </div>
+
+    <script>
+        // Musical scale definitions
+        const scaleFormulas = {
+            'major': {
+                name: 'Major Scale',
+                formula: [2, 2, 1, 2, 2, 2, 1],
+                intervals: ['Root', 'Major 2nd', 'Major 3rd', 'Perfect 4th', 'Perfect 5th', 'Major 6th', 'Major 7th']
+            },
+            'minor': {
+                name: 'Natural Minor Scale',
+                formula: [2, 1, 2, 2, 1, 2, 2],
+                intervals: ['Root', 'Major 2nd', 'Minor 3rd', 'Perfect 4th', 'Perfect 5th', 'Minor 6th', 'Minor 7th']
+            },
+            'harmonic-minor': {
+                name: 'Harmonic Minor Scale',
+                formula: [2, 1, 2, 2, 1, 3, 1],
+                intervals: ['Root', 'Major 2nd', 'Minor 3rd', 'Perfect 4th', 'Perfect 5th', 'Minor 6th', 'Major 7th']
+            },
+            'melodic-minor': {
+                name: 'Melodic Minor Scale',
+                formula: [2, 1, 2, 2, 2, 2, 1],
+                intervals: ['Root', 'Major 2nd', 'Minor 3rd', 'Perfect 4th', 'Perfect 5th', 'Major 6th', 'Major 7th']
+            },
+            'pentatonic-major': {
+                name: 'Major Pentatonic Scale',
+                formula: [2, 2, 3, 2, 3],
+                intervals: ['Root', 'Major 2nd', 'Major 3rd', 'Perfect 5th', 'Major 6th']
+            },
+            'pentatonic-minor': {
+                name: 'Minor Pentatonic Scale',
+                formula: [3, 2, 2, 3, 2],
+                intervals: ['Root', 'Minor 3rd', 'Perfect 4th', 'Perfect 5th', 'Minor 7th']
+            },
+            'blues': {
+                name: 'Blues Scale',
+                formula: [3, 2, 1, 1, 3, 2],
+                intervals: ['Root', 'Minor 3rd', 'Perfect 4th', 'Diminished 5th', 'Perfect 5th', 'Minor 7th']
+            },
+            'dorian': {
+                name: 'Dorian Mode',
+                formula: [2, 1, 2, 2, 2, 1, 2],
+                intervals: ['Root', 'Major 2nd', 'Minor 3rd', 'Perfect 4th', 'Perfect 5th', 'Major 6th', 'Minor 7th']
+            },
+            'mixolydian': {
+                name: 'Mixolydian Mode',
+                formula: [2, 2, 1, 2, 2, 1, 2],
+                intervals: ['Root', 'Major 2nd', 'Major 3rd', 'Perfect 4th', 'Perfect 5th', 'Major 6th', 'Minor 7th']
+            },
+            'phrygian': {
+                name: 'Phrygian Mode',
+                formula: [1, 2, 2, 2, 1, 2, 2],
+                intervals: ['Root', 'Minor 2nd', 'Minor 3rd', 'Perfect 4th', 'Perfect 5th', 'Minor 6th', 'Minor 7th']
+            }
+        };
+
+        // Note names and their positions
+        const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const noteColors = {
+            'C': '#ff8000', 'C#': '#ffaa00',
+            'D': '#ffcc00', 'D#': '#ffee00',
+            'E': '#ccff00', 'F': '#aaff00',
+            'F#': '#88ff00', 'G': '#00ff88',
+            'G#': '#00ffcc', 'A': '#00ccff',
+            'A#': '#0088ff', 'B': '#8000ff'
+        };
+
+        // Guitar strings standard tuning
+        const guitarStrings = ['E', 'A', 'D', 'G', 'B', 'E'];
+        
+        // DOM elements
+        const rootNoteSelect = document.getElementById('root-note');
+        const scaleTypeSelect = document.getElementById('scale-type');
+        const fretRange = document.getElementById('fret-range');
+        const fretCount = document.getElementById('fret-count');
+        const keyboardElement = document.getElementById('keyboard');
+        const fretboardElement = document.getElementById('fretboard');
+        const scaleNameElement = document.getElementById('scale-name');
+        const scaleNotesElement = document.getElementById('scale-notes');
+        const scaleFormulaElement = document.getElementById('scale-formula');
+        const formulaStepsElement = document.getElementById('formula-steps');
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            createKeyboard();
+            createFretboard();
+            updateScaleVisualization();
+            
+            // Add event listeners
+            rootNoteSelect.addEventListener('change', updateScaleVisualization);
+            scaleTypeSelect.addEventListener('change', updateScaleVisualization);
+            fretRange.addEventListener('input', function() {
+                fretCount.textContent = this.value + ' frets';
+                updateScaleVisualization();
+            });
+        });
+
+        // Create the piano keyboard
+        function createKeyboard() {
+            const whiteKeys = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+            const blackKeys = ['C#', 'D#', '', 'F#', 'G#', 'A#', ''];
+            
+            // Create two octaves
+            for (let octave = 0; octave < 2; octave++) {
+                for (let i = 0; i < whiteKeys.length; i++) {
+                    const noteName = whiteKeys[i];
+                    const noteWithOctave = noteName + (octave + 3);
+                    
+                    const whiteKey = document.createElement('div');
+                    whiteKey.className = 'key white-key';
+                    whiteKey.dataset.note = noteName;
+                    whiteKey.dataset.fullNote = noteWithOctave;
+                    whiteKey.textContent = noteName;
+                    
+                    // Add black key if applicable
+                    if (blackKeys[i] !== '') {
+                        const blackNoteName = blackKeys[i];
+                        const blackNoteWithOctave = blackNoteName + (octave + 3);
+                        
+                        const blackKey = document.createElement('div');
+                        blackKey.className = 'key black-key';
+                        blackKey.dataset.note = blackNoteName;
+                        blackKey.dataset.fullNote = blackNoteWithOctave;
+                        blackKey.textContent = blackNoteName;
+                        
+                        keyboardElement.appendChild(blackKey);
+                    }
+                    
+                    keyboardElement.appendChild(whiteKey);
+                }
+            }
+        }
+
+        // Create the guitar fretboard
+        function createFretboard() {
+            fretboardElement.innerHTML = '';
+            
+            // Create strings
+            for (let i = 0; i < guitarStrings.length; i++) {
+                const stringElement = document.createElement('div');
+                stringElement.className = 'string';
+                stringElement.dataset.string = guitarStrings[i];
+                
+                // Create frets
+                const fretCount = parseInt(fretRange.value);
+                for (let fret = 0; fret <= fretCount; fret++) {
+                    const fretElement = document.createElement('div');
+                    fretElement.className = 'fret';
+                    fretElement.dataset.fret = fret;
+                    fretElement.dataset.string = guitarStrings[i];
+                    
+                    // Calculate the note at this position
+                    const openNote = guitarStrings[i];
+                    const noteIndex = notes.indexOf(openNote);
+                    const noteAtFret = notes[(noteIndex + fret) % 12];
+                    
+                    const noteElement = document.createElement('div');
+                    noteElement.className = 'note';
+                    noteElement.dataset.note = noteAtFret;
+                    noteElement.textContent = fret === 0 ? openNote : '';
+                    
+                    fretElement.appendChild(noteElement);
+                    stringElement.appendChild(fretElement);
+                }
+                
+                fretboardElement.appendChild(stringElement);
+            }
+        }
+
+        // Update the scale visualization
+        function updateScaleVisualization() {
+            const rootNote = rootNoteSelect.value.split(' ')[0]; // Handle "C# / Db" case
+            const scaleType = scaleTypeSelect.value;
+            const formula = scaleFormulas[scaleType].formula;
+            const scaleName = scaleFormulas[scaleType].name;
+            
+            // Generate scale notes
+            const scaleNotes = generateScale(rootNote, formula);
+            
+            // Update scale info
+            scaleNameElement.textContent = `${rootNote} ${scaleName}`;
+            scaleNotesElement.textContent = `Notes: ${scaleNotes.join(', ')}`;
+            
+            // Update formula display
+            const formulaText = formula.map(step => step === 1 ? 'H' : step === 2 ? 'W' : step === 3 ? 'W+H' : step).join('-');
+            scaleFormulaElement.textContent = `Formula: ${formulaText}`;
+            
+            // Update formula steps
+            updateFormulaSteps(scaleNotes, scaleFormulas[scaleType].intervals);
+            
+            // Highlight keyboard notes
+            highlightKeyboardNotes(scaleNotes);
+            
+            // Highlight fretboard notes
+            highlightFretboardNotes(scaleNotes);
+        }
+
+        // Generate scale notes based on root and formula
+        function generateScale(rootNote, formula) {
+            const scaleNotes = [rootNote];
+            let currentIndex = notes.indexOf(rootNote);
+            
+            for (let i = 0; i < formula.length - 1; i++) {
+                currentIndex = (currentIndex + formula[i]) % 12;
+                scaleNotes.push(notes[currentIndex]);
+            }
+            
+            return scaleNotes;
+        }
+
+        // Update the formula steps display
+        function updateFormulaSteps(scaleNotes, intervals) {
+            formulaStepsElement.innerHTML = '';
+            
+            for (let i = 0; i < scaleNotes.length; i++) {
+                const stepElement = document.createElement('div');
+                stepElement.className = 'formula-step';
+                
+                const stepName = document.createElement('div');
+                stepName.className = 'step-name';
+                stepName.textContent = scaleNotes[i];
+                stepName.style.color = noteColors[scaleNotes[i]] || '#ff8000';
+                
+                const stepInterval = document.createElement('div');
+                stepInterval.className = 'step-interval';
+                stepInterval.textContent = intervals[i] || '';
+                
+                stepElement.appendChild(stepName);
+                stepElement.appendChild(stepInterval);
+                formulaStepsElement.appendChild(stepElement);
+            }
+        }
+
+        // Highlight notes on the keyboard
+        function highlightKeyboardNotes(scaleNotes) {
+            // Remove previous highlights
+            document.querySelectorAll('.key .note-keyboard').forEach(el => el.remove());
+            
+            // Highlight scale notes on keyboard
+            document.querySelectorAll('.key').forEach(key => {
+                const note = key.dataset.note;
+                
+                if (scaleNotes.includes(note)) {
+                    const noteIndex = scaleNotes.indexOf(note);
+                    const noteElement = document.createElement('div');
+                    noteElement.className = 'note-keyboard highlighted';
+                    noteElement.textContent = note;
+                    noteElement.style.backgroundColor = noteColors[note] || '#ff8000';
+                    noteElement.style.color = '#0a0a1a';
+                    
+                    // Add tooltip with interval
+                    noteElement.title = scaleFormulas[scaleTypeSelect.value].intervals[noteIndex] || '';
+                    
+                    key.appendChild(noteElement);
+                }
+            });
+        }
+
+        // Highlight notes on the fretboard
+        function highlightFretboardNotes(scaleNotes) {
+            // Remove previous highlights
+            document.querySelectorAll('.note').forEach(note => {
+                note.classList.remove('highlighted');
+                note.textContent = '';
+                note.style.backgroundColor = '';
+                note.style.color = '';
+            });
+            
+            // Highlight scale notes on fretboard
+            document.querySelectorAll('.note').forEach(noteElement => {
+                const note = noteElement.dataset.note;
+                const fret = parseInt(noteElement.parentElement.dataset.fret);
+                
+                if (scaleNotes.includes(note)) {
+                    const noteIndex = scaleNotes.indexOf(note);
+                    noteElement.classList.add('highlighted');
+                    noteElement.textContent = note;
+                    noteElement.style.backgroundColor = noteColors[note] || '#ff8000';
+                    noteElement.style.color = '#0a0a1a';
+                    
+                    // Show note name only on some frets to avoid clutter
+                    if (fret === 0 || fret === 3 || fret === 5 || fret === 7 || fret === 9 || fret === 12 || fret === 15 || fret === 17) {
+                        noteElement.textContent = note;
+                    } else {
+                        noteElement.textContent = '•';
+                    }
+                    
+                    // Add tooltip with interval
+                    noteElement.title = `${note} - ${scaleFormulas[scaleTypeSelect.value].intervals[noteIndex] || ''}`;
+                }
+            });
+            
+            // Also show root note with special styling
+            const rootNote = rootNoteSelect.value.split(' ')[0];
+            document.querySelectorAll(`.note[data-note="${rootNote}"]`).forEach(noteElement => {
+                noteElement.style.border = '2px solid #ffffff';
+                noteElement.style.boxShadow = '0 0 15px rgba(255, 255, 255, 0.8)';
+            });
+        }
+    </script>
+</body>
+</html>

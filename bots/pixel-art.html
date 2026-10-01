@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Advanced Pixel Art Creator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .navbar {
+            margin-bottom: 30px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-3px);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #ff8000;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: #aaa;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+        }
+        
+        .tool-section {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(20, 10, 40, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tool-section h2 {
+            color: #ff8000;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            overflow: auto;
+            max-height: 500px;
+        }
+        
+        .pixel-canvas {
+            display: grid;
+            gap: 0;
+            background: #000;
+            border: 2px solid #333;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        
+        .pixel {
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        
+        .pixel:hover {
+            transform: scale(1.1);
+            z-index: 1;
+            position: relative;
+        }
+        
+        .color-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 10px;
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .color-option {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+            border-color: #fff;
+        }
+        
+        .color-option.active {
+            border-color: #ff8000;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.7);
+            transform: scale(1.1);
+        }
+        
+        .color-picker-container {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .color-picker-label {
+            display: block;
+            margin-bottom: 10px;
+            color: #ff8000;
+            font-weight: 600;
+        }
+        
+        .color-picker {
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+        }
+        
+        .custom-colors {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .custom-color {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .current-color-display {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        
+        .color-preview {
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+            border: 2px solid #fff;
+        }
+        
+        .color-info {
+            flex: 1;
+        }
+        
+        .color-hex {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            flex: 1;
+            min-width: 140px;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-3px);
+        }
+        
+        .btn-secondary {
+            background: rgba(100, 100, 255, 0.2);
+            border-color: #6464ff;
+            color: #a0a0ff;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(100, 100, 255, 0.3);
+        }
+        
+        .grid-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .slider-container label {
+            min-width: 100px;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+            height: 8px;
+            border-radius: 5px;
+            background: rgba(255, 128, 0, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff8000;
+            cursor: pointer;
+        }
+        
+        .grid-size-display {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .preset-sizes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .size-btn {
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            color: #ccc;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .size-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+            color: #ff8000;
+        }
+        
+        .size-btn.active {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff8000;
+            color: #ff8000;
+        }
+        
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(20, 10, 40, 0.5);
+            border-radius: 10px;
+            border-left: 4px solid #ff8000;
+        }
+        
+        .instructions h3 {
+            color: #ff8000;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            color: #ccc;
+            line-height: 1.6;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        .gradient-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .gradient-color {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .gradient-color label {
+            margin-bottom: 8px;
+            color: #ff8000;
+            font-weight: 600;
+        }
+        
+        .gradient-preview {
+            width: 100%;
+            height: 40px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .tool-section {
+                max-width: 100%;
+            }
+            
+            .color-section {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        </nav>
+        
+        <header>
+            <h1><i class="fas fa-paint-brush"></i> Advanced Pixel Art Creator</h1>
+            <p class="subtitle">Create pixel art with custom grid sizes up to 1024x1024 and gradient-based random generation</p>
+        </header>
+        
+        <div class="main-content">
+            <section class="tool-section">
+                <h2><i class="fas fa-palette"></i> Drawing Canvas</h2>
+                <div class="canvas-container" id="canvasContainer">
+                    <div class="pixel-canvas" id="pixelCanvas"></div>
+                </div>
+                
+                <div class="current-color-display">
+                    <div class="color-preview" id="currentColorPreview"></div>
+                    <div class="color-info">
+                        <div>Current Color: <span id="currentColorName">Orange</span></div>
+                        <div class="color-hex" id="currentColorHex">#ff8000</div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn" id="clearBtn"><i class="fas fa-broom"></i> Clear Canvas</button>
+                    <button class="btn" id="fillBtn"><i class="fas fa-fill-drip"></i> Fill Canvas</button>
+                    <button class="btn btn-secondary" id="eraserBtn"><i class="fas fa-eraser"></i> Eraser</button>
+                </div>
+            </section>
+            
+            <section class="tool-section">
+                <h2><i class="fas fa-swatchbook"></i> Color Tools</h2>
+                
+                <div class="color-section">
+                    <div class="color-palette" id="colorPalette"></div>
+                    
+                    <div class="color-picker-container">
+                        <label class="color-picker-label">Custom Color Picker:</label>
+                        <input type="color" class="color-picker" id="colorPicker" value="#ff8000">
+                        
+                        <div class="custom-colors" id="customColors">
+                            <div class="custom-color" style="background-color: #ff8000;"></div>
+                            <div class="custom-color" style="background-color: #00ff80;"></div>
+                            <div class="custom-color" style="background-color: #0080ff;"></div>
+                            <div class="custom-color" style="background-color: #ff0080;"></div>
+                            <div class="custom-color" style="background-color: #ffff00;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid-controls">
+                    <div class="slider-container">
+                        <label for="gridSize">Grid Size:</label>
+                        <input type="range" id="gridSize" min="2" max="1024" step="1" value="16">
+                    </div>
+                    <div class="grid-size-display">
+                        <span>2x2</span>
+                        <span id="gridSizeValue">16x16</span>
+                        <span>1024x1024</span>
+                    </div>
+                    
+                    <div class="preset-sizes" id="presetSizes">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="gradient-controls">
+                    <div class="gradient-color">
+                        <label for="gradientColor1">Background Gradient:</label>
+                        <input type="color" id="gradientColor1" value="#1a0a2e">
+                        <div class="gradient-preview" id="gradientPreview1"></div>
+                    </div>
+                    
+                    <div class="gradient-color">
+                        <label for="gradientColor2">Center Gradient:</label>
+                        <input type="color" id="gradientColor2" value="#ff8000">
+                        <div class="gradient-preview" id="gradientPreview2"></div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn" id="saveBtn"><i class="fas fa-download"></i> Save as Image</button>
+                    <button class="btn btn-secondary" id="undoBtn"><i class="fas fa-undo"></i> Undo</button>
+                    <button class="btn btn-secondary" id="randomBtn"><i class="fas fa-random"></i> Gradient Art</button>
+                </div>
+            </section>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> How to Use</h3>
+            <ul>
+                <li><strong>Click</strong> on a pixel to draw with the selected color</li>
+                <li><strong>Click and drag</strong> to draw continuously</li>
+                <li>Use the <strong>Color Picker</strong> or predefined palette to choose colors</li>
+                <li>Adjust the <strong>Grid Size</strong> from 2x2 to 1024x1024 using the slider or preset buttons</li>
+                <li><strong>Gradient Art</strong> creates smooth blends between two colors with bridging</li>
+                <li>Save your artwork as a PNG image</li>
+            </ul>
+        </div>
+        
+        <footer>
+            <p>Advanced Pixel Art Creator &copy; 2023 | Custom grid sizes up to 1024x1024 with gradient generation</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Canvas configuration
+            let gridSize = 16;
+            let currentColor = '#ff8000';
+            let currentColorName = 'Orange';
+            let isDrawing = false;
+            let isErasing = false;
+            let canvasHistory = [];
+            let customColors = ['#ff8000', '#00ff80', '#0080ff', '#ff0080', '#ffff00'];
+            
+            // Gradient colors for random art
+            let gradientColor1 = '#1a0a2e';
+            let gradientColor2 = '#ff8000';
+            
+            // DOM elements
+            const pixelCanvas = document.getElementById('pixelCanvas');
+            const canvasContainer = document.getElementById('canvasContainer');
+            const colorPalette = document.getElementById('colorPalette');
+            const colorPicker = document.getElementById('colorPicker');
+            const customColorsContainer = document.getElementById('customColors');
+            const currentColorPreview = document.getElementById('currentColorPreview');
+            const currentColorNameSpan = document.getElementById('currentColorName');
+            const currentColorHex = document.getElementById('currentColorHex');
+            const gridSizeSlider = document.getElementById('gridSize');
+            const gridSizeValue = document.getElementById('gridSizeValue');
+            const presetSizes = document.getElementById('presetSizes');
+            const gradientColor1Input = document.getElementById('gradientColor1');
+            const gradientColor2Input = document.getElementById('gradientColor2');
+            const gradientPreview1 = document.getElementById('gradientPreview1');
+            const gradientPreview2 = document.getElementById('gradientPreview2');
+            
+            // Preset grid sizes
+            const presetGridSizes = [2, 3, 4, 8, 16, 32, 64, 128, 256, 512, 1024];
+            
+            // Color palette options
+            const colors = [
+                { name: 'Orange', value: '#ff8000' },
+                { name: 'Red', value: '#ff3333' },
+                { name: 'Green', value: '#33ff33' },
+                { name: 'Blue', value: '#3366ff' },
+                { name: 'Yellow', value: '#ffff33' },
+                { name: 'Purple', value: '#cc33ff' },
+                { name: 'Pink', value: '#ff66cc' },
+                { name: 'Cyan', value: '#33ffff' },
+                { name: 'White', value: '#ffffff' },
+                { name: 'Light Gray', value: '#cccccc' },
+                { name: 'Gray', value: '#888888' },
+                { name: 'Dark Gray', value: '#444444' },
+                { name: 'Black', value: '#000000' },
+                { name: 'Brown', value: '#996633' },
+                { name: 'Lime', value: '#99ff33' },
+                { name: 'Teal', value: '#33cc99' }
+            ];
+            
+            // Initialize color palette
+            function initColorPalette() {
+                colorPalette.innerHTML = '';
+                colors.forEach(color => {
+                    const colorOption = document.createElement('div');
+                    colorOption.className = 'color-option';
+                    colorOption.style.backgroundColor = color.value;
+                    colorOption.setAttribute('data-color', color.value);
+                    colorOption.setAttribute('data-name', color.name);
+                    
+                    // Set orange as the initial active color
+                    if (color.value === '#ff8000') {
+                        colorOption.classList.add('active');
+                    }
+                    
+                    colorOption.addEventListener('click', function() {
+                        // Update active color
+                        document.querySelectorAll('.color-option').forEach(option => {
+                            option.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                        
+                        // Update current color
+                        currentColor = this.getAttribute('data-color');
+                        currentColorName = this.getAttribute('data-name');
+                        updateCurrentColorDisplay();
+                        
+                        // Update color picker to match
+                        colorPicker.value = currentColor;
+                        
+                        // Turn off eraser when a color is selected
+                        isErasing = false;
+                        eraserBtn.classList.remove('active');
+                        eraserBtn.innerHTML = '<i class="fas fa-eraser"></i> Eraser';
+                    });
+                    
+                    colorPalette.appendChild(colorOption);
+                });
+                
+                // Set initial color preview
+                updateCurrentColorDisplay();
+            }
+            
+            // Initialize custom colors
+            function initCustomColors() {
+                customColorsContainer.innerHTML = '';
+                customColors.forEach(color => {
+                    const colorDiv = document.createElement('div');
+                    colorDiv.className = 'custom-color';
+                    colorDiv.style.backgroundColor = color;
+                    
+                    colorDiv.addEventListener('click', function() {
+                        currentColor = color;
+                        currentColorName = 'Custom Color';
+                        updateCurrentColorDisplay();
+                        colorPicker.value = color;
+                        
+                        // Update active state in palette
+                        document.querySelectorAll('.color-option').forEach(option => {
+                            option.classList.remove('active');
+                        });
+                        
+                        // Turn off eraser
+                        isErasing = false;
+                        eraserBtn.classList.remove('active');
+                        eraserBtn.innerHTML = '<i class="fas fa-eraser"></i> Eraser';
+                    });
+                    
+                    customColorsContainer.appendChild(colorDiv);
+                });
+            }
+            
+            // Update current color display
+            function updateCurrentColorDisplay() {
+                currentColorPreview.style.backgroundColor = currentColor;
+                currentColorNameSpan.textContent = currentColorName;
+                currentColorHex.textContent = currentColor;
+            }
+            
+            // Initialize preset grid size buttons
+            function initPresetSizes() {
+                presetSizes.innerHTML = '';
+                presetGridSizes.forEach(size => {
+                    const sizeBtn = document.createElement('button');
+                    sizeBtn.className = 'size-btn';
+                    if (size === gridSize) sizeBtn.classList.add('active');
+                    sizeBtn.textContent = `${size}x${size}`;
+                    sizeBtn.setAttribute('data-size', size);
+                    
+                    sizeBtn.addEventListener('click', function() {
+                        gridSize = parseInt(this.getAttribute('data-size'));
+                        gridSizeSlider.value = gridSize;
+                        gridSizeValue.textContent = `${gridSize}x${gridSize}`;
+                        
+                        // Update active state
+                        document.querySelectorAll('.size-btn').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                        
+                        initPixelCanvas();
+                    });
+                    
+                    presetSizes.appendChild(sizeBtn);
+                });
+            }
+            
+            // Initialize the pixel canvas
+            function initPixelCanvas() {
+                pixelCanvas.innerHTML = '';
+                
+                // Calculate pixel size based on container and grid size
+                // Limit maximum canvas size for performance
+                const containerWidth = Math.min(canvasContainer.clientWidth - 30, 600);
+                const pixelSize = Math.max(2, Math.floor(containerWidth / gridSize));
+                const canvasSize = pixelSize * gridSize;
+                
+                pixelCanvas.style.gridTemplateColumns = `repeat(${gridSize}, ${pixelSize}px)`;
+                pixelCanvas.style.gridTemplateRows = `repeat(${gridSize}, ${pixelSize}px)`;
+                pixelCanvas.style.width = `${canvasSize}px`;
+                pixelCanvas.style.height = `${canvasSize}px`;
+                
+                // Create pixels
+                for (let i = 0; i < gridSize * gridSize; i++) {
+                    const pixel = document.createElement('div');
+                    pixel.className = 'pixel';
+                    pixel.style.backgroundColor = '#000000';
+                    pixel.style.width = `${pixelSize}px`;
+                    pixel.style.height = `${pixelSize}px`;
+                    
+                    // Add drawing event listeners
+                    pixel.addEventListener('mousedown', function(e) {
+                        isDrawing = true;
+                        drawPixel(this);
+                        e.preventDefault();
+                    });
+                    
+                    pixel.addEventListener('mouseenter', function() {
+                        if (isDrawing) {
+                            drawPixel(this);
+                        }
+                    });
+                    
+                    // Touch support for mobile
+                    pixel.addEventListener('touchstart', function(e) {
+                        isDrawing = true;
+                        drawPixel(this);
+                        e.preventDefault();
+                    });
+                    
+                    pixel.addEventListener('touchmove', function(e) {
+                        if (isDrawing) {
+                            const touch = e.touches[0];
+                            const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                            if (element && element.classList.contains('pixel')) {
+                                drawPixel(element);
+                            }
+                        }
+                        e.preventDefault();
+                    });
+                    
+                    pixelCanvas.appendChild(pixel);
+                }
+                
+                // Save initial state to history
+                saveCanvasState();
+            }
+            
+            // Draw on a pixel
+            function drawPixel(pixel) {
+                if (isErasing) {
+                    pixel.style.backgroundColor = '#000000';
+                } else {
+                    pixel.style.backgroundColor = currentColor;
+                }
+            }
+            
+            // Save canvas state for undo functionality
+            function saveCanvasState() {
+                const pixels = document.querySelectorAll('.pixel');
+                const state = [];
+                pixels.forEach(pixel => {
+                    state.push(pixel.style.backgroundColor);
+                });
+                
+                // Limit history to 15 states
+                if (canvasHistory.length >= 15) {
+                    canvasHistory.shift();
+                }
+                
+                canvasHistory.push(state);
+            }
+            
+            // Undo last drawing action
+            function undoLastAction() {
+                if (canvasHistory.length > 1) {
+                    // Remove current state
+                    canvasHistory.pop();
+                    
+                    // Get previous state
+                    const previousState = canvasHistory[canvasHistory.length - 1];
+                    const pixels = document.querySelectorAll('.pixel');
+                    
+                    // Restore previous state
+                    pixels.forEach((pixel, index) => {
+                        pixel.style.backgroundColor = previousState[index];
+                    });
+                }
+            }
+            
+            // Clear the canvas
+            function clearCanvas() {
+                const pixels = document.querySelectorAll('.pixel');
+                pixels.forEach(pixel => {
+                    pixel.style.backgroundColor = '#000000';
+                });
+                saveCanvasState();
+            }
+            
+            // Fill the canvas with current color
+            function fillCanvas() {
+                const pixels = document.querySelectorAll('.pixel');
+                pixels.forEach(pixel => {
+                    pixel.style.backgroundColor = currentColor;
+                });
+                saveCanvasState();
+            }
+            
+            // Generate gradient-based random art
+            function generateGradientArt() {
+                const pixels = document.querySelectorAll('.pixel');
+                const gridArray = Array.from(pixels);
+                
+                // Convert hex to RGB
+                function hexToRgb(hex) {
+                    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                    return result ? {
+                        r: parseInt(result[1], 16),
+                        g: parseInt(result[2], 16),
+                        b: parseInt(result[3], 16)
+                    } : null;
+                }
+                
+                // Convert RGB to hex
+                function rgbToHex(r, g, b) {
+                    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+                }
+                
+                // Interpolate between two colors
+                function interpolateColor(color1, color2, factor) {
+                    const rgb1 = hexToRgb(color1);
+                    const rgb2 = hexToRgb(color2);
+                    
+                    if (!rgb1 || !rgb2) return color1;
+                    
+                    const r = Math.round(rgb1.r + factor * (rgb2.r - rgb1.r));
+                    const g = Math.round(rgb1.g + factor * (rgb2.g - rgb1.g));
+                    const b = Math.round(rgb1.b + factor * (rgb2.b - rgb1.b));
+                    
+                    return rgbToHex(r, g, b);
+                }
+                
+                // Create smooth gradient with bridging
+                gridArray.forEach((pixel, index) => {
+                    const row = Math.floor(index / gridSize);
+                    const col = index % gridSize;
+                    
+                    // Calculate distance from center (0 to 1)
+                    const centerX = gridSize / 2;
+                    const centerY = gridSize / 2;
+                    const distance = Math.sqrt(
+                        Math.pow((col - centerX) / gridSize, 2) + 
+                        Math.pow((row - centerY) / gridSize, 2)
+                    ) * 2; // Scale to make gradient more visible
+                    
+                    // Add some randomness to make it more organic
+                    const randomFactor = Math.random() * 0.3;
+                    const adjustedDistance = Math.min(1, distance + randomFactor);
+                    
+                    // Create a secondary gradient from the center
+                    const centerDistance = Math.sqrt(
+                        Math.pow((col - centerX) / (gridSize * 0.5), 2) + 
+                        Math.pow((row - centerY) / (gridSize * 0.5), 2)
+                    );
+                    
+                    // Blend the two gradients
+                    let color;
+                    if (centerDistance < 1) {
+                        // Center gradient (more prominent in the middle)
+                        const centerFactor = 1 - centerDistance;
+                        color = interpolateColor(gradientColor2, gradientColor1, centerDistance);
+                        
+                        // Sometimes blend with the main gradient
+                        if (Math.random() > 0.7) {
+                            const blendFactor = Math.random() * 0.5;
+                            color = interpolateColor(color, gradientColor1, blendFactor);
+                        }
+                    } else {
+                        // Background gradient
+                        color = interpolateColor(gradientColor1, gradientColor2, adjustedDistance);
+                        
+                        // Create bridging between similar colors
+                        if (Math.random() > 0.8 && adjustedDistance < 0.7) {
+                            // Bridge with a color between the two gradients
+                            const bridgeColor = interpolateColor(gradientColor1, gradientColor2, 0.5);
+                            color = interpolateColor(color, bridgeColor, 0.3);
+                        }
+                    }
+                    
+                    // Add some noise for texture
+                    if (Math.random() > 0.9) {
+                        const noise = Math.floor(Math.random() * 30) - 15;
+                        const rgb = hexToRgb(color);
+                        if (rgb) {
+                            const r = Math.min(255, Math.max(0, rgb.r + noise));
+                            const g = Math.min(255, Math.max(0, rgb.g + noise));
+                            const b = Math.min(255, Math.max(0, rgb.b + noise));
+                            color = rgbToHex(r, g, b);
+                        }
+                    }
+                    
+                    pixel.style.backgroundColor = color;
+                });
+                
+                saveCanvasState();
+            }
+            
+            // Save canvas as PNG image
+            function saveAsImage() {
+                // Create a temporary canvas
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Set canvas size (scale up for better quality)
+                const scale = Math.min(10, Math.max(2, 2048 / gridSize)); // Adjust scale based on grid size
+                canvas.width = gridSize * scale;
+                canvas.height = gridSize * scale;
+                
+                // Get all pixels
+                const pixels = document.querySelectorAll('.pixel');
+                
+                // Draw each pixel on the canvas
+                for (let i = 0; i < pixels.length; i++) {
+                    const pixel = pixels[i];
+                    const color = pixel.style.backgroundColor || '#000000';
+                    
+                    // Calculate position
+                    const row = Math.floor(i / gridSize);
+                    const col = i % gridSize;
+                    
+                    // Draw pixel
+                    ctx.fillStyle = color;
+                    ctx.fillRect(col * scale, row * scale, scale, scale);
+                }
+                
+                // Create download link
+                const link = document.createElement('a');
+                link.download = `pixel-art-${gridSize}x${gridSize}-${new Date().getTime()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }
+            
+            // Initialize event listeners for buttons
+            function initEventListeners() {
+                // Clear button
+                document.getElementById('clearBtn').addEventListener('click', clearCanvas);
+                
+                // Fill button
+                document.getElementById('fillBtn').addEventListener('click', fillCanvas);
+                
+                // Eraser button
+                const eraserBtn = document.getElementById('eraserBtn');
+                eraserBtn.addEventListener('click', function() {
+                    isErasing = !isErasing;
+                    if (isErasing) {
+                        this.classList.add('active');
+                        this.innerHTML = '<i class="fas fa-paint-brush"></i> Drawing';
+                    } else {
+                        this.classList.remove('active');
+                        this.innerHTML = '<i class="fas fa-eraser"></i> Eraser';
+                    }
+                });
+                
+                // Save button
+                document.getElementById('saveBtn').addEventListener('click', saveAsImage);
+                
+                // Undo button
+                document.getElementById('undoBtn').addEventListener('click', undoLastAction);
+                
+                // Random gradient art button
+                document.getElementById('randomBtn').addEventListener('click', generateGradientArt);
+                
+                // Grid size slider
+                gridSizeSlider.addEventListener('input', function() {
+                    gridSize = parseInt(this.value);
+                    gridSizeValue.textContent = `${gridSize}x${gridSize}`;
+                    
+                    // Update active preset button
+                    document.querySelectorAll('.size-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                        if (parseInt(btn.getAttribute('data-size')) === gridSize) {
+                            btn.classList.add('active');
+                        }
+                    });
+                    
+                    initPixelCanvas();
+                });
+                
+                // Color picker
+                colorPicker.addEventListener('input', function() {
+                    currentColor = this.value;
+                    currentColorName = 'Custom Color';
+                    updateCurrentColorDisplay();
+                    
+                    // Update active state in palette
+                    document.querySelectorAll('.color-option').forEach(option => {
+                        option.classList.remove('active');
+                    });
+                    
+                    // Add to custom colors if not already there
+                    if (!customColors.includes(currentColor)) {
+                        // Shift out oldest custom color
+                        customColors.shift();
+                        customColors.push(currentColor);
+                        initCustomColors();
+                    }
+                    
+                    // Turn off eraser
+                    isErasing = false;
+                    eraserBtn.classList.remove('active');
+                    eraserBtn.innerHTML = '<i class="fas fa-eraser"></i> Eraser';
+                });
+                
+                // Gradient color pickers
+                gradientColor1Input.addEventListener('input', function() {
+                    gradientColor1 = this.value;
+                    gradientPreview1.style.background = `linear-gradient(90deg, ${gradientColor1}, ${gradientColor2})`;
+                });
+                
+                gradientColor2Input.addEventListener('input', function() {
+                    gradientColor2 = this.value;
+                    gradientPreview2.style.background = `radial-gradient(circle, ${gradientColor2}, ${gradientColor1})`;
+                });
+                
+                // Initialize gradient previews
+                gradientPreview1.style.background = `linear-gradient(90deg, ${gradientColor1}, ${gradientColor2})`;
+                gradientPreview2.style.background = `radial-gradient(circle, ${gradientColor2}, ${gradientColor1})`;
+                
+                // Stop drawing when mouse is released
+                document.addEventListener('mouseup', function() {
+                    if (isDrawing) {
+                        isDrawing = false;
+                        saveCanvasState();
+                    }
+                });
+                
+                // Stop drawing when touch ends
+                document.addEventListener('touchend', function() {
+                    if (isDrawing) {
+                        isDrawing = false;
+                        saveCanvasState();
+                    }
+                });
+                
+                // Handle window resize
+                window.addEventListener('resize', function() {
+                    initPixelCanvas();
+                });
+            }
+            
+            // Initialize the application
+            function initApp() {
+                initColorPalette();
+                initCustomColors();
+                initPresetSizes();
+                initPixelCanvas();
+                initEventListeners();
+                
+                // Set grid size display
+                gridSizeValue.textContent = `${gridSize}x${gridSize}`;
+            }
+            
+            // Start the app
+            initApp();
+        });
+    </script>
+</body>
+</html>

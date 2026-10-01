@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morse Code Translator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .navbar {
+            margin-bottom: 30px;
+        }
+        
+        .back-btn {
+            padding: 10px 18px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 128, 0, 0.2);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        h1 {
+            color: #ff8000;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+        }
+        
+        .subtitle {
+            color: #a0a0d0;
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+        
+        .translator-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .translator-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .translation-box {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(100, 100, 150, 0.2);
+        }
+        
+        .translation-box h2 {
+            color: #ff8000;
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .translation-box h2 i {
+            font-size: 1.4rem;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 150px;
+            background: rgba(10, 10, 20, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            padding: 15px;
+            font-size: 16px;
+            resize: vertical;
+            margin-bottom: 20px;
+            transition: border 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.2);
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .translate-btn {
+            background: linear-gradient(to right, #ff8000, #ff5500);
+            color: white;
+            flex-grow: 1;
+        }
+        
+        .translate-btn:hover {
+            background: linear-gradient(to right, #ff9000, #ff6600);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 128, 0, 0.4);
+        }
+        
+        .clear-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ddd;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .clear-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .simulation-section {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(100, 100, 150, 0.2);
+        }
+        
+        .simulation-section h2 {
+            color: #ff8000;
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .simulation-section h2 i {
+            font-size: 1.4rem;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-grow: 1;
+            min-width: 200px;
+        }
+        
+        .control-group label {
+            color: #a0a0d0;
+            font-size: 0.95rem;
+        }
+        
+        .control-group input {
+            padding: 10px 15px;
+            background: rgba(10, 10, 20, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 16px;
+        }
+        
+        .control-group input:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 8px rgba(255, 128, 0, 0.2);
+        }
+        
+        .simulation-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .simulate-btn {
+            background: linear-gradient(to right, #4a00e0, #8e2de2);
+            color: white;
+            padding: 12px 25px;
+        }
+        
+        .simulate-btn:hover {
+            background: linear-gradient(to right, #5500ff, #9d42ff);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(142, 45, 226, 0.4);
+        }
+        
+        .stop-btn {
+            background: linear-gradient(to right, #e53935, #d32f2f);
+            color: white;
+            padding: 12px 25px;
+        }
+        
+        .stop-btn:hover {
+            background: linear-gradient(to right, #f44336, #e53935);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(229, 57, 53, 0.4);
+        }
+        
+        .visualizer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .light-box {
+            width: 150px;
+            height: 150px;
+            background: rgba(10, 10, 30, 0.9);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255, 128, 0, 0.3);
+            transition: all 0.1s;
+        }
+        
+        .light-box.active {
+            background: radial-gradient(circle, #ff8000, #ff5500);
+            box-shadow: 0 0 30px #ff8000, 0 0 60px rgba(255, 128, 0, 0.5);
+            border-color: #ff8000;
+        }
+        
+        .sound-visualizer {
+            flex-grow: 1;
+            min-width: 300px;
+            height: 150px;
+            background: rgba(10, 10, 30, 0.9);
+            border-radius: 12px;
+            border: 2px solid rgba(100, 100, 150, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a0a0d0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sound-bar {
+            position: absolute;
+            bottom: 0;
+            width: 10px;
+            background: linear-gradient(to top, #ff8000, #ff5500);
+            border-radius: 4px 4px 0 0;
+            transition: height 0.1s;
+        }
+        
+        .morse-code-guide {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(100, 100, 150, 0.2);
+        }
+        
+        .morse-code-guide h2 {
+            color: #ff8000;
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .morse-code-guide h2 i {
+            font-size: 1.4rem;
+        }
+        
+        .guide-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .guide-item {
+            background: rgba(10, 10, 20, 0.8);
+            padding: 12px 15px;
+            border-radius: 8px;
+            border-left: 3px solid #ff8000;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .character {
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .code {
+            color: #ff8000;
+            font-family: monospace;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.2);
+            color: #a0a0d0;
+            font-size: 0.9rem;
+        }
+        
+        .current-morse {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(10, 10, 20, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            font-family: monospace;
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            color: #ff8000;
+            min-height: 60px;
+            word-break: break-all;
+        }
+        
+        .active-translation {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { border-color: rgba(255, 128, 0, 0.2); }
+            50% { border-color: #ff8000; }
+            100% { border-color: rgba(255, 128, 0, 0.2); }
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 128, 0, 0.3);
+            border-radius: 50%;
+            border-top-color: #ff8000;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        </nav>
+        
+        <header>
+            <h1>Morse Code Translator</h1>
+            <p class="subtitle">Translate text to Morse code and back with interactive sound and light simulation. Perfect for learning Morse code or sending secret messages.</p>
+        </header>
+        
+        <main>
+            <div class="translator-container">
+                <div class="translation-box">
+                    <h2><i class="fas fa-keyboard"></i> Text to Morse Code</h2>
+                    <textarea id="text-input" placeholder="Enter text to convert to Morse code (letters, numbers, and punctuation)...">Hello World</textarea>
+                    <div class="buttons">
+                        <button id="text-to-morse-btn" class="translate-btn"><i class="fas fa-language"></i> Convert to Morse</button>
+                        <button id="clear-text-btn" class="clear-btn"><i class="fas fa-eraser"></i> Clear</button>
+                    </div>
+                    <div class="current-morse" id="morse-output">.... . .-.. .-.. --- / .-- --- .-. .-.. -..</div>
+                </div>
+                
+                <div class="translation-box">
+                    <h2><i class="fas fa-broadcast-tower"></i> Morse to Text</h2>
+                    <textarea id="morse-input" placeholder="Enter Morse code (dots '.' and dashes '-') with spaces between letters and '/' between words...">.... . .-.. .-.. --- / .-- --- .-. .-.. -..</textarea>
+                    <div class="buttons">
+                        <button id="morse-to-text-btn" class="translate-btn"><i class="fas fa-exchange-alt"></i> Convert to Text</button>
+                        <button id="clear-morse-btn" class="clear-btn"><i class="fas fa-eraser"></i> Clear</button>
+                    </div>
+                    <div class="current-morse" id="text-output">HELLO WORLD</div>
+                </div>
+            </div>
+            
+            <div class="simulation-section">
+                <h2><i class="fas fa-sliders-h"></i> Sound & Light Simulation</h2>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="speed-control"><i class="fas fa-tachometer-alt"></i> Speed (wpm)</label>
+                        <input type="range" id="speed-control" min="5" max="30" value="15">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                            <span>Slow (5)</span>
+                            <span id="speed-value">15</span>
+                            <span>Fast (30)</span>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label for="tone-control"><i class="fas fa-music"></i> Tone Frequency (Hz)</label>
+                        <input type="range" id="tone-control" min="300" max="1000" value="600">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                            <span>Low (300)</span>
+                            <span id="tone-value">600</span>
+                            <span>High (1000)</span>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label for="volume-control"><i class="fas fa-volume-up"></i> Volume</label>
+                        <input type="range" id="volume-control" min="0" max="100" value="70">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                            <span>Low</span>
+                            <span id="volume-value">70%</span>
+                            <span>High</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="simulation-buttons">
+                    <button id="play-sound-btn" class="simulate-btn"><i class="fas fa-play"></i> Play Sound</button>
+                    <button id="play-light-btn" class="simulate-btn"><i class="fas fa-lightbulb"></i> Play Light</button>
+                    <button id="play-both-btn" class="simulate-btn"><i class="fas fa-broadcast-tower"></i> Play Both</button>
+                    <button id="stop-btn" class="stop-btn"><i class="fas fa-stop"></i> Stop</button>
+                </div>
+                
+                <div class="visualizer">
+                    <div class="light-box" id="light-box">
+                        <i class="fas fa-lightbulb" style="font-size: 3rem; color: rgba(255,255,255,0.1);"></i>
+                    </div>
+                    <div class="sound-visualizer" id="sound-visualizer">
+                        <span id="sound-status">Sound visualization will appear here</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="morse-code-guide">
+                <h2><i class="fas fa-book"></i> Morse Code Reference Guide</h2>
+                <div class="guide-content" id="morse-guide">
+                    <!-- Morse code guide will be populated by JavaScript -->
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Morse Code Translator | Created with <i class="fas fa-heart" style="color: #ff8000;"></i> using HTML, CSS & JavaScript</p>
+            <p style="margin-top: 5px; font-size: 0.8rem;">Use this tool to learn Morse code, translate messages, or simulate transmissions with sound and light.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Morse code mapping
+        const morseCodeMap = {
+            'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
+            'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+            'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+            'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+            'Y': '-.--', 'Z': '--..', '0': '-----', '1': '.----', '2': '..---',
+            '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...',
+            '8': '---..', '9': '----.', '.': '.-.-.-', ',': '--..--', '?': '..--..',
+            "'": '.----.', '!': '-.-.--', '/': '-..-.', '(': '-.--.', ')': '-.--.-',
+            '&': '.-...', ':': '---...', ';': '-.-.-.', '=': '-...-', '+': '.-.-.',
+            '-': '-....-', '_': '..--.-', '"': '.-..-.', '$': '...-..-', '@': '.--.-.',
+            ' ': '/'
+        };
+
+        // Reverse mapping for Morse to text
+        const reverseMorseMap = {};
+        for (const [char, morse] of Object.entries(morseCodeMap)) {
+            reverseMorseMap[morse] = char;
+        }
+
+        // DOM elements
+        const textInput = document.getElementById('text-input');
+        const morseInput = document.getElementById('morse-input');
+        const morseOutput = document.getElementById('morse-output');
+        const textOutput = document.getElementById('text-output');
+        const textToMorseBtn = document.getElementById('text-to-morse-btn');
+        const morseToTextBtn = document.getElementById('morse-to-text-btn');
+        const clearTextBtn = document.getElementById('clear-text-btn');
+        const clearMorseBtn = document.getElementById('clear-morse-btn');
+        const playSoundBtn = document.getElementById('play-sound-btn');
+        const playLightBtn = document.getElementById('play-light-btn');
+        const playBothBtn = document.getElementById('play-both-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const speedControl = document.getElementById('speed-control');
+        const toneControl = document.getElementById('tone-control');
+        const volumeControl = document.getElementById('volume-control');
+        const speedValue = document.getElementById('speed-value');
+        const toneValue = document.getElementById('tone-value');
+        const volumeValue = document.getElementById('volume-value');
+        const lightBox = document.getElementById('light-box');
+        const soundVisualizer = document.getElementById('sound-visualizer');
+        const soundStatus = document.getElementById('sound-status');
+        const morseGuide = document.getElementById('morse-guide');
+
+        // Audio context for sound simulation
+        let audioContext;
+        let oscillator;
+        let isPlaying = false;
+        let stopRequested = false;
+
+        // Initialize the page
+        function init() {
+            // Set up event listeners
+            textToMorseBtn.addEventListener('click', convertTextToMorse);
+            morseToTextBtn.addEventListener('click', convertMorseToText);
+            clearTextBtn.addEventListener('click', () => {
+                textInput.value = '';
+                morseOutput.textContent = '';
+            });
+            clearMorseBtn.addEventListener('click', () => {
+                morseInput.value = '';
+                textOutput.textContent = '';
+            });
+            
+            playSoundBtn.addEventListener('click', () => playMorse('sound'));
+            playLightBtn.addEventListener('click', () => playMorse('light'));
+            playBothBtn.addEventListener('click', () => playMorse('both'));
+            stopBtn.addEventListener('click', stopPlayback);
+            
+            speedControl.addEventListener('input', updateSpeedValue);
+            toneControl.addEventListener('input', updateToneValue);
+            volumeControl.addEventListener('input', updateVolumeValue);
+            
+            // Initialize control values
+            updateSpeedValue();
+            updateToneValue();
+            updateVolumeValue();
+            
+            // Populate the Morse code guide
+            populateMorseGuide();
+            
+            // Add input event listeners for real-time conversion (optional)
+            textInput.addEventListener('input', convertTextToMorse);
+            morseInput.addEventListener('input', convertMorseToText);
+        }
+
+        // Convert text to Morse code
+        function convertTextToMorse() {
+            const text = textInput.value.toUpperCase();
+            let morse = '';
+            
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                if (morseCodeMap[char]) {
+                    morse += morseCodeMap[char] + ' ';
+                } else if (char === ' ') {
+                    morse += '/ ';
+                } else {
+                    // For unsupported characters, add a placeholder
+                    morse += '? ';
+                }
+            }
+            
+            morseOutput.textContent = morse.trim();
+            morseOutput.classList.add('active-translation');
+            setTimeout(() => morseOutput.classList.remove('active-translation'), 1500);
+            
+            // Also update the Morse input field for convenience
+            morseInput.value = morse.trim();
+        }
+
+        // Convert Morse code to text
+        function convertMorseToText() {
+            const morse = morseInput.value.trim();
+            const morseWords = morse.split(' / ');
+            let text = '';
+            
+            for (let word of morseWords) {
+                const morseChars = word.split(' ');
+                for (let morseChar of morseChars) {
+                    if (reverseMorseMap[morseChar]) {
+                        text += reverseMorseMap[morseChar];
+                    } else if (morseChar === '') {
+                        // Skip empty characters
+                        continue;
+                    } else {
+                        text += '?';
+                    }
+                }
+                text += ' ';
+            }
+            
+            textOutput.textContent = text.trim();
+            textOutput.classList.add('active-translation');
+            setTimeout(() => textOutput.classList.remove('active-translation'), 1500);
+            
+            // Also update the text input field for convenience
+            textInput.value = text.trim();
+        }
+
+        // Play Morse code with sound, light, or both
+        async function playMorse(mode) {
+            if (isPlaying) {
+                stopPlayback();
+                // Small delay before starting new playback
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+            
+            stopRequested = false;
+            isPlaying = true;
+            
+            // Get the Morse code to play
+            const morse = morseOutput.textContent || morseInput.value;
+            if (!morse) {
+                alert("No Morse code to play. Please convert some text first.");
+                isPlaying = false;
+                return;
+            }
+            
+            // Get simulation parameters
+            const speed = parseInt(speedControl.value); // words per minute
+            const toneFrequency = parseInt(toneControl.value);
+            const volume = parseInt(volumeControl.value) / 100;
+            
+            // Calculate timing based on speed (standard Morse code timing)
+            // In Morse code, 1 dot = 1 unit, 1 dash = 3 units, space between dots/dashes = 1 unit
+            // Space between letters = 3 units, space between words = 7 units
+            const dotDuration = 1200 / speed; // ms per dot (standard calculation)
+            const dashDuration = dotDuration * 3;
+            const symbolSpace = dotDuration;
+            const letterSpace = dotDuration * 3;
+            const wordSpace = dotDuration * 7;
+            
+            // Clear the sound visualizer
+            clearSoundVisualizer();
+            
+            // Create audio context if needed
+            if ((mode === 'sound' || mode === 'both') && !audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            // Start playback
+            playMorseSequence(morse, 0);
+            
+            async function playMorseSequence(morseString, index) {
+                if (index >= morseString.length || stopRequested) {
+                    isPlaying = false;
+                    lightBox.classList.remove('active');
+                    return;
+                }
+                
+                const char = morseString[index];
+                
+                if (char === '.') {
+                    // Play a dot
+                    if (mode === 'sound' || mode === 'both') {
+                        playTone(dotDuration, toneFrequency, volume);
+                    }
+                    if (mode === 'light' || mode === 'both') {
+                        lightBox.classList.add('active');
+                        setTimeout(() => {
+                            lightBox.classList.remove('active');
+                        }, dotDuration);
+                    }
+                    
+                    // Visualize the dot
+                    visualizeSound('dot', dotDuration);
+                    
+                    // Wait for dot duration plus symbol space
+                    await sleep(dotDuration + symbolSpace);
+                } else if (char === '-') {
+                    // Play a dash
+                    if (mode === 'sound' || mode === 'both') {
+                        playTone(dashDuration, toneFrequency, volume);
+                    }
+                    if (mode === 'light' || mode === 'both') {
+                        lightBox.classList.add('active');
+                        setTimeout(() => {
+                            lightBox.classList.remove('active');
+                        }, dashDuration);
+                    }
+                    
+                    // Visualize the dash
+                    visualizeSound('dash', dashDuration);
+                    
+                    // Wait for dash duration plus symbol space
+                    await sleep(dashDuration + symbolSpace);
+                } else if (char === ' ') {
+                    // Space between letters
+                    await sleep(letterSpace);
+                } else if (char === '/') {
+                    // Space between words
+                    await sleep(wordSpace);
+                } else {
+                    // Skip unknown characters
+                    await sleep(symbolSpace);
+                }
+                
+                // Continue with next character
+                playMorseSequence(morseString, index + 1);
+            }
+        }
+
+        // Play a tone with specified duration, frequency, and volume
+        function playTone(duration, frequency, volume) {
+            if (!audioContext) return;
+            
+            oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + 0.01);
+            gainNode.gain.setValueAtTime(volume, audioContext.currentTime + duration / 1000 - 0.01);
+            gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + duration / 1000);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration / 1000);
+        }
+
+        // Stop playback
+        function stopPlayback() {
+            stopRequested = true;
+            isPlaying = false;
+            
+            if (oscillator) {
+                oscillator.stop();
+                oscillator = null;
+            }
+            
+            lightBox.classList.remove('active');
+        }
+
+        // Visualize sound with bars
+        function visualizeSound(type, duration) {
+            const bar = document.createElement('div');
+            bar.className = 'sound-bar';
+            bar.style.height = type === 'dash' ? '80%' : '50%';
+            bar.style.left = `${Math.random() * 95}%`;
+            
+            soundVisualizer.appendChild(bar);
+            soundStatus.style.display = 'none';
+            
+            // Remove the bar after animation
+            setTimeout(() => {
+                if (bar.parentNode === soundVisualizer) {
+                    soundVisualizer.removeChild(bar);
+                }
+            }, duration + 500);
+        }
+
+        // Clear the sound visualizer
+        function clearSoundVisualizer() {
+            soundVisualizer.innerHTML = '';
+            soundStatus.textContent = 'Sound visualization will appear here';
+            soundStatus.style.display = 'block';
+        }
+
+        // Update speed value display
+        function updateSpeedValue() {
+            speedValue.textContent = speedControl.value;
+        }
+
+        // Update tone value display
+        function updateToneValue() {
+            toneValue.textContent = toneControl.value;
+        }
+
+        // Update volume value display
+        function updateVolumeValue() {
+            volumeValue.textContent = `${volumeControl.value}%`;
+        }
+
+        // Populate the Morse code guide
+        function populateMorseGuide() {
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const numbers = '0123456789';
+            const punctuation = '.,?\'!/()&:;=+-_"$@';
+            
+            let guideHTML = '';
+            
+            // Add letters
+            guideHTML += '<div style="grid-column: 1 / -1; color: #a0a0d0; margin-bottom: 5px; font-size: 0.9rem;">LETTERS</div>';
+            for (let char of letters) {
+                guideHTML += `
+                    <div class="guide-item">
+                        <span class="character">${char}</span>
+                        <span class="code">${morseCodeMap[char]}</span>
+                    </div>
+                `;
+            }
+            
+            // Add numbers
+            guideHTML += '<div style="grid-column: 1 / -1; color: #a0a0d0; margin: 15px 0 5px; font-size: 0.9rem;">NUMBERS</div>';
+            for (let char of numbers) {
+                guideHTML += `
+                    <div class="guide-item">
+                        <span class="character">${char}</span>
+                        <span class="code">${morseCodeMap[char]}</span>
+                    </div>
+                `;
+            }
+            
+            // Add punctuation
+            guideHTML += '<div style="grid-column: 1 / -1; color: #a0a0d0; margin: 15px 0 5px; font-size: 0.9rem;">PUNCTUATION</div>';
+            for (let char of punctuation) {
+                if (morseCodeMap[char]) {
+                    guideHTML += `
+                        <div class="guide-item">
+                            <span class="character">${char}</span>
+                            <span class="code">${morseCodeMap[char]}</span>
+                        </div>
+                    `;
+                }
+            }
+            
+            morseGuide.innerHTML = guideHTML;
+        }
+
+        // Utility function for sleeping/waiting
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Initialize the application when the page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

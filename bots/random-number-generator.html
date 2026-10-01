@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Number Generator · Custom Range & Count</title>
+    <!-- Font Awesome 5 (free) for back arrow icon -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <style>
+        /* ---------- base & theme (exactly as provided + enhancements) ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .navbar {
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: rgba(255, 128, 0, 0.12);
+            border: 1px solid #ff8000;
+            border-radius: 40px;
+            color: #ff8000;
+            font-weight: 500;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s, transform 0.1s;
+            backdrop-filter: blur(2px);
+        }
+
+        .back-btn i {
+            font-size: 0.9rem;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff9933;
+            color: #ffb366;
+        }
+
+        .back-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* ---------- main card ---------- */
+        .generator-card {
+            background: rgba(20, 10, 35, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 128, 0, 0.25);
+            border-radius: 32px;
+            padding: 2rem 2rem 2.5rem;
+            width: 100%;
+            max-width: 680px;
+            box-shadow: 0 25px 40px -10px rgba(0, 0, 0, 0.7);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #ffb347, #ff8000);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+
+        .sub {
+            color: #b0a0c0;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            border-left: 3px solid #ff8000;
+            padding-left: 1rem;
+        }
+
+        /* ---------- form ---------- */
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem 1.8rem;
+            margin-bottom: 1.8rem;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-field label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            color: #ffb266;
+        }
+
+        .input-field input[type="number"] {
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid #3a2a4a;
+            border-radius: 20px;
+            padding: 12px 18px;
+            color: white;
+            font-size: 1.1rem;
+            outline: none;
+            transition: border 0.2s, box-shadow 0.2s;
+        }
+
+        .input-field input[type="number"]:focus {
+            border-color: #ff8000;
+            box-shadow: 0 0 0 3px rgba(255, 128, 0, 0.2);
+        }
+
+        .input-field input[type="number"]:invalid {
+            border-color: #a55;
+        }
+
+        /* checkboxes row */
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin: 1rem 0 1.8rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem 1.5rem;
+            border-radius: 60px;
+            align-items: center;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ddd;
+            font-weight: 400;
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #ff8000;
+            cursor: pointer;
+        }
+
+        .generate-btn {
+            background: #ff8000;
+            border: none;
+            color: #0a0a1a;
+            font-weight: 700;
+            font-size: 1.3rem;
+            padding: 16px 28px;
+            border-radius: 60px;
+            width: 100%;
+            cursor: pointer;
+            transition: background 0.15s, box-shadow 0.2s, transform 0.1s;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 8px 20px rgba(255, 128, 0, 0.4);
+            margin: 0.5rem 0 1.8rem;
+        }
+
+        .generate-btn:hover {
+            background: #ff9429;
+            box-shadow: 0 10px 26px rgba(255, 128, 0, 0.7);
+        }
+
+        .generate-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* results area */
+        .results-container {
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 28px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 128, 0, 0.25);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            color: #c0b0d0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .numbers-box {
+            background: rgba(10, 5, 20, 0.8);
+            border-radius: 20px;
+            padding: 1.5rem;
+            min-height: 130px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Fira Code', 'JetBrains Mono', monospace;
+            font-size: 1.3rem;
+            line-height: 1.6;
+            word-break: break-word;
+            border: 1px solid #3a2a4a;
+            box-shadow: inset 0 0 12px #00000055;
+            color: #ffd7a0;
+            scrollbar-width: thin;
+            scrollbar-color: #ff8000 #2a1a3a;
+        }
+
+        .numbers-box::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .numbers-box::-webkit-scrollbar-track {
+            background: #2a1a3a;
+            border-radius: 10px;
+        }
+
+        .numbers-box::-webkit-scrollbar-thumb {
+            background: #ff8000;
+            border-radius: 10px;
+        }
+
+        .error-message {
+            background: rgba(200, 40, 40, 0.2);
+            border: 1px solid #ff4d4d;
+            border-radius: 30px;
+            padding: 0.9rem 1.5rem;
+            color: #ffb3b3;
+            margin-top: 1rem;
+            font-weight: 500;
+        }
+
+        .footer-note {
+            margin-top: 1.5rem;
+            font-size: 0.8rem;
+            text-align: center;
+            color: #6a5a7a;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to tools</a>
+    </div>
+
+    <div class="generator-card">
+        <h1>random‑gen</h1>
+        <div class="sub">custom range · count · integer/float · duplicates</div>
+
+        <!-- main control panel -->
+        <div class="input-grid">
+            <div class="input-field">
+                <label for="minVal">MINIMUM</label>
+                <input type="number" id="minVal" value="1" step="any" required>
+            </div>
+            <div class="input-field">
+                <label for="maxVal">MAXIMUM</label>
+                <input type="number" id="maxVal" value="100" step="any" required>
+            </div>
+            <div class="input-field">
+                <label for="countVal">COUNT (how many numbers)</label>
+                <input type="number" id="countVal" value="5" min="1" max="5000" step="1" required>
+            </div>
+            <div class="input-field">
+                <label for="amountVal">AMOUNT (alias)</label>
+                <input type="number" id="amountVal" value="5" min="1" max="5000" step="1" placeholder="same as count">
+                <small style="color:#7a6a8a;">mirrors count if left empty</small>
+            </div>
+        </div>
+
+        <!-- options: integer only, allow duplicates -->
+        <div class="options">
+            <label class="checkbox-item">
+                <input type="checkbox" id="integerMode" checked> 🔢 Integer only
+            </label>
+            <label class="checkbox-item">
+                <input type="checkbox" id="allowDuplicates" checked> 🔁 Allow duplicates
+            </label>
+        </div>
+
+        <!-- generate button -->
+        <button class="generate-btn" id="generateBtn">🎲 generate random numbers</button>
+
+        <!-- results output -->
+        <div class="results-container">
+            <div class="stats">
+                <span id="rangeSummary">1 – 100</span>
+                <span id="countSummary">count: 5</span>
+            </div>
+            <div class="numbers-box" id="outputBox">
+                click generate
+            </div>
+            <div id="errorContainer" class="error-message" style="display: none;"></div>
+        </div>
+        <div class="footer-note">⚡ range, count & amount fully customizable</div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ----- DOM elements -----
+            const minInput = document.getElementById('minVal');
+            const maxInput = document.getElementById('maxVal');
+            const countInput = document.getElementById('countVal');
+            const amountInput = document.getElementById('amountVal');
+            const integerCheck = document.getElementById('integerMode');
+            const duplicateCheck = document.getElementById('allowDuplicates');
+            const generateBtn = document.getElementById('generateBtn');
+            const outputBox = document.getElementById('outputBox');
+            const errorContainer = document.getElementById('errorContainer');
+            const rangeSummary = document.getElementById('rangeSummary');
+            const countSummary = document.getElementById('countSummary');
+
+            // Helper: hide error and show normal output
+            function hideError() {
+                errorContainer.style.display = 'none';
+                errorContainer.innerText = '';
+            }
+
+            // Helper: show error message
+            function showError(msg) {
+                outputBox.innerText = '⚠️ error';
+                errorContainer.innerText = '❌ ' + msg;
+                errorContainer.style.display = 'block';
+            }
+
+            // Update summary fields (min, max, count)
+            function updateSummary() {
+                const min = parseFloat(minInput.value);
+                const max = parseFloat(maxInput.value);
+                let count = parseInt(countInput.value, 10);
+                // sync amount if filled
+                const amountRaw = amountInput.value.trim() !== '' ? parseInt(amountInput.value, 10) : null;
+
+                if (!isNaN(min) && !isNaN(max)) {
+                    rangeSummary.innerText = min + ' – ' + max;
+                } else {
+                    rangeSummary.innerText = '—';
+                }
+
+                let countVal = count;
+                if (!isNaN(countVal)) {
+                    countSummary.innerText = 'count: ' + countVal;
+                } else {
+                    countSummary.innerText = 'count: ?';
+                }
+
+                // sync amount to count if amount is empty, else warn if mismatch
+                if (amountRaw !== null && !isNaN(amountRaw) && !isNaN(count) && amountRaw !== count) {
+                    // we don't auto-update, just show hint later in generation
+                }
+            }
+
+            // Attach summary update on input
+            [minInput, maxInput, countInput, amountInput].forEach(el => el.addEventListener('input', updateSummary));
+            updateSummary(); // initial
+
+            // ----- core random generation -----
+            function generateNumbers() {
+                hideError();
+
+                // 1. read & validate numeric fields
+                const min = parseFloat(minInput.value);
+                const max = parseFloat(maxInput.value);
+                let count = parseInt(countInput.value, 10);
+                let amount = amountInput.value.trim() === '' ? count : parseInt(amountInput.value, 10);
+
+                // validate min / max
+                if (isNaN(min) || isNaN(max)) {
+                    showError('Minimum and Maximum must be valid numbers.');
+                    return;
+                }
+                if (min > max) {
+                    showError('Minimum value cannot be greater than Maximum.');
+                    return;
+                }
+
+                // count & amount: use count as primary, but if amount is different, use amount? we'll respect count but note amount.
+                // let's decide: "count and amount of numbers" – maybe they want two ways to set same. if both provided, use count; if amount provided and count empty, use amount.
+                // simpler: we use count as primary, but if amount is explicitly filled and differs, we use the larger? no — better treat amount as alias: if user fills amount, we set count = amount.
+                // but UI has both. For flexibility: If amount is different from count, we'll actually take amount as the number of numbers (since they said "amount of numbers"). but we also have count field. I'll use the amount field if it's not empty and valid; otherwise fallback to count.
+                let numberCount;
+                if (amountInput.value.trim() !== '' && !isNaN(amount) && amount > 0) {
+                    numberCount = amount;
+                    // optionally sync count input to avoid confusion
+                    countInput.value = amount;
+                } else if (!isNaN(count) && count > 0) {
+                    numberCount = count;
+                    if (amountInput.value.trim() === '') amountInput.value = count; // sync back
+                } else {
+                    showError('Count / Amount must be a positive number.');
+                    return;
+                }
+
+                // cap count for performance / sanity
+                const MAX_GENERATE = 10000;
+                if (numberCount > MAX_GENERATE) {
+                    showError(`Too many numbers (max ${MAX_GENERATE}). Please reduce count.`);
+                    return;
+                }
+
+                const integerMode = integerCheck.checked;
+                const allowDuplicates = duplicateCheck.checked;
+
+                // Update summary after possible sync
+                updateSummary();
+
+                // 2. Specific validations for unique + integer
+                if (!allowDuplicates && integerMode) {
+                    // possible range size (inclusive)
+                    if (!Number.isInteger(min) || !Number.isInteger(max)) {
+                        // if min/max are floats and integerMode true, we floor/ceil? better warn
+                        showError('Integer mode requires whole numbers for min/max. Please use integer values.');
+                        return;
+                    }
+                    const rangeSize = Math.floor(max) - Math.ceil(min) + 1;
+                    if (rangeSize < numberCount) {
+                        showError(`Cannot generate ${numberCount} unique integers in range [${min}, ${max}]. Only ${rangeSize} possible.`);
+                        return;
+                    }
+                }
+
+                // 3. Generation
+                const result = [];
+                const uniqueSet = new Set();
+
+                // helper random function
+                function getRandomFloat() {
+                    return Math.random() * (max - min) + min;
+                }
+
+                function getRandomInt() {
+                    // inclusive of min & max
+                    const minInt = Math.ceil(min);
+                    const maxInt = Math.floor(max);
+                    return Math.floor(Math.random() * (maxInt - minInt + 1)) + minInt;
+                }
+
+                // maximum attempts to avoid infinite loop (for unique)
+                const maxAttempts = 200000;
+                let attempts = 0;
+
+                while (result.length < numberCount && attempts < maxAttempts) {
+                    attempts++;
+                    let value;
+                    if (integerMode) {
+                        value = getRandomInt();
+                    } else {
+                        value = getRandomFloat();
+                        // optionally round to 4 decimals for readability
+                        value = Math.round((value + Number.EPSILON) * 10000) / 10000;
+                    }
+
+                    if (!allowDuplicates) {
+                        if (!uniqueSet.has(value)) {
+                            uniqueSet.add(value);
+                            result.push(value);
+                        }
+                        // else skip and continue
+                    } else {
+                        result.push(value);
+                    }
+                }
+
+                if (attempts >= maxAttempts) {
+                    showError('Uniqueness generation timed out — too many constraints.');
+                    return;
+                }
+
+                // 4. Display results
+                if (result.length === 0) {
+                    outputBox.innerText = '⚠️ no numbers generated';
+                    return;
+                }
+
+                // Format nicely: comma separated, and if many numbers, show with brackets
+                let displayText;
+                if (result.length <= 20) {
+                    displayText = result.join(', ');
+                } else {
+                    // show first 10 and last 5
+                    const firstPart = result.slice(0, 10).join(', ');
+                    const lastPart = result.slice(-5).join(', ');
+                    displayText = `${firstPart} ... (${result.length - 15} more) ... ${lastPart}`;
+                }
+
+                outputBox.innerText = displayText;
+            }
+
+            // click handler
+            generateBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                generateNumbers();
+            });
+
+            // optional: sync amount and count on blur
+            amountInput.addEventListener('blur', () => {
+                if (amountInput.value.trim() !== '') {
+                    const a = parseInt(amountInput.value, 10);
+                    if (!isNaN(a) && a > 0) {
+                        countInput.value = a;
+                        updateSummary();
+                    }
+                }
+            });
+
+            countInput.addEventListener('blur', () => {
+                const c = parseInt(countInput.value, 10);
+                if (!isNaN(c) && c > 0) {
+                    amountInput.value = c;
+                    updateSummary();
+                }
+            });
+
+            // initial generation (optional)
+            generateNumbers();
+        })();
+    </script>
+
+    <!-- small note: range and amount are both adjustable, they mirror each other -->
+</body>
+</html>

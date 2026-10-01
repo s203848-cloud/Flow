@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Protractor - Angle Measure Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.2);
+        }
+        
+        .app-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ff8000;
+            text-align: center;
+            flex-grow: 1;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .tool-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .canvas-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .canvas-wrapper {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        #protractorCanvas {
+            background: rgba(10, 10, 26, 0.9);
+            cursor: crosshair;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .instructions h3 {
+            color: #ff8000;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+            line-height: 1.8;
+            color: #ccc;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .instructions strong {
+            color: #ff8000;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .control-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .control-panel h3 {
+            color: #ff8000;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-grow: 1;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .btn.active {
+            background: rgba(255, 128, 0, 0.5);
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+        }
+        
+        .slider-container {
+            margin-bottom: 20px;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #ccc;
+        }
+        
+        .slider-label span:last-child {
+            color: #ff8000;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 128, 0, 0.2);
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff8000;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.8);
+        }
+        
+        .measurement-display {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            text-align: center;
+        }
+        
+        .angle-value {
+            font-size: 48px;
+            font-weight: 700;
+            color: #ff8000;
+            margin: 10px 0;
+            text-shadow: 0 0 10px rgba(255, 128, 0, 0.5);
+        }
+        
+        .angle-type {
+            font-size: 18px;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+        
+        .angle-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .info-box {
+            background: rgba(255, 128, 0, 0.1);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .info-label {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 18px;
+            color: #ff8000;
+            font-weight: 600;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .canvas-wrapper {
+                height: 400px;
+            }
+            
+            .angle-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+            <div class="app-title">
+                <i class="fas fa-protractor"></i> Virtual Protractor
+            </div>
+            <div style="width: 80px;"></div> <!-- Spacer for alignment -->
+        </div>
+        
+        <div class="tool-container">
+            <div class="canvas-section">
+                <div class="canvas-wrapper">
+                    <canvas id="protractorCanvas"></canvas>
+                </div>
+                
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> How to Use</h3>
+                    <ol>
+                        <li><strong>Place Vertex:</strong> Click on the canvas to place the vertex (center) of the angle.</li>
+                        <li><strong>Draw First Arm:</strong> Click to place the starting point of the first arm.</li>
+                        <li><strong>Draw Second Arm:</strong> Click to place the end point of the second arm.</li>
+                        <li><strong>Adjust:</strong> Drag any point to adjust the angle or use the controls below.</li>
+                        <li><strong>Reset:</strong> Click "Reset Protractor" to start over or "Clear Lines" to remove guide lines.</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <div class="control-panel">
+                    <h3><i class="fas fa-sliders-h"></i> Controls</h3>
+                    
+                    <div class="button-group">
+                        <div class="btn active" id="modeDraw">
+                            <i class="fas fa-draw-polygon"></i> Draw Mode
+                        </div>
+                        <div class="btn" id="modeMove">
+                            <i class="fas fa-arrows-alt"></i> Move Mode
+                        </div>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Line Thickness</span>
+                            <span id="thicknessValue">3px</span>
+                        </div>
+                        <input type="range" min="1" max="10" value="3" class="slider" id="lineThickness">
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Point Size</span>
+                            <span id="pointSizeValue">8px</span>
+                        </div>
+                        <input type="range" min="5" max="20" value="8" class="slider" id="pointSize">
+                    </div>
+                    
+                    <div class="button-group">
+                        <div class="btn" id="btnReset">
+                            <i class="fas fa-redo"></i> Reset Protractor
+                        </div>
+                        <div class="btn" id="btnClearLines">
+                            <i class="fas fa-eraser"></i> Clear Guide Lines
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="measurement-display">
+                    <h3><i class="fas fa-ruler-combined"></i> Angle Measurement</h3>
+                    <div class="angle-value" id="angleValue">0°</div>
+                    <div class="angle-type" id="angleType">Undefined Angle</div>
+                    
+                    <div class="angle-info">
+                        <div class="info-box">
+                            <div class="info-label">Vertex</div>
+                            <div class="info-value" id="vertexPos">(0, 0)</div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-label">Arm 1 Length</div>
+                            <div class="info-value" id="arm1Length">0 px</div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-label">Arm 2 Length</div>
+                            <div class="info-value" id="arm2Length">0 px</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Virtual Protractor Tool - Measure angles accurately with this digital protractor</p>
+            <p>Click and drag points to adjust the angle measurement</p>
+        </div>
+    </div>
+
+    <script>
+        // Canvas setup
+        const canvas = document.getElementById('protractorCanvas');
+        const ctx = canvas.getContext('2d');
+        const angleValue = document.getElementById('angleValue');
+        const angleType = document.getElementById('angleType');
+        const vertexPos = document.getElementById('vertexPos');
+        const arm1Length = document.getElementById('arm1Length');
+        const arm2Length = document.getElementById('arm2Length');
+        
+        // Canvas dimensions
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            draw();
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        
+        // State variables
+        let points = [];
+        let selectedPoint = null;
+        let mode = 'draw'; // 'draw' or 'move'
+        let lineThickness = 3;
+        let pointSize = 8;
+        let guideLines = [];
+        
+        // Initialize with default angle
+        function initDefaultAngle() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(canvas.width, canvas.height) / 3;
+            
+            // Vertex point
+            points.push({x: centerX, y: centerY, type: 'vertex'});
+            
+            // First arm point (to the right)
+            points.push({x: centerX + radius, y: centerY, type: 'arm1'});
+            
+            // Second arm point (45 degrees up)
+            points.push({
+                x: centerX + radius * Math.cos(Math.PI/4),
+                y: centerY - radius * Math.sin(Math.PI/4),
+                type: 'arm2'
+            });
+            
+            draw();
+            updateMeasurements();
+        }
+        
+        // Draw function
+        function draw() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw guide lines
+            drawGuideLines();
+            
+            // Draw angle arms if we have enough points
+            if (points.length >= 2) {
+                // Draw first arm
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                ctx.lineTo(points[1].x, points[1].y);
+                ctx.strokeStyle = '#ff8000';
+                ctx.lineWidth = lineThickness;
+                ctx.stroke();
+                
+                // Draw protractor arc for first arm
+                if (points.length >= 3) {
+                    drawAngleArc();
+                    
+                    // Draw second arm
+                    ctx.beginPath();
+                    ctx.moveTo(points[0].x, points[0].y);
+                    ctx.lineTo(points[2].x, points[2].y);
+                    ctx.strokeStyle = '#ff8000';
+                    ctx.lineWidth = lineThickness;
+                    ctx.stroke();
+                }
+            }
+            
+            // Draw points
+            points.forEach((point, index) => {
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, pointSize, 0, Math.PI * 2);
+                
+                // Color based on point type
+                if (point.type === 'vertex') {
+                    ctx.fillStyle = '#ff3333'; // Red for vertex
+                } else if (point.type === 'arm1') {
+                    ctx.fillStyle = '#33cc33'; // Green for arm1
+                } else {
+                    ctx.fillStyle = '#3399ff'; // Blue for arm2
+                }
+                
+                ctx.fill();
+                
+                // Draw outline
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#ffffff';
+                ctx.stroke();
+                
+                // Draw point label
+                ctx.font = '14px Segoe UI';
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'center';
+                ctx.fillText(point.type === 'vertex' ? 'V' : (point.type === 'arm1' ? 'A' : 'B'), 
+                             point.x, point.y - pointSize - 5);
+            });
+        }
+        
+        // Draw angle arc
+        function drawAngleArc() {
+            if (points.length < 3) return;
+            
+            const vertex = points[0];
+            const arm1 = points[1];
+            const arm2 = points[2];
+            
+            // Calculate angles
+            const angle1 = Math.atan2(arm1.y - vertex.y, arm1.x - vertex.x);
+            const angle2 = Math.atan2(arm2.y - vertex.y, arm2.x - vertex.x);
+            
+            // Determine start and end angles
+            const startAngle = Math.min(angle1, angle2);
+            const endAngle = Math.max(angle1, angle2);
+            
+            // Calculate radius for arc
+            const radius = Math.min(
+                Math.sqrt((arm1.x - vertex.x)**2 + (arm1.y - vertex.y)**2),
+                Math.sqrt((arm2.x - vertex.x)**2 + (arm2.y - vertex.y)**2)
+            ) * 0.5;
+            
+            // Draw arc
+            ctx.beginPath();
+            ctx.arc(vertex.x, vertex.y, radius, startAngle, endAngle);
+            ctx.strokeStyle = 'rgba(255, 128, 0, 0.7)';
+            ctx.lineWidth = lineThickness;
+            ctx.stroke();
+            
+            // Draw angle measurement text on arc
+            const midAngle = (startAngle + endAngle) / 2;
+            const textRadius = radius + 30;
+            const textX = vertex.x + textRadius * Math.cos(midAngle);
+            const textY = vertex.y + textRadius * Math.sin(midAngle);
+            
+            ctx.font = 'bold 16px Segoe UI';
+            ctx.fillStyle = '#ff8000';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+        }
+        
+        // Draw guide lines
+        function drawGuideLines() {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            
+            guideLines.forEach(line => {
+                ctx.beginPath();
+                ctx.moveTo(line.x1, line.y1);
+                ctx.lineTo(line.x2, line.y2);
+                ctx.stroke();
+            });
+            
+            ctx.setLineDash([]);
+        }
+        
+        // Calculate angle between three points
+        function calculateAngle(p1, vertex, p2) {
+            // Vectors from vertex to points
+            const v1 = {x: p1.x - vertex.x, y: p1.y - vertex.y};
+            const v2 = {x: p2.x - vertex.x, y: p2.y - vertex.y};
+            
+            // Dot product
+            const dot = v1.x * v2.x + v1.y * v2.y;
+            
+            // Magnitudes
+            const mag1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y);
+            const mag2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y);
+            
+            // Angle in radians
+            let angle = Math.acos(dot / (mag1 * mag2));
+            
+            // Convert to degrees
+            angle = angle * (180 / Math.PI);
+            
+            // Determine angle type
+            let type = '';
+            if (angle < 90) type = 'Acute Angle';
+            else if (Math.abs(angle - 90) < 0.1) type = 'Right Angle';
+            else if (angle < 180) type = 'Obtuse Angle';
+            else if (Math.abs(angle - 180) < 0.1) type = 'Straight Angle';
+            else type = 'Reflex Angle';
+            
+            return {angle, type};
+        }
+        
+        // Update measurements display
+        function updateMeasurements() {
+            if (points.length >= 3) {
+                const result = calculateAngle(points[1], points[0], points[2]);
+                angleValue.textContent = result.angle.toFixed(1) + '°';
+                angleType.textContent = result.type;
+                
+                // Update vertex position
+                vertexPos.textContent = `(${Math.round(points[0].x)}, ${Math.round(points[0].y)})`;
+                
+                // Calculate arm lengths
+                const arm1Len = Math.sqrt(
+                    Math.pow(points[1].x - points[0].x, 2) + 
+                    Math.pow(points[1].y - points[0].y, 2)
+                );
+                
+                const arm2Len = Math.sqrt(
+                    Math.pow(points[2].x - points[0].x, 2) + 
+                    Math.pow(points[2].y - points[0].y, 2)
+                );
+                
+                arm1Length.textContent = Math.round(arm1Len) + ' px';
+                arm2Length.textContent = Math.round(arm2Len) + ' px';
+            } else {
+                angleValue.textContent = '0°';
+                angleType.textContent = 'Incomplete Angle';
+                vertexPos.textContent = '(0, 0)';
+                arm1Length.textContent = '0 px';
+                arm2Length.textContent = '0 px';
+            }
+        }
+        
+        // Add a guide line
+        function addGuideLine(x1, y1, x2, y2) {
+            guideLines.push({x1, y1, x2, y2});
+        }
+        
+        // Event Listeners
+        canvas.addEventListener('mousedown', function(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            if (mode === 'draw') {
+                // Check if clicking near an existing point
+                let clickedOnPoint = false;
+                points.forEach((point, index) => {
+                    const dist = Math.sqrt((point.x - x) ** 2 + (point.y - y) ** 2);
+                    if (dist < pointSize + 5) {
+                        clickedOnPoint = true;
+                    }
+                });
+                
+                // If not clicking on existing point, add a new point
+                if (!clickedOnPoint) {
+                    if (points.length === 0) {
+                        points.push({x, y, type: 'vertex'});
+                    } else if (points.length === 1) {
+                        points.push({x, y, type: 'arm1'});
+                        // Add horizontal guide line
+                        addGuideLine(points[0].x, points[0].y, x, y);
+                    } else if (points.length === 2) {
+                        points.push({x, y, type: 'arm2'});
+                        // Add second guide line
+                        addGuideLine(points[0].x, points[0].y, x, y);
+                    } else {
+                        // Reset points and start over
+                        points = [{x, y, type: 'vertex'}];
+                        guideLines = [];
+                    }
+                }
+            } else if (mode === 'move') {
+                // Check if clicking on a point to drag it
+                points.forEach((point, index) => {
+                    const dist = Math.sqrt((point.x - x) ** 2 + (point.y - y) ** 2);
+                    if (dist < pointSize + 5) {
+                        selectedPoint = point;
+                    }
+                });
+            }
+            
+            draw();
+            updateMeasurements();
+        });
+        
+        canvas.addEventListener('mousemove', function(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Change cursor when over a point
+            let overPoint = false;
+            points.forEach(point => {
+                const dist = Math.sqrt((point.x - x) ** 2 + (point.y - y) ** 2);
+                if (dist < pointSize + 5) {
+                    overPoint = true;
+                }
+            });
+            
+            canvas.style.cursor = overPoint ? 'pointer' : 'crosshair';
+            
+            // If dragging a point
+            if (selectedPoint) {
+                selectedPoint.x = x;
+                selectedPoint.y = y;
+                draw();
+                updateMeasurements();
+            }
+        });
+        
+        canvas.addEventListener('mouseup', function() {
+            selectedPoint = null;
+        });
+        
+        canvas.addEventListener('mouseleave', function() {
+            selectedPoint = null;
+        });
+        
+        // Control event listeners
+        document.getElementById('modeDraw').addEventListener('click', function() {
+            mode = 'draw';
+            document.getElementById('modeDraw').classList.add('active');
+            document.getElementById('modeMove').classList.remove('active');
+        });
+        
+        document.getElementById('modeMove').addEventListener('click', function() {
+            mode = 'move';
+            document.getElementById('modeMove').classList.add('active');
+            document.getElementById('modeDraw').classList.remove('active');
+        });
+        
+        document.getElementById('lineThickness').addEventListener('input', function() {
+            lineThickness = this.value;
+            document.getElementById('thicknessValue').textContent = lineThickness + 'px';
+            draw();
+        });
+        
+        document.getElementById('pointSize').addEventListener('input', function() {
+            pointSize = this.value;
+            document.getElementById('pointSizeValue').textContent = pointSize + 'px';
+            draw();
+        });
+        
+        document.getElementById('btnReset').addEventListener('click', function() {
+            points = [];
+            guideLines = [];
+            initDefaultAngle();
+        });
+        
+        document.getElementById('btnClearLines').addEventListener('click', function() {
+            guideLines = [];
+            draw();
+        });
+        
+        // Initialize
+        resizeCanvas();
+        initDefaultAngle();
+        
+        // Draw initial state
+        draw();
+        updateMeasurements();
+    </script>
+</body>
+</html>

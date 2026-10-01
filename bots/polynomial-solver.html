@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polynomial solver · roots & factoring</title>
+    <!-- Font Awesome 6 (free) & numeric.js for robust eigenvalue root finding -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #f0eaff;
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .navbar {
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            padding: 10px 22px;
+            background: rgba(255, 128, 0, 0.12);
+            border: 1.5px solid #ff8000;
+            border-radius: 40px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.25);
+            border-color: #ffaa33;
+            color: #ffaa33;
+            transform: translateX(-3px);
+            box-shadow: 0 4px 12px rgba(255, 128, 0, 0.2);
+        }
+
+        .back-btn i {
+            font-size: 0.9rem;
+        }
+
+        /* main card */
+        .solver-card {
+            background: rgba(10, 8, 22, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 2.5rem;
+            padding: 2.5rem 2rem;
+            width: 100%;
+            max-width: 1000px;
+            box-shadow: 0 30px 40px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 128, 0, 0.1) inset;
+        }
+
+        h1 {
+            font-weight: 500;
+            font-size: 2.5rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(120deg, #ffd8b0, #ffaa33);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subhead {
+            color: #b9b3d4;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            border-left: 4px solid #ff8000;
+            padding-left: 1.2rem;
+        }
+
+        .degree-panel {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 60px;
+            padding: 0.8rem 1.8rem;
+            border: 1px solid rgba(255, 128, 0, 0.25);
+        }
+
+        .degree-panel label {
+            font-weight: 400;
+            color: #ffb155;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+        }
+
+        #degreeSelect {
+            background: #0c0a18;
+            border: 1px solid #ff8000;
+            color: #ffd8b0;
+            font-size: 1.2rem;
+            padding: 8px 24px 8px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 500;
+            outline: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ff8000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+
+        #degreeSelect option {
+            background: #1e1435;
+            color: #fff0dd;
+        }
+
+        .coeff-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .coeff-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.8rem 1.5rem;
+            justify-content: flex-start;
+            background: rgba(255, 128, 0, 0.03);
+            padding: 0.8rem 1.5rem;
+            border-radius: 60px;
+            border: 1px solid rgba(255, 128, 0, 0.15);
+            transition: 0.15s;
+        }
+
+        .coeff-row:hover {
+            border-color: rgba(255, 128, 0, 0.5);
+            background: rgba(255, 128, 0, 0.06);
+        }
+
+        .coeff-label {
+            font-weight: 500;
+            min-width: 70px;
+            color: #ffbb77;
+            font-size: 1.1rem;
+        }
+
+        .coeff-label sub {
+            font-size: 0.75rem;
+            color: #b19cd9;
+        }
+
+        .coeff-input {
+            background: #0f0d1b;
+            border: 1px solid #3a2e4a;
+            border-radius: 40px;
+            padding: 12px 20px;
+            width: 130px;
+            font-size: 1.1rem;
+            color: #ffffff;
+            outline: none;
+            transition: all 0.15s;
+            text-align: center;
+            font-weight: 400;
+        }
+
+        .coeff-input:focus {
+            border-color: #ff8000;
+            box-shadow: 0 0 0 3px rgba(255, 128, 0, 0.3);
+            background: #181329;
+        }
+
+        .coeff-input::placeholder {
+            color: #4d4263;
+            font-size: 0.9rem;
+        }
+
+        .solve-btn {
+            background: linear-gradient(145deg, #ff8000, #cc6600);
+            border: none;
+            border-radius: 60px;
+            padding: 16px 42px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #0a0a1a;
+            cursor: pointer;
+            box-shadow: 0 12px 30px -8px #ff8000;
+            transition: 0.2s;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 2.5rem;
+        }
+
+        .solve-btn i {
+            font-size: 1.4rem;
+        }
+
+        .solve-btn:hover {
+            background: linear-gradient(145deg, #ff9500, #e67300);
+            transform: scale(1.02) translateY(-2px);
+            box-shadow: 0 18px 35px -6px #ff8800;
+        }
+
+        .results {
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 2rem;
+            padding: 2rem;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .results h2 {
+            font-weight: 400;
+            color: #ffaa66;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px dashed #ff8000;
+            padding-bottom: 0.7rem;
+        }
+
+        .root-section, .factor-section {
+            background: rgba(20, 12, 35, 0.7);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+
+        .root-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem 2rem;
+            margin-top: 0.8rem;
+        }
+
+        .root-badge {
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid #ff8000;
+            border-radius: 40px;
+            padding: 0.5rem 1.2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            color: #ffcc99;
+        }
+
+        .factor-badge {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 30px;
+            padding: 0.7rem 1.2rem;
+            border-left: 5px solid #ff8000;
+            font-size: 1.2rem;
+            margin: 0.5rem 0;
+            word-break: break-word;
+            color: #e0d0ff;
+        }
+
+        .factor-badge i {
+            color: #ffaa55;
+            margin-right: 8px;
+        }
+
+        .warning-msg {
+            color: #ffaa66;
+            background: rgba(255, 128, 0, 0.1);
+            border-radius: 30px;
+            padding: 1rem 1.5rem;
+        }
+
+        hr {
+            border: 0.5px solid rgba(255, 128, 0, 0.3);
+            margin: 1.5rem 0;
+        }
+
+        .mono {
+            font-family: 'Fira Code', monospace;
+            font-size: 1.2rem;
+            color: #ffe2b3;
+        }
+
+        /* responsive */
+        @media (max-width: 600px) {
+            .solver-card { padding: 1.5rem; }
+            .coeff-row { border-radius: 30px; }
+            .coeff-input { width: 100px; }
+            .solve-btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <div class="solver-card">
+        <h1>polynomial·solver</h1>
+        <div class="subhead">roots · factorization · up to degree 8 (real coefficients)</div>
+
+        <!-- Degree selector -->
+        <div class="degree-panel">
+            <label for="degreeSelect"><i class="fas fa-arrow-up"></i> DEGREE</label>
+            <select id="degreeSelect">
+                <option value="1">1 (linear)</option>
+                <option value="2">2 (quadratic)</option>
+                <option value="3" selected>3 (cubic)</option>
+                <option value="4">4 (quartic)</option>
+                <option value="5">5 (quintic)</option>
+                <option value="6">6 (sextic)</option>
+                <option value="7">7 (septic)</option>
+                <option value="8">8 (octic)</option>
+            </select>
+        </div>
+
+        <!-- coefficient container (dynamic) -->
+        <div id="coeffContainer" class="coeff-grid"></div>
+
+        <!-- solve button -->
+        <button id="solveBtn" class="solve-btn"><i class="fas fa-robot"></i> solve & factor</button>
+
+        <!-- results area -->
+        <div id="results" class="results">
+            <h2><i class="fas fa-square-root-alt" style="margin-right: 10px;"></i> RESULTS</h2>
+            <div id="rootsDisplay" class="root-section">
+                <!-- roots will appear here -->
+                <div style="color: #bbaad0;"><i class="fas fa-spinner fa-pulse"></i> waiting for input ...</div>
+            </div>
+            <div id="factorDisplay" class="factor-section">
+                <!-- factorization -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ----- default nice polynomials (roots = 1,2,...,n) -----
+            const DEFAULT_COEFFS = {
+                1: [1, -1],                     // x - 1
+                2: [1, -3, 2],                  // (x-1)(x-2) = x² -3x +2
+                3: [1, -6, 11, -6],              // (x-1)(x-2)(x-3)
+                4: [1, -10, 35, -50, 24],         // (x-1)(x-2)(x-3)(x-4)
+                5: [1, -15, 85, -225, 274, -120], // (x-1)..(x-5)
+                6: [1, -21, 175, -735, 1624, -1764, 720],
+                7: [1, -28, 322, -1960, 6769, -13132, 13068, -5040],
+                8: [1, -36, 546, -4536, 22449, -67284, 118124, -109584, 40320]  // (x-1)..(x-8)
+            };
+
+            const degreeSelect = document.getElementById('degreeSelect');
+            const coeffContainer = document.getElementById('coeffContainer');
+            const solveBtn = document.getElementById('solveBtn');
+            const rootsDisplay = document.getElementById('rootsDisplay');
+            const factorDisplay = document.getElementById('factorDisplay');
+
+            // tolerance for real/complex & grouping
+            const TOL = 1e-10;
+
+            // ---- build coefficient inputs based on degree ----
+            function buildCoeffInputs(degree) {
+                coeffContainer.innerHTML = '';
+                const defaults = DEFAULT_COEFFS[degree] || Array(degree + 1).fill(0).map((_, idx) => (idx === 0 ? 1 : 0));
+
+                for (let i = degree; i >= 0; i--) {
+                    const row = document.createElement('div');
+                    row.className = 'coeff-row';
+
+                    const label = document.createElement('span');
+                    label.className = 'coeff-label';
+                    label.innerHTML = i === degree ? `a<sub>${i}</sub> (leading)` : `a<sub>${i}</sub>`;
+                    row.appendChild(label);
+
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.step = 'any';
+                    input.className = 'coeff-input';
+                    input.placeholder = `coeff x^${i}`;
+                    input.value = defaults[degree - i] || 0;  // defaults[0] is leading
+                    input.setAttribute('data-power', i);
+                    row.appendChild(input);
+
+                    coeffContainer.appendChild(row);
+                }
+            }
+
+            // read coefficients from inputs (array from a_n down to a_0)
+            function getCoefficients() {
+                const rows = coeffContainer.querySelectorAll('.coeff-row');
+                const coeffs = [];
+                for (let row of rows) {
+                    const inp = row.querySelector('.coeff-input');
+                    if (inp) coeffs.push(parseFloat(inp.value) || 0);
+                }
+                return coeffs; // [a_n, a_{n-1}, ..., a_0]
+            }
+
+            // ---- polynomial solving using companion matrix (numeric.js) ----
+            function solvePolynomial(coeffs) {
+                const n = coeffs.length - 1;  // degree
+                const a_n = coeffs[0];
+                if (Math.abs(a_n) < 1e-18) throw new Error('Leading coefficient is zero — polynomial degree reduced.');
+
+                // companion matrix (n x n)
+                const C = Array(n).fill().map(() => Array(n).fill(0));
+                // first row: -a_{n-1}/a_n , -a_{n-2}/a_n , ... , -a_0/a_n
+                for (let j = 0; j < n; j++) {
+                    C[0][j] = -coeffs[j + 1] / a_n;
+                }
+                // subdiagonal ones
+                for (let i = 1; i < n; i++) {
+                    C[i][i - 1] = 1;
+                }
+
+                // eigenvalues
+                const eig = numeric.eig(C);
+                const lambda = eig.lambda.x; // array of {x, y} (real, imag)
+                return lambda.map(z => ({ real: z.x, imag: z.y }));
+            }
+
+            // grouping roots and building factorization string
+            function formatResults(roots, leadingCoeff) {
+                // separate real (imag near zero) and complex
+                const realRoots = [];
+                const complexRoots = [];
+                for (let r of roots) {
+                    if (Math.abs(r.imag) < TOL) realRoots.push({ real: r.real });
+                    else complexRoots.push({ real: r.real, imag: r.imag });
+                }
+
+                // sort real roots
+                realRoots.sort((a, b) => a.real - b.real);
+
+                // group real roots with multiplicity
+                const realGroups = [];
+                for (let r of realRoots) {
+                    if (realGroups.length === 0 || Math.abs(r.real - realGroups[realGroups.length-1].real) > TOL) {
+                        realGroups.push({ real: r.real, mult: 1 });
+                    } else {
+                        realGroups[realGroups.length-1].mult += 1;
+                    }
+                }
+
+                // pair complex conjugates and group pairs
+                const used = Array(complexRoots.length).fill(false);
+                const pairGroups = []; // each item: { real, imag (positive), mult }
+
+                for (let i = 0; i < complexRoots.length; i++) {
+                    if (used[i]) continue;
+                    const c1 = complexRoots[i];
+                    // we want positive imag for reference
+                    if (c1.imag > TOL) {
+                        // find conjugate with imag < -TOL and same real
+                        for (let j = i+1; j < complexRoots.length; j++) {
+                            if (used[j]) continue;
+                            const c2 = complexRoots[j];
+                            if (Math.abs(c1.real - c2.real) < TOL && Math.abs(c1.imag + c2.imag) < TOL) {
+                                // conjugate pair found
+                                used[i] = used[j] = true;
+                                // store with positive imag
+                                const posImag = Math.abs(c1.imag);
+                                // try to group with existing pair
+                                let found = false;
+                                for (let g of pairGroups) {
+                                    if (Math.abs(g.real - c1.real) < TOL && Math.abs(g.imag - posImag) < TOL) {
+                                        g.mult += 1;
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if (!found) {
+                                    pairGroups.push({ real: c1.real, imag: posImag, mult: 1 });
+                                }
+                                break;
+                            }
+                        }
+                    } else if (c1.imag < -TOL) {
+                        // it will be handled when its positive counterpart is found; skip for now
+                        continue;
+                    }
+                }
+
+                // unpaired complex (rare) – treat as separate linear complex factors (but polynomial real => should not happen)
+                // for safety: ignore them (won't appear for real polynomials)
+
+                // ---- build readable roots string ----
+                let rootsHtml = '<div class="root-list">';
+                if (realGroups.length === 0 && pairGroups.length === 0) {
+                    rootsHtml += '<span class="root-badge">no roots (constant?)</span>';
+                } else {
+                    for (let g of realGroups) {
+                        const r = g.real;
+                        const rounded = Math.abs(r) < TOL ? 0 : r; // avoid -0
+                        const display = rounded.toFixed(6).replace(/\.?0+$/, '');
+                        rootsHtml += `<span class="root-badge">${display} ${g.mult > 1 ? ' (×' + g.mult + ')' : ''}</span>`;
+                    }
+                    for (let p of pairGroups) {
+                        const re = p.real.toFixed(6).replace(/\.?0+$/, '');
+                        const im = p.imag.toFixed(6).replace(/\.?0+$/, '');
+                        rootsHtml += `<span class="root-badge">${re} ± ${im}i ${p.mult > 1 ? ' (×' + p.mult + ')' : ''}</span>`;
+                    }
+                }
+                rootsHtml += '</div>';
+
+                // ---- build factor string (with real coefficients) ----
+                let factorStr = '';
+                const lc = leadingCoeff;
+
+                // format linear factor with sign handling
+                const formatLinear = (r, mult) => {
+                    if (Math.abs(r) < TOL) r = 0;
+                    if (r === 0) return `x${mult > 1 ? '<sup>'+mult+'</sup>' : ''}`;
+                    const sign = r > 0 ? ' − ' : ' + ';
+                    const absVal = Math.abs(r).toFixed(6).replace(/\.?0+$/, '');
+                    return `(x${sign}${absVal})${mult > 1 ? '<sup>'+mult+'</sup>' : ''}`;
+                };
+
+                const formatQuadratic = (re, im, mult) => {
+                    // x² - 2re x + (re²+im²)
+                    const a = 1;
+                    const b = (-2 * re).toFixed(6).replace(/\.?0+$/, '');
+                    const c = (re*re + im*im).toFixed(6).replace(/\.?0+$/, '');
+                    // beautify signs
+                    let middle = (parseFloat(b) === 0) ? '' : (parseFloat(b) > 0 ? ` − ${Math.abs(parseFloat(b))} x` : ` + ${Math.abs(parseFloat(b))} x`);
+                    if (middle === '') middle = '';
+                    else middle = middle.replace(/−\s*0 x/, '').replace(/\+\s*0 x/, ''); // clean zero case
+                    const constTerm = (parseFloat(c) === 0) ? '' : ` + ${c}`;
+                    let quadStr = `(x²${middle}${constTerm})`;
+                    quadStr = quadStr.replace(/\+ -/g, '− ').replace(/\+−/g, '−').replace(/−\s*−/g, '+');
+                    if (mult > 1) quadStr += `<sup>${mult}</sup>`;
+                    return quadStr;
+                };
+
+                let factors = [];
+                // leading coefficient factor
+                if (Math.abs(lc - 1) > TOL && Math.abs(lc) > TOL) {
+                    factors.push(parseFloat(lc.toFixed(6)).toString());
+                }
+
+                for (let g of realGroups) {
+                    factors.push(formatLinear(g.real, g.mult));
+                }
+                for (let p of pairGroups) {
+                    factors.push(formatQuadratic(p.real, p.imag, p.mult));
+                }
+
+                let factorHtml = '';
+                if (factors.length === 0) factorHtml = '<span class="factor-badge"><i class="fas fa-times"></i> polynomial is zero? </span>';
+                else {
+                    factorHtml = '<span class="factor-badge"><i class="fas fa-equals"></i> ' + factors.join(' · ') + '</span>';
+                }
+
+                return { rootsHtml, factorHtml };
+            }
+
+            // main solving routine
+            function computeAndDisplay() {
+                try {
+                    const coeffs = getCoefficients();
+                    const n = coeffs.length - 1;
+                    if (coeffs.length < 2) throw new Error('Invalid polynomial (need at least degree 1)');
+                    const leading = coeffs[0];
+                    if (Math.abs(leading) < TOL) throw new Error('Leading coefficient cannot be zero.');
+
+                    const rawRoots = solvePolynomial(coeffs);
+                    const { rootsHtml, factorHtml } = formatResults(rawRoots, leading);
+
+                    rootsDisplay.innerHTML = `<h3 style="color:#ffaa66; margin-bottom:0.5rem;"><i class="fas fa-seedling"></i> roots (numerical)</h3>` + rootsHtml;
+                    factorDisplay.innerHTML = `<h3 style="color:#ffaa66; margin-bottom:0.5rem;"><i class="fas fa-chart-line"></i> factorization (real factors)</h3>` + factorHtml;
+
+                } catch (e) {
+                    rootsDisplay.innerHTML = `<div class="warning-msg"><i class="fas fa-exclamation-triangle"></i> ${e.message}</div>`;
+                    factorDisplay.innerHTML = ''; // clear
+                }
+            }
+
+            // event listeners
+            degreeSelect.addEventListener('change', (e) => {
+                const deg = parseInt(e.target.value, 10);
+                buildCoeffInputs(deg);
+            });
+
+            solveBtn.addEventListener('click', computeAndDisplay);
+
+            // initialize with degree 3 (cubic)
+            buildCoeffInputs(3);
+
+            // optional: run once with default values on page load
+            window.addEventListener('load', () => {
+                // small delay to ensure everything rendered
+                setTimeout(computeAndDisplay, 80);
+            });
+        })();
+    </script>
+
+    <!-- subtle footer (design consistency) -->
+    <div style="margin-top: 2rem; color: #5a4b70; font-size: 0.8rem; text-align: center; max-width: 1000px;">
+        <i class="fas fa-robot" style="margin-right: 6px;"></i> high precision companion matrix engine · roots are approximate
+    </div>
+</body>
+</html>

@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Builder | Academic Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== CSS Variables for Consistent Theme ===== */
+        :root {
+            --primary-dark: #0a0a1a;
+            --secondary-dark: #1a0a2e;
+            --card-bg: rgba(20, 20, 35, 0.5);
+            --card-border: rgba(255, 69, 0, 0.2);
+            --accent-primary: #ff8000;
+            --accent-secondary: #ff4500;
+            --text-primary: #fff;
+            --text-secondary: #ddd;
+            --text-muted: #888;
+            --danger: #ff4500;
+            --success: #4CAF50;
+            --warning: #ff9800;
+            --info: #2196F3;
+            --transition-speed: 0.3s;
+        }
+        
+        /* ===== Reset & Base Styles ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark));
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        /* ===== Navigation ===== */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.8);
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid var(--accent-primary);
+            border-radius: 5px;
+            color: var(--accent-primary);
+            cursor: pointer;
+            text-decoration: none;
+            transition: all var(--transition-speed) ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.4);
+            transform: translateX(-3px);
+        }
+        
+        .navbar-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #ff7e00, var(--accent-secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        /* ===== Main Layout ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+        
+        @media (min-width: 992px) {
+            .container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        /* ===== Card Components ===== */
+        .section {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transition: transform var(--transition-speed) ease;
+        }
+        
+        .section:hover {
+            transform: translateY(-2px);
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: var(--accent-primary);
+            font-size: 1.4rem;
+        }
+        
+        /* ===== Form Elements ===== */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(255, 128, 0, 0.2);
+        }
+        
+        .time-input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .days-selector {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .day-checkbox {
+            display: none;
+        }
+        
+        .day-label {
+            padding: 8px 12px;
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+            user-select: none;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .day-checkbox:checked + .day-label {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            font-weight: bold;
+        }
+        
+        /* ===== Buttons ===== */
+        .btn {
+            padding: 14px 25px;
+            background: linear-gradient(to right, #ff7e00, var(--accent-secondary));
+            border: none;
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all var(--transition-speed) ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 69, 0, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: rgba(50, 50, 70, 0.6);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(50, 50, 70, 0.8);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-danger {
+            background: rgba(255, 69, 0, 0.2);
+            color: var(--danger);
+            border: 1px solid rgba(255, 69, 0, 0.3);
+        }
+        
+        .btn-danger:hover {
+            background: rgba(255, 69, 0, 0.4);
+        }
+        
+        /* ===== Schedule Display ===== */
+        .schedule-container {
+            grid-column: 1 / -1;
+        }
+        
+        .schedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .total-classes {
+            background: rgba(255, 128, 0, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .schedule {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .schedule-day {
+            background: rgba(30, 30, 50, 0.6);
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 200px;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .schedule-day:hover {
+            background: rgba(30, 30, 50, 0.8);
+        }
+        
+        .schedule-day-header {
+            text-align: center;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            color: var(--accent-primary);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .class-item {
+            background: rgba(255, 128, 0, 0.1);
+            border-left: 3px solid var(--accent-primary);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .class-item:hover {
+            transform: translateX(3px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .class-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--accent-primary);
+        }
+        
+        .class-time {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .empty-schedule {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            font-style: italic;
+            grid-column: 1 / -1;
+        }
+        
+        /* ===== Classes List ===== */
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .classes-list {
+            margin-top: 20px;
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        .classes-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .classes-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        
+        .classes-list::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 10px;
+        }
+        
+        .class-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: rgba(50, 50, 70, 0.4);
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--accent-primary);
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .class-entry:hover {
+            background: rgba(50, 50, 70, 0.6);
+        }
+        
+        .class-info {
+            flex: 1;
+        }
+        
+        .class-days {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+        
+        .day-badge {
+            background: rgba(255, 128, 0, 0.2);
+            color: var(--accent-primary);
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .class-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .delete-btn {
+            background: rgba(255, 69, 0, 0.2);
+            color: var(--danger);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .delete-btn:hover {
+            background: rgba(255, 69, 0, 0.4);
+            transform: rotate(90deg);
+        }
+        
+        /* ===== Toast Notifications ===== */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 128, 0, 0.9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.5s ease;
+            z-index: 1000;
+            min-width: 250px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success {
+            background: rgba(76, 175, 80, 0.9);
+        }
+        
+        .toast.error {
+            background: rgba(255, 69, 0, 0.9);
+        }
+        
+        .toast.info {
+            background: rgba(33, 150, 243, 0.9);
+        }
+        
+        /* ===== Footer ===== */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent-primary);
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        /* ===== Responsive Design ===== */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px;
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .time-input-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .schedule {
+                grid-template-columns: 1fr;
+            }
+            
+            .schedule-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+        
+        /* ===== Utility Classes ===== */
+        .hidden {
+            display: none !important;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .mb-20 {
+            margin-bottom: 20px;
+        }
+        
+        .mt-20 {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Tools
+        </a>
+        <span class="navbar-title">
+            <i class="fas fa-calendar-alt"></i> Schedule Builder
+        </span>
+    </div>
+    
+    <div class="container">
+        <!-- Add Class Section -->
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-plus-circle"></i> Add New Class
+            </h2>
+            
+            <div class="form-group">
+                <label for="className">Class Name</label>
+                <input type="text" id="className" placeholder="e.g., Mathematics 101" maxlength="50">
+            </div>
+            
+            <div class="form-group">
+                <label for="classTime">Time</label>
+                <div class="time-input-group">
+                    <input type="time" id="startTime" value="09:00">
+                    <input type="time" id="endTime" value="10:30">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Days</label>
+                <div class="days-selector">
+                    <input type="checkbox" id="monday" class="day-checkbox" checked>
+                    <label for="monday" class="day-label">Monday</label>
+                    
+                    <input type="checkbox" id="tuesday" class="day-checkbox">
+                    <label for="tuesday" class="day-label">Tuesday</label>
+                    
+                    <input type="checkbox" id="wednesday" class="day-checkbox" checked>
+                    <label for="wednesday" class="day-label">Wednesday</label>
+                    
+                    <input type="checkbox" id="thursday" class="day-checkbox">
+                    <label for="thursday" class="day-label">Thursday</label>
+                    
+                    <input type="checkbox" id="friday" class="day-checkbox" checked>
+                    <label for="friday" class="day-label">Friday</label>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn" id="addClassBtn">
+                    <i class="fas fa-plus"></i> Add Class
+                </button>
+                <button class="btn btn-secondary" id="clearFormBtn">
+                    <i class="fas fa-redo"></i> Clear Form
+                </button>
+            </div>
+        </div>
+        
+        <!-- Manage Classes Section -->
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-list"></i> Manage Classes
+                <span class="total-classes" id="totalClasses">0 classes</span>
+            </div>
+            
+            <div class="classes-list" id="classesList">
+                <div class="text-center" id="emptyClassesMessage">
+                    <i class="fas fa-book-open fa-2x mb-20" style="color: var(--text-muted);"></i>
+                    <p>No classes added yet. Add your first class to get started.</p>
+                </div>
+            </div>
+            
+            <div class="controls mt-20">
+                <button class="btn btn-danger" id="clearAllBtn">
+                    <i class="fas fa-trash-alt"></i> Clear All Classes
+                </button>
+                <button class="btn btn-secondary" id="exportBtn">
+                    <i class="fas fa-download"></i> Export Schedule
+                </button>
+            </div>
+        </div>
+        
+        <!-- Schedule Display -->
+        <div class="section schedule-container">
+            <div class="schedule-header">
+                <h2 class="section-title">
+                    <i class="fas fa-calendar-week"></i> Weekly Schedule
+                </h2>
+                <div class="total-classes">
+                    <i class="fas fa-clock"></i> <span id="totalHours">0</span> hours this week
+                </div>
+            </div>
+            
+            <div class="schedule" id="schedule">
+                <!-- Schedule will be generated dynamically -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer with Statistics -->
+    <div class="footer">
+        <p>Schedule Builder &copy; 2023 | Built with <i class="fas fa-heart" style="color: var(--accent-secondary);"></i></p>
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-value" id="statTotalClasses">0</span>
+                <span class="stat-label">Total Classes</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="statUniqueDays">0</span>
+                <span class="stat-label">Days with Classes</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="statTotalHours">0</span>
+                <span class="stat-label">Total Hours</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle" id="toastIcon"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        // ===== Schedule Manager Class =====
+        class ScheduleManager {
+            constructor() {
+                this.classes = this.loadFromStorage() || [
+                    { id: 1, name: "Mathematics 101", startTime: "09:00", endTime: "10:30", days: ["Monday", "Wednesday", "Friday"] },
+                    { id: 2, name: "Computer Science", startTime: "11:00", endTime: "12:30", days: ["Tuesday", "Thursday"] },
+                    { id: 3, name: "Physics Lab", startTime: "14:00", endTime: "16:00", days: ["Wednesday"] }
+                ];
+                this.dayMap = {
+                    monday: "Monday",
+                    tuesday: "Tuesday",
+                    wednesday: "Wednesday",
+                    thursday: "Thursday",
+                    friday: "Friday"
+                };
+                this.dayOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+                
+                this.initElements();
+                this.bindEvents();
+                this.renderAll();
+            }
+            
+            initElements() {
+                this.elements = {
+                    className: document.getElementById('className'),
+                    startTime: document.getElementById('startTime'),
+                    endTime: document.getElementById('endTime'),
+                    addClassBtn: document.getElementById('addClassBtn'),
+                    clearFormBtn: document.getElementById('clearFormBtn'),
+                    clearAllBtn: document.getElementById('clearAllBtn'),
+                    exportBtn: document.getElementById('exportBtn'),
+                    classesList: document.getElementById('classesList'),
+                    schedule: document.getElementById('schedule'),
+                    toast: document.getElementById('toast'),
+                    toastMessage: document.getElementById('toastMessage'),
+                    toastIcon: document.getElementById('toastIcon'),
+                    totalClasses: document.getElementById('totalClasses'),
+                    totalHours: document.getElementById('totalHours'),
+                    statTotalClasses: document.getElementById('statTotalClasses'),
+                    statUniqueDays: document.getElementById('statUniqueDays'),
+                    statTotalHours: document.getElementById('statTotalHours'),
+                    emptyClassesMessage: document.getElementById('emptyClassesMessage')
+                };
+            }
+            
+            bindEvents() {
+                this.elements.addClassBtn.addEventListener('click', () => this.addClass());
+                this.elements.clearFormBtn.addEventListener('click', () => this.clearForm());
+                this.elements.clearAllBtn.addEventListener('click', () => this.clearAllClasses());
+                this.elements.exportBtn.addEventListener('click', () => this.exportSchedule());
+                
+                this.elements.className.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.addClass();
+                });
+                
+                // Real-time validation for end time
+                this.elements.startTime.addEventListener('change', () => this.validateTimes());
+                this.elements.endTime.addEventListener('change', () => this.validateTimes());
+            }
+            
+            validateTimes() {
+                const start = this.elements.startTime.value;
+                const end = this.elements.endTime.value;
+                
+                if (start && end && start >= end) {
+                    this.elements.endTime.value = this.addMinutes(start, 90);
+                    this.showToast("End time adjusted to be after start time", "info");
+                }
+            }
+            
+            addMinutes(time, minutes) {
+                const [hours, mins] = time.split(':').map(Number);
+                const date = new Date();
+                date.setHours(hours, mins + minutes);
+                return date.toTimeString().slice(0, 5);
+            }
+            
+            addClass() {
+                const name = this.elements.className.value.trim();
+                const startTime = this.elements.startTime.value;
+                const endTime = this.elements.endTime.value;
+                
+                if (!name) {
+                    this.showToast("Please enter a class name", "error");
+                    this.elements.className.focus();
+                    return;
+                }
+                
+                if (!startTime || !endTime) {
+                    this.showToast("Please select both start and end times", "error");
+                    return;
+                }
+                
+                if (startTime >= endTime) {
+                    this.showToast("End time must be after start time", "error");
+                    return;
+                }
+                
+                const days = [];
+                document.querySelectorAll('.day-checkbox:checked').forEach(checkbox => {
+                    days.push(this.dayMap[checkbox.id]);
+                });
+                
+                if (days.length === 0) {
+                    this.showToast("Please select at least one day", "error");
+                    return;
+                }
+                
+                const newClass = {
+                    id: Date.now(),
+                    name,
+                    startTime,
+                    endTime,
+                    days
+                };
+                
+                this.classes.push(newClass);
+                this.saveToStorage();
+                this.renderAll();
+                this.clearForm();
+                
+                this.showToast(`"${name}" added to schedule`, "success");
+            }
+            
+            removeClass(id) {
+                const classToRemove = this.classes.find(c => c.id === id);
+                this.classes = this.classes.filter(c => c.id !== id);
+                this.saveToStorage();
+                this.renderAll();
+                
+                this.showToast(`"${classToRemove.name}" removed from schedule`, "info");
+            }
+            
+            clearForm() {
+                this.elements.className.value = '';
+                this.elements.startTime.value = '09:00';
+                this.elements.endTime.value = '10:30';
+                
+                document.querySelectorAll('.day-checkbox').forEach(cb => {
+                    cb.checked = cb.id === 'monday' || cb.id === 'wednesday' || cb.id === 'friday';
+                });
+                
+                this.elements.className.focus();
+            }
+            
+            clearAllClasses() {
+                if (this.classes.length === 0) {
+                    this.showToast("No classes to clear", "info");
+                    return;
+                }
+                
+                if (confirm(`Are you sure you want to remove all ${this.classes.length} classes?`)) {
+                    this.classes = [];
+                    this.saveToStorage();
+                    this.renderAll();
+                    this.showToast("All classes cleared", "success");
+                }
+            }
+            
+            exportSchedule() {
+                if (this.classes.length === 0) {
+                    this.showToast("No classes to export", "info");
+                    return;
+                }
+                
+                const data = {
+                    schedule: this.classes,
+                    generated: new Date().toISOString(),
+                    totalClasses: this.classes.length,
+                    totalHours: this.calculateTotalHours()
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `schedule-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.showToast("Schedule exported successfully", "success");
+            }
+            
+            calculateTotalHours() {
+                let totalMinutes = 0;
+                this.classes.forEach(cls => {
+                    const start = this.timeToMinutes(cls.startTime);
+                    const end = this.timeToMinutes(cls.endTime);
+                    totalMinutes += (end - start) * cls.days.length;
+                });
+                return (totalMinutes / 60).toFixed(1);
+            }
+            
+            timeToMinutes(time) {
+                const [hours, minutes] = time.split(':').map(Number);
+                return hours * 60 + minutes;
+            }
+            
+            formatTimeDisplay(start, end) {
+                const format = time => {
+                    const [hours, minutes] = time.split(':');
+                    const hour = parseInt(hours);
+                    const ampm = hour >= 12 ? 'PM' : 'AM';
+                    const displayHour = hour % 12 || 12;
+                    return `${displayHour}:${minutes} ${ampm}`;
+                };
+                
+                return `${format(start)} - ${format(end)}`;
+            }
+            
+            renderAll() {
+                this.renderClassesList();
+                this.renderSchedule();
+                this.updateStatistics();
+            }
+            
+            renderClassesList() {
+                if (this.classes.length === 0) {
+                    this.elements.emptyClassesMessage.classList.remove('hidden');
+                    this.elements.classesList.innerHTML = '';
+                    return;
+                }
+                
+                this.elements.emptyClassesMessage.classList.add('hidden');
+                
+                this.elements.classesList.innerHTML = this.classes.map(cls => `
+                    <div class="class-entry">
+                        <div class="class-info">
+                            <div style="font-weight: bold; margin-bottom: 5px;">${cls.name}</div>
+                            <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">
+                                <i class="far fa-clock"></i> ${this.formatTimeDisplay(cls.startTime, cls.endTime)}
+                            </div>
+                            <div class="class-days">
+                                ${cls.days.map(day => `<span class="day-badge">${day.slice(0, 3)}</span>`).join('')}
+                            </div>
+                        </div>
+                        <div class="class-actions">
+                            <button class="delete-btn" onclick="scheduleManager.removeClass(${cls.id})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            renderSchedule() {
+                if (this.classes.length === 0) {
+                    this.elements.schedule.innerHTML = `
+                        <div class="empty-schedule">
+                            <i class="fas fa-calendar-plus fa-3x mb-20" style="color: var(--text-muted);"></i>
+                            <h3 style="margin-bottom: 10px;">No Classes Scheduled</h3>
+                            <p>Add classes using the form to see your weekly schedule here.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                this.elements.schedule.innerHTML = this.dayOrder.map(day => {
+                    const dayClasses = this.classes.filter(cls => cls.days.includes(day))
+                        .sort((a, b) => this.timeToMinutes(a.startTime) - this.timeToMinutes(b.startTime));
+                    
+                    return `
+                        <div class="schedule-day">
+                            <div class="schedule-day-header">${day}</div>
+                            ${dayClasses.length > 0 ? 
+                                dayClasses.map(cls => `
+                                    <div class="class-item">
+                                        <div class="class-name">${cls.name}</div>
+                                        <div class="class-time">
+                                            <i class="far fa-clock"></i> ${this.formatTimeDisplay(cls.startTime, cls.endTime)}
+                                        </div>
+                                    </div>
+                                `).join('') : 
+                                '<div style="text-align: center; color: var(--text-muted); font-style: italic; padding: 40px 0;">No classes scheduled</div>'
+                            }
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            updateStatistics() {
+                const totalClasses = this.classes.length;
+                const totalHours = this.calculateTotalHours();
+                const uniqueDays = new Set(this.classes.flatMap(cls => cls.days)).size;
+                
+                this.elements.totalClasses.textContent = `${totalClasses} ${totalClasses === 1 ? 'class' : 'classes'}`;
+                this.elements.totalHours.textContent = totalHours;
+                this.elements.statTotalClasses.textContent = totalClasses;
+                this.elements.statUniqueDays.textContent = uniqueDays;
+                this.elements.statTotalHours.textContent = totalHours;
+            }
+            
+            showToast(message, type = "success") {
+                const icons = {
+                    success: "fa-check-circle",
+                    error: "fa-exclamation-circle",
+                    info: "fa-info-circle"
+                };
+                
+                this.elements.toast.className = `toast ${type}`;
+                this.elements.toastMessage.textContent = message;
+                this.elements.toastIcon.className = `fas ${icons[type]}`;
+                
+                this.elements.toast.classList.add('show');
+                
+                setTimeout(() => {
+                    this.elements.toast.classList.remove('show');
+                }, 3000);
+            }
+            
+            saveToStorage() {
+                localStorage.setItem('scheduleBuilderData', JSON.stringify(this.classes));
+            }
+            
+            loadFromStorage() {
+                const data = localStorage.getItem('scheduleBuilderData');
+                return data ? JSON.parse(data) : null;
+            }
+        }
+        
+        // ===== Initialize Schedule Manager =====
+        let scheduleManager;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            scheduleManager = new ScheduleManager();
+        });
+    </script>
+</body>
+</html>

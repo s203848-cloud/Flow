@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAT Prep - Interactive Study Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, .8);
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, .2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, .4);
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        
+        .section {
+            background: rgba(20, 20, 35, .5);
+            border: 1px solid rgba(255, 69, 0, .2);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+        }
+        
+        .section:hover {
+            transform: translateY(-5px);
+        }
+        
+        .topic {
+            background: rgba(50, 50, 70, .3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 12px 0;
+            border-left: 3px solid #ff8000;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .topic:hover {
+            background: rgba(50, 50, 70, .5);
+            transform: translateX(5px);
+        }
+        
+        h2 {
+            margin-bottom: 20px;
+            color: #ff8000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        h3 {
+            margin: 15px 0 10px;
+            color: #ffb366;
+        }
+        
+        /* Practice Section */
+        .practice-section {
+            grid-column: span 2;
+        }
+        
+        .question-container {
+            background: rgba(30, 30, 50, 0.6);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .question {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .option {
+            padding: 12px;
+            background: rgba(40, 40, 60, 0.7);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        
+        .option:hover {
+            background: rgba(60, 60, 80, 0.9);
+            border-color: #ff8000;
+        }
+        
+        .option.selected {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+        }
+        
+        .option.correct {
+            background: rgba(0, 200, 0, 0.2);
+            border-color: #00cc00;
+        }
+        
+        .option.incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border-color: #ff3333;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: #ff8000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background: #ff9933;
+            transform: translateY(-2px);
+        }
+        
+        button.secondary {
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+        }
+        
+        button.secondary:hover {
+            background: rgba(255, 128, 0, 0.4);
+        }
+        
+        /* Progress Tracker */
+        .progress-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: rgba(50, 50, 70, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff8000, #ffb366);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .stat-box {
+            text-align: center;
+            background: rgba(30, 30, 50, 0.6);
+            padding: 15px;
+            border-radius: 8px;
+            flex: 1;
+            margin: 0 5px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff8000;
+        }
+        
+        /* Timer Section */
+        .timer-container {
+            text-align: center;
+            padding: 15px;
+            background: rgba(30, 30, 50, 0.6);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        #timer {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ff8000;
+            margin: 10px 0;
+        }
+        
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        /* Tips Section */
+        .tips-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .tip-card {
+            background: rgba(30, 30, 50, 0.6);
+            padding: 15px;
+            border-radius: 8px;
+            border-top: 3px solid #ff8000;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .practice-section {
+                grid-column: span 1;
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .result {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .result.correct {
+            background: rgba(0, 200, 0, 0.2);
+            border: 1px solid #00cc00;
+        }
+        
+        .result.incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff3333;
+        }
+        
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(30, 30, 50, 0.8);
+            border-radius: 8px;
+            border-left: 3px solid #ffb366;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        <span style="font-size: 1.5rem; font-weight: bold; color: #ff8000;">SAT Prep Interactive</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-user-graduate"></i>
+            <span>Student Mode</span>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Study Topics Section -->
+        <div class="section">
+            <h2><i class="fas fa-pencil-alt"></i> SAT Topics to Study</h2>
+            <div class="topic" onclick="loadPracticeQuestions('reading')">
+                <strong><i class="fas fa-book-reader"></i> Reading & Writing:</strong> Vocab, grammar, comprehension
+            </div>
+            <div class="topic" onclick="loadPracticeQuestions('math')">
+                <strong><i class="fas fa-calculator"></i> Math:</strong> Algebra, geometry, data analysis
+            </div>
+            <div class="topic" onclick="loadPracticeQuestions('essay')">
+                <strong><i class="fas fa-edit"></i> Essay:</strong> Argumentative writing practice
+            </div>
+            <div class="topic" onclick="showTips()">
+                <strong><i class="fas fa-lightbulb"></i> Tips:</strong> Time management, test strategies
+            </div>
+        </div>
+        
+        <!-- Progress Tracker -->
+        <div class="section">
+            <h2><i class="fas fa-chart-line"></i> Your Progress</h2>
+            <div class="progress-container">
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>Overall Progress</span>
+                        <span id="progress-percent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-number" id="questions-answered">0</div>
+                        <div>Answered</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="correct-answers">0</div>
+                        <div>Correct</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="streak-count">0</div>
+                        <div>Day Streak</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Practice Section -->
+        <div class="section practice-section">
+            <h2><i class="fas fa-brain"></i> Practice Questions</h2>
+            
+            <!-- Timer Section -->
+            <div class="timer-container">
+                <h3>Practice Timer</h3>
+                <div id="timer">25:00</div>
+                <div class="timer-controls">
+                    <button onclick="startTimer()"><i class="fas fa-play"></i> Start</button>
+                    <button onclick="pauseTimer()" class="secondary"><i class="fas fa-pause"></i> Pause</button>
+                    <button onclick="resetTimer()" class="secondary"><i class="fas fa-redo"></i> Reset</button>
+                </div>
+            </div>
+            
+            <!-- Question Display -->
+            <div id="question-display">
+                <div class="question-container">
+                    <div class="question" id="question-text">Click on a topic to start practicing!</div>
+                    <div class="options" id="options-container">
+                        <!-- Options will be populated by JavaScript -->
+                    </div>
+                    <div class="button-group">
+                        <button onclick="submitAnswer()" id="submit-btn" disabled>Submit Answer</button>
+                        <button onclick="nextQuestion()" class="secondary" id="next-btn" disabled>Next Question</button>
+                        <button onclick="showExplanation()" class="secondary" id="explain-btn" disabled>Show Explanation</button>
+                    </div>
+                    <div id="result-container"></div>
+                </div>
+            </div>
+            
+            <!-- Tips Display -->
+            <div id="tips-display" class="hidden">
+                <h3>SAT Success Tips</h3>
+                <div class="tips-container">
+                    <div class="tip-card">
+                        <h4><i class="fas fa-clock"></i> Time Management</h4>
+                        <p>Divide your time: ~13 min per passage in Reading, ~11 min per passage in Writing.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4><i class="fas fa-search"></i> Reading Strategy</h4>
+                        <p>Read questions first, then the passage. Underline key points as you read.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4><i class="fas fa-calculator"></i> Math Shortcuts</h4>
+                        <p>Plug in answer choices when stuck. Eliminate obviously wrong answers first.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4><i class="fas fa-pen-fancy"></i> Essay Approach</h4>
+                        <p>Spend 5-10 minutes planning. Focus on structure: intro, 2-3 body paragraphs, conclusion.</p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="loadPracticeQuestions('general')"><i class="fas fa-question-circle"></i> Practice with Tips</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // SAT Practice Questions Database
+        const questionBank = {
+            reading: [
+                {
+                    question: "The author mentions 'the relentless march of time' primarily to:",
+                    options: [
+                        "Emphasize the inevitability of change",
+                        "Criticize society's fixation on punctuality",
+                        "Introduce a historical timeline",
+                        "Highlight the importance of seizing opportunities"
+                    ],
+                    correct: 0,
+                    explanation: "The phrase 'relentless march of time' is a metaphor used to emphasize how change is constant and unavoidable throughout history."
+                },
+                {
+                    question: "As used in line 15, 'prudent' most nearly means:",
+                    options: [
+                        "Wealthy",
+                        "Cautious",
+                        "Intelligent",
+                        "Generous"
+                    ],
+                    correct: 1,
+                    explanation: "In context, 'prudent' refers to showing care for the future, which aligns with being cautious rather than the other options."
+                }
+            ],
+            math: [
+                {
+                    question: "If 3x + 7 = 22, what is the value of x?",
+                    options: ["3", "5", "7", "9"],
+                    correct: 1,
+                    explanation: "Subtract 7 from both sides: 3x = 15. Then divide both sides by 3: x = 5."
+                },
+                {
+                    question: "A circle has a radius of 5. What is its area?",
+                    options: ["10π", "15π", "20π", "25π"],
+                    correct: 3,
+                    explanation: "Area of a circle = πr² = π(5)² = 25π."
+                }
+            ],
+            essay: [
+                {
+                    question: "Which of the following would make the STRONGEST thesis statement for an argumentative essay on school uniforms?",
+                    options: [
+                        "School uniforms are a topic that many people discuss.",
+                        "School uniforms should be mandatory because they promote equality, reduce distractions, and foster school spirit.",
+                        "Some schools have uniforms and others don't, which is interesting.",
+                        "I think school uniforms are good for students."
+                    ],
+                    correct: 1,
+                    explanation: "A strong thesis statement presents a clear position and outlines the main supporting points, as option 2 does."
+                }
+            ],
+            general: [
+                {
+                    question: "On the SAT, you should always:",
+                    options: [
+                        "Answer every question, as there's no penalty for wrong answers",
+                        "Skip questions you're unsure about to avoid penalties",
+                        "Spend equal time on every question",
+                        "Complete the sections in any order you prefer"
+                    ],
+                    correct: 0,
+                    explanation: "The SAT no longer penalizes wrong answers, so it's to your advantage to answer every question, even if you have to guess."
+                }
+            ]
+        };
+
+        // User progress tracking
+        let userProgress = {
+            questionsAnswered: 0,
+            correctAnswers: 0,
+            streak: 0,
+            lastStudyDate: null
+        };
+
+        // Current question state
+        let currentTopic = '';
+        let currentQuestionIndex = 0;
+        let selectedOption = null;
+        let timerInterval = null;
+        let timerSeconds = 25 * 60; // 25 minutes for practice
+        let isTimerRunning = false;
+
+        // DOM elements
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const submitBtn = document.getElementById('submit-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const explainBtn = document.getElementById('explain-btn');
+        const resultContainer = document.getElementById('result-container');
+        const progressFill = document.getElementById('progress-fill');
+        const progressPercent = document.getElementById('progress-percent');
+        const questionsAnswered = document.getElementById('questions-answered');
+        const correctAnswers = document.getElementById('correct-answers');
+        const streakCount = document.getElementById('streak-count');
+        const timerDisplay = document.getElementById('timer');
+        const questionDisplay = document.getElementById('question-display');
+        const tipsDisplay = document.getElementById('tips-display');
+
+        // Initialize progress from localStorage
+        function loadProgress() {
+            const savedProgress = localStorage.getItem('satPrepProgress');
+            if (savedProgress) {
+                userProgress = JSON.parse(savedProgress);
+                
+                // Check if last study was yesterday or today for streak
+                const today = new Date().toDateString();
+                if (userProgress.lastStudyDate !== today) {
+                    const lastDate = new Date(userProgress.lastStudyDate);
+                    const todayDate = new Date();
+                    const diffTime = Math.abs(todayDate - lastDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays === 1) {
+                        userProgress.streak += 1;
+                    } else if (diffDays > 1) {
+                        userProgress.streak = 1;
+                    }
+                    userProgress.lastStudyDate = today;
+                }
+            }
+            updateProgressDisplay();
+        }
+
+        // Save progress to localStorage
+        function saveProgress() {
+            localStorage.setItem('satPrepProgress', JSON.stringify(userProgress));
+        }
+
+        // Update progress display
+        function updateProgressDisplay() {
+            // Calculate progress percentage
+            const totalQuestions = 20; // Target goal
+            const progress = Math.min((userProgress.questionsAnswered / totalQuestions) * 100, 100);
+            
+            progressFill.style.width = `${progress}%`;
+            progressPercent.textContent = `${Math.round(progress)}%`;
+            
+            questionsAnswered.textContent = userProgress.questionsAnswered;
+            correctAnswers.textContent = userProgress.correctAnswers;
+            streakCount.textContent = userProgress.streak;
+            
+            saveProgress();
+        }
+
+        // Load practice questions for a specific topic
+        function loadPracticeQuestions(topic) {
+            currentTopic = topic;
+            currentQuestionIndex = 0;
+            selectedOption = null;
+            
+            // Hide tips and show questions
+            tipsDisplay.classList.add('hidden');
+            questionDisplay.classList.remove('hidden');
+            
+            // Update question display
+            displayQuestion();
+            
+            // Reset buttons
+            submitBtn.disabled = true;
+            nextBtn.disabled = true;
+            explainBtn.disabled = true;
+            resultContainer.innerHTML = '';
+            
+            // Update last study date
+            userProgress.lastStudyDate = new Date().toDateString();
+            updateProgressDisplay();
+        }
+
+        // Display current question
+        function displayQuestion() {
+            const questions = questionBank[currentTopic];
+            if (!questions || questions.length === 0) {
+                questionText.textContent = "No questions available for this topic yet. Try another topic!";
+                optionsContainer.innerHTML = "";
+                return;
+            }
+            
+            const question = questions[currentQuestionIndex];
+            questionText.textContent = question.question;
+            
+            // Clear previous options
+            optionsContainer.innerHTML = "";
+            
+            // Create new options
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = `${String.fromCharCode(65 + index)}. ${option}`;
+                optionElement.onclick = () => selectOption(index, optionElement);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Reset selection
+            selectedOption = null;
+        }
+
+        // Select an option
+        function selectOption(index, element) {
+            // Remove selected class from all options
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            element.classList.add('selected');
+            selectedOption = index;
+            
+            // Enable submit button
+            submitBtn.disabled = false;
+        }
+
+        // Submit answer
+        function submitAnswer() {
+            if (selectedOption === null) return;
+            
+            const questions = questionBank[currentTopic];
+            const question = questions[currentQuestionIndex];
+            const isCorrect = selectedOption === question.correct;
+            
+            // Update user progress
+            userProgress.questionsAnswered++;
+            if (isCorrect) {
+                userProgress.correctAnswers++;
+            }
+            updateProgressDisplay();
+            
+            // Show result
+            resultContainer.innerHTML = '';
+            const resultElement = document.createElement('div');
+            resultElement.className = `result ${isCorrect ? 'correct' : 'incorrect'}`;
+            resultElement.innerHTML = `
+                <i class="fas fa-${isCorrect ? 'check-circle' : 'times-circle'}"></i>
+                ${isCorrect ? 'Correct!' : 'Incorrect!'}
+            `;
+            resultContainer.appendChild(resultElement);
+            
+            // Show correct answer
+            document.querySelectorAll('.option').forEach((opt, index) => {
+                if (index === question.correct) {
+                    opt.classList.add('correct');
+                } else if (index === selectedOption && !isCorrect) {
+                    opt.classList.add('incorrect');
+                }
+            });
+            
+            // Enable next and explain buttons
+            nextBtn.disabled = false;
+            explainBtn.disabled = false;
+            submitBtn.disabled = true;
+        }
+
+        // Show explanation
+        function showExplanation() {
+            const questions = questionBank[currentTopic];
+            const question = questions[currentQuestionIndex];
+            
+            // Remove any existing explanation
+            const existingExplanation = document.querySelector('.explanation');
+            if (existingExplanation) {
+                existingExplanation.remove();
+            }
+            
+            // Create and append explanation
+            const explanationElement = document.createElement('div');
+            explanationElement.className = 'explanation';
+            explanationElement.innerHTML = `
+                <h4><i class="fas fa-lightbulb"></i> Explanation:</h4>
+                <p>${question.explanation}</p>
+            `;
+            resultContainer.appendChild(explanationElement);
+        }
+
+        // Move to next question
+        function nextQuestion() {
+            const questions = questionBank[currentTopic];
+            currentQuestionIndex++;
+            
+            // If we've reached the end, loop back to start
+            if (currentQuestionIndex >= questions.length) {
+                currentQuestionIndex = 0;
+            }
+            
+            // Reset for next question
+            displayQuestion();
+            resultContainer.innerHTML = '';
+            nextBtn.disabled = true;
+            explainBtn.disabled = true;
+        }
+
+        // Show tips section
+        function showTips() {
+            questionDisplay.classList.add('hidden');
+            tipsDisplay.classList.remove('hidden');
+        }
+
+        // Timer functions
+        function startTimer() {
+            if (isTimerRunning) return;
+            
+            isTimerRunning = true;
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                updateTimerDisplay();
+                
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    isTimerRunning = false;
+                    timerDisplay.innerHTML = "<span style='color:#ff3333'>Time's Up!</span>";
+                    
+                    // Show completion message
+                    const resultElement = document.createElement('div');
+                    resultElement.className = 'result incorrect';
+                    resultElement.innerHTML = `
+                        <i class="fas fa-clock"></i>
+                        Time's up! Practice session complete.
+                    `;
+                    resultContainer.appendChild(resultElement);
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isTimerRunning = false;
+            clearInterval(timerInterval);
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timerSeconds = 25 * 60;
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timerSeconds / 60);
+            const seconds = timerSeconds % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            loadProgress();
+            updateTimerDisplay();
+            
+            // Set up topic click events
+            document.querySelectorAll('.topic').forEach(topic => {
+                topic.style.cursor = 'pointer';
+            });
+            
+            // Initialize with reading questions
+            loadPracticeQuestions('reading');
+        };
+    </script>
+</body>
+</html>

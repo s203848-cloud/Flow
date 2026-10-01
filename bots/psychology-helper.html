@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Psychology Helper | Diagnosis Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, .8);
+            margin-bottom: 30px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 69, 0, .2);
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, .2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, .4);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        
+        .section {
+            background: rgba(20, 20, 35, .5);
+            border: 1px solid rgba(255, 69, 0, .2);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        h2 {
+            margin-bottom: 15px;
+            color: #ff8000;
+            border-bottom: 1px solid rgba(255, 69, 0, .3);
+            padding-bottom: 10px;
+        }
+        
+        h3 {
+            margin: 15px 0 10px;
+            color: #ffaa55;
+        }
+        
+        .concept {
+            background: rgba(50, 50, 70, .3);
+            padding: 12px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 3px solid #ff8000;
+        }
+        
+        .assessment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .assessment-card {
+            background: rgba(30, 30, 50, .5);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 69, 0, .1);
+        }
+        
+        .assessment-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 69, 0, .4);
+            box-shadow: 0 5px 15px rgba(255, 69, 0, .1);
+        }
+        
+        .assessment-icon {
+            font-size: 2.5rem;
+            color: #ff8000;
+            margin-bottom: 15px;
+        }
+        
+        .question {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(40, 40, 60, .4);
+            border-radius: 8px;
+        }
+        
+        .options {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .option {
+            padding: 10px;
+            background: rgba(60, 60, 80, .4);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .option:hover {
+            background: rgba(80, 80, 100, .4);
+        }
+        
+        .option.selected {
+            background: rgba(255, 128, 0, .3);
+            border-left: 4px solid #ff8000;
+        }
+        
+        button {
+            padding: 12px 25px;
+            background: rgba(255, 128, 0, .3);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: rgba(255, 128, 0, .5);
+        }
+        
+        .result {
+            background: rgba(30, 40, 60, .7);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: rgba(255, 255, 255, .1);
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #ff8000, #ff5500);
+            width: 0%;
+            transition: width 1s ease;
+        }
+        
+        .resources-list {
+            list-style-type: none;
+            margin-top: 15px;
+        }
+        
+        .resources-list li {
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(50, 50, 70, .3);
+            border-radius: 5px;
+        }
+        
+        .resources-list li i {
+            color: #ff8000;
+            margin-right: 10px;
+        }
+        
+        .emergency {
+            background: rgba(255, 50, 50, .2);
+            border: 1px solid rgba(255, 50, 50, .5);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .warning {
+            color: #ff5555;
+            font-weight: bold;
+        }
+        
+        .disclaimer {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: 20px;
+            padding: 10px;
+            border-top: 1px solid rgba(255, 255, 255, .1);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .assessment-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        <span style="font-size:1.5rem;font-weight:bold"><i class="fas fa-brain"></i> Psychology Diagnosis Helper</span>
+    </div>
+    
+    <div class="container">
+        <div class="section">
+            <h2><i class="fas fa-stethoscope"></i> Mental Health Assessment</h2>
+            <p>Select an assessment to begin. These tools can help you understand your current mental state but are not a substitute for professional diagnosis.</p>
+            
+            <div class="assessment-grid">
+                <div class="assessment-card" id="anxiety-assessment">
+                    <div class="assessment-icon"><i class="fas fa-heartbeat"></i></div>
+                    <h3>Anxiety Check</h3>
+                    <p>Evaluate symptoms of anxiety and stress</p>
+                </div>
+                
+                <div class="assessment-card" id="depression-assessment">
+                    <div class="assessment-icon"><i class="fas fa-cloud"></i></div>
+                    <h3>Depression Screen</h3>
+                    <p>Check for symptoms of depression</p>
+                </div>
+                
+                <div class="assessment-card" id="stress-assessment">
+                    <div class="assessment-icon"><i class="fas fa-weight-hanging"></i></div>
+                    <h3>Stress Level Test</h3>
+                    <p>Measure your current stress levels</p>
+                </div>
+                
+                <div class="assessment-card" id="burnout-assessment">
+                    <div class="assessment-icon"><i class="fas fa-fire-extinguisher"></i></div>
+                    <h3>Burnout Risk</h3>
+                    <p>Assess your risk of emotional burnout</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2><i class="fas fa-chart-line"></i> Quick Symptom Tracker</h2>
+            <p>Track your symptoms over the past week. Rate each from 1 (minimal) to 5 (severe).</p>
+            
+            <div id="symptom-tracker">
+                <div class="question">
+                    <p>Anxiety / Nervousness</p>
+                    <div class="options">
+                        <div class="option" data-value="1">1 - Minimal</div>
+                        <div class="option" data-value="2">2 - Mild</div>
+                        <div class="option" data-value="3">3 - Moderate</div>
+                        <div class="option" data-value="4">4 - Severe</div>
+                        <div class="option" data-value="5">5 - Very Severe</div>
+                    </div>
+                </div>
+                
+                <div class="question">
+                    <p>Depressed Mood</p>
+                    <div class="options">
+                        <div class="option" data-value="1">1 - Minimal</div>
+                        <div class="option" data-value="2">2 - Mild</div>
+                        <div class="option" data-value="3">3 - Moderate</div>
+                        <div class="option" data-value="4">4 - Severe</div>
+                        <div class="option" data-value="5">5 - Very Severe</div>
+                    </div>
+                </div>
+                
+                <div class="question">
+                    <p>Sleep Problems</p>
+                    <div class="options">
+                        <div class="option" data-value="1">1 - Minimal</div>
+                        <div class="option" data-value="2">2 - Mild</div>
+                        <div class="option" data-value="3">3 - Moderate</div>
+                        <div class="option" data-value="4">4 - Severe</div>
+                        <div class="option" data-value="5">5 - Very Severe</div>
+                    </div>
+                </div>
+                
+                <button id="calculate-score">Calculate Symptom Score</button>
+                
+                <div class="result" id="tracker-result">
+                    <h3>Your Symptom Score: <span id="score-value">0</span>/15</h3>
+                    <div class="progress-bar">
+                        <div class="progress" id="score-progress"></div>
+                    </div>
+                    <p id="score-interpretation">Your symptoms appear to be minimal.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section full-width">
+            <h2><i class="fas fa-diagnoses"></i> Active Assessment</h2>
+            <div id="assessment-container">
+                <p>Select an assessment from the options above to begin.</p>
+            </div>
+            
+            <div class="result hidden" id="assessment-result">
+                <h3>Assessment Results</h3>
+                <div id="result-content"></div>
+                <div class="emergency">
+                    <p class="warning"><i class="fas fa-exclamation-triangle"></i> Important: This tool is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2><i class="fas fa-book-medical"></i> Psychology Concepts</h2>
+            <div class="concept">
+                <strong>Behaviorism:</strong> Focus on observable behavior and learning through conditioning.
+            </div>
+            <div class="concept">
+                <strong>Cognitive Therapy:</strong> Focuses on changing negative thought patterns.
+            </div>
+            <div class="concept">
+                <strong>Mindfulness:</strong> Practice of being present and aware without judgment.
+            </div>
+            <div class="concept">
+                <strong>Resilience:</strong> Ability to adapt and recover from adversity.
+            </div>
+            <div class="concept">
+                <strong>Emotional Regulation:</strong> Strategies to manage and respond to emotional experiences.
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2><i class="fas fa-hands-helping"></i> Resources & Support</h2>
+            <p>If you're struggling, consider reaching out to these resources:</p>
+            <ul class="resources-list">
+                <li><i class="fas fa-phone-alt"></i> <strong>Crisis Hotline:</strong> 1-800-273-8255</li>
+                <li><i class="fas fa-globe"></i> <strong>Mental Health America:</strong> mhanational.org</li>
+                <li><i class="fas fa-user-md"></i> <strong>Find a Therapist:</strong> psychologytoday.com</li>
+                <li><i class="fas fa-mobile-alt"></i> <strong>Crisis Text Line:</strong> Text HOME to 741741</li>
+            </ul>
+            
+            <div class="emergency">
+                <p class="warning"><i class="fas fa-exclamation-circle"></i> If you're in immediate danger or experiencing a mental health emergency, please call 911 or go to the nearest emergency room.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="disclaimer">
+        <p><i class="fas fa-info-circle"></i> <strong>Disclaimer:</strong> This psychology helper tool is for informational and educational purposes only. It is not intended to provide a clinical diagnosis or replace professional mental health care. If you have concerns about your mental health, please consult with a qualified healthcare provider.</p>
+    </div>
+
+    <script>
+        // Symptom Tracker Functionality
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove selected class from siblings
+                this.parentElement.querySelectorAll('.option').forEach(sibling => {
+                    sibling.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked option
+                this.classList.add('selected');
+            });
+        });
+        
+        // Calculate symptom score
+        document.getElementById('calculate-score').addEventListener('click', function() {
+            let totalScore = 0;
+            const questions = document.querySelectorAll('.question');
+            
+            questions.forEach(question => {
+                const selectedOption = question.querySelector('.option.selected');
+                if (selectedOption) {
+                    totalScore += parseInt(selectedOption.getAttribute('data-value'));
+                }
+            });
+            
+            // Display results
+            const resultDiv = document.getElementById('tracker-result');
+            const scoreValue = document.getElementById('score-value');
+            const progressBar = document.getElementById('score-progress');
+            const interpretation = document.getElementById('score-interpretation');
+            
+            scoreValue.textContent = totalScore;
+            
+            // Calculate percentage for progress bar (max 15)
+            const percentage = (totalScore / 15) * 100;
+            progressBar.style.width = `${percentage}%`;
+            
+            // Provide interpretation
+            if (totalScore <= 5) {
+                interpretation.textContent = "Your symptoms appear to be minimal. Continue practicing good self-care.";
+            } else if (totalScore <= 10) {
+                interpretation.textContent = "You're experiencing moderate symptoms. Consider practicing stress-management techniques.";
+            } else {
+                interpretation.textContent = "You're experiencing significant symptoms. It may be helpful to speak with a mental health professional.";
+            }
+            
+            resultDiv.style.display = 'block';
+        });
+        
+        // Assessment cards functionality
+        const assessments = {
+            'anxiety-assessment': {
+                title: "Anxiety Assessment",
+                questions: [
+                    {
+                        text: "Over the last 2 weeks, how often have you felt nervous, anxious, or on edge?",
+                        options: ["Not at all", "Several days", "More than half the days", "Nearly every day"]
+                    },
+                    {
+                        text: "How often have you been unable to stop or control worrying?",
+                        options: ["Not at all", "Several days", "More than half the days", "Nearly every day"]
+                    },
+                    {
+                        text: "How often have you had trouble relaxing?",
+                        options: ["Not at all", "Several days", "More than half the days", "Nearly every day"]
+                    }
+                ],
+                results: [
+                    {range: "0-3", text: "Minimal anxiety symptoms detected. Continue practicing stress management."},
+                    {range: "4-6", text: "Mild anxiety symptoms. Consider mindfulness or relaxation exercises."},
+                    {range: "7-9", text: "Moderate anxiety symptoms. Speaking with a professional may be helpful."},
+                    {range: "10-12", text: "Severe anxiety symptoms. Consider seeking professional support."}
+                ]
+            },
+            'depression-assessment': {
+                title: "Depression Screening",
+                questions: [
+                    {
+                        text: "Over the last 2 weeks, how often have you felt little interest or pleasure in doing things?",
+                        options: ["Not at all", "Several days", "More than half the days", "Nearly every day"]
+                    },
+                    {
+                        text: "How often have you felt down, depressed, or hopeless?",
+                        options: ["Not at all", "Several days", "More than half the days", "Nearly every day"]
+                    },
+                    {
+                        text: "How often have you had trouble falling or staying asleep, or sleeping too much?",
+                        options: ["Not at all", "Several days", "More than half the days", "Nearly every day"]
+                    }
+                ],
+                results: [
+                    {range: "0-3", text: "Minimal depression symptoms. Continue with healthy habits."},
+                    {range: "4-6", text: "Mild depression symptoms. Consider increasing social support."},
+                    {range: "7-9", text: "Moderate depression symptoms. Professional support may be beneficial."},
+                    {range: "10-12", text: "Severe depression symptoms. Seeking professional help is recommended."}
+                ]
+            },
+            'stress-assessment': {
+                title: "Stress Level Test",
+                questions: [
+                    {
+                        text: "How often do you feel that you're unable to control the important things in your life?",
+                        options: ["Never", "Rarely", "Sometimes", "Often", "Very Often"]
+                    },
+                    {
+                        text: "How often do you feel confident about your ability to handle personal problems?",
+                        options: ["Very Often", "Often", "Sometimes", "Rarely", "Never"]
+                    },
+                    {
+                        text: "How often do you feel that things are going your way?",
+                        options: ["Very Often", "Often", "Sometimes", "Rarely", "Never"]
+                    }
+                ],
+                results: [
+                    {range: "0-5", text: "Low stress level. You're managing stress well."},
+                    {range: "6-8", text: "Moderate stress level. Consider stress reduction techniques."},
+                    {range: "9-12", text: "High stress level. Implementing stress management is important."},
+                    {range: "13-15", text: "Very high stress level. Professional support may be helpful."}
+                ]
+            },
+            'burnout-assessment': {
+                title: "Burnout Risk Assessment",
+                questions: [
+                    {
+                        text: "How often do you feel emotionally drained from your work or daily activities?",
+                        options: ["Never", "Rarely", "Sometimes", "Often", "Very Often"]
+                    },
+                    {
+                        text: "How often do you feel fatigued when you get up in the morning?",
+                        options: ["Never", "Rarely", "Sometimes", "Often", "Very Often"]
+                    },
+                    {
+                        text: "How often do you feel that you're working too hard?",
+                        options: ["Never", "Rarely", "Sometimes", "Often", "Very Often"]
+                    }
+                ],
+                results: [
+                    {range: "0-5", text: "Low burnout risk. You're maintaining good work-life balance."},
+                    {range: "6-8", text: "Moderate burnout risk. Consider implementing more breaks."},
+                    {range: "9-12", text: "High burnout risk. It's important to address stress sources."},
+                    {range: "13-15", text: "Very high burnout risk. Professional guidance may be needed."}
+                ]
+            }
+        };
+        
+        // Add event listeners to assessment cards
+        Object.keys(assessments).forEach(assessmentId => {
+            document.getElementById(assessmentId).addEventListener('click', function() {
+                startAssessment(assessmentId);
+            });
+        });
+        
+        // Start assessment function
+        function startAssessment(assessmentId) {
+            const assessment = assessments[assessmentId];
+            const container = document.getElementById('assessment-container');
+            const resultDiv = document.getElementById('assessment-result');
+            
+            // Hide result div
+            resultDiv.classList.add('hidden');
+            
+            // Build assessment HTML
+            let html = `<h3>${assessment.title}</h3>`;
+            html += `<p>Answer the following questions honestly based on how you've been feeling recently.</p>`;
+            html += `<div id="questions-container">`;
+            
+            assessment.questions.forEach((question, index) => {
+                html += `
+                <div class="question" data-index="${index}">
+                    <p>${question.text}</p>
+                    <div class="options">
+                `;
+                
+                question.options.forEach((option, optionIndex) => {
+                    html += `<div class="option" data-value="${optionIndex}">${option}</div>`;
+                });
+                
+                html += `</div></div>`;
+            });
+            
+            html += `</div>`;
+            html += `<button id="submit-assessment">Submit Assessment</button>`;
+            
+            container.innerHTML = html;
+            
+            // Add event listeners to new options
+            container.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionDiv = this.closest('.question');
+                    questionDiv.querySelectorAll('.option').forEach(sibling => {
+                        sibling.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                });
+            });
+            
+            // Add event listener to submit button
+            document.getElementById('submit-assessment').addEventListener('click', function() {
+                calculateAssessmentResult(assessmentId);
+            });
+        }
+        
+        // Calculate assessment result
+        function calculateAssessmentResult(assessmentId) {
+            const assessment = assessments[assessmentId];
+            const questions = document.querySelectorAll('#questions-container .question');
+            let totalScore = 0;
+            let allAnswered = true;
+            
+            questions.forEach(question => {
+                const selectedOption = question.querySelector('.option.selected');
+                if (selectedOption) {
+                    // For stress and burnout assessments, higher value = more stress
+                    // For anxiety and depression, value corresponds to frequency
+                    totalScore += parseInt(selectedOption.getAttribute('data-value')) + 1;
+                } else {
+                    allAnswered = false;
+                }
+            });
+            
+            if (!allAnswered) {
+                alert("Please answer all questions before submitting.");
+                return;
+            }
+            
+            // Determine result based on score
+            let resultText = "";
+            assessment.results.forEach(result => {
+                const range = result.range.split("-");
+                const min = parseInt(range[0]);
+                const max = parseInt(range[1]);
+                
+                if (totalScore >= min && totalScore <= max) {
+                    resultText = result.text;
+                }
+            });
+            
+            // Display result
+            const resultDiv = document.getElementById('assessment-result');
+            const resultContent = document.getElementById('result-content');
+            
+            resultContent.innerHTML = `
+                <h4>Your Score: ${totalScore}</h4>
+                <p>${resultText}</p>
+                <h4>Recommendations:</h4>
+                <ul class="resources-list">
+                    <li><i class="fas fa-leaf"></i> Practice mindfulness or meditation for 10 minutes daily</li>
+                    <li><i class="fas fa-walking"></i> Engage in regular physical activity</li>
+                    <li><i class="fas fa-users"></i> Connect with supportive friends or family</li>
+                    <li><i class="fas fa-book"></i> Consider keeping a journal to track thoughts and feelings</li>
+                </ul>
+            `;
+            
+            resultDiv.classList.remove('hidden');
+            
+            // Scroll to result
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

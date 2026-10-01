@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Project Planner | Professional Edition</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #0a0a1a;
+            --secondary-dark: #1a0a2e;
+            --card-bg: rgba(20, 20, 35, 0.7);
+            --card-border: rgba(255, 69, 0, 0.2);
+            --accent-orange: #ff8000;
+            --accent-red: #ff4500;
+            --accent-blue: #1e90ff;
+            --text-light: #ffcc88;
+            --text-muted: #aaa;
+            --success-color: #4CAF50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark));
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+        
+        /* Loading indicator */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            font-size: 1.5rem;
+        }
+        
+        .loading.hidden {
+            display: none;
+        }
+        
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: var(--card-bg);
+            border-left: 4px solid var(--accent-orange);
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 10000;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast.success {
+            border-left-color: var(--success-color);
+        }
+        
+        .toast.warning {
+            border-left-color: var(--warning-color);
+        }
+        
+        .toast.error {
+            border-left-color: var(--danger-color);
+        }
+        
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, .9);
+            margin-bottom: 30px;
+            border-radius: 10px;
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, .2);
+            border: 1px solid var(--accent-orange);
+            border-radius: 5px;
+            color: var(--accent-orange);
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, .4);
+            transform: translateY(-2px);
+        }
+        
+        .navbar-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .export-btn {
+            padding: 8px 15px;
+            background: rgba(30, 144, 255, .2);
+            border: 1px solid var(--accent-blue);
+            border-radius: 5px;
+            color: #7fbfff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .export-btn:hover {
+            background: rgba(30, 144, 255, .4);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Dashboard Stats */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+            color: var(--accent-orange);
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        /* Main Content Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 25px;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Section Styling */
+        .section {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        h1, h2, h3 {
+            margin-bottom: 15px;
+            color: var(--text-light);
+        }
+        
+        h1 i, h2 i, h3 i {
+            margin-right: 10px;
+            color: var(--accent-orange);
+        }
+        
+        /* Button Styles */
+        .btn {
+            padding: 8px 16px;
+            background: rgba(255, 128, 0, .2);
+            border: 1px solid var(--accent-orange);
+            border-radius: 5px;
+            color: var(--accent-orange);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .btn:hover:not(:disabled) {
+            background: rgba(255, 128, 0, .4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-primary {
+            background: rgba(255, 69, 0, .2);
+            border: 1px solid var(--accent-red);
+            color: #ff8866;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: rgba(255, 69, 0, .4);
+        }
+        
+        .btn-success {
+            background: rgba(76, 175, 80, .2);
+            border: 1px solid var(--success-color);
+            color: #a5d6a7;
+        }
+        
+        .btn-success:hover:not(:disabled) {
+            background: rgba(76, 175, 80, .4);
+        }
+        
+        .btn-danger {
+            background: rgba(244, 67, 54, .2);
+            border: 1px solid var(--danger-color);
+            color: #ef9a9a;
+        }
+        
+        .btn-danger:hover:not(:disabled) {
+            background: rgba(244, 67, 54, .4);
+        }
+        
+        /* Project Grid */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+        
+        @media (max-width: 768px) {
+            .project-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Project Card */
+        .project-card {
+            background: rgba(20, 20, 35, .9);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 69, 0, 0.4);
+        }
+        
+        .project-card.priority-high {
+            border-left: 5px solid var(--accent-red);
+        }
+        
+        .project-card.priority-medium {
+            border-left: 5px solid var(--accent-orange);
+        }
+        
+        .project-card.priority-low {
+            border-left: 5px solid #8a2be2;
+        }
+        
+        .project-card.completed {
+            opacity: 0.8;
+            border-left-color: var(--success-color);
+        }
+        
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .project-title {
+            font-size: 1.3rem;
+            color: var(--text-light);
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+        
+        .project-description {
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .project-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+        
+        .project-priority {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .priority-high {
+            background: rgba(255, 69, 0, .2);
+            color: #ff8866;
+        }
+        
+        .priority-medium {
+            background: rgba(255, 128, 0, .2);
+            color: #ffcc88;
+        }
+        
+        .priority-low {
+            background: rgba(138, 43, 226, .2);
+            color: #b19cd9;
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            margin: 15px 0;
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(50, 50, 70, .5);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--accent-orange), var(--accent-red));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        /* Subtasks */
+        .subtasks-container {
+            margin: 15px 0;
+            max-height: 150px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        .subtask-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .subtask-item:last-child {
+            border-bottom: none;
+        }
+        
+        .subtask-checkbox {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .subtask-text {
+            flex-grow: 1;
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+        
+        .subtask-completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+        
+        /* Project Actions */
+        .project-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        /* Floating Window */
+        .floating-window {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 500px;
+            max-width: 90vw;
+            background: rgba(20, 20, 35, .98);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            max-height: 80vh;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .floating-window.active {
+            display: flex;
+        }
+        
+        .window-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(30, 30, 50, .9);
+            border-bottom: 1px solid rgba(255, 69, 0, .2);
+            cursor: move;
+        }
+        
+        .window-title {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .window-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .window-control {
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 16px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .window-control:hover {
+            background: rgba(255, 69, 0, .2);
+            color: var(--accent-orange);
+        }
+        
+        .window-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        
+        .floating-window.minimized {
+            height: auto;
+        }
+        
+        .floating-window.minimized .window-body {
+            display: none;
+        }
+        
+        .floating-window.minimized .window-header {
+            border-bottom: none;
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-weight: 500;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(30, 30, 50, .8);
+            border: 1px solid rgba(255, 69, 0, .3);
+            border-radius: 5px;
+            color: #fff;
+            font-size: 15px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 0 2px rgba(255, 128, 0, 0.1);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        /* Subtask Form */
+        .add-subtask {
+            display: flex;
+            margin-top: 10px;
+        }
+        
+        .add-subtask input {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .status-not-started {
+            background: rgba(255, 69, 0, .2);
+            color: #ff8866;
+        }
+        
+        .status-in-progress {
+            background: rgba(255, 128, 0, .2);
+            color: #ffcc88;
+        }
+        
+        .status-completed {
+            background: rgba(76, 175, 80, .2);
+            color: #a5d6a7;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 69, 0, .1);
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: rgba(255, 128, 0, 0.3);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(30, 30, 50, 0.3);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 128, 0, 0.5);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 128, 0, 0.7);
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .slide-in {
+            animation: slideIn 0.4s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Indicator -->
+    <div id="loading" class="loading">
+        <div style="text-align: center;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 3rem; margin-bottom: 20px; color: var(--accent-orange);"></i>
+            <p>Loading Project Planner...</p>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toast-message">Notification</span>
+    </div>
+    
+    <!-- Navbar -->
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Tools
+        </a>
+        <h1><i class="fas fa-tasks"></i> Enhanced Project Planner</h1>
+        <div class="navbar-actions">
+            <button class="export-btn" id="exportDataBtn">
+                <i class="fas fa-download"></i> Export
+            </button>
+            <button class="btn btn-danger" id="clearDataBtn">
+                <i class="fas fa-trash"></i> Clear All
+            </button>
+            <button class="btn btn-primary" id="newProjectBtn">
+                <i class="fas fa-plus"></i> New Project
+            </button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Dashboard Stats -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <i class="fas fa-layer-group stat-icon"></i>
+                <div class="stat-value" id="totalProjects">0</div>
+                <div class="stat-label">Total Projects</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-rocket stat-icon"></i>
+                <div class="stat-value" id="activeProjects">0</div>
+                <div class="stat-label">Active Projects</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-flag-checkered stat-icon"></i>
+                <div class="stat-value" id="completedProjects">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-fire stat-icon"></i>
+                <div class="stat-value" id="highPriority">0</div>
+                <div class="stat-label">High Priority</div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Column: Projects -->
+            <div>
+                <div class="section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-list-check"></i> All Projects</h2>
+                        <div>
+                            <button class="btn" id="sortByNameBtn">
+                                <i class="fas fa-sort-alpha-down"></i> Sort by Name
+                            </button>
+                            <button class="btn" id="sortByDateBtn">
+                                <i class="fas fa-sort-numeric-down"></i> Sort by Date
+                            </button>
+                        </div>
+                    </div>
+                    <div id="allProjectsList" class="project-grid">
+                        <!-- Projects will be dynamically added here -->
+                    </div>
+                    <div id="emptyProjectsState" class="empty-state" style="display: none;">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h3>No Projects Yet</h3>
+                        <p>Get started by creating your first project!</p>
+                        <button class="btn btn-primary" id="emptyStateNewProjectBtn" style="margin-top: 15px;">
+                            <i class="fas fa-plus"></i> Create New Project
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column: Sidebar -->
+            <div class="sidebar">
+                <div class="section">
+                    <h2><i class="fas fa-chart-line"></i> Overall Progress</h2>
+                    <div class="progress-container">
+                        <div class="progress-info">
+                            <span>Completion Rate</span>
+                            <span id="overallProgressText">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="overallProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+                    <div class="quick-actions">
+                        <button class="btn" id="markAllCompletedBtn">
+                            <i class="fas fa-check-double"></i> Mark All as Complete
+                        </button>
+                        <button class="btn" id="archiveCompletedBtn">
+                            <i class="fas fa-archive"></i> Archive Completed
+                        </button>
+                        <button class="btn" id="duplicateLastProjectBtn">
+                            <i class="fas fa-copy"></i> Duplicate Last Project
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2><i class="fas fa-calendar-alt"></i> Upcoming Deadlines</h2>
+                    <div id="upcomingDeadlinesList">
+                        <!-- Upcoming deadlines will be dynamically added here -->
+                    </div>
+                    <div id="emptyDeadlinesState" class="empty-state" style="display: none; padding: 20px 0;">
+                        <i class="fas fa-calendar-check"></i>
+                        <p>No upcoming deadlines</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Enhanced Project Planner v2.1 | Data saved automatically | Track and manage all your projects in one place</p>
+            <p><i class="fas fa-code"></i> Made with the same color scheme as Art History Helper</p>
+        </div>
+    </div>
+
+    <!-- Floating Window for Project Form -->
+    <div class="floating-window" id="floatingWindow">
+        <div class="window-header" id="windowHeader">
+            <div class="window-title">
+                <i class="fas fa-plus-circle"></i> <span id="windowTitle">New Project</span>
+            </div>
+            <div class="window-controls">
+                <button class="window-control" id="minimizeBtn">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button class="window-control" id="closeBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="window-body">
+            <form id="projectForm">
+                <div class="form-group">
+                    <label for="projectName"><i class="fas fa-heading"></i> Project Name</label>
+                    <input type="text" id="projectName" placeholder="Enter project name" required maxlength="100">
+                </div>
+                
+                <div class="form-group">
+                    <label for="projectDescription"><i class="fas fa-align-left"></i> Description</label>
+                    <textarea id="projectDescription" rows="3" placeholder="Describe the project (optional)" maxlength="500"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="projectPriority"><i class="fas fa-flag"></i> Priority</label>
+                    <select id="projectPriority">
+                        <option value="high">High Priority</option>
+                        <option value="medium" selected>Medium Priority</option>
+                        <option value="low">Low Priority</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="projectDueDate"><i class="fas fa-calendar-alt"></i> Due Date (Optional)</label>
+                    <input type="date" id="projectDueDate">
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-tasks"></i> Subtasks (Optional)</label>
+                    <div class="subtasks-container" id="subtasksContainer">
+                        <!-- Subtasks will be added here -->
+                    </div>
+                    <div class="add-subtask">
+                        <input type="text" id="newSubtaskInput" placeholder="Add a subtask" maxlength="200">
+                        <button type="button" class="btn" id="addSubtaskBtn">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary" id="submitProjectBtn">
+                        <i class="fas fa-save"></i> Save Project
+                    </button>
+                    <button type="button" class="btn" id="cancelFormBtn">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced Project Planner Application
+        class ProjectPlanner {
+            constructor() {
+                // Application state
+                this.projects = [];
+                this.nextId = 1;
+                this.currentSubtasks = [];
+                this.currentProjectId = null;
+                this.isEditing = false;
+                this.sortBy = 'date'; // 'date', 'name', 'priority'
+                
+                // DOM elements
+                this.elements = {
+                    loading: document.getElementById('loading'),
+                    toast: document.getElementById('toast'),
+                    toastMessage: document.getElementById('toast-message'),
+                    allProjectsList: document.getElementById('allProjectsList'),
+                    emptyProjectsState: document.getElementById('emptyProjectsState'),
+                    upcomingDeadlinesList: document.getElementById('upcomingDeadlinesList'),
+                    emptyDeadlinesState: document.getElementById('emptyDeadlinesState'),
+                    overallProgress: document.getElementById('overallProgress'),
+                    overallProgressText: document.getElementById('overallProgressText'),
+                    totalProjects: document.getElementById('totalProjects'),
+                    activeProjects: document.getElementById('activeProjects'),
+                    completedProjects: document.getElementById('completedProjects'),
+                    highPriority: document.getElementById('highPriority'),
+                    floatingWindow: document.getElementById('floatingWindow'),
+                    windowHeader: document.getElementById('windowHeader'),
+                    windowTitle: document.getElementById('windowTitle'),
+                    projectForm: document.getElementById('projectForm'),
+                    projectName: document.getElementById('projectName'),
+                    projectDescription: document.getElementById('projectDescription'),
+                    projectPriority: document.getElementById('projectPriority'),
+                    projectDueDate: document.getElementById('projectDueDate'),
+                    subtasksContainer: document.getElementById('subtasksContainer'),
+                    newSubtaskInput: document.getElementById('newSubtaskInput'),
+                    addSubtaskBtn: document.getElementById('addSubtaskBtn'),
+                    submitProjectBtn: document.getElementById('submitProjectBtn'),
+                    minimizeBtn: document.getElementById('minimizeBtn'),
+                    closeBtn: document.getElementById('closeBtn'),
+                    cancelFormBtn: document.getElementById('cancelFormBtn'),
+                    newProjectBtn: document.getElementById('newProjectBtn'),
+                    emptyStateNewProjectBtn: document.getElementById('emptyStateNewProjectBtn'),
+                    clearDataBtn: document.getElementById('clearDataBtn'),
+                    exportDataBtn: document.getElementById('exportDataBtn'),
+                    sortByNameBtn: document.getElementById('sortByNameBtn'),
+                    sortByDateBtn: document.getElementById('sortByDateBtn'),
+                    markAllCompletedBtn: document.getElementById('markAllCompletedBtn'),
+                    archiveCompletedBtn: document.getElementById('archiveCompletedBtn'),
+                    duplicateLastProjectBtn: document.getElementById('duplicateLastProjectBtn')
+                };
+                
+                // Initialize the application
+                this.init();
+            }
+            
+            async init() {
+                // Show loading indicator
+                this.elements.loading.classList.remove('hidden');
+                
+                // Load projects from localStorage
+                await this.loadProjects();
+                
+                // Set up event listeners
+                this.setupEventListeners();
+                
+                // Set up draggable window
+                this.setupDraggableWindow();
+                
+                // Initial render
+                this.renderAllProjects();
+                this.updateDashboardStats();
+                
+                // Hide loading indicator after a short delay
+                setTimeout(() => {
+                    this.elements.loading.classList.add('hidden');
+                    this.showToast('Project Planner loaded successfully!', 'success');
+                }, 500);
+                
+                // Auto-save every 30 seconds
+                setInterval(() => this.saveProjects(), 30000);
+            }
+            
+            // Load projects from localStorage
+            async loadProjects() {
+                try {
+                    const savedData = localStorage.getItem('projectPlannerData');
+                    
+                    if (savedData) {
+                        const data = JSON.parse(savedData);
+                        this.projects = data.projects || [];
+                        this.nextId = data.nextId || this.projects.length + 1;
+                        
+                        // Validate and fix project data if needed
+                        this.projects = this.projects.map(project => {
+                            // Ensure all required fields exist
+                            return {
+                                id: project.id || this.generateId(),
+                                name: project.name || 'Unnamed Project',
+                                description: project.description || '',
+                                priority: project.priority || 'medium',
+                                dueDate: project.dueDate || null,
+                                progress: project.progress || 0,
+                                status: project.status || 'not-started',
+                                subtasks: project.subtasks || [],
+                                createdAt: project.createdAt || new Date().toISOString(),
+                                updatedAt: project.updatedAt || new Date().toISOString(),
+                                archived: project.archived || false
+                            };
+                        });
+                        
+                        // Sort by updated date by default
+                        this.sortProjects('date');
+                    } else {
+                        // Create sample projects if no data exists
+                        this.createSampleProjects();
+                    }
+                } catch (error) {
+                    console.error('Error loading projects:', error);
+                    this.showToast('Error loading project data', 'error');
+                    this.createSampleProjects();
+                }
+            }
+            
+            // Save projects to localStorage
+            saveProjects() {
+                try {
+                    const data = {
+                        projects: this.projects,
+                        nextId: this.nextId,
+                        lastSaved: new Date().toISOString()
+                    };
+                    localStorage.setItem('projectPlannerData', JSON.stringify(data));
+                } catch (error) {
+                    console.error('Error saving projects:', error);
+                    this.showToast('Error saving project data', 'error');
+                }
+            }
+            
+            // Create sample projects
+            createSampleProjects() {
+                const sampleProjects = [
+                    {
+                        id: this.generateId(),
+                        name: "Website Redesign",
+                        description: "Redesign company website with modern UI/UX",
+                        priority: "high",
+                        dueDate: this.getFutureDate(10),
+                        progress: 75,
+                        status: "in-progress",
+                        subtasks: [
+                            { id: 1, text: "Create wireframes", completed: true },
+                            { id: 2, text: "Design homepage", completed: true },
+                            { id: 3, text: "Develop responsive layout", completed: false },
+                            { id: 4, text: "Test cross-browser compatibility", completed: false }
+                        ],
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        archived: false
+                    },
+                    {
+                        id: this.generateId(),
+                        name: "Mobile App Development",
+                        description: "Build iOS and Android app for product",
+                        priority: "medium",
+                        dueDate: this.getFutureDate(30),
+                        progress: 40,
+                        status: "in-progress",
+                        subtasks: [
+                            { id: 1, text: "Set up development environment", completed: true },
+                            { id: 2, text: "Create app UI design", completed: true },
+                            { id: 3, text: "Implement core features", completed: false },
+                            { id: 4, text: "Test on iOS device", completed: false },
+                            { id: 5, text: "Test on Android device", completed: false }
+                        ],
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        archived: false
+                    },
+                    {
+                        id: this.generateId(),
+                        name: "Client Presentation",
+                        description: "Prepare slides and demo for client meeting",
+                        priority: "high",
+                        dueDate: this.getFutureDate(3),
+                        progress: 0,
+                        status: "not-started",
+                        subtasks: [
+                            { id: 1, text: "Research client background", completed: false },
+                            { id: 2, text: "Create presentation slides", completed: false },
+                            { id: 3, text: "Prepare product demo", completed: false }
+                        ],
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        archived: false
+                    }
+                ];
+                
+                this.projects = sampleProjects;
+                this.saveProjects();
+            }
+            
+            // Set up event listeners
+            setupEventListeners() {
+                // Form submission
+                this.elements.projectForm.addEventListener('submit', (e) => this.handleFormSubmit(e));
+                
+                // Subtasks
+                this.elements.addSubtaskBtn.addEventListener('click', () => this.addSubtask());
+                this.elements.newSubtaskInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.addSubtask();
+                    }
+                });
+                
+                // Window controls
+                this.elements.minimizeBtn.addEventListener('click', () => this.toggleMinimizeWindow());
+                this.elements.closeBtn.addEventListener('click', () => this.closeWindow());
+                this.elements.cancelFormBtn.addEventListener('click', () => this.closeWindow());
+                
+                // New project buttons
+                this.elements.newProjectBtn.addEventListener('click', () => this.openNewProjectForm());
+                this.elements.emptyStateNewProjectBtn.addEventListener('click', () => this.openNewProjectForm());
+                
+                // Data management
+                this.elements.clearDataBtn.addEventListener('click', () => this.clearAllData());
+                this.elements.exportDataBtn.addEventListener('click', () => this.exportData());
+                
+                // Sorting
+                this.elements.sortByNameBtn.addEventListener('click', () => this.sortProjects('name'));
+                this.elements.sortByDateBtn.addEventListener('click', () => this.sortProjects('date'));
+                
+                // Quick actions
+                this.elements.markAllCompletedBtn.addEventListener('click', () => this.markAllCompleted());
+                this.elements.archiveCompletedBtn.addEventListener('click', () => this.archiveCompleted());
+                this.elements.duplicateLastProjectBtn.addEventListener('click', () => this.duplicateLastProject());
+                
+                // Save on page unload
+                window.addEventListener('beforeunload', () => this.saveProjects());
+            }
+            
+            // Set up draggable window
+            setupDraggableWindow() {
+                const window = this.elements.floatingWindow;
+                const header = this.elements.windowHeader;
+                
+                let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+                
+                header.onmousedown = dragMouseDown;
+                
+                const self = this;
+                
+                function dragMouseDown(e) {
+                    e = e || window.event;
+                    e.preventDefault();
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    document.onmouseup = closeDragElement;
+                    document.onmousemove = elementDrag;
+                }
+                
+                function elementDrag(e) {
+                    e = e || window.event;
+                    e.preventDefault();
+                    pos1 = pos3 - e.clientX;
+                    pos2 = pos4 - e.clientY;
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    
+                    let newTop = window.offsetTop - pos2;
+                    let newLeft = window.offsetLeft - pos1;
+                    
+                    const maxTop = window.innerHeight - 50;
+                    const maxLeft = window.innerWidth - 50;
+                    
+                    newTop = Math.max(0, Math.min(newTop, maxTop));
+                    newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                    
+                    window.style.top = newTop + "px";
+                    window.style.left = newLeft + "px";
+                    window.style.right = "auto";
+                    window.style.bottom = "auto";
+                }
+                
+                function closeDragElement() {
+                    document.onmouseup = null;
+                    document.onmousemove = null;
+                }
+            }
+            
+            // Render all projects
+            renderAllProjects() {
+                const container = this.elements.allProjectsList;
+                container.innerHTML = '';
+                
+                // Filter out archived projects
+                const activeProjects = this.projects.filter(p => !p.archived);
+                
+                if (activeProjects.length === 0) {
+                    this.elements.emptyProjectsState.style.display = 'block';
+                    return;
+                }
+                
+                this.elements.emptyProjectsState.style.display = 'none';
+                
+                // Create project cards
+                activeProjects.forEach(project => {
+                    const projectCard = this.createProjectCard(project);
+                    container.appendChild(projectCard);
+                });
+                
+                // Update upcoming deadlines
+                this.renderUpcomingDeadlines();
+                
+                // Add slide-in animation
+                setTimeout(() => {
+                    const cards = container.querySelectorAll('.project-card');
+                    cards.forEach((card, index) => {
+                        setTimeout(() => {
+                            card.classList.add('slide-in');
+                        }, index * 50);
+                    });
+                }, 10);
+            }
+            
+            // Create a project card element
+            createProjectCard(project) {
+                const card = document.createElement('div');
+                card.className = `project-card priority-${project.priority} ${project.status === 'completed' ? 'completed' : ''}`;
+                card.dataset.id = project.id;
+                
+                // Calculate progress from subtasks
+                const progress = this.calculateProgress(project);
+                if (progress !== project.progress) {
+                    project.progress = progress;
+                    project.status = this.getProjectStatus(progress);
+                }
+                
+                // Format dates
+                const createdDate = new Date(project.createdAt).toLocaleDateString();
+                const dueDate = project.dueDate ? new Date(project.dueDate).toLocaleDateString() : 'No due date';
+                
+                // Determine days remaining
+                let daysRemaining = '';
+                if (project.dueDate && project.status !== 'completed') {
+                    const today = new Date();
+                    const due = new Date(project.dueDate);
+                    const diffTime = due - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays < 0) {
+                        daysRemaining = `<span style="color: var(--accent-red);">Overdue by ${Math.abs(diffDays)} days</span>`;
+                    } else if (diffDays === 0) {
+                        daysRemaining = '<span style="color: var(--accent-orange);">Due today</span>';
+                    } else if (diffDays <= 7) {
+                        daysRemaining = `<span style="color: var(--accent-orange);">Due in ${diffDays} days</span>`;
+                    } else {
+                        daysRemaining = `Due in ${diffDays} days`;
+                    }
+                }
+                
+                // Create subtasks HTML
+                let subtasksHTML = '';
+                if (project.subtasks && project.subtasks.length > 0) {
+                    subtasksHTML = `
+                        <div class="subtasks-container">
+                            ${project.subtasks.slice(0, 3).map(subtask => `
+                                <div class="subtask-item">
+                                    <input type="checkbox" class="subtask-checkbox" ${subtask.completed ? 'checked' : ''} 
+                                           data-project-id="${project.id}" data-subtask-id="${subtask.id}">
+                                    <span class="subtask-text ${subtask.completed ? 'subtask-completed' : ''}">
+                                        ${subtask.text}
+                                    </span>
+                                </div>
+                            `).join('')}
+                            ${project.subtasks.length > 3 ? `<p style="color: var(--text-muted); font-size: 0.8rem; text-align: center; margin-top: 5px;">+${project.subtasks.length - 3} more subtasks</p>` : ''}
+                        </div>
+                    `;
+                }
+                
+                // Create status badge
+                const statusText = project.status === 'completed' ? 'Completed' : 
+                                 project.status === 'in-progress' ? 'In Progress' : 'Not Started';
+                const statusClass = `status-${project.status}`;
+                
+                card.innerHTML = `
+                    <div class="project-header">
+                        <div>
+                            <h3 class="project-title">${project.name}</h3>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </div>
+                        <span class="project-priority priority-${project.priority}">
+                            ${project.priority.charAt(0).toUpperCase() + project.priority.slice(1)} Priority
+                        </span>
+                    </div>
+                    
+                    <p class="project-description">${project.description || 'No description provided.'}</p>
+                    
+                    ${subtasksHTML}
+                    
+                    <div class="progress-container">
+                        <div class="progress-info">
+                            <span>Progress</span>
+                            <span>${project.progress}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${project.progress}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-meta">
+                        <div>
+                            <i class="fas fa-calendar-plus"></i> Created: ${createdDate}
+                        </div>
+                        <div>
+                            <i class="fas fa-calendar-day"></i> ${dueDate}
+                        </div>
+                    </div>
+                    
+                    ${daysRemaining ? `<p style="margin-top: 10px; font-size: 0.9rem;">${daysRemaining}</p>` : ''}
+                    
+                    <div class="project-actions">
+                        <button class="btn" data-action="edit" data-id="${project.id}">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        ${project.status !== 'completed' ? `
+                            <button class="btn btn-success" data-action="complete" data-id="${project.id}">
+                                <i class="fas fa-check"></i> Complete
+                            </button>
+                        ` : `
+                            <button class="btn" data-action="reopen" data-id="${project.id}">
+                                <i class="fas fa-undo"></i> Reopen
+                            </button>
+                        `}
+                        <button class="btn btn-danger" data-action="delete" data-id="${project.id}">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+                
+                // Add event listeners to buttons
+                const buttons = card.querySelectorAll('[data-action]');
+                buttons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const action = button.dataset.action;
+                        const id = parseInt(button.dataset.id);
+                        this.handleProjectAction(action, id);
+                    });
+                });
+                
+                // Add event listeners to subtask checkboxes
+                const checkboxes = card.querySelectorAll('.subtask-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', (e) => {
+                        const projectId = parseInt(checkbox.dataset.projectId);
+                        const subtaskId = parseInt(checkbox.dataset.subtaskId);
+                        this.toggleSubtask(projectId, subtaskId, checkbox.checked);
+                    });
+                });
+                
+                return card;
+            }
+            
+            // Render upcoming deadlines
+            renderUpcomingDeadlines() {
+                const container = this.elements.upcomingDeadlinesList;
+                container.innerHTML = '';
+                
+                const now = new Date();
+                const weekFromNow = new Date();
+                weekFromNow.setDate(now.getDate() + 7);
+                
+                // Filter projects with due dates within the next week
+                const upcomingProjects = this.projects.filter(project => {
+                    if (project.archived || project.status === 'completed' || !project.dueDate) return false;
+                    
+                    const dueDate = new Date(project.dueDate);
+                    return dueDate >= now && dueDate <= weekFromNow;
+                });
+                
+                // Sort by due date
+                upcomingProjects.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                
+                if (upcomingProjects.length === 0) {
+                    this.elements.emptyDeadlinesState.style.display = 'block';
+                    return;
+                }
+                
+                this.elements.emptyDeadlinesState.style.display = 'none';
+                
+                // Create deadline items
+                upcomingProjects.forEach(project => {
+                    const dueDate = new Date(project.dueDate);
+                    const daysUntilDue = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+                    
+                    const deadlineItem = document.createElement('div');
+                    deadlineItem.className = 'project-item';
+                    deadlineItem.style.marginBottom = '10px';
+                    deadlineItem.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>${project.name}</strong>
+                                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 3px;">
+                                    ${dueDate.toLocaleDateString()}
+                                </div>
+                            </div>
+                            <span class="status-badge ${daysUntilDue <= 2 ? 'status-in-progress' : 'status-not-started'}">
+                                ${daysUntilDue === 0 ? 'Today' : daysUntilDue === 1 ? 'Tomorrow' : `${daysUntilDue} days`}
+                            </span>
+                        </div>
+                        <div class="progress-bar" style="margin-top: 8px;">
+                            <div class="progress-fill" style="width: ${project.progress}%"></div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(deadlineItem);
+                });
+            }
+            
+            // Handle project actions
+            handleProjectAction(action, id) {
+                const project = this.projects.find(p => p.id === id);
+                if (!project) return;
+                
+                switch(action) {
+                    case 'edit':
+                        this.openEditProjectForm(project);
+                        break;
+                    case 'delete':
+                        if (confirm(`Are you sure you want to delete "${project.name}"?`)) {
+                            this.deleteProject(id);
+                            this.showToast(`Project "${project.name}" deleted`, 'success');
+                        }
+                        break;
+                    case 'complete':
+                        project.progress = 100;
+                        project.status = 'completed';
+                        project.updatedAt = new Date().toISOString();
+                        
+                        // Mark all subtasks as completed
+                        if (project.subtasks) {
+                            project.subtasks.forEach(subtask => {
+                                subtask.completed = true;
+                            });
+                        }
+                        
+                        this.saveProjects();
+                        this.renderAllProjects();
+                        this.updateDashboardStats();
+                        this.showToast(`Project "${project.name}" marked as complete`, 'success');
+                        break;
+                    case 'reopen':
+                        project.progress = 50;
+                        project.status = 'in-progress';
+                        project.updatedAt = new Date().toISOString();
+                        this.saveProjects();
+                        this.renderAllProjects();
+                        this.updateDashboardStats();
+                        this.showToast(`Project "${project.name}" reopened`, 'success');
+                        break;
+                }
+            }
+            
+            // Toggle subtask completion
+            toggleSubtask(projectId, subtaskId, completed) {
+                const project = this.projects.find(p => p.id === projectId);
+                if (!project || !project.subtasks) return;
+                
+                const subtask = project.subtasks.find(s => s.id === subtaskId);
+                if (subtask) {
+                    subtask.completed = completed;
+                    project.updatedAt = new Date().toISOString();
+                    
+                    // Update project progress
+                    const progress = this.calculateProgress(project);
+                    project.progress = progress;
+                    project.status = this.getProjectStatus(progress);
+                    
+                    this.saveProjects();
+                    this.renderAllProjects();
+                    this.updateDashboardStats();
+                    
+                    if (completed) {
+                        this.showToast(`Subtask completed: "${subtask.text}"`, 'success');
+                    }
+                }
+            }
+            
+            // Calculate progress from subtasks
+            calculateProgress(project) {
+                if (!project.subtasks || project.subtasks.length === 0) {
+                    return project.progress;
+                }
+                
+                const completedCount = project.subtasks.filter(s => s.completed).length;
+                return Math.round((completedCount / project.subtasks.length) * 100);
+            }
+            
+            // Get project status based on progress
+            getProjectStatus(progress) {
+                if (progress === 0) return 'not-started';
+                if (progress > 0 && progress < 100) return 'in-progress';
+                return 'completed';
+            }
+            
+            // Open new project form
+            openNewProjectForm() {
+                this.isEditing = false;
+                this.currentSubtasks = [];
+                this.currentProjectId = null;
+                
+                this.elements.windowTitle.textContent = 'New Project';
+                this.elements.projectForm.reset();
+                this.elements.projectDueDate.value = '';
+                this.renderSubtasks();
+                
+                // Set default due date to one week from now
+                const nextWeek = new Date();
+                nextWeek.setDate(nextWeek.getDate() + 7);
+                this.elements.projectDueDate.valueAsDate = nextWeek;
+                
+                this.openWindow();
+            }
+            
+            // Open edit project form
+            openEditProjectForm(project) {
+                this.isEditing = true;
+                this.currentSubtasks = [...project.subtasks];
+                this.currentProjectId = project.id;
+                
+                this.elements.windowTitle.textContent = 'Edit Project';
+                this.elements.projectName.value = project.name;
+                this.elements.projectDescription.value = project.description || '';
+                this.elements.projectPriority.value = project.priority;
+                this.elements.projectDueDate.value = project.dueDate || '';
+                this.renderSubtasks();
+                
+                this.openWindow();
+            }
+            
+            // Open the floating window
+            openWindow() {
+                this.elements.floatingWindow.classList.add('active');
+                this.elements.floatingWindow.classList.remove('minimized');
+                
+                // Position the window
+                this.elements.floatingWindow.style.top = '50px';
+                this.elements.floatingWindow.style.right = '20px';
+                this.elements.floatingWindow.style.left = 'auto';
+                this.elements.floatingWindow.style.bottom = 'auto';
+            }
+            
+            // Close the floating window
+            closeWindow() {
+                this.elements.floatingWindow.classList.remove('active');
+                this.elements.projectForm.reset();
+                this.currentSubtasks = [];
+                this.isEditing = false;
+            }
+            
+            // Toggle minimize window
+            toggleMinimizeWindow() {
+                this.elements.floatingWindow.classList.toggle('minimized');
+            }
+            
+            // Handle form submission
+            handleFormSubmit(e) {
+                e.preventDefault();
+                
+                const projectData = {
+                    name: this.elements.projectName.value.trim(),
+                    description: this.elements.projectDescription.value.trim(),
+                    priority: this.elements.projectPriority.value,
+                    dueDate: this.elements.projectDueDate.value || null,
+                    subtasks: [...this.currentSubtasks],
+                    updatedAt: new Date().toISOString()
+                };
+                
+                // Validate project name
+                if (!projectData.name) {
+                    this.showToast('Project name is required', 'error');
+                    return;
+                }
+                
+                // Disable submit button to prevent double submission
+                const submitBtn = this.elements.submitProjectBtn;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                
+                if (this.isEditing && this.currentProjectId) {
+                    // Update existing project
+                    const project = this.projects.find(p => p.id === this.currentProjectId);
+                    if (project) {
+                        Object.assign(project, projectData);
+                        
+                        // Recalculate progress
+                        project.progress = this.calculateProgress(project);
+                        project.status = this.getProjectStatus(project.progress);
+                        
+                        this.showToast(`Project "${project.name}" updated`, 'success');
+                    }
+                } else {
+                    // Create new project
+                    const newProject = {
+                        id: this.generateId(),
+                        ...projectData,
+                        progress: 0,
+                        status: 'not-started',
+                        createdAt: new Date().toISOString(),
+                        archived: false
+                    };
+                    
+                    this.projects.push(newProject);
+                    this.showToast(`Project "${newProject.name}" created`, 'success');
+                }
+                
+                // Reset form and close window
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Project';
+                    
+                    this.saveProjects();
+                    this.sortProjects(this.sortBy);
+                    this.renderAllProjects();
+                    this.updateDashboardStats();
+                    this.closeWindow();
+                }, 500);
+            }
+            
+            // Add subtask
+            addSubtask() {
+                const text = this.elements.newSubtaskInput.value.trim();
+                if (!text) {
+                    this.showToast('Please enter subtask text', 'error');
+                    return;
+                }
+                
+                const subtask = {
+                    id: this.currentSubtasks.length + 1,
+                    text: text,
+                    completed: false
+                };
+                
+                this.currentSubtasks.push(subtask);
+                this.elements.newSubtaskInput.value = '';
+                this.renderSubtasks();
+                
+                // Focus back on input
+                this.elements.newSubtaskInput.focus();
+            }
+            
+            // Render subtasks
+            renderSubtasks() {
+                const container = this.elements.subtasksContainer;
+                container.innerHTML = '';
+                
+                if (this.currentSubtasks.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 10px;">No subtasks added yet</p>';
+                    return;
+                }
+                
+                this.currentSubtasks.forEach((subtask, index) => {
+                    const subtaskElement = document.createElement('div');
+                    subtaskElement.className = 'subtask-item';
+                    subtaskElement.innerHTML = `
+                        <span class="subtask-text">${subtask.text}</span>
+                        <button class="btn" style="padding: 4px 8px; margin-left: 10px;" data-subtask-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    
+                    const deleteBtn = subtaskElement.querySelector('button');
+                    deleteBtn.addEventListener('click', () => {
+                        this.currentSubtasks.splice(index, 1);
+                        this.renderSubtasks();
+                    });
+                    
+                    container.appendChild(subtaskElement);
+                });
+            }
+            
+            // Delete project
+            deleteProject(id) {
+                this.projects = this.projects.filter(p => p.id !== id);
+                this.saveProjects();
+                this.renderAllProjects();
+                this.updateDashboardStats();
+            }
+            
+            // Sort projects
+            sortProjects(criteria) {
+                this.sortBy = criteria;
+                
+                switch(criteria) {
+                    case 'name':
+                        this.projects.sort((a, b) => a.name.localeCompare(b.name));
+                        break;
+                    case 'date':
+                        this.projects.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+                        break;
+                    case 'priority':
+                        const priorityOrder = { high: 3, medium: 2, low: 1 };
+                        this.projects.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]);
+                        break;
+                }
+                
+                this.renderAllProjects();
+                
+                // Update active sort button
+                document.querySelectorAll('[id$="Btn"]').forEach(btn => {
+                    if (btn.id.includes('sortBy')) {
+                        btn.classList.remove('btn-primary');
+                    }
+                });
+                
+                if (criteria === 'name') {
+                    this.elements.sortByNameBtn.classList.add('btn-primary');
+                } else {
+                    this.elements.sortByDateBtn.classList.add('btn-primary');
+                }
+            }
+            
+            // Update dashboard statistics
+            updateDashboardStats() {
+                const total = this.projects.filter(p => !p.archived).length;
+                const active = this.projects.filter(p => !p.archived && p.status === 'in-progress').length;
+                const completed = this.projects.filter(p => !p.archived && p.status === 'completed').length;
+                const highPriority = this.projects.filter(p => !p.archived && p.priority === 'high').length;
+                
+                // Calculate overall progress
+                const overallProgress = total > 0 
+                    ? Math.round(this.projects.filter(p => !p.archived).reduce((sum, p) => sum + p.progress, 0) / total)
+                    : 0;
+                
+                // Update DOM elements
+                this.elements.totalProjects.textContent = total;
+                this.elements.activeProjects.textContent = active;
+                this.elements.completedProjects.textContent = completed;
+                this.elements.highPriority.textContent = highPriority;
+                this.elements.overallProgress.style.width = `${overallProgress}%`;
+                this.elements.overallProgressText.textContent = `${overallProgress}%`;
+            }
+            
+            // Mark all projects as completed
+            markAllCompleted() {
+                if (this.projects.length === 0) {
+                    this.showToast('No projects to mark as complete', 'warning');
+                    return;
+                }
+                
+                if (confirm('Mark all active projects as completed?')) {
+                    this.projects.forEach(project => {
+                        if (!project.archived && project.status !== 'completed') {
+                            project.progress = 100;
+                            project.status = 'completed';
+                            project.updatedAt = new Date().toISOString();
+                            
+                            // Mark all subtasks as completed
+                            if (project.subtasks) {
+                                project.subtasks.forEach(subtask => {
+                                    subtask.completed = true;
+                                });
+                            }
+                        }
+                    });
+                    
+                    this.saveProjects();
+                    this.renderAllProjects();
+                    this.updateDashboardStats();
+                    this.showToast('All projects marked as complete', 'success');
+                }
+            }
+            
+            // Archive completed projects
+            archiveCompleted() {
+                const completedProjects = this.projects.filter(p => p.status === 'completed' && !p.archived);
+                
+                if (completedProjects.length === 0) {
+                    this.showToast('No completed projects to archive', 'warning');
+                    return;
+                }
+                
+                if (confirm(`Archive ${completedProjects.length} completed project(s)?`)) {
+                    completedProjects.forEach(project => {
+                        project.archived = true;
+                    });
+                    
+                    this.saveProjects();
+                    this.renderAllProjects();
+                    this.updateDashboardStats();
+                    this.showToast(`${completedProjects.length} project(s) archived`, 'success');
+                }
+            }
+            
+            // Duplicate last project
+            duplicateLastProject() {
+                if (this.projects.length === 0) {
+                    this.showToast('No projects to duplicate', 'warning');
+                    return;
+                }
+                
+                const lastProject = this.projects[this.projects.length - 1];
+                const duplicatedProject = {
+                    ...JSON.parse(JSON.stringify(lastProject)),
+                    id: this.generateId(),
+                    name: `${lastProject.name} (Copy)`,
+                    progress: 0,
+                    status: 'not-started',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    archived: false
+                };
+                
+                // Reset subtask completion
+                if (duplicatedProject.subtasks) {
+                    duplicatedProject.subtasks.forEach(subtask => {
+                        subtask.completed = false;
+                    });
+                }
+                
+                this.projects.push(duplicatedProject);
+                this.saveProjects();
+                this.renderAllProjects();
+                this.updateDashboardStats();
+                this.showToast(`Project "${lastProject.name}" duplicated`, 'success');
+            }
+            
+            // Clear all data
+            clearAllData() {
+                if (confirm('Are you sure you want to clear ALL project data? This cannot be undone.')) {
+                    localStorage.removeItem('projectPlannerData');
+                    this.projects = [];
+                    this.nextId = 1;
+                    this.renderAllProjects();
+                    this.updateDashboardStats();
+                    this.showToast('All project data cleared', 'success');
+                }
+            }
+            
+            // Export data
+            exportData() {
+                const data = {
+                    projects: this.projects,
+                    exportedAt: new Date().toISOString(),
+                    totalProjects: this.projects.length
+                };
+                
+                const dataStr = JSON.stringify(data, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                
+                const exportFileDefaultName = `project-planner-export-${new Date().toISOString().split('T')[0]}.json`;
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+                
+                this.showToast('Project data exported successfully', 'success');
+            }
+            
+            // Show toast notification
+            showToast(message, type = 'info') {
+                const toast = this.elements.toast;
+                const toastMessage = this.elements.toastMessage;
+                
+                toastMessage.textContent = message;
+                toast.className = 'toast';
+                toast.classList.add(type, 'show');
+                
+                // Hide toast after 3 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Generate a new project ID
+            generateId() {
+                return this.nextId++;
+            }
+            
+            // Get future date
+            getFutureDate(days) {
+                const date = new Date();
+                date.setDate(date.getDate() + days);
+                return date.toISOString().split('T')[0];
+            }
+        }
+        
+        // Initialize the application when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.projectPlanner = new ProjectPlanner();
+        });
+    </script>
+</body>
+</html>

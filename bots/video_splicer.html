@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Frame Splicer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.8);
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: #ff8000;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #aaa;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .control-panel {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+        }
+        
+        .frame-display {
+            flex: 2;
+            min-width: 500px;
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+        }
+        
+        .panel-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ff8000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .panel-title i {
+            font-size: 1.8rem;
+        }
+        
+        .upload-area {
+            border: 2px dashed rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(50, 50, 70, 0.4);
+        }
+        
+        .upload-area:hover {
+            background: rgba(255, 128, 0, 0.1);
+            border-color: #ff8000;
+        }
+        
+        .upload-icon {
+            font-size: 3.5rem;
+            color: #ff8000;
+            margin-bottom: 15px;
+        }
+        
+        .upload-area p {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        
+        .upload-area span {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        #videoFile {
+            display: none;
+        }
+        
+        .video-preview {
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 20px;
+            background: #000;
+            display: none;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .control-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #ccc;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+            height: 8px;
+            border-radius: 5px;
+            background: rgba(50, 50, 70, 0.4);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #ff8000;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .value-display {
+            min-width: 40px;
+            text-align: center;
+            font-weight: bold;
+            color: #ff8000;
+        }
+        
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .input-group input[type="number"] {
+            flex: 1;
+            padding: 12px 15px;
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        .input-group input[type="number"]:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 0 2px rgba(255, 128, 0, 0.2);
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        #extractBtn {
+            background: rgba(255, 128, 0, 0.2);
+            color: #ff8000;
+            border: 1px solid #ff8000;
+        }
+        
+        #extractBtn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.3);
+        }
+        
+        #downloadBtn {
+            background: rgba(50, 50, 70, 0.3);
+            color: #aaa;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        #downloadBtn:hover:not(:disabled) {
+            background: rgba(255, 128, 0, 0.1);
+            color: #ff8000;
+            border: 1px solid #ff8000;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.2);
+        }
+        
+        #downloadBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff8000;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        .frames-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(20, 20, 35, 0.3);
+        }
+        
+        .frame-item {
+            background: rgba(30, 30, 50, 0.5);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .frame-item:hover {
+            transform: scale(1.05);
+            z-index: 10;
+            border-color: rgba(255, 128, 0, 0.4);
+        }
+        
+        .frame-img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .frame-info {
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            font-size: 0.8rem;
+            text-align: center;
+            color: #fff;
+        }
+        
+        .frame-number {
+            font-weight: bold;
+            color: #ff8000;
+        }
+        
+        .frame-time {
+            color: #aaa;
+        }
+        
+        .progress-container {
+            display: none;
+            margin: 20px 0;
+            background: rgba(20, 20, 35, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .progress-bar {
+            height: 20px;
+            width: 0%;
+            background: linear-gradient(90deg, rgba(255, 69, 0, 0.8), rgba(255, 128, 0, 0.8));
+            border-radius: 8px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            color: #ff8000;
+            font-weight: 600;
+        }
+        
+        .instructions {
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .instructions h2 {
+            color: #ff8000;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+            line-height: 1.8;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+            color: #ccc;
+        }
+        
+        .instructions code {
+            background: rgba(50, 50, 70, 0.4);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #ff8000;
+        }
+        
+        .warning {
+            background: rgba(255, 69, 0, 0.1);
+            border: 1px solid rgba(255, 69, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            color: #ffa500;
+            font-size: 0.9rem;
+        }
+        
+        .warning i {
+            margin-right: 8px;
+        }
+        
+        @media (max-width: 1100px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .control-panel, .frame-display {
+                min-width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .frames-container {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #ff8000;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .no-frames {
+            text-align: center;
+            padding: 40px;
+            color: #aaa;
+        }
+        
+        .no-frames i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #ff8000;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        <span style="font-size: 1.5rem; font-weight: bold; color: #ff8000;">Video Frame Splicer</span>
+        <div style="width: 60px;"></div>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-film"></i> Video Frame Splicer</h1>
+            <p class="subtitle">Upload an MP4 video file, choose your desired frame rate, and extract every frame as individual images. Perfect for creating timelapses, analyzing motion, or extracting stills from videos.</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="control-panel">
+                <h2 class="panel-title"><i class="fas fa-sliders-h"></i> Controls</h2>
+                
+                <div class="upload-area" id="uploadBox">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <p>Click to upload MP4 video file</p>
+                    <span>Supports MP4 files up to 100MB</span>
+                    <input type="file" id="videoFile" accept=".mp4,video/mp4">
+                </div>
+                
+                <video id="videoPreview" class="video-preview" controls></video>
+                
+                <div class="control-group">
+                    <label for="frameRate"><i class="fas fa-tachometer-alt"></i> Frame Extraction Rate (FPS)</label>
+                    <div class="slider-container">
+                        <input type="range" id="frameRate" min="0.1" max="60" step="0.1" value="1">
+                        <span class="value-display" id="frameRateValue">1.0</span>
+                    </div>
+                    <p style="color: #aaa; font-size: 0.9rem; margin-top: 5px;">Lower values extract fewer frames, higher values extract more frames per second of video.</p>
+                </div>
+                
+                <div class="control-group">
+                    <label for="maxFramesInput"><i class="fas fa-layer-group"></i> Maximum Frames to Extract</label>
+                    <div class="input-group">
+                        <input type="number" id="maxFramesInput" min="1" value="100" step="1">
+                        <span style="color: #ff8000; font-weight: bold;">frames</span>
+                    </div>
+                    <p style="color: #aaa; font-size: 0.9rem; margin-top: 5px;">Enter any positive number. Higher values will extract more frames but may take longer to process.</p>
+                    <div class="warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Warning:</strong> Setting very high values (over 1000) may cause browser slowdown or memory issues for long videos.
+                    </div>
+                </div>
+                
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar" id="progressBar"></div>
+                    <div class="progress-text" id="progressText">Extracting frames: 0%</div>
+                </div>
+                
+                <div class="buttons">
+                    <button id="extractBtn">
+                        <i class="fas fa-cut"></i> Extract Frames
+                    </button>
+                    <button id="downloadBtn" disabled>
+                        <i class="fas fa-download"></i> Download All
+                    </button>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value" id="totalFrames">0</div>
+                        <div class="stat-label">Total Frames</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="videoDuration">0s</div>
+                        <div class="stat-label">Video Duration</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="extractedFrames">0</div>
+                        <div class="stat-label">Extracted</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="frame-display">
+                <h2 class="panel-title"><i class="fas fa-images"></i> Extracted Frames</h2>
+                
+                <div class="loading" id="loadingIndicator">
+                    <div class="loading-spinner"></div>
+                    <p>Processing video and extracting frames...</p>
+                </div>
+                
+                <div class="frames-container" id="framesContainer">
+                    <div class="no-frames">
+                        <i class="fas fa-image"></i>
+                        <p>No frames extracted yet. Upload a video and click "Extract Frames" to begin.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h2><i class="fas fa-info-circle"></i> How to Use This Tool</h2>
+            <ol>
+                <li><strong>Upload a video</strong> - Click the upload area and select an MP4 video file from your device.</li>
+                <li><strong>Adjust frame rate</strong> - Use the slider to set how many frames per second you want to extract. Lower values (like 0.5) will give fewer frames, higher values (like 10) will give more frames.</li>
+                <li><strong>Set maximum frames</strong> - Enter the maximum number of frames you want to extract. You can enter any positive number with no upper limit.</li>
+                <li><strong>Extract frames</strong> - Click the "Extract Frames" button to process the video and generate frame images.</li>
+                <li><strong>Download frames</strong> - Once extraction is complete, click "Download All" to get a ZIP file containing all extracted frames.</li>
+            </ol>
+            <div class="warning" style="margin-top: 15px;">
+                <i class="fas fa-exclamation-circle"></i>
+                <strong>Important:</strong> All processing happens in your browser. Your video is not uploaded to any server. For very large videos or high frame counts, processing may take some time.
+            </div>
+        </div>
+        
+        <footer>
+            <p>Video Frame Splicer &copy; 2023 | All processing is done locally in your browser | Works best with Chrome, Firefox, or Edge</p>
+        </footer>
+    </div>
+
+    <!-- JSZip library for creating ZIP files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
+    <script>
+        // DOM elements
+        const videoFileInput = document.getElementById('videoFile');
+        const uploadBox = document.getElementById('uploadBox');
+        const videoPreview = document.getElementById('videoPreview');
+        const frameRateSlider = document.getElementById('frameRate');
+        const frameRateValue = document.getElementById('frameRateValue');
+        const maxFramesInput = document.getElementById('maxFramesInput');
+        const extractBtn = document.getElementById('extractBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const framesContainer = document.getElementById('framesContainer');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const totalFramesElement = document.getElementById('totalFrames');
+        const videoDurationElement = document.getElementById('videoDuration');
+        const extractedFramesElement = document.getElementById('extractedFrames');
+        
+        // State variables
+        let video = null;
+        let extractedFrames = [];
+        let videoDuration = 0;
+        let totalFramesToExtract = 0;
+        
+        // Update slider value displays
+        frameRateSlider.addEventListener('input', () => {
+            frameRateValue.textContent = parseFloat(frameRateSlider.value).toFixed(1);
+            updateTotalFramesEstimate();
+        });
+        
+        // Update total frames when max frames input changes
+        maxFramesInput.addEventListener('input', updateTotalFramesEstimate);
+        maxFramesInput.addEventListener('change', validateMaxFrames);
+        
+        function validateMaxFrames() {
+            let value = parseInt(maxFramesInput.value);
+            if (isNaN(value) || value < 1) {
+                value = 1;
+                maxFramesInput.value = 1;
+            }
+            updateTotalFramesEstimate();
+        }
+        
+        // Handle video file upload
+        uploadBox.addEventListener('click', () => {
+            videoFileInput.click();
+        });
+        
+        videoFileInput.addEventListener('change', handleVideoUpload);
+        
+        function handleVideoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Check if it's an MP4 file
+            if (!file.type.includes('mp4') && !file.name.endsWith('.mp4')) {
+                alert('Please upload an MP4 video file.');
+                return;
+            }
+            
+            // Warn about large files
+            if (file.size > 100 * 1024 * 1024) { // 100MB limit
+                if (!confirm('This video is larger than 100MB. Processing may take a while and could cause browser slowdown. Continue anyway?')) {
+                    return;
+                }
+            }
+            
+            // Create a URL for the video file
+            const videoURL = URL.createObjectURL(file);
+            
+            // Set up video preview
+            videoPreview.src = videoURL;
+            videoPreview.style.display = 'block';
+            
+            // Reset previous extraction
+            resetExtraction();
+            
+            // Wait for video to load metadata
+            videoPreview.addEventListener('loadedmetadata', () => {
+                videoDuration = videoPreview.duration;
+                videoDurationElement.textContent = `${videoDuration.toFixed(1)}s`;
+                
+                // Calculate total frames based on current frame rate
+                updateTotalFramesEstimate();
+            });
+            
+            // Update upload box text
+            uploadBox.innerHTML = `
+                <div class="upload-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <p>${file.name}</p>
+                <span>${(file.size / (1024*1024)).toFixed(2)} MB</span>
+            `;
+            
+            // Enable extract button
+            extractBtn.disabled = false;
+        }
+        
+        function updateTotalFramesEstimate() {
+            if (!videoDuration) return;
+            
+            const frameRate = parseFloat(frameRateSlider.value);
+            let maxFrames = parseInt(maxFramesInput.value);
+            
+            // Validate maxFrames
+            if (isNaN(maxFrames) || maxFrames < 1) {
+                maxFrames = 1;
+                maxFramesInput.value = 1;
+            }
+            
+            // Calculate total frames (duration * frame rate)
+            let total = Math.ceil(videoDuration * frameRate);
+            
+            // Limit by max frames setting
+            total = Math.min(total, maxFrames);
+            
+            totalFramesToExtract = total;
+            totalFramesElement.textContent = total.toLocaleString();
+            
+            // Show warning for very high frame counts
+            if (total > 1000) {
+                totalFramesElement.style.color = '#ff4500';
+                totalFramesElement.innerHTML = `${total.toLocaleString()} <i class="fas fa-exclamation-triangle" style="font-size: 0.8rem;"></i>`;
+            } else {
+                totalFramesElement.style.color = '#ff8000';
+            }
+        }
+        
+        // Handle frame extraction
+        extractBtn.addEventListener('click', extractFrames);
+        
+        async function extractFrames() {
+            if (!videoPreview.src || videoPreview.src === '') {
+                alert('Please upload a video first.');
+                return;
+            }
+            
+            // Get extraction parameters
+            const frameRate = parseFloat(frameRateSlider.value);
+            let maxFrames = parseInt(maxFramesInput.value);
+            
+            // Validate maxFrames
+            if (isNaN(maxFrames) || maxFrames < 1) {
+                alert('Please enter a valid number for maximum frames (minimum 1).');
+                return;
+            }
+            
+            // Warn for very high frame counts
+            if (maxFrames > 1000) {
+                if (!confirm(`You've requested ${maxFrames.toLocaleString()} frames. This may take a while and could slow down your browser. Continue anyway?`)) {
+                    return;
+                }
+            }
+            
+            // Reset previous extraction
+            resetExtraction();
+            
+            // Show loading indicator and progress bar
+            loadingIndicator.style.display = 'block';
+            progressContainer.style.display = 'block';
+            framesContainer.innerHTML = '';
+            
+            // Disable controls during extraction
+            extractBtn.disabled = true;
+            videoFileInput.disabled = true;
+            maxFramesInput.disabled = true;
+            frameRateSlider.disabled = true;
+            
+            // Calculate time points for frame extraction
+            const frameInterval = 1 / frameRate; // Time between frames in seconds
+            const timePoints = [];
+            
+            for (let time = 0; time < videoDuration && timePoints.length < maxFrames; time += frameInterval) {
+                timePoints.push(time);
+            }
+            
+            // Update total frames display
+            totalFramesToExtract = timePoints.length;
+            totalFramesElement.textContent = totalFramesToExtract.toLocaleString();
+            
+            // Show initial progress
+            updateProgress(0, timePoints.length);
+            
+            // Extract frames with a small delay to prevent browser freeze
+            for (let i = 0; i < timePoints.length; i++) {
+                const time = timePoints[i];
+                
+                try {
+                    const frameDataURL = await captureFrameAtTime(time);
+                    extractedFrames.push({
+                        dataURL: frameDataURL,
+                        time: time,
+                        index: i
+                    });
+                    
+                    // Update UI periodically to prevent UI freeze
+                    if (i % 5 === 0 || i === timePoints.length - 1) {
+                        updateProgress(i + 1, timePoints.length);
+                        updateFramesDisplay();
+                        extractedFramesElement.textContent = extractedFrames.length.toLocaleString();
+                        
+                        // Small delay to keep UI responsive
+                        await new Promise(resolve => setTimeout(resolve, 10));
+                    }
+                } catch (error) {
+                    console.error('Error capturing frame at time', time, error);
+                }
+            }
+            
+            // Extraction complete
+            progressText.textContent = 'Extraction complete!';
+            loadingIndicator.style.display = 'none';
+            
+            // Enable download button if we extracted frames
+            if (extractedFrames.length > 0) {
+                downloadBtn.disabled = false;
+                downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download All (' + extractedFrames.length.toLocaleString() + ' frames)';
+            }
+            
+            // Re-enable controls
+            extractBtn.disabled = false;
+            videoFileInput.disabled = false;
+            maxFramesInput.disabled = false;
+            frameRateSlider.disabled = false;
+        }
+        
+        function captureFrameAtTime(time) {
+            return new Promise((resolve, reject) => {
+                // Set video to the desired time
+                videoPreview.currentTime = time;
+                
+                // Wait for video to seek to the correct time
+                const onSeeked = () => {
+                    // Create a canvas to capture the frame
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Set canvas dimensions to match video
+                    canvas.width = videoPreview.videoWidth;
+                    canvas.height = videoPreview.videoHeight;
+                    
+                    // Draw the current video frame to the canvas
+                    ctx.drawImage(videoPreview, 0, 0, canvas.width, canvas.height);
+                    
+                    // Convert to data URL
+                    const dataURL = canvas.toDataURL('image/jpeg', 0.9);
+                    
+                    // Resolve with the data URL
+                    resolve(dataURL);
+                    
+                    // Remove event listener
+                    videoPreview.removeEventListener('seeked', onSeeked);
+                };
+                
+                // Handle errors
+                const onError = () => {
+                    videoPreview.removeEventListener('seeked', onSeeked);
+                    reject(new Error('Failed to seek to time ' + time));
+                };
+                
+                // Set up event listeners
+                videoPreview.addEventListener('seeked', onSeeked);
+                videoPreview.addEventListener('error', onError);
+                
+                // Set a timeout in case seeking takes too long
+                setTimeout(() => {
+                    videoPreview.removeEventListener('seeked', onSeeked);
+                    videoPreview.removeEventListener('error', onError);
+                    reject(new Error('Timeout seeking to time ' + time));
+                }, 3000);
+            });
+        }
+        
+        function updateProgress(current, total) {
+            const percent = Math.round((current / total) * 100);
+            progressBar.style.width = `${percent}%`;
+            progressText.textContent = `Extracting frames: ${percent}% (${current.toLocaleString()}/${total.toLocaleString()})`;
+        }
+        
+        function updateFramesDisplay() {
+            // Don't update display too frequently for performance
+            if (extractedFrames.length > 100 && extractedFrames.length % 10 !== 0) {
+                return;
+            }
+            
+            // Clear the container
+            framesContainer.innerHTML = '';
+            
+            // Add each frame to the display (limit to 200 for performance)
+            const displayLimit = Math.min(extractedFrames.length, 200);
+            const startIndex = Math.max(0, extractedFrames.length - displayLimit);
+            
+            for (let i = startIndex; i < extractedFrames.length; i++) {
+                const frame = extractedFrames[i];
+                const frameElement = document.createElement('div');
+                frameElement.className = 'frame-item';
+                frameElement.innerHTML = `
+                    <img src="${frame.dataURL}" alt="Frame at ${frame.time.toFixed(2)}s" class="frame-img">
+                    <div class="frame-info">
+                        <div class="frame-number">Frame #${frame.index + 1}</div>
+                        <div class="frame-time">${frame.time.toFixed(2)}s</div>
+                    </div>
+                `;
+                
+                // Add click to download individual frame
+                frameElement.addEventListener('click', () => {
+                    downloadImage(frame.dataURL, `frame_${frame.index + 1}_${frame.time.toFixed(2)}s.jpg`);
+                });
+                
+                framesContainer.appendChild(frameElement);
+            }
+            
+            // Show message if we're not displaying all frames
+            if (extractedFrames.length > displayLimit) {
+                const message = document.createElement('div');
+                message.className = 'warning';
+                message.style.margin = '10px';
+                message.style.textAlign = 'center';
+                message.innerHTML = `<i class="fas fa-info-circle"></i> Showing ${displayLimit} of ${extractedFrames.length} extracted frames. All frames will be included in the download.`;
+                framesContainer.appendChild(message);
+            }
+        }
+        
+        function downloadImage(dataURL, filename) {
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Handle download all frames as ZIP
+        downloadBtn.addEventListener('click', downloadAllFrames);
+        
+        async function downloadAllFrames() {
+            if (extractedFrames.length === 0) {
+                alert('No frames to download. Please extract frames first.');
+                return;
+            }
+            
+            // Warn for large downloads
+            if (extractedFrames.length > 500) {
+                if (!confirm(`You're about to download ${extractedFrames.length.toLocaleString()} frames. This may create a large ZIP file. Continue?`)) {
+                    return;
+                }
+            }
+            
+            // Show loading indicator on download button
+            const originalText = downloadBtn.innerHTML;
+            downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating ZIP...';
+            downloadBtn.disabled = true;
+            
+            try {
+                // Create a new JSZip instance
+                const zip = new JSZip();
+                
+                // Create a folder for the frames
+                const folder = zip.folder("video_frames");
+                
+                // Show progress
+                const progressInfo = document.createElement('div');
+                progressInfo.className = 'warning';
+                progressInfo.style.margin = '10px 0';
+                progressInfo.style.textAlign = 'center';
+                progressInfo.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Adding ${extractedFrames.length.toLocaleString()} frames to ZIP file...`;
+                document.querySelector('.buttons').parentNode.insertBefore(progressInfo, document.querySelector('.buttons'));
+                
+                // Add each frame to the ZIP (with progress updates)
+                let added = 0;
+                const batchSize = 50; // Process in batches to keep UI responsive
+                
+                for (let i = 0; i < extractedFrames.length; i += batchSize) {
+                    const batch = extractedFrames.slice(i, i + batchSize);
+                    
+                    // Process batch
+                    for (let j = 0; j < batch.length; j++) {
+                        const frame = batch[j];
+                        const base64Data = frame.dataURL.split(',')[1];
+                        folder.file(`frame_${frame.index + 1}_${frame.time.toFixed(2)}s.jpg`, base64Data, {base64: true});
+                        added++;
+                    }
+                    
+                    // Update progress
+                    progressInfo.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Adding frames to ZIP: ${added.toLocaleString()}/${extractedFrames.length.toLocaleString()} (${Math.round((added / extractedFrames.length) * 100)}%)`;
+                    
+                    // Allow UI to update
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                }
+                
+                // Remove progress indicator
+                progressInfo.remove();
+                
+                // Generate the ZIP file
+                const zipBlob = await zip.generateAsync({type: 'blob'}, (metadata) => {
+                    // This callback is for zip generation progress
+                    if (metadata.percent) {
+                        progressInfo.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Compressing ZIP: ${Math.round(metadata.percent)}%`;
+                    }
+                });
+                
+                // Create download link
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(zipBlob);
+                link.download = `video_frames_${Date.now()}.zip`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Clean up
+                URL.revokeObjectURL(link.href);
+            } catch (error) {
+                console.error('Error creating ZIP file:', error);
+                alert('Failed to create ZIP file. Please try again.');
+            } finally {
+                // Restore download button
+                downloadBtn.innerHTML = originalText;
+                downloadBtn.disabled = false;
+            }
+        }
+        
+        function resetExtraction() {
+            extractedFrames = [];
+            extractedFramesElement.textContent = '0';
+            framesContainer.innerHTML = `
+                <div class="no-frames">
+                    <i class="fas fa-image"></i>
+                    <p>No frames extracted yet. Upload a video and click "Extract Frames" to begin.</p>
+                </div>
+            `;
+            progressContainer.style.display = 'none';
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download All';
+        }
+        
+        // Initialize with sample values
+        window.addEventListener('DOMContentLoaded', () => {
+            frameRateValue.textContent = frameRateSlider.value;
+            validateMaxFrames();
+        });
+    </script>
+</body>
+</html>

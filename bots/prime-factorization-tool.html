@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prime Factorization tool · high‑quality</title>
+    <!-- Font Awesome 6 (free) for the back arrow icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* navigation bar — exactly as provided */
+        .navbar {
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 2.5rem;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 40px;          /* subtle modern rounding, keep it elegant */
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            backdrop-filter: blur(4px);
+            transition: all 0.2s ease;
+            letter-spacing: 0.3px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ffa64d;
+            color: #ffa64d;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(255, 128, 0, 0.15);
+        }
+
+        .back-btn i {
+            font-size: 0.95rem;
+        }
+
+        /* main card container — everything inside has consistent spacing */
+        .tool-container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(10, 10, 26, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 128, 0, 0.25);
+            border-radius: 32px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 25px 40px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 128, 0, 0.1) inset;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 500;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h1 span {
+            background: rgba(255, 128, 0, 0.15);
+            padding: 0.2rem 1rem;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 400;
+            color: #ffb066;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            letter-spacing: 0.4px;
+        }
+
+        .subhead {
+            font-size: 1.1rem;
+            color: #c0b5d9;
+            margin-bottom: 2.8rem;
+            border-left: 4px solid #ff8000;
+            padding-left: 1.3rem;
+            background: linear-gradient(90deg, rgba(255,128,0,0.1), transparent);
+        }
+
+        /* input group */
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2.2rem;
+        }
+
+        .input-wrapper {
+            flex: 3 1 280px;
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ff8000;
+            opacity: 0.8;
+            font-size: 1.2rem;
+        }
+
+        #numberInput {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1.5px solid rgba(255, 128, 0, 0.5);
+            border-radius: 60px;
+            padding: 1rem 1.2rem 1rem 3.2rem;
+            font-size: 1.3rem;
+            color: white;
+            outline: none;
+            transition: all 0.2s;
+            font-weight: 400;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        #numberInput:focus {
+            border-color: #ff8000;
+            background: rgba(20, 10, 30, 0.8);
+            box-shadow: 0 0 0 4px rgba(255, 128, 0, 0.2), 0 8px 20px rgba(0,0,0,0.5);
+        }
+
+        #numberInput::placeholder {
+            color: #a18fb0;
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        /* primary action button */
+        .prime-btn {
+            flex: 1 0 auto;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1.5px solid #ff8000;
+            border-radius: 60px;
+            padding: 1rem 2rem;
+            color: #ff8000;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            white-space: nowrap;
+            backdrop-filter: blur(5px);
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(255, 128, 0, 0.2);
+        }
+
+        .prime-btn:hover {
+            background: rgba(255, 128, 0, 0.35);
+            border-color: #ffa64d;
+            color: #ffc68a;
+            transform: scale(1.02);
+            box-shadow: 0 10px 22px rgba(255, 128, 0, 0.3);
+        }
+
+        .prime-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* result display area */
+        .result-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.35);
+            border-radius: 28px;
+            padding: 2rem 2rem;
+            margin-top: 1.5rem;
+            word-break: break-word;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.5), 0 12px 24px -12px #000;
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ffb066;
+            opacity: 0.8;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-label i {
+            color: #ff8000;
+        }
+
+        .factor-output {
+            font-size: 2.2rem;
+            line-height: 1.4;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 0.2rem 0.8rem;
+        }
+
+        .factor-output .multiplication-sign {
+            color: #ff8000;
+            font-weight: 400;
+            font-size: 2rem;
+            opacity: 0.9;
+        }
+
+        .factor-output .prime-value {
+            background: rgba(255, 128, 0, 0.1);
+            padding: 0.1rem 0.8rem 0.1rem 1rem;
+            border-radius: 60px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            display: inline-flex;
+            align-items: baseline;
+        }
+
+        .factor-output sup {
+            font-size: 1.3rem;
+            color: #ffb066;
+            margin-left: 2px;
+            font-weight: 500;
+        }
+
+        .fallback-message {
+            font-size: 1.5rem;
+            color: #b5a6c9;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error-message {
+            color: #ff8a7a;
+            font-size: 1.4rem;
+            background: rgba(255, 70, 50, 0.15);
+            border-left: 6px solid #ff5e4a;
+            padding: 0.8rem 1.5rem;
+            border-radius: 18px;
+        }
+
+        .info-note {
+            margin-top: 1.8rem;
+            color: #9b8bb5;
+            font-size: 0.9rem;
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            border-top: 1px dashed rgba(255,128,0,0.3);
+            padding-top: 1.5rem;
+        }
+
+        .info-note i {
+            color: #ff8000;
+            width: 22px;
+        }
+
+        .info-note span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* small screen tuning */
+        @media (max-width: 550px) {
+            body { padding: 1rem; }
+            .tool-container { padding: 1.5rem; }
+            h1 { font-size: 1.9rem; flex-wrap: wrap; }
+            .factor-output { font-size: 1.6rem; }
+            .factor-output sup { font-size: 1rem; }
+            .prime-btn { padding: 0.8rem 1.2rem; font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <!-- exactly the same back button with icon and link from template -->
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <div class="tool-container">
+        <h1>
+            🔢 prime factorization
+            <span>high precision</span>
+        </h1>
+        <div class="subhead">
+            break any integer ≥ 2 into prime factors · exponents shown with <sup>superscript</sup>
+        </div>
+
+        <!-- input area -->
+        <div class="input-group">
+            <div class="input-wrapper">
+                <i class="fas fa-hashtag"></i>
+                <input type="number" id="numberInput" placeholder="e.g. 12345, 2520, 2024" min="2" step="1" value="2520">
+            </div>
+            <button class="prime-btn" id="factorizeBtn">
+                <i class="fas fa-microscope"></i> factorize
+            </button>
+        </div>
+
+        <!-- dynamic result panel -->
+        <div class="result-card" id="resultCard">
+            <div class="result-label">
+                <i class="fas fa-arrow-right"></i> prime decomposition
+            </div>
+            <div id="factorDisplay" class="factor-output">
+                <!-- initial state will be replaced by JS, but show a friendly placeholder -->
+                <span class="fallback-message">
+                    <i class="fas fa-lightbulb" style="color: #ff8000;"></i> 
+                    enter a number and click factorize
+                </span>
+            </div>
+        </div>
+
+        <!-- helpful notes (design polish) -->
+        <div class="info-note">
+            <span><i class="fas fa-check-circle"></i> accepts integers ≥ 2</span>
+            <span><i class="fas fa-infinity"></i> works with large numbers (may take a second)</span>
+            <span><i class="fas fa-square-root-alt"></i> trial‑division up to √n</span>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // DOM elements
+            const inputField = document.getElementById('numberInput');
+            const factorBtn = document.getElementById('factorizeBtn');
+            const factorDisplay = document.getElementById('factorDisplay');
+
+            // helper: clean integer from input
+            function getIntegerFromInput() {
+                let raw = inputField.value.trim();
+                if (raw === '') return { valid: false, error: 'empty' };
+                // allow only numeric (including negative, but we'll handle below)
+                const num = Number(raw);
+                if (!Number.isInteger(num)) {
+                    return { valid: false, error: 'not-integer' };
+                }
+                if (!Number.isFinite(num)) {
+                    return { valid: false, error: 'too-large' };
+                }
+                return { valid: true, value: num };
+            }
+
+            // core prime factorization – returns array of prime factors (with duplicates)
+            function primeFactors(n) {
+                if (n < 2) return [];
+                let number = n;
+                const factors = [];
+
+                // handle factor 2
+                while (number % 2 === 0) {
+                    factors.push(2);
+                    number /= 2;
+                }
+
+                // handle odd factors from 3 to sqrt(number)
+                let i = 3;
+                while (i * i <= number) {
+                    while (number % i === 0) {
+                        factors.push(i);
+                        number /= i;
+                    }
+                    i += 2;
+                }
+
+                // if something remains (>1), it's a prime factor
+                if (number > 1) {
+                    factors.push(number);
+                }
+                return factors;
+            }
+
+            // convert array of factors (with repetitions) to formatted string with exponents
+            function formatFactorsWithExponents(factorsArray) {
+                if (!factorsArray || factorsArray.length === 0) {
+                    return null;   // will be handled separately
+                }
+
+                // count frequencies
+                const factorCount = new Map();
+                factorsArray.forEach(f => {
+                    factorCount.set(f, (factorCount.get(f) || 0) + 1);
+                });
+
+                // build sorted unique factors
+                const uniqueSorted = Array.from(factorCount.keys()).sort((a, b) => a - b);
+
+                // create dom fragments / we'll generate html string
+                let htmlString = '';
+                for (let i = 0; i < uniqueSorted.length; i++) {
+                    const prime = uniqueSorted[i];
+                    const count = factorCount.get(prime);
+
+                    // wrap prime in a subtle badge-like span
+                    if (count === 1) {
+                        htmlString += `<span class="prime-value">${prime}</span>`;
+                    } else {
+                        htmlString += `<span class="prime-value">${prime}<sup>${count}</sup></span>`;
+                    }
+
+                    if (i < uniqueSorted.length - 1) {
+                        htmlString += `<span class="multiplication-sign"> × </span>`;
+                    }
+                }
+                return htmlString;
+            }
+
+            // main function to update display
+            function computeAndDisplay() {
+                const inputCheck = getIntegerFromInput();
+                if (!inputCheck.valid) {
+                    // show friendly error based on type
+                    let errorMsg = '';
+                    if (inputCheck.error === 'empty') {
+                        errorMsg = '⌀ enter a number';
+                    } else if (inputCheck.error === 'not-integer') {
+                        errorMsg = '⋮ integers only please';
+                    } else if (inputCheck.error === 'too-large') {
+                        errorMsg = '⚠️ number too large (infinite)';
+                    } else {
+                        errorMsg = '⚠️ invalid input';
+                    }
+                    factorDisplay.innerHTML = `<span class="error-message"><i class="fas fa-exclamation-triangle" style="margin-right: 10px;"></i>${errorMsg}</span>`;
+                    return;
+                }
+
+                let n = inputCheck.value;
+
+                // special case 1 and 0, negative
+                if (n < 2) {
+                    if (n === 1) {
+                        factorDisplay.innerHTML = `<span class="fallback-message"><i class="fas fa-info-circle"></i> 1 has no prime factors (by definition)</span>`;
+                    } else if (n === 0) {
+                        factorDisplay.innerHTML = `<span class="fallback-message"><i class="fas fa-info-circle"></i> 0 is not defined for prime factorization</span>`;
+                    } else { // negative numbers
+                        factorDisplay.innerHTML = `<span class="fallback-message"><i class="fas fa-info-circle"></i> negative numbers: absolute value used?<br> but we stick to positive integers ≥2</span>`;
+                    }
+                    return;
+                }
+
+                // perform factorization (n is ≥2, safe)
+                const factors = primeFactors(n);
+                // factors will never be empty for n>=2, but just in case
+                if (factors.length === 0) {
+                    // this should not happen (n≥2 always has at least itself)
+                    factorDisplay.innerHTML = `<span class="error-message">⚠️ factorization returned empty</span>`;
+                    return;
+                }
+
+                const formatted = formatFactorsWithExponents(factors);
+                if (formatted) {
+                    factorDisplay.innerHTML = formatted;
+                } else {
+                    // fallback
+                    factorDisplay.innerHTML = `<span class="fallback-message">unexpected error</span>`;
+                }
+            }
+
+            // event listeners
+            factorBtn.addEventListener('click', computeAndDisplay);
+            inputField.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    computeAndDisplay();
+                }
+            });
+
+            // optional: initial display for default value "2520" (but we want nice greeting)
+            // we'll precompute after load to show a sample result (makes tool alive)
+            window.addEventListener('load', function() {
+                // set a meaningful default demo: 2520 (highly composite)
+                inputField.value = 2520;
+                computeAndDisplay();
+            });
+
+            // extra polish: if user clears input, we show neutral message, but compute handles empty gracefully
+        })();
+    </script>
+
+    <!-- subtle note: factorization uses exact trial division, error handling covers edge cases -->
+</body>
+</html>

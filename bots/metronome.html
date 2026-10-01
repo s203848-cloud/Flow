@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metronome</title>
+    <!-- Font Awesome for back button icon (exactly as provided template) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ===== base & provided colour scheme ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .navbar {
+            width: 100%;
+            max-width: 700px;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 40px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.2s, transform 0.1s;
+            font-size: 1rem;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+
+        .back-btn i {
+            font-size: 0.9rem;
+        }
+
+        /* ===== metronome specific ===== */
+        .metronome-container {
+            background: rgba(10, 10, 26, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 48px;
+            padding: 40px 30px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 25px 40px -15px rgba(0,0,0,0.6);
+        }
+
+        .bpm-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .bpm-value {
+            font-size: 4rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #ff8000;
+            text-shadow: 0 0 12px rgba(255,128,0,0.5);
+            line-height: 1;
+        }
+
+        .bpm-label {
+            font-size: 1.2rem;
+            color: #ccc;
+            margin-left: 5px;
+        }
+
+        .slider-container {
+            margin: 30px 0 25px;
+        }
+
+        input[type=range] {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #ff8000;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #fff2;
+            box-shadow: 0 0 15px #ff8000;
+            transition: 0.1s;
+        }
+
+        input[type=range]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: #ff8000;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #fff2;
+            box-shadow: 0 0 15px #ff8000;
+        }
+
+        .bpm-presets {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+            justify-content: center;
+        }
+
+        .preset-btn {
+            background: rgba(255,128,0,0.1);
+            border: 1px solid #ff8000;
+            color: #ff8000;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            background: #ff8000;
+            color: #0a0a1a;
+        }
+
+        .visual-indicator {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0 20px;
+        }
+
+        .beat-pulse {
+            width: 120px;
+            height: 120px;
+            background: rgba(255,128,0,0.2);
+            border: 3px solid #ff8000;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255,128,0,0.3);
+            transition: transform 0.08s ease, background 0.08s, box-shadow 0.08s;
+        }
+
+        .beat-pulse.active {
+            transform: scale(1.25);
+            background: #ff8000;
+            box-shadow: 0 0 60px #ff8000;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .primary-btn {
+            background: rgba(255,128,0,0.2);
+            border: 2px solid #ff8000;
+            color: #ff8000;
+            font-size: 1.5rem;
+            padding: 16px 40px;
+            border-radius: 60px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            letter-spacing: 1px;
+            min-width: 160px;
+        }
+
+        .primary-btn:hover {
+            background: #ff8000;
+            color: #0a0a1a;
+        }
+
+        .secondary-btn {
+            background: transparent;
+            border: 1px solid #ff8000;
+            color: #ff8000;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .test-area {
+            margin-top: 40px;
+            border-top: 1px dashed #ff8000;
+            padding-top: 20px;
+            text-align: center;
+        }
+
+        .test-btn {
+            background: rgba(255,128,0,0.1);
+            border: 1px solid #ff8000;
+            color: #ff8000;
+            padding: 10px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .test-output {
+            background: #0d0d1f;
+            border-radius: 24px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9rem;
+            color: #b0b0ff;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ff8000;
+            display: none;
+        }
+
+        .test-output.show {
+            display: block;
+        }
+
+        footer {
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <!-- navbar with back button exactly from template -->
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <!-- main metronome container -->
+    <div class="metronome-container">
+        <div class="bpm-header">
+            <span class="bpm-value" id="bpmDisplay">120</span>
+            <span class="bpm-label">BPM</span>
+        </div>
+
+        <!-- slider for BPM adjustment -->
+        <div class="slider-container">
+            <input type="range" id="bpmSlider" min="20" max="300" value="120" step="1">
+        </div>
+
+        <!-- preset buttons -->
+        <div class="bpm-presets">
+            <button class="preset-btn" data-bpm="60">♩ = 60</button>
+            <button class="preset-btn" data-bpm="90">♩ = 90</button>
+            <button class="preset-btn" data-bpm="120">♩ = 120</button>
+            <button class="preset-btn" data-bpm="160">♩ = 160</button>
+            <button class="preset-btn" data-bpm="200">♩ = 200</button>
+        </div>
+
+        <!-- visual cue (pulse) -->
+        <div class="visual-indicator">
+            <div class="beat-pulse" id="beatVisual"></div>
+        </div>
+
+        <!-- start/stop + tap (extra) -->
+        <div class="controls">
+            <button class="primary-btn" id="startStopBtn">▶ START</button>
+        </div>
+
+        <!-- optional test panel (unit/integration) -->
+        <div class="test-area">
+            <button class="test-btn" id="runTestsBtn">🧪 RUN UNIT TESTS</button>
+            <div id="testOutput" class="test-output"></div>
+        </div>
+    </div>
+
+    <footer>metronome · web audio · visual pulse</footer>
+
+    <script>
+        (function() {
+            "use strict";
+
+            // ---------- strict metronome using Web Audio scheduler ----------
+            let audioContext = null;                     // created on first start
+            let isPlaying = false;
+            let bpm = 120;                                // current beats per minute
+            let nextNoteTime = 0;                          // time (audio context) for next beat
+            let timerID = null;                            // requestAnimationFrame / setTimeout handle
+            const scheduleAheadTime = 0.1;                 // seconds ahead to schedule
+            let noteInterval = 60 / bpm;                    // seconds per beat
+
+            // DOM elements
+            const bpmSlider = document.getElementById('bpmSlider');
+            const bpmDisplay = document.getElementById('bpmDisplay');
+            const startStopBtn = document.getElementById('startStopBtn');
+            const beatVisual = document.getElementById('beatVisual');
+            const presetBtns = document.querySelectorAll('.preset-btn');
+            const testBtn = document.getElementById('runTestsBtn');
+            const testOutput = document.getElementById('testOutput');
+
+            // ---------- helper: convert BPM to interval ----------
+            function updateIntervalFromBpm(newBpm) {
+                bpm = Math.min(300, Math.max(20, newBpm));
+                noteInterval = 60 / bpm;
+                bpmDisplay.textContent = Math.round(bpm);
+                bpmSlider.value = bpm;
+            }
+
+            // ---------- audio click (short beep with envelope) ----------
+            function playClick(clickTime) {
+                if (!audioContext) return;
+
+                // create short 'click' sound using oscillator + gain
+                const osc = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.value = 880;                // A5 – crisp metronome sound
+
+                gainNode.gain.setValueAtTime(0, clickTime);
+                gainNode.gain.linearRampToValueAtTime(0.25, clickTime + 0.002); // fast attack
+                gainNode.gain.linearRampToValueAtTime(0, clickTime + 0.05);     // short decay
+
+                osc.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                osc.start(clickTime);
+                osc.stop(clickTime + 0.05);
+            }
+
+            // ---------- visual pulse (scheduled via setTimeout) ----------
+            function triggerVisual(atTime) {
+                if (!audioContext) return;
+                const now = audioContext.currentTime;
+                const delayMs = (atTime - now) * 1000;
+                if (delayMs < 0) return; // too late
+
+                setTimeout(() => {
+                    beatVisual.classList.add('active');
+                    // remove class after short pulse
+                    setTimeout(() => {
+                        beatVisual.classList.remove('active');
+                    }, 80);
+                }, delayMs);
+            }
+
+            // ---------- scheduler (called recursively) ----------
+            function scheduler() {
+                if (!isPlaying || !audioContext) return;
+
+                // schedule notes ahead of time
+                while (nextNoteTime < audioContext.currentTime + scheduleAheadTime) {
+                    // schedule audio click
+                    playClick(nextNoteTime);
+                    // schedule visual cue
+                    triggerVisual(nextNoteTime);
+                    // advance to next beat
+                    nextNoteTime += noteInterval;
+                }
+
+                // request next scheduler call (aim for early enough)
+                timerID = setTimeout(scheduler, 25); // check every 25ms
+            }
+
+            // ---------- start / stop logic ----------
+            async function startMetronome() {
+                if (isPlaying) return;
+
+                // create audio context if needed (must be done after user gesture)
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+
+                // resume context if suspended (autoplay policy)
+                if (audioContext.state === 'suspended') {
+                    await audioContext.resume();
+                }
+
+                if (audioContext.state === 'closed') {
+                    // re-create if closed
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    await audioContext.resume();
+                }
+
+                // set next note time: start right away, but align to near future for stability
+                nextNoteTime = audioContext.currentTime + 0.05; // tiny offset to prepare
+
+                isPlaying = true;
+                startStopBtn.textContent = '⏹ STOP';
+
+                // start scheduler loop (cancel any pending)
+                if (timerID) clearTimeout(timerID);
+                scheduler();
+            }
+
+            function stopMetronome() {
+                isPlaying = false;
+                startStopBtn.textContent = '▶ START';
+                if (timerID) {
+                    clearTimeout(timerID);
+                    timerID = null;
+                }
+                // remove any residual visual highlight
+                beatVisual.classList.remove('active');
+                // do NOT close audio context – keep it for next start (faster)
+            }
+
+            // toggle start/stop
+            function toggleMetronome() {
+                if (isPlaying) {
+                    stopMetronome();
+                } else {
+                    startMetronome().catch(e => {
+                        console.warn('Audio start failed:', e);
+                        // fallback: still show visual but no audio? we disable
+                        alert('Audio could not be started. Please interact again.');
+                    });
+                }
+            }
+
+            // ---------- event listeners ----------
+            bpmSlider.addEventListener('input', (e) => {
+                const newBpm = parseInt(e.target.value, 10);
+                updateIntervalFromBpm(newBpm);
+                // if playing, interval will be used for next schedule (dynamic)
+            });
+
+            // preset buttons
+            presetBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const newBpm = parseInt(btn.dataset.bpm, 10);
+                    updateIntervalFromBpm(newBpm);
+                });
+            });
+
+            startStopBtn.addEventListener('click', toggleMetronome);
+
+            // ensure bpm display sync on load
+            updateIntervalFromBpm(120);
+
+            // ---------- clean up on page unload (optional) ----------
+            window.addEventListener('beforeunload', () => {
+                if (timerID) clearTimeout(timerID);
+                if (audioContext && audioContext.state !== 'closed') {
+                    audioContext.close();
+                }
+            });
+
+            // ---------- UNIT & INTEGRATION TESTS (self-contained) ----------
+            function runTests() {
+                const output = [];
+                const originalBpm = bpm;
+                const originalPlaying = isPlaying;
+
+                // Helper to log
+                function assert(condition, message) {
+                    if (condition) {
+                        output.push(`✅ PASS: ${message}`);
+                    } else {
+                        output.push(`❌ FAIL: ${message}`);
+                    }
+                }
+
+                // ---- test 1: BPM to interval conversion ----
+                updateIntervalFromBpm(120);
+                assert(Math.abs(noteInterval - 0.5) < 0.0001, '120 BPM → interval = 0.5s');
+
+                updateIntervalFromBpm(60);
+                assert(Math.abs(noteInterval - 1.0) < 0.0001, '60 BPM → interval = 1.0s');
+
+                updateIntervalFromBpm(200);
+                assert(Math.abs(noteInterval - 0.3) < 0.0001, '200 BPM → interval = 0.3s');
+
+                // ---- test 2: slider & display sync ----
+                bpmSlider.value = 150;
+                bpmSlider.dispatchEvent(new Event('input'));
+                assert(bpm === 150 && bpmDisplay.textContent === '150', 'slider updates BPM and display');
+
+                // ---- test 3: metronome state toggle (without audio) ----
+                const wasPlaying = isPlaying;
+                toggleMetronome(); // should start
+                assert(isPlaying === true, 'start command sets isPlaying = true');
+                toggleMetronome(); // stop
+                assert(isPlaying === false, 'stop command sets isPlaying = false');
+
+                // reset to original state (if it was playing, we might have changed)
+                if (wasPlaying) {
+                    // we stopped it, need to restart? not needed, just restore flag
+                    isPlaying = false; // we already stopped
+                } else {
+                    isPlaying = false;
+                }
+                startStopBtn.textContent = isPlaying ? '⏹ STOP' : '▶ START';
+
+                // ---- test 4: scheduler existence when playing ----
+                // (we can't easily test audio output, but we can test that start schedules a timer)
+                // we'll quickly start & stop again
+                if (!wasPlaying) {
+                    // start then immediately stop to check timer handle
+                    startMetronome().then(() => {
+                        // should have set timerID
+                        assert(timerID !== null, 'scheduler timer is set after start');
+                        stopMetronome();
+                        assert(timerID === null, 'timer cleared after stop');
+                    }).catch(() => {});
+                } else {
+                    output.push('⏩ skip timer test because original state was playing (avoid interference)');
+                }
+
+                // restore original BPM
+                updateIntervalFromBpm(originalBpm);
+
+                // ---- display results ----
+                testOutput.innerHTML = output.join('<br>');
+                testOutput.classList.add('show');
+            }
+
+            testBtn.addEventListener('click', runTests);
+
+            // also expose some functions for manual console debugging (optional)
+            window.debugMetronome = {
+                bpm, isPlaying, noteInterval,
+                start: startMetronome,
+                stop: stopMetronome
+            };
+        })();
+    </script>
+    <!-- no external dependencies except font awesome (already loaded) -->
+</body>
+</html>

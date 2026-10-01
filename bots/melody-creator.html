@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melody Composer - Piano Roll</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        h1 {
+            color: #ff8000;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #a0a0d0;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 20px;
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 180px;
+        }
+        
+        label {
+            color: #ff8000;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        select, input, button {
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid #33335a;
+            background: rgba(10, 10, 30, 0.8);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #ff8000;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: rgba(255, 128, 0, 0.8);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: rgba(255, 128, 0, 1);
+        }
+        
+        .btn-secondary {
+            background: rgba(80, 80, 160, 0.8);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(100, 100, 200, 1);
+        }
+        
+        .btn-success {
+            background: rgba(0, 180, 120, 0.8);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: rgba(0, 200, 140, 1);
+        }
+        
+        .composer-area {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .piano-container {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px;
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .piano-roll {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 500px;
+            background: rgba(10, 10, 30, 0.8);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .piano-roll-header {
+            display: flex;
+            background: rgba(30, 30, 60, 0.9);
+            border-bottom: 1px solid rgba(255, 128, 0, 0.1);
+            height: 40px;
+        }
+        
+        .time-header {
+            width: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a0a0d0;
+            font-size: 0.9rem;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .time-step {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a0a0d0;
+            font-size: 0.9rem;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .piano-roll-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .piano-keys {
+            width: 60px;
+            display: flex;
+            flex-direction: column;
+            background: rgba(20, 20, 40, 0.9);
+        }
+        
+        .piano-key {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #a0a0d0;
+            font-size: 0.85rem;
+            user-select: none;
+        }
+        
+        .piano-key.active {
+            background: rgba(255, 128, 0, 0.3);
+            color: #ff8000;
+            font-weight: 600;
+        }
+        
+        .piano-key.scale-note {
+            background: rgba(80, 160, 255, 0.15);
+        }
+        
+        .piano-key.tonic {
+            background: rgba(255, 80, 80, 0.2);
+        }
+        
+        .piano-roll-grid {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: auto;
+        }
+        
+        .grid-row {
+            display: flex;
+            height: 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .grid-cell {
+            flex: 1;
+            border-right: 1px solid rgba(255, 255, 255, 0.03);
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+        
+        .grid-cell:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .grid-cell.active {
+            background: rgba(255, 128, 0, 0.7);
+        }
+        
+        .grid-cell.scale-note {
+            background: rgba(80, 160, 255, 0.1);
+        }
+        
+        .grid-cell.tonic {
+            background: rgba(255, 80, 80, 0.15);
+        }
+        
+        .info-panel {
+            padding: 20px;
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .info-title {
+            color: #ff8000;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .scale-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        .scale-note-indicator {
+            padding: 5px 10px;
+            background: rgba(80, 160, 255, 0.15);
+            border-radius: 4px;
+            border: 1px solid rgba(80, 160, 255, 0.3);
+            color: #a0d0ff;
+        }
+        
+        .scale-note-indicator.tonic {
+            background: rgba(255, 80, 80, 0.2);
+            border: 1px solid rgba(255, 80, 80, 0.4);
+            color: #ffaaaa;
+            font-weight: 600;
+        }
+        
+        .instructions {
+            font-size: 0.9rem;
+            color: #a0a0d0;
+            line-height: 1.5;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            margin-top: 5px;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+        .keyboard-shortcuts {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .shortcut {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        
+        .key {
+            background: rgba(255, 128, 0, 0.2);
+            color: #ff8000;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        
+        .export-options {
+            margin-top: 10px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+        
+        .export-options label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .export-options select {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        .export-status {
+            padding: 10px;
+            background: rgba(0, 180, 120, 0.1);
+            border-radius: 5px;
+            border: 1px solid rgba(0, 180, 120, 0.3);
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .export-status.active {
+            display: block;
+        }
+        
+        .export-progress {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .export-progress-bar {
+            height: 100%;
+            background: #00b478;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        @media (max-width: 1100px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn-group {
+                align-self: flex-start;
+            }
+            
+            .piano-roll {
+                min-height: 400px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .piano-roll {
+                min-height: 350px;
+            }
+            
+            .piano-key {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+            <h1>Melody Composer</h1>
+            <div style="width: 80px;"></div> <!-- Spacer for centering -->
+        </div>
+        
+        <p class="subtitle">Create melodies with piano roll interface and scale highlighting</p>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="scale-type"><i class="fas fa-music"></i> Scale Type</label>
+                <select id="scale-type">
+                    <option value="major">Major</option>
+                    <option value="minor">Minor</option>
+                    <option value="pentatonic">Pentatonic</option>
+                    <option value="blues">Blues</option>
+                    <option value="dorian">Dorian</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="root-note"><i class="fas fa-key"></i> Root Note</label>
+                <select id="root-note">
+                    <option value="C">C</option>
+                    <option value="C#">C#</option>
+                    <option value="D">D</option>
+                    <option value="D#">D#</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="F#">F#</option>
+                    <option value="G">G</option>
+                    <option value="G#">G#</option>
+                    <option value="A">A</option>
+                    <option value="A#">A#</option>
+                    <option value="B">B</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="octave"><i class="fas fa-sliders-h"></i> Octave Range</label>
+                <input type="range" id="octave" min="3" max="6" value="4">
+                <span id="octave-display">Octave 4</span>
+            </div>
+            
+            <div class="control-group">
+                <label for="bpm"><i class="fas fa-tachometer-alt"></i> Tempo (BPM)</label>
+                <input type="range" id="bpm" min="40" max="200" value="120">
+                <span id="bpm-display">120 BPM</span>
+            </div>
+            
+            <div class="btn-group">
+                <button id="play-btn" class="btn btn-primary"><i class="fas fa-play"></i> Play</button>
+                <button id="clear-btn" class="btn btn-secondary"><i class="fas fa-trash-alt"></i> Clear</button>
+                <button id="export-btn" class="btn btn-success"><i class="fas fa-download"></i> Export MP3</button>
+            </div>
+        </div>
+        
+        <div class="composer-area">
+            <div class="piano-roll">
+                <div class="piano-roll-header" id="time-header">
+                    <!-- Time headers will be generated by JavaScript -->
+                </div>
+                
+                <div class="piano-roll-body">
+                    <div class="piano-keys" id="piano-keys">
+                        <!-- Piano keys will be generated by JavaScript -->
+                    </div>
+                    
+                    <div class="piano-roll-grid" id="piano-roll-grid">
+                        <!-- Piano roll grid will be generated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <div>
+                <div class="info-title"><i class="fas fa-info-circle"></i> Current Scale</div>
+                <div id="scale-info-text">C Major Scale</div>
+                <div class="scale-info" id="scale-notes">
+                    <!-- Scale notes will be generated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="instructions">
+                <div class="info-title"><i class="fas fa-graduation-cap"></i> How to Use</div>
+                <ul>
+                    <li>Click on the grid cells to add/remove notes in your melody</li>
+                    <li>Cells highlighted in <span style="color:#50a0ff">blue</span> are notes in the selected scale</li>
+                    <li>The <span style="color:#ff5050">red</span> row represents the tonic (root note) of the scale</li>
+                    <li>Change scale type and root note to see different scale highlights</li>
+                    <li>Click "Play" to hear your composition</li>
+                    <li>Click "Export MP3" to download your composition as an audio file</li>
+                </ul>
+                
+                <div class="export-options">
+                    <div class="info-title"><i class="fas fa-file-export"></i> Export Settings</div>
+                    <label for="export-quality">MP3 Quality:</label>
+                    <select id="export-quality">
+                        <option value="128">128 kbps (Good Quality)</option>
+                        <option value="192" selected>192 kbps (High Quality)</option>
+                        <option value="256">256 kbps (Excellent Quality)</option>
+                    </select>
+                    <label for="export-repeats">Number of Repeats:</label>
+                    <select id="export-repeats">
+                        <option value="1">1 time</option>
+                        <option value="2" selected>2 times</option>
+                        <option value="4">4 times</option>
+                        <option value="8">8 times</option>
+                    </select>
+                </div>
+                
+                <div class="export-status" id="export-status">
+                    <i class="fas fa-spinner fa-spin"></i> <span id="export-status-text">Preparing MP3 export...</span>
+                    <div class="export-progress">
+                        <div class="export-progress-bar" id="export-progress-bar"></div>
+                    </div>
+                </div>
+                
+                <div class="keyboard-shortcuts">
+                    <div class="shortcut">
+                        <span>Play/Pause</span>
+                        <span class="key">Space</span>
+                    </div>
+                    <div class="shortcut">
+                        <span>Clear All</span>
+                        <span class="key">C</span>
+                    </div>
+                    <div class="shortcut">
+                        <span>Export MP3</span>
+                        <span class="key">E</span>
+                    </div>
+                    <div class="shortcut">
+                        <span>Next Scale</span>
+                        <span class="key">→</span>
+                    </div>
+                    <div class="shortcut">
+                        <span>Previous Scale</span>
+                        <span class="key">←</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include lamejs for MP3 encoding -->
+    <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+    
+    <script>
+        // Define scales
+        const scales = {
+            major: [0, 2, 4, 5, 7, 9, 11], // Whole, Whole, Half, Whole, Whole, Whole, Half
+            minor: [0, 2, 3, 5, 7, 8, 10], // Whole, Half, Whole, Whole, Half, Whole, Whole
+            pentatonic: [0, 2, 4, 7, 9], // Major pentatonic
+            blues: [0, 3, 5, 6, 7, 10], // Blues scale
+            dorian: [0, 2, 3, 5, 7, 9, 10] // Dorian mode
+        };
+        
+        // Note names
+        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        
+        // Audio context for playing sounds
+        let audioContext;
+        let currentNotes = new Map(); // Track active notes by time step
+        let isPlaying = false;
+        let playStartTime = 0;
+        
+        // DOM elements
+        const scaleTypeSelect = document.getElementById('scale-type');
+        const rootNoteSelect = document.getElementById('root-note');
+        const octaveSlider = document.getElementById('octave');
+        const octaveDisplay = document.getElementById('octave-display');
+        const bpmSlider = document.getElementById('bpm');
+        const bpmDisplay = document.getElementById('bpm-display');
+        const playBtn = document.getElementById('play-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const exportQuality = document.getElementById('export-quality');
+        const exportRepeats = document.getElementById('export-repeats');
+        const exportStatus = document.getElementById('export-status');
+        const exportStatusText = document.getElementById('export-status-text');
+        const exportProgressBar = document.getElementById('export-progress-bar');
+        const timeHeader = document.getElementById('time-header');
+        const pianoKeys = document.getElementById('piano-keys');
+        const pianoRollGrid = document.getElementById('piano-roll-grid');
+        const scaleInfoText = document.getElementById('scale-info-text');
+        const scaleNotesContainer = document.getElementById('scale-notes');
+        
+        // Configuration
+        const totalSteps = 16; // Number of time steps in the piano roll
+        const notesPerOctave = 12;
+        const totalOctaves = 3; // Display 3 octaves
+        let currentOctave = parseInt(octaveSlider.value);
+        
+        // Initialize the piano roll
+        function initPianoRoll() {
+            // Clear existing content
+            timeHeader.innerHTML = '';
+            pianoKeys.innerHTML = '';
+            pianoRollGrid.innerHTML = '';
+            
+            // Create time headers
+            const timeHeaderCell = document.createElement('div');
+            timeHeaderCell.className = 'time-header';
+            timeHeaderCell.textContent = 'Notes';
+            timeHeader.appendChild(timeHeaderCell);
+            
+            for (let step = 0; step < totalSteps; step++) {
+                const timeStep = document.createElement('div');
+                timeStep.className = 'time-step';
+                timeStep.textContent = step + 1;
+                timeHeader.appendChild(timeStep);
+            }
+            
+            // Calculate which notes to display based on current octave
+            const startNoteIndex = (currentOctave) * notesPerOctave;
+            const totalNotes = totalOctaves * notesPerOctave;
+            
+            // Create piano keys and grid rows
+            for (let i = totalNotes - 1; i >= 0; i--) {
+                const noteIndex = startNoteIndex + i;
+                const octave = Math.floor(noteIndex / notesPerOctave);
+                const noteNameIndex = noteIndex % notesPerOctave;
+                const noteName = noteNames[noteNameIndex];
+                const fullNoteName = `${noteName}${octave}`;
+                
+                // Create piano key
+                const pianoKey = document.createElement('div');
+                pianoKey.className = 'piano-key';
+                pianoKey.textContent = fullNoteName;
+                pianoKey.dataset.note = fullNoteName;
+                pianoKey.dataset.noteIndex = noteIndex;
+                pianoKeys.appendChild(pianoKey);
+                
+                // Create grid row
+                const gridRow = document.createElement('div');
+                gridRow.className = 'grid-row';
+                gridRow.dataset.note = fullNoteName;
+                gridRow.dataset.noteIndex = noteIndex;
+                
+                for (let step = 0; step < totalSteps; step++) {
+                    const gridCell = document.createElement('div');
+                    gridCell.className = 'grid-cell';
+                    gridCell.dataset.note = fullNoteName;
+                    gridCell.dataset.noteIndex = noteIndex;
+                    gridCell.dataset.step = step;
+                    
+                    gridCell.addEventListener('click', () => toggleNote(gridCell));
+                    gridRow.appendChild(gridCell);
+                }
+                
+                pianoRollGrid.appendChild(gridRow);
+            }
+            
+            // Update scale highlighting
+            updateScaleHighlighting();
+        }
+        
+        // Update scale highlighting based on selected scale and root note
+        function updateScaleHighlighting() {
+            const scaleType = scaleTypeSelect.value;
+            const rootNote = rootNoteSelect.value;
+            const scale = scales[scaleType];
+            
+            // Calculate which notes are in the scale
+            const rootNoteIndex = noteNames.indexOf(rootNote);
+            const startNoteIndex = (currentOctave) * notesPerOctave;
+            const totalNotes = totalOctaves * notesPerOctave;
+            
+            // Clear previous highlighting
+            document.querySelectorAll('.piano-key').forEach(key => {
+                key.classList.remove('scale-note', 'tonic', 'active');
+            });
+            
+            document.querySelectorAll('.grid-cell').forEach(cell => {
+                cell.classList.remove('scale-note', 'tonic');
+            });
+            
+            // Update scale info text
+            scaleInfoText.textContent = `${rootNote} ${scaleType.charAt(0).toUpperCase() + scaleType.slice(1)} Scale`;
+            
+            // Update scale notes display
+            scaleNotesContainer.innerHTML = '';
+            scale.forEach((interval, i) => {
+                const noteIndex = (rootNoteIndex + interval) % notesPerOctave;
+                const noteName = noteNames[noteIndex];
+                const scaleNoteIndicator = document.createElement('div');
+                scaleNoteIndicator.className = 'scale-note-indicator';
+                if (i === 0) {
+                    scaleNoteIndicator.classList.add('tonic');
+                }
+                scaleNoteIndicator.textContent = noteName;
+                scaleNotesContainer.appendChild(scaleNoteIndicator);
+            });
+            
+            // Highlight piano keys and grid cells that are in the scale
+            for (let i = 0; i < totalNotes; i++) {
+                const noteIndex = startNoteIndex + i;
+                const noteNameIndex = noteIndex % notesPerOctave;
+                
+                // Check if this note is in the current scale
+                const relativeNoteIndex = (noteNameIndex - rootNoteIndex + notesPerOctave) % notesPerOctave;
+                const isInScale = scale.includes(relativeNoteIndex);
+                const isTonic = relativeNoteIndex === 0;
+                
+                if (isInScale) {
+                    // Find the piano key for this note (note that keys are in reverse order)
+                    const pianoKey = document.querySelector(`.piano-key[data-note-index="${noteIndex}"]`);
+                    if (pianoKey) {
+                        pianoKey.classList.add('scale-note');
+                        if (isTonic) {
+                            pianoKey.classList.add('tonic');
+                        }
+                    }
+                    
+                    // Find all grid cells for this note
+                    const gridCells = document.querySelectorAll(`.grid-cell[data-note-index="${noteIndex}"]`);
+                    gridCells.forEach(cell => {
+                        cell.classList.add('scale-note');
+                        if (isTonic) {
+                            cell.classList.add('tonic');
+                        }
+                    });
+                }
+            }
+        }
+        
+        // Toggle a note on/off
+        function toggleNote(cell) {
+            cell.classList.toggle('active');
+            
+            const noteIndex = parseInt(cell.dataset.noteIndex);
+            const step = parseInt(cell.dataset.step);
+            const noteName = cell.dataset.note;
+            
+            // Update piano key highlight
+            const pianoKey = document.querySelector(`.piano-key[data-note-index="${noteIndex}"]`);
+            if (cell.classList.contains('active')) {
+                pianoKey.classList.add('active');
+                
+                // Add to current notes
+                if (!currentNotes.has(step)) {
+                    currentNotes.set(step, []);
+                }
+                currentNotes.get(step).push(noteName);
+            } else {
+                // Check if there are any other active cells for this note
+                const otherActiveCells = document.querySelectorAll(`.grid-cell[data-note-index="${noteIndex}"].active`);
+                if (otherActiveCells.length === 0) {
+                    pianoKey.classList.remove('active');
+                }
+                
+                // Remove from current notes
+                if (currentNotes.has(step)) {
+                    const stepNotes = currentNotes.get(step);
+                    const noteIndex = stepNotes.indexOf(noteName);
+                    if (noteIndex > -1) {
+                        stepNotes.splice(noteIndex, 1);
+                    }
+                    if (stepNotes.length === 0) {
+                        currentNotes.delete(step);
+                    }
+                }
+            }
+        }
+        
+        // Play the current melody
+        function playMelody() {
+            if (isPlaying) {
+                stopMelody();
+                return;
+            }
+            
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            isPlaying = true;
+            playBtn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+            playStartTime = audioContext.currentTime;
+            
+            const bpm = parseInt(bpmSlider.value);
+            const stepDuration = 60 / bpm / 2; // Each step is a 1/8th note
+            
+            // Play each step
+            for (let step = 0; step < totalSteps; step++) {
+                if (currentNotes.has(step)) {
+                    const stepNotes = currentNotes.get(step);
+                    
+                    // Visual feedback for current step
+                    setTimeout(() => {
+                        highlightCurrentStep(step);
+                    }, step * stepDuration * 1000);
+                    
+                    // Play each note in this step
+                    stepNotes.forEach(noteName => {
+                        playNoteAtTime(noteName, playStartTime + step * stepDuration, stepDuration);
+                    });
+                }
+            }
+            
+            // Stop after all steps have played
+            setTimeout(() => {
+                if (isPlaying) {
+                    stopMelody();
+                }
+            }, totalSteps * stepDuration * 1000);
+        }
+        
+        // Stop the melody
+        function stopMelody() {
+            isPlaying = false;
+            playBtn.innerHTML = '<i class="fas fa-play"></i> Play';
+            document.querySelectorAll('.time-step').forEach(step => {
+                step.style.backgroundColor = '';
+            });
+        }
+        
+        // Highlight the current step being played
+        function highlightCurrentStep(step) {
+            document.querySelectorAll('.time-step').forEach((el, index) => {
+                if (index === step + 1) { // +1 because the first cell is the "Notes" header
+                    el.style.backgroundColor = 'rgba(255, 128, 0, 0.5)';
+                } else {
+                    el.style.backgroundColor = '';
+                }
+            });
+        }
+        
+        // Play a single note at a specific time
+        function playNoteAtTime(noteName, startTime, duration) {
+            // Parse note name (e.g., "C4")
+            const match = noteName.match(/([A-G]#?)(\d+)/);
+            if (!match) return;
+            
+            const [, note, octave] = match;
+            const noteIndex = noteNames.indexOf(note);
+            const frequency = 440 * Math.pow(2, (noteIndex - 9 + (octave - 4) * 12) / 12);
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            // Add a little attack and release
+            gainNode.gain.setValueAtTime(0, startTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+            
+            oscillator.start(startTime);
+            oscillator.stop(startTime + duration);
+        }
+        
+        // Clear all notes
+        function clearAllNotes() {
+            document.querySelectorAll('.grid-cell.active').forEach(cell => {
+                cell.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.piano-key.active').forEach(key => {
+                key.classList.remove('active');
+            });
+            
+            currentNotes.clear();
+            
+            if (isPlaying) {
+                stopMelody();
+            }
+        }
+        
+        // Export melody as MP3
+        async function exportAsMP3() {
+            if (currentNotes.size === 0) {
+                alert("Please add some notes to the composition before exporting.");
+                return;
+            }
+            
+            exportStatus.classList.add('active');
+            exportStatusText.textContent = "Preparing MP3 export...";
+            exportProgressBar.style.width = '0%';
+            
+            try {
+                const bpm = parseInt(bpmSlider.value);
+                const stepDuration = 60 / bpm / 2;
+                const repeats = parseInt(exportRepeats.value);
+                const totalDuration = totalSteps * stepDuration * repeats;
+                
+                // Update status
+                exportStatusText.textContent = "Creating audio buffer...";
+                exportProgressBar.style.width = '20%';
+                
+                // Create offline audio context for rendering
+                const sampleRate = 44100;
+                const offlineCtx = new OfflineAudioContext(1, totalDuration * sampleRate, sampleRate);
+                
+                // Schedule all notes for all repeats
+                for (let repeat = 0; repeat < repeats; repeat++) {
+                    const repeatOffset = repeat * totalSteps * stepDuration;
+                    
+                    for (let step = 0; step < totalSteps; step++) {
+                        if (currentNotes.has(step)) {
+                            const stepNotes = currentNotes.get(step);
+                            
+                            // Calculate progress
+                            const progress = 20 + ((repeat * totalSteps + step) / (repeats * totalSteps)) * 60;
+                            exportProgressBar.style.width = `${progress}%`;
+                            
+                            // Schedule each note in this step
+                            stepNotes.forEach(noteName => {
+                                scheduleNote(offlineCtx, noteName, repeatOffset + step * stepDuration, stepDuration);
+                            });
+                        }
+                    }
+                }
+                
+                exportStatusText.textContent = "Rendering audio...";
+                exportProgressBar.style.width = '80%';
+                
+                // Render the audio
+                const renderedBuffer = await offlineCtx.startRendering();
+                
+                exportStatusText.textContent = "Encoding to MP3...";
+                exportProgressBar.style.width = '90%';
+                
+                // Convert audio buffer to MP3
+                const mp3Blob = await encodeAudioBufferToMP3(renderedBuffer);
+                
+                exportStatusText.textContent = "Finalizing download...";
+                exportProgressBar.style.width = '100%';
+                
+                // Create download link
+                const url = URL.createObjectURL(mp3Blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `melody-composition-${Date.now()}.mp3`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // Reset status after a delay
+                setTimeout(() => {
+                    exportStatus.classList.remove('active');
+                    exportProgressBar.style.width = '0%';
+                }, 2000);
+                
+            } catch (error) {
+                console.error("Error exporting MP3:", error);
+                exportStatusText.textContent = "Error exporting MP3. Please try again.";
+                setTimeout(() => {
+                    exportStatus.classList.remove('active');
+                    exportProgressBar.style.width = '0%';
+                }, 3000);
+            }
+        }
+        
+        // Schedule a note in an audio context (for offline rendering)
+        function scheduleNote(audioContext, noteName, startTime, duration) {
+            const match = noteName.match(/([A-G]#?)(\d+)/);
+            if (!match) return;
+            
+            const [, note, octave] = match;
+            const noteIndex = noteNames.indexOf(note);
+            const frequency = 440 * Math.pow(2, (noteIndex - 9 + (octave - 4) * 12) / 12);
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'triangle'; // Use triangle wave for better MP3 export
+            
+            // Add envelope
+            gainNode.gain.setValueAtTime(0, startTime);
+            gainNode.gain.linearRampToValueAtTime(0.5, startTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+            
+            oscillator.start(startTime);
+            oscillator.stop(startTime + duration);
+        }
+        
+        // Encode AudioBuffer to MP3 using lamejs
+        function encodeAudioBufferToMP3(audioBuffer) {
+            return new Promise((resolve) => {
+                const samples = audioBuffer.getChannelData(0);
+                const sampleRate = audioBuffer.sampleRate;
+                const bitrate = parseInt(exportQuality.value);
+                
+                // Convert float samples to int16
+                const sampleBlockSize = 1152; // Sample block size for MP3 encoding
+                const mp3encoder = new lamejs.Mp3Encoder(1, sampleRate, bitrate);
+                const mp3Data = [];
+                
+                // Process samples in blocks
+                for (let i = 0; i < samples.length; i += sampleBlockSize) {
+                    const sampleChunk = samples.subarray(i, i + sampleBlockSize);
+                    const int16Samples = new Int16Array(sampleChunk.length);
+                    
+                    // Convert float to int16
+                    for (let j = 0; j < sampleChunk.length; j++) {
+                        int16Samples[j] = Math.max(-32768, Math.min(32767, sampleChunk[j] * 32767));
+                    }
+                    
+                    const mp3buf = mp3encoder.encodeBuffer(int16Samples);
+                    if (mp3buf.length > 0) {
+                        mp3Data.push(new Int8Array(mp3buf));
+                    }
+                }
+                
+                // Finalize encoding
+                const mp3buf = mp3encoder.flush();
+                if (mp3buf.length > 0) {
+                    mp3Data.push(new Int8Array(mp3buf));
+                }
+                
+                // Combine all MP3 data
+                const totalLength = mp3Data.reduce((total, arr) => total + arr.length, 0);
+                const combined = new Int8Array(totalLength);
+                let offset = 0;
+                
+                mp3Data.forEach(arr => {
+                    combined.set(arr, offset);
+                    offset += arr.length;
+                });
+                
+                // Create MP3 blob
+                const mp3Blob = new Blob([combined.buffer], { type: 'audio/mp3' });
+                resolve(mp3Blob);
+            });
+        }
+        
+        // Initialize event listeners
+        function initEventListeners() {
+            // Scale and root note changes
+            scaleTypeSelect.addEventListener('change', updateScaleHighlighting);
+            rootNoteSelect.addEventListener('change', updateScaleHighlighting);
+            
+            // Octave slider
+            octaveSlider.addEventListener('input', () => {
+                currentOctave = parseInt(octaveSlider.value);
+                octaveDisplay.textContent = `Octave ${currentOctave}`;
+                initPianoRoll();
+            });
+            
+            // BPM slider
+            bpmSlider.addEventListener('input', () => {
+                bpmDisplay.textContent = `${bpmSlider.value} BPM`;
+            });
+            
+            // Play button
+            playBtn.addEventListener('click', playMelody);
+            
+            // Clear button
+            clearBtn.addEventListener('click', clearAllNotes);
+            
+            // Export button
+            exportBtn.addEventListener('click', exportAsMP3);
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Prevent shortcuts from triggering when user is typing in inputs
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+                
+                switch(e.key) {
+                    case ' ':
+                        e.preventDefault();
+                        playMelody();
+                        break;
+                    case 'c':
+                    case 'C':
+                        e.preventDefault();
+                        clearAllNotes();
+                        break;
+                    case 'e':
+                    case 'E':
+                        e.preventDefault();
+                        exportAsMP3();
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        // Cycle to next scale type
+                        const scaleTypes = Array.from(scaleTypeSelect.options);
+                        const currentIndex = scaleTypes.findIndex(option => option.value === scaleTypeSelect.value);
+                        const nextIndex = (currentIndex + 1) % scaleTypes.length;
+                        scaleTypeSelect.value = scaleTypes[nextIndex].value;
+                        updateScaleHighlighting();
+                        break;
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        // Cycle to previous scale type
+                        const scaleTypesPrev = Array.from(scaleTypeSelect.options);
+                        const currentIndexPrev = scaleTypesPrev.findIndex(option => option.value === scaleTypeSelect.value);
+                        const prevIndex = (currentIndexPrev - 1 + scaleTypesPrev.length) % scaleTypesPrev.length;
+                        scaleTypeSelect.value = scaleTypesPrev[prevIndex].value;
+                        updateScaleHighlighting();
+                        break;
+                }
+            });
+        }
+        
+        // Initialize the application
+        function init() {
+            initPianoRoll();
+            initEventListeners();
+            
+            // Add some initial notes to demonstrate
+            setTimeout(() => {
+                // Add a simple C major scale pattern
+                const demoNotes = [
+                    {note: 'C4', steps: [0, 4, 8, 12]},
+                    {note: 'E4', steps: [2, 6, 10, 14]},
+                    {note: 'G4', steps: [4, 8, 12]},
+                ];
+                
+                demoNotes.forEach(({note, steps}) => {
+                    steps.forEach(step => {
+                        const cell = document.querySelector(`.grid-cell[data-note="${note}"][data-step="${step}"]`);
+                        if (cell) {
+                            toggleNote(cell);
+                        }
+                    });
+                });
+            }, 500);
+        }
+        
+        // Start the application when the page loads
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

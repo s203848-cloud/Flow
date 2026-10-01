@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Editor · Vector drawing</title>
+    <!-- Font Awesome for back icon & toolbar icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Fabric.js for powerful canvas manipulation & SVG export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #f0f0f0;
+            min-height: 100vh;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* navigation with back button */
+        .navbar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.8rem;
+        }
+
+        .back-btn {
+            padding: 8px 18px;
+            background: rgba(255, 128, 0, 0.18);
+            border: 1.5px solid #ff8000;
+            border-radius: 40px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.2s;
+            letter-spacing: 0.3px;
+            backdrop-filter: blur(4px);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.35);
+            border-color: #ffa64d;
+            color: #ffa64d;
+            transform: scale(1.02);
+        }
+
+        .back-btn i {
+            font-size: 1.1rem;
+        }
+
+        .editor-title {
+            margin-left: 2rem;
+            font-weight: 300;
+            font-size: 1.6rem;
+            color: rgba(255,255,255,0.7);
+            letter-spacing: 1px;
+        }
+        .editor-title span {
+            color: #ff8000;
+            font-weight: 500;
+            border-left: 2px solid #ff8000;
+            padding-left: 12px;
+        }
+
+        /* main editor card */
+        .editor-container {
+            background: rgba(10, 10, 26, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 128, 0, 0.25);
+            border-radius: 36px;
+            padding: 2rem 1.8rem 1.8rem 1.8rem;
+            box-shadow: 0 25px 50px -8px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,128,0,0.2) inset;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* toolbar – modern, spaced, orange accents */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem 1.2rem;
+            align-items: center;
+            background: rgba(0,0,0,0.35);
+            padding: 0.9rem 1.8rem;
+            border-radius: 60px;
+            border: 1px solid rgba(255,128,0,0.3);
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .tool-group {
+            display: flex;
+            gap: 0.3rem;
+            background: rgba(255,128,0,0.08);
+            padding: 0.3rem;
+            border-radius: 40px;
+            border: 1px solid rgba(255,128,0,0.2);
+        }
+
+        .tool-btn {
+            background: transparent;
+            border: none;
+            color: #ddd;
+            font-size: 1.3rem;
+            width: 44px;
+            height: 44px;
+            border-radius: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.15s;
+            border: 1px solid transparent;
+        }
+        .tool-btn i {
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+        .tool-btn.active {
+            background: #ff8000;
+            color: #0a0a1a;
+            border-color: #ffaa33;
+            box-shadow: 0 0 12px #ff8000aa;
+        }
+        .tool-btn:not(.active):hover {
+            background: rgba(255,128,0,0.25);
+            color: #ffb366;
+            border-color: rgba(255,128,0,0.6);
+        }
+
+        .separator {
+            width: 2px;
+            height: 30px;
+            background: rgba(255,128,0,0.4);
+            border-radius: 2px;
+            margin: 0 6px;
+        }
+
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.6);
+            padding: 5px 15px;
+            border-radius: 40px;
+            border: 1px solid #ff800055;
+        }
+        .color-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #ffb266;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .color-label i {
+            font-size: 1rem;
+            color: #ff8000;
+        }
+        input[type="color"] {
+            width: 40px;
+            height: 35px;
+            border: 2px solid #ff8000;
+            border-radius: 40px;
+            background: #0a0a1a;
+            cursor: pointer;
+            padding: 3px;
+        }
+        input[type="range"] {
+            width: 100px;
+            height: 6px;
+            background: #ff8000;
+            border-radius: 10px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            border: 2px solid #ff8000;
+            box-shadow: 0 0 8px #ff8000;
+            cursor: pointer;
+        }
+
+        .stroke-width-value {
+            min-width: 35px;
+            text-align: center;
+            font-weight: 600;
+            color: #ffaa33;
+        }
+
+        /* canvas wrapper – subtle glow */
+        .canvas-wrapper {
+            background: #1e1a2b;
+            border-radius: 32px;
+            padding: 20px;
+            border: 1px solid #ff800040;
+            box-shadow: 0 20px 30px -10px black, 0 0 0 1px #ff800020 inset;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            min-height: 450px;
+        }
+        #canvas {
+            border-radius: 24px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            display: block;
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #ff800040;
+        }
+
+        /* export panel */
+        .export-panel {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1rem;
+            justify-content: space-between;
+        }
+        .export-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        .action-btn {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #ff8000;
+            color: #ff8000;
+            padding: 10px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            backdrop-filter: blur(5px);
+        }
+        .action-btn:hover {
+            background: #ff8000;
+            color: #0a0a1a;
+            border-color: #ffaa33;
+            box-shadow: 0 0 20px #ff8000;
+        }
+        .svg-output {
+            background: #0d0b18;
+            border-radius: 50px;
+            padding: 0.4rem 1.5rem;
+            border: 1px solid #ff8000;
+            color: #ffb266;
+            font-family: 'SF Mono', monospace;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 240px;
+        }
+        .svg-output i {
+            color: #ff8000;
+            font-size: 1.3rem;
+        }
+        #svgCodePreview {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to tools</a>
+        <div class="editor-title">
+            <span>SVG STUDIO</span> — draw & export
+        </div>
+    </div>
+
+    <div class="editor-container">
+        <!-- Toolbar with tools, colors, stroke -->
+        <div class="toolbar">
+            <div class="tool-group">
+                <button class="tool-btn active" id="tool-select" title="Select & move (default)"><i class="fas fa-mouse-pointer"></i></button>
+                <button class="tool-btn" id="tool-rect" title="Rectangle (click & drag)"><i class="fas fa-square"></i></button>
+                <button class="tool-btn" id="tool-circle" title="Ellipse (click & drag)"><i class="far fa-circle"></i></button>
+                <button class="tool-btn" id="tool-line" title="Line (drag)"><i class="fas fa-slash"></i></button>
+                <button class="tool-btn" id="tool-pencil" title="Freehand pencil"><i class="fas fa-pencil-alt"></i></button>
+                <button class="tool-btn" id="tool-text" title="Text (click to add)"><i class="fas fa-font"></i></button>
+            </div>
+            <div class="separator"></div>
+            <div class="color-picker">
+                <span class="color-label"><i class="fas fa-pen"></i> stroke</span>
+                <input type="color" id="strokeColor" value="#ff8000">
+                <span class="color-label"><i class="fas fa-fill"></i> fill</span>
+                <input type="color" id="fillColor" value="#ff800040">
+                <span class="color-label"><i class="fas fa-border-all"></i> width</span>
+                <input type="range" id="strokeWidth" min="1" max="20" value="3" step="0.5">
+                <span class="stroke-width-value" id="strokeWidthDisplay">3.0</span>
+            </div>
+            <div class="tool-group">
+                <button class="tool-btn" id="delete-selected" title="Delete selected"><i class="fas fa-trash-alt"></i></button>
+                <button class="tool-btn" id="clear-canvas" title="Clear all"><i class="fas fa-eraser"></i></button>
+            </div>
+        </div>
+
+        <!-- Canvas area -->
+        <div class="canvas-wrapper">
+            <canvas id="canvas" width="900" height="500" style="width:100%; height:auto; max-width:900px;"></canvas>
+        </div>
+
+        <!-- Export and preview -->
+        <div class="export-panel">
+            <div class="export-buttons">
+                <button class="action-btn" id="exportSVGBtn"><i class="fas fa-download"></i> Download SVG</button>
+                <button class="action-btn" id="showSVGBtn"><i class="fas fa-code"></i> Show SVG</button>
+            </div>
+            <div class="svg-output" id="svgPreviewContainer" style="display: none;">
+                <i class="fas fa-tag"></i>
+                <span id="svgCodePreview">SVG markup ready</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ----- initialize fabric canvas -----
+            const canvas = new fabric.Canvas('canvas', {
+                preserveObjectStacking: true,
+                backgroundColor: 'white',
+                width: 900,
+                height: 500,
+                selection: true,
+                allowTouchScrolling: false
+            });
+
+            // ----- state & UI elements -----
+            let currentTool = 'select';      // select, rect, circle, line, pencil, text
+            let isDrawingShape = false;
+            let origX, origY;
+            let tempShape = null;            // temporary shape while dragging
+            let startPoint = null;
+
+            // buttons
+            const btnSelect = document.getElementById('tool-select');
+            const btnRect = document.getElementById('tool-rect');
+            const btnCircle = document.getElementById('tool-circle');
+            const btnLine = document.getElementById('tool-line');
+            const btnPencil = document.getElementById('tool-pencil');
+            const btnText = document.getElementById('tool-text');
+            const deleteBtn = document.getElementById('delete-selected');
+            const clearBtn = document.getElementById('clear-canvas');
+            const exportBtn = document.getElementById('exportSVGBtn');
+            const showBtn = document.getElementById('showSVGBtn');
+            const svgPreview = document.getElementById('svgPreviewContainer');
+            const svgPreviewSpan = document.getElementById('svgCodePreview');
+
+            // color / stroke controls
+            const strokeColorInput = document.getElementById('strokeColor');
+            const fillColorInput = document.getElementById('fillColor');
+            const strokeWidthInput = document.getElementById('strokeWidth');
+            const strokeWidthDisplay = document.getElementById('strokeWidthDisplay');
+
+            // helper to deactivate all tool buttons
+            function deactivateTools() {
+                [btnSelect, btnRect, btnCircle, btnLine, btnPencil, btnText].forEach(btn => btn.classList.remove('active'));
+                // disable free drawing if pencil was active
+                canvas.isDrawingMode = false;
+            }
+
+            // set active tool
+            function setTool(tool) {
+                currentTool = tool;
+                deactivateTools();
+                if (tool === 'select') btnSelect.classList.add('active');
+                else if (tool === 'rect') btnRect.classList.add('active');
+                else if (tool === 'circle') btnCircle.classList.add('active');
+                else if (tool === 'line') btnLine.classList.add('active');
+                else if (tool === 'pencil') {
+                    btnPencil.classList.add('active');
+                    canvas.isDrawingMode = true;
+                    // set pencil color & width from current stroke
+                    canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+                    canvas.freeDrawingBrush.color = strokeColorInput.value;
+                    canvas.freeDrawingBrush.width = parseFloat(strokeWidthInput.value);
+                } else if (tool === 'text') {
+                    btnText.classList.add('active');
+                }
+
+                // disable free drawing for non-pencil tools
+                if (tool !== 'pencil') canvas.isDrawingMode = false;
+            }
+
+            // update stroke/fill for new objects (and selected)
+            function getStyleOptions() {
+                return {
+                    stroke: strokeColorInput.value,
+                    fill: fillColorInput.value,
+                    strokeWidth: parseFloat(strokeWidthInput.value)
+                };
+            }
+
+            // update free drawing brush when pencil active
+            function updateBrush() {
+                if (currentTool === 'pencil' && canvas.freeDrawingBrush) {
+                    canvas.freeDrawingBrush.color = strokeColorInput.value;
+                    canvas.freeDrawingBrush.width = parseFloat(strokeWidthInput.value);
+                }
+            }
+
+            // event listeners for style changes
+            strokeColorInput.addEventListener('input', () => {
+                if (currentTool === 'pencil') updateBrush();
+                // also apply to selected objects? optional, we skip for simplicity
+            });
+            strokeWidthInput.addEventListener('input', (e) => {
+                strokeWidthDisplay.textContent = parseFloat(e.target.value).toFixed(1);
+                if (currentTool === 'pencil') updateBrush();
+            });
+            fillColorInput.addEventListener('input', () => {});
+
+            // ----- tool click handlers -----
+            btnSelect.addEventListener('click', () => setTool('select'));
+            btnRect.addEventListener('click', () => setTool('rect'));
+            btnCircle.addEventListener('click', () => setTool('circle'));
+            btnLine.addEventListener('click', () => setTool('line'));
+            btnPencil.addEventListener('click', () => setTool('pencil'));
+            btnText.addEventListener('click', () => setTool('text'));
+
+            // delete selected object(s)
+            deleteBtn.addEventListener('click', () => {
+                const active = canvas.getActiveObjects();
+                if (active.length) {
+                    active.forEach(obj => canvas.remove(obj));
+                    canvas.discardActiveObject().renderAll();
+                }
+            });
+
+            // clear canvas
+            clearBtn.addEventListener('click', () => {
+                canvas.getObjects().forEach(obj => canvas.remove(obj));
+                canvas.backgroundColor = 'white';
+                canvas.renderAll();
+            });
+
+            // ----- interactive shape drawing (rect, circle, line) -----
+            canvas.on('mouse:down', (opt) => {
+                if (!['rect', 'circle', 'line', 'text'].includes(currentTool)) return;
+                if (currentTool === 'text') {
+                    // add text object at click position
+                    const pointer = canvas.getPointer(opt.e);
+                    const text = new fabric.IText('Edit text', {
+                        left: pointer.x,
+                        top: pointer.y,
+                        fontFamily: 'Segoe UI',
+                        fontSize: 28,
+                        fill: strokeColorInput.value, // use stroke color as text color
+                        stroke: null,
+                        backgroundColor: 'transparent'
+                    });
+                    canvas.add(text).setActiveObject(text);
+                    canvas.renderAll();
+                    return;
+                }
+
+                // for rect, circle, line: begin drawing
+                if (currentTool === 'rect' || currentTool === 'circle' || currentTool === 'line') {
+                    const pointer = canvas.getPointer(opt.e);
+                    origX = pointer.x;
+                    origY = pointer.y;
+                    startPoint = { x: origX, y: origY };
+
+                    if (currentTool === 'rect') {
+                        tempShape = new fabric.Rect({
+                            left: origX,
+                            top: origY,
+                            width: 1,
+                            height: 1,
+                            ...getStyleOptions(),
+                            originX: 'left', originY: 'top',
+                            transparentCorners: false
+                        });
+                    } else if (currentTool === 'circle') {
+                        tempShape = new fabric.Ellipse({
+                            left: origX,
+                            top: origY,
+                            rx: 1, ry: 1,
+                            ...getStyleOptions(),
+                            originX: 'left', originY: 'top'
+                        });
+                    } else if (currentTool === 'line') {
+                        tempShape = new fabric.Line([origX, origY, origX, origY], {
+                            ...getStyleOptions(),
+                            stroke: strokeColorInput.value,
+                            fill: '',
+                            strokeWidth: parseFloat(strokeWidthInput.value),
+                            originX: 'left', originY: 'top'
+                        });
+                    }
+
+                    if (tempShape) {
+                        canvas.add(tempShape);
+                        isDrawingShape = true;
+                    }
+                    canvas.renderAll();
+                }
+            });
+
+            canvas.on('mouse:move', (opt) => {
+                if (!isDrawingShape || !tempShape) return;
+                const pointer = canvas.getPointer(opt.e);
+                let minX, minY, width, height;
+
+                switch (currentTool) {
+                    case 'rect':
+                        minX = Math.min(origX, pointer.x);
+                        minY = Math.min(origY, pointer.y);
+                        width = Math.abs(pointer.x - origX);
+                        height = Math.abs(pointer.y - origY);
+                        tempShape.set({ left: minX, top: minY, width: width, height: height });
+                        break;
+                    case 'circle':
+                        minX = Math.min(origX, pointer.x);
+                        minY = Math.min(origY, pointer.y);
+                        width = Math.abs(pointer.x - origX);
+                        height = Math.abs(pointer.y - origY);
+                        tempShape.set({ left: minX, top: minY, rx: width/2, ry: height/2 });
+                        break;
+                    case 'line':
+                        // line: [x1,y1, x2,y2]
+                        tempShape.set({ x2: pointer.x, y2: pointer.y });
+                        break;
+                }
+                canvas.renderAll();
+            });
+
+            canvas.on('mouse:up', () => {
+                if (isDrawingShape && tempShape) {
+                    // finalize shape
+                    if (currentTool === 'rect' || currentTool === 'circle' || currentTool === 'line') {
+                        // remove tiny accidental shapes
+                        if (currentTool === 'rect' && (tempShape.width < 5 || tempShape.height < 5)) {
+                            canvas.remove(tempShape);
+                        } else if (currentTool === 'circle' && (tempShape.rx < 3 || tempShape.ry < 3)) {
+                            canvas.remove(tempShape);
+                        } else if (currentTool === 'line') {
+                            const dx = tempShape.x2 - tempShape.x1;
+                            const dy = tempShape.y2 - tempShape.y1;
+                            if (Math.hypot(dx, dy) < 8) canvas.remove(tempShape);
+                        }
+                    }
+                    tempShape = null;
+                    isDrawingShape = false;
+                    canvas.renderAll();
+                }
+            });
+
+            // re-apply style when switching to pencil (brush already set)
+            // also disable drawing mode if needed
+            canvas.on('path:created', () => {
+                // path styling is already from brush, but we can ensure it matches stroke options.
+                // nothing else
+            });
+
+            // ----- export functions -----
+            function getSVGString() {
+                return canvas.toSVG({
+                    suppressPreamble: false,
+                    viewBox: { x: 0, y: 0, width: canvas.width, height: canvas.height }
+                });
+            }
+
+            function downloadSVG() {
+                const svgData = getSVGString();
+                const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'vector_drawing.svg';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            function showSVGPreview() {
+                const svg = getSVGString();
+                // show container, truncate preview
+                svgPreview.style.display = 'flex';
+                let short = svg.substring(0, 120) + '…';
+                svgPreviewSpan.textContent = short;
+                // you could also show modal, but preview is enough
+                // optional: copy to clipboard on click?
+            }
+
+            exportBtn.addEventListener('click', downloadSVG);
+            showBtn.addEventListener('click', showSVGPreview);
+
+            // set default tool select active
+            setTool('select');
+
+            // handle window resize responsiveness (keep aspect)
+            function resizeCanvas() {
+                const wrapper = document.querySelector('.canvas-wrapper');
+                const containerWidth = wrapper.clientWidth - 40;
+                const scale = containerWidth / 900;
+                if (scale < 1) {
+                    canvas.setDimensions({ width: containerWidth, height: 500 * scale });
+                    canvas.renderAll();
+                } else {
+                    canvas.setDimensions({ width: 900, height: 500 });
+                }
+            }
+            window.addEventListener('resize', resizeCanvas);
+            setTimeout(resizeCanvas, 50);
+        })();
+    </script>
+    <!-- extra small style tweak for svg preview line -->
+    <style>
+        #svgPreviewContainer { transition: 0.2s; }
+        #svgCodePreview { font-family: 'SF Mono', 'Fira Code', monospace; }
+        .canvas-wrapper { overflow-x: auto; }
+    </style>
+</body>
+</html>

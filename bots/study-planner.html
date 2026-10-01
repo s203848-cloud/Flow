@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Planner - Smart Schedule Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.95);
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 10px 20px;
+            background: rgba(255, 128, 0, 0.15);
+            border: 1px solid #ff8000;
+            border-radius: 8px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .section {
+            background: rgba(20, 20, 35, 0.6);
+            border: 1px solid rgba(255, 69, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            color: #ff8000;
+            font-size: 1.4rem;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-weight: 500;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 14px;
+            background: rgba(50, 50, 70, 0.5);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            transition: border 0.3s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 0 2px rgba(255, 128, 0, 0.2);
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            background: linear-gradient(to right, #ff7e00, #ff4500);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 69, 0, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .schedule-item {
+            background: rgba(50, 50, 70, 0.4);
+            padding: 18px;
+            border-radius: 10px;
+            margin: 12px 0;
+            border-left: 4px solid #ff8000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .schedule-item:hover {
+            transform: translateX(5px);
+            background: rgba(50, 50, 70, 0.6);
+        }
+        
+        .schedule-time {
+            color: #ff8000;
+            font-weight: bold;
+            min-width: 120px;
+        }
+        
+        .schedule-task {
+            flex-grow: 1;
+            padding: 0 20px;
+        }
+        
+        .schedule-duration {
+            color: #ccc;
+            font-size: 0.9em;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .stat-card {
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff8000;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #ccc;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(50, 50, 70, 0.5);
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #ff7e00, #ff4500);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .export-options {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+        
+        .completed .schedule-time {
+            color: #4CAF50;
+        }
+        
+        .completed .schedule-task {
+            color: #888;
+        }
+        
+        .time-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .time-btn {
+            padding: 10px;
+            background: rgba(50, 50, 70, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .time-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        .time-btn.active {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff8000;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .checkbox-label input {
+            width: auto;
+        }
+        
+        .subject-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        
+        .subject-tag {
+            background: rgba(255, 128, 0, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .subject-tag:hover {
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        .subject-tag.active {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff8000;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Tools
+        </a>
+        <div style="text-align: center;">
+            <h1 style="font-size: 1.8rem; font-weight: bold; color: #ff8000;">
+                <i class="fas fa-calendar-alt"></i> Smart Study Planner
+            </h1>
+            <p style="color: #aaa; font-size: 0.9rem; margin-top: 5px;">Create personalized study schedules</p>
+        </div>
+        <div></div> <!-- Spacer -->
+    </div>
+
+    <div class="container">
+        <!-- Left Column: Input Section -->
+        <div>
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-cogs"></i>
+                    <h2>Plan Settings</h2>
+                </div>
+                
+                <div class="input-group">
+                    <label for="subject"><i class="fas fa-book"></i> Subject / Topic</label>
+                    <input type="text" id="subject" placeholder="Enter subject (e.g., Calculus, Biology, History)">
+                </div>
+                
+                <div class="input-group">
+                    <label><i class="fas fa-tags"></i> Quick Select Subjects</label>
+                    <div class="subject-tags">
+                        <div class="subject-tag" onclick="selectSubject('Mathematics')">Mathematics</div>
+                        <div class="subject-tag" onclick="selectSubject('Physics')">Physics</div>
+                        <div class="subject-tag" onclick="selectSubject('Chemistry')">Chemistry</div>
+                        <div class="subject-tag" onclick="selectSubject('Biology')">Biology</div>
+                        <div class="subject-tag" onclick="selectSubject('History')">History</div>
+                        <div class="subject-tag" onclick="selectSubject('Programming')">Programming</div>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label><i class="fas fa-clock"></i> Total Study Time</label>
+                    <div class="time-selector">
+                        <div class="time-btn" onclick="setHours(1)">1 hour</div>
+                        <div class="time-btn" onclick="setHours(2)">2 hours</div>
+                        <div class="time-btn" onclick="setHours(3)">3 hours</div>
+                        <div class="time-btn" onclick="setHours(4)">4 hours</div>
+                    </div>
+                    <input type="range" id="hoursRange" min="0.5" max="8" step="0.5" value="2" style="width: 100%; margin: 15px 0;">
+                    <div style="text-align: center;">
+                        <span id="hoursValue">2</span> hours
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="focusAreas"><i class="fas fa-bullseye"></i> Focus Areas (Optional)</label>
+                    <textarea id="focusAreas" rows="3" placeholder="Specific topics to focus on, separated by commas (e.g., derivatives, integrals, limits)"></textarea>
+                </div>
+                
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="includeBreaks" checked>
+                        <span>Include breaks</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="includeReview" checked>
+                        <span>Review session</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="includePractice" checked>
+                        <span>Practice problems</span>
+                    </label>
+                </div>
+                
+                <button class="btn" onclick="createPlan()">
+                    <i class="fas fa-magic"></i> Generate Study Plan
+                </button>
+                
+                <button class="btn btn-secondary" onclick="clearAll()" style="margin-top: 15px;">
+                    <i class="fas fa-trash"></i> Clear All
+                </button>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-lightbulb"></i>
+                    <h2>Study Tips</h2>
+                </div>
+                <div style="color: #ccc;">
+                    <p><i class="fas fa-check-circle" style="color: #4CAF50;"></i> Study in focused 50-minute sessions</p>
+                    <p><i class="fas fa-check-circle" style="color: #4CAF50;"></i> Take 10-minute breaks between sessions</p>
+                    <p><i class="fas fa-check-circle" style="color: #4CAF50;"></i> Review material within 24 hours</p>
+                    <p><i class="fas fa-check-circle" style="color: #4CAF50;"></i> Stay hydrated and maintain good posture</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Output Section -->
+        <div>
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-calendar-check"></i>
+                    <h2>Your Study Schedule</h2>
+                </div>
+                
+                <div id="planOutput" style="min-height: 100px;">
+                    <div style="text-align: center; color: #888; padding: 40px 0;">
+                        <i class="fas fa-calendar-plus" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <p>Your generated study plan will appear here</p>
+                    </div>
+                </div>
+                
+                <div class="stats" id="statsContainer" style="display: none;">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalSessions">0</div>
+                        <div class="stat-label">Study Sessions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalHours">0</div>
+                        <div class="stat-label">Total Hours</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="breakTime">0</div>
+                        <div class="stat-label">Break Time</div>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                
+                <div class="export-options">
+                    <button class="btn btn-secondary" onclick="exportPlan()">
+                        <i class="fas fa-download"></i> Export as Text
+                    </button>
+                    <button class="btn btn-secondary" onclick="savePlan()">
+                        <i class="fas fa-save"></i> Save Plan
+                    </button>
+                    <button class="btn btn-secondary" onclick="printPlan()">
+                        <i class="fas fa-print"></i> Print Plan
+                    </button>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-history"></i>
+                    <h2>Recently Saved Plans</h2>
+                </div>
+                <div id="savedPlans">
+                    <!-- Saved plans will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const hoursRange = document.getElementById('hoursRange');
+        const hoursValue = document.getElementById('hoursValue');
+        
+        hoursRange.addEventListener('input', function() {
+            hoursValue.textContent = this.value;
+        });
+        
+        function setHours(hours) {
+            hoursRange.value = hours;
+            hoursValue.textContent = hours;
+            updateTimeButtons(hours);
+        }
+        
+        function updateTimeButtons(selectedHours) {
+            document.querySelectorAll('.time-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseFloat(btn.textContent) === selectedHours) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+        
+        function selectSubject(subject) {
+            document.getElementById('subject').value = subject;
+            document.querySelectorAll('.subject-tag').forEach(tag => {
+                tag.classList.remove('active');
+                if (tag.textContent === subject) {
+                    tag.classList.add('active');
+                }
+            });
+        }
+        
+        function createPlan() {
+            const subject = document.getElementById('subject').value.trim();
+            const hours = parseFloat(hoursRange.value);
+            const focusAreas = document.getElementById('focusAreas').value.trim();
+            const includeBreaks = document.getElementById('includeBreaks').checked;
+            const includeReview = document.getElementById('includeReview').checked;
+            const includePractice = document.getElementById('includePractice').checked;
+            
+            if (!subject || hours <= 0) {
+                alert('Please enter a subject and valid study time.');
+                return;
+            }
+            
+            const studySessionLength = 50; // minutes
+            const breakLength = 10; // minutes
+            const totalMinutes = hours * 60;
+            
+            let scheduleHTML = '';
+            let minutesLeft = totalMinutes;
+            let sessionCount = 0;
+            let totalBreakTime = 0;
+            let currentTime = new Date();
+            
+            // Adjust start time to next hour or half hour
+            const minutes = currentTime.getMinutes();
+            if (minutes > 0 && minutes < 30) {
+                currentTime.setMinutes(30, 0, 0);
+            } else if (minutes > 30) {
+                currentTime.setHours(currentTime.getHours() + 1, 0, 0, 0);
+            }
+            
+            // Add introductory session
+            scheduleHTML += `
+                <div class="schedule-item">
+                    <div class="schedule-time">${formatTime(currentTime)}</div>
+                    <div class="schedule-task">
+                        <strong>Start: ${subject} Study Session</strong>
+                        <div class="schedule-duration">10 min - Plan overview and goal setting</div>
+                    </div>
+                    <div>
+                        <button class="time-btn" onclick="toggleComplete(this)"><i class="far fa-circle"></i></button>
+                    </div>
+                </div>
+            `;
+            currentTime = addMinutes(currentTime, 10);
+            minutesLeft -= 10;
+            
+            // Generate study sessions
+            while (minutesLeft > 0) {
+                sessionCount++;
+                const sessionDuration = Math.min(studySessionLength, minutesLeft);
+                
+                // Study session
+                scheduleHTML += `
+                    <div class="schedule-item">
+                        <div class="schedule-time">${formatTime(currentTime)}</div>
+                        <div class="schedule-task">
+                            <strong>${subject} Study Session ${sessionCount}</strong>
+                            ${focusAreas ? `<div class="schedule-duration">Topics: ${focusAreas.split(',').slice(0, 3).join(', ')}</div>` : ''}
+                            ${includePractice ? '<div class="schedule-duration">Includes practice problems</div>' : ''}
+                        </div>
+                        <div>
+                            <button class="time-btn" onclick="toggleComplete(this)"><i class="far fa-circle"></i></button>
+                        </div>
+                    </div>
+                `;
+                
+                currentTime = addMinutes(currentTime, sessionDuration);
+                minutesLeft -= sessionDuration;
+                
+                // Add break if needed and there's time left
+                if (includeBreaks && minutesLeft > 0 && sessionCount < Math.floor(totalMinutes / studySessionLength)) {
+                    scheduleHTML += `
+                        <div class="schedule-item" style="border-left-color: #4CAF50;">
+                            <div class="schedule-time">${formatTime(currentTime)}</div>
+                            <div class="schedule-task">
+                                <strong style="color: #4CAF50;">Break Time</strong>
+                                <div class="schedule-duration">${breakLength} minutes - Rest and refresh</div>
+                            </div>
+                            <div>
+                                <button class="time-btn" onclick="toggleComplete(this)"><i class="far fa-circle"></i></button>
+                            </div>
+                        </div>
+                    `;
+                    currentTime = addMinutes(currentTime, breakLength);
+                    minutesLeft -= breakLength;
+                    totalBreakTime += breakLength;
+                }
+            }
+            
+            // Add review session if requested
+            if (includeReview && minutesLeft <= 0) {
+                scheduleHTML += `
+                    <div class="schedule-item" style="border-left-color: #2196F3;">
+                        <div class="schedule-time">${formatTime(currentTime)}</div>
+                        <div class="schedule-task">
+                            <strong style="color: #2196F3;">Review Session</strong>
+                            <div class="schedule-duration">15 minutes - Summarize key points</div>
+                        </div>
+                        <div>
+                            <button class="time-btn" onclick="toggleComplete(this)"><i class="far fa-circle"></i></button>
+                        </div>
+                    </div>
+                `;
+                sessionCount++;
+            }
+            
+            // Update display
+            document.getElementById('planOutput').innerHTML = `
+                <h3 style="color: #ff8000; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-calendar-day"></i> ${subject} - ${hours} Hour Study Plan
+                </h3>
+                ${scheduleHTML}
+            `;
+            
+            // Update stats
+            document.getElementById('statsContainer').style.display = 'grid';
+            document.getElementById('totalSessions').textContent = sessionCount;
+            document.getElementById('totalHours').textContent = hours;
+            document.getElementById('breakTime').textContent = `${Math.round(totalBreakTime / 60 * 10) / 10}h`;
+            
+            updateProgress();
+        }
+        
+        function toggleComplete(button) {
+            const scheduleItem = button.closest('.schedule-item');
+            scheduleItem.classList.toggle('completed');
+            button.innerHTML = scheduleItem.classList.contains('completed') 
+                ? '<i class="fas fa-check-circle" style="color: #4CAF50;"></i>' 
+                : '<i class="far fa-circle"></i>';
+            updateProgress();
+        }
+        
+        function updateProgress() {
+            const totalItems = document.querySelectorAll('.schedule-item').length;
+            const completedItems = document.querySelectorAll('.schedule-item.completed').length;
+            const progress = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+        
+        function exportPlan() {
+            const planText = document.getElementById('planOutput').innerText;
+            const blob = new Blob([planText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Study-Plan.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function savePlan() {
+            const subject = document.getElementById('subject').value;
+            const hours = hoursRange.value;
+            const planContent = document.getElementById('planOutput').innerHTML;
+            
+            if (!subject || hours <= 0) {
+                alert('Please generate a plan first.');
+                return;
+            }
+            
+            const savedPlans = JSON.parse(localStorage.getItem('studyPlans') || '[]');
+            const plan = {
+                id: Date.now(),
+                subject: subject,
+                hours: hours,
+                date: new Date().toLocaleDateString(),
+                content: planContent
+            };
+            
+            savedPlans.unshift(plan); // Add to beginning
+            localStorage.setItem('studyPlans', JSON.stringify(savedPlans));
+            displaySavedPlans();
+            alert('Plan saved successfully!');
+        }
+        
+        function displaySavedPlans() {
+            const savedPlans = JSON.parse(localStorage.getItem('studyPlans') || '[]');
+            const container = document.getElementById('savedPlans');
+            
+            if (savedPlans.length === 0) {
+                container.innerHTML = '<p style="color: #888; text-align: center;">No saved plans yet.</p>';
+                return;
+            }
+            
+            container.innerHTML = savedPlans.slice(0, 3).map(plan => `
+                <div class="schedule-item" style="cursor: pointer;" onclick="loadPlan(${plan.id})">
+                    <div class="schedule-time">${plan.date}</div>
+                    <div class="schedule-task">
+                        <strong>${plan.subject}</strong>
+                        <div class="schedule-duration">${plan.hours} hours</div>
+                    </div>
+                    <button class="time-btn" onclick="deletePlan(event, ${plan.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+        
+        function loadPlan(id) {
+            const savedPlans = JSON.parse(localStorage.getItem('studyPlans') || '[]');
+            const plan = savedPlans.find(p => p.id === id);
+            if (plan) {
+                document.getElementById('planOutput').innerHTML = plan.content;
+                document.getElementById('subject').value = plan.subject;
+                hoursRange.value = plan.hours;
+                hoursValue.textContent = plan.hours;
+                updateTimeButtons(parseFloat(plan.hours));
+                document.getElementById('statsContainer').style.display = 'grid';
+                updateProgress();
+            }
+        }
+        
+        function deletePlan(event, id) {
+            event.stopPropagation();
+            if (confirm('Delete this saved plan?')) {
+                const savedPlans = JSON.parse(localStorage.getItem('studyPlans') || '[]');
+                const filteredPlans = savedPlans.filter(plan => plan.id !== id);
+                localStorage.setItem('studyPlans', JSON.stringify(filteredPlans));
+                displaySavedPlans();
+            }
+        }
+        
+        function printPlan() {
+            const printContent = document.getElementById('planOutput').innerHTML;
+            const originalContent = document.body.innerHTML;
+            
+            document.body.innerHTML = `
+                <div style="padding: 40px; max-width: 800px; margin: 0 auto;">
+                    <h1 style="color: #ff8000; margin-bottom: 30px;">Study Plan</h1>
+                    ${printContent}
+                </div>
+            `;
+            
+            window.print();
+            document.body.innerHTML = originalContent;
+            window.location.reload();
+        }
+        
+        function clearAll() {
+            if (confirm('Clear all inputs and current plan?')) {
+                document.getElementById('subject').value = '';
+                document.getElementById('focusAreas').value = '';
+                hoursRange.value = 2;
+                hoursValue.textContent = '2';
+                document.getElementById('planOutput').innerHTML = `
+                    <div style="text-align: center; color: #888; padding: 40px 0;">
+                        <i class="fas fa-calendar-plus" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <p>Your generated study plan will appear here</p>
+                    </div>
+                `;
+                document.getElementById('statsContainer').style.display = 'none';
+                updateTimeButtons(2);
+                document.querySelectorAll('.subject-tag').forEach(tag => tag.classList.remove('active'));
+            }
+        }
+        
+        // Helper functions
+        function formatTime(date) {
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        function addMinutes(date, minutes) {
+            return new Date(date.getTime() + minutes * 60000);
+        }
+        
+        // Initialize
+        displaySavedPlans();
+        updateTimeButtons(2);
+    </script>
+</body>
+</html>

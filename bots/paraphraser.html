@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Paraphraser</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.8);
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .section {
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .control-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ff8000;
+            font-weight: 500;
+        }
+        
+        select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+        }
+        
+        select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        textarea::placeholder {
+            color: #888;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            background: linear-gradient(to right, #ff7e00, #ff4500);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 15px;
+            font-size: 16px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 69, 0, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .result.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .result-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .result-text {
+            color: #ddd;
+            line-height: 1.6;
+            font-size: 16px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(255, 128, 0, 0.3);
+            border-top: 3px solid #ff8000;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        .word-count {
+            color: #888;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: right;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .control-group {
+                width: 100%;
+            }
+            
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .result-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <span style="font-size: 1.5rem; font-weight: bold;">
+            <i class="fas fa-minimize"></i> Advanced Paraphraser
+        </span>
+    </div>
+    
+    <div class="container">
+        <div class="section">
+            <h2 style="margin-bottom: 15px;">
+                <i class="fas fa-pencil-alt"></i> Enter Your Text
+            </h2>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="mode"><i class="fas fa-sliders-h"></i> Paraphrase Mode</label>
+                    <select id="mode">
+                        <option value="balanced">Balanced (Recommended)</option>
+                        <option value="formal">Formal / Academic</option>
+                        <option value="casual">Casual / Simple</option>
+                        <option value="creative">Creative Rewrite</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="intensity"><i class="fas fa-bolt"></i> Intensity</label>
+                    <select id="intensity">
+                        <option value="low">Low Changes</option>
+                        <option value="medium" selected>Medium Changes</option>
+                        <option value="high">High Changes</option>
+                    </select>
+                </div>
+            </div>
+            
+            <textarea id="textInput" placeholder="Enter the text you want to paraphrase here..."></textarea>
+            <div class="word-count" id="wordCount">Words: 0</div>
+            
+            <button class="btn" id="paraphraseBtn" onclick="paraphrase()">
+                <i class="fas fa-magic"></i> Paraphrase Text
+            </button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Paraphrasing your text...</p>
+        </div>
+        
+        <div class="result" id="result">
+            <div class="result-header">
+                <h2 style="color: #ff8000;">
+                    <i class="fas fa-file-alt"></i> Paraphrased Text
+                </h2>
+                <div class="result-actions">
+                    <button class="action-btn" onclick="copyToClipboard()">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                    <button class="action-btn" onclick="speakText()">
+                        <i class="fas fa-volume-up"></i> Speak
+                    </button>
+                </div>
+            </div>
+            <div class="result-text" id="resultText"></div>
+            <div class="word-count" id="resultWordCount"></div>
+        </div>
+    </div>
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const wordCount = document.getElementById('wordCount');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const resultText = document.getElementById('resultText');
+        const resultWordCount = document.getElementById('resultWordCount');
+        const paraphraseBtn = document.getElementById('paraphraseBtn');
+        
+        // Enhanced synonym database
+        const synonymDatabase = {
+            // Common adjectives
+            'good': ['excellent', 'great', 'superb', 'outstanding', 'fine', 'quality'],
+            'bad': ['poor', 'terrible', 'awful', 'substandard', 'inferior', 'unsatisfactory'],
+            'small': ['tiny', 'little', 'miniature', 'compact', 'petite', 'minuscule'],
+            'big': ['large', 'huge', 'enormous', 'massive', 'gigantic', 'substantial'],
+            'happy': ['joyful', 'delighted', 'pleased', 'content', 'cheerful', 'ecstatic'],
+            'sad': ['unhappy', 'depressed', 'melancholy', 'downcast', 'gloomy', 'disheartened'],
+            
+            // Adverbs
+            'very': ['extremely', 'exceedingly', 'incredibly', 'remarkably', 'exceptionally'],
+            'really': ['truly', 'genuinely', 'actually', 'certainly', 'undoubtedly'],
+            'quickly': ['rapidly', 'swiftly', 'speedily', 'promptly', 'briskly'],
+            'slowly': ['gradually', 'leisurely', 'unhurriedly', 'at a snail\'s pace'],
+            
+            // Common verbs
+            'said': ['stated', 'mentioned', 'remarked', 'declared', 'expressed', 'uttered'],
+            'make': ['create', 'produce', 'construct', 'fabricate', 'manufacture'],
+            'use': ['utilize', 'employ', 'apply', 'operate', 'wield'],
+            'get': ['obtain', 'acquire', 'receive', 'secure', 'procure'],
+            'think': ['believe', 'consider', 'ponder', 'contemplate', 'reflect'],
+            
+            // Nouns
+            'thing': ['item', 'object', 'element', 'article', 'entity'],
+            'people': ['individuals', 'persons', 'humans', 'folk', 'populace'],
+            'problem': ['issue', 'difficulty', 'challenge', 'complication', 'obstacle'],
+            'solution': ['answer', 'resolution', 'remedy', 'fix', 'key'],
+            
+            // Formal alternatives
+            'buy': ['purchase', 'acquire', 'procure', 'invest in'],
+            'show': ['demonstrate', 'illustrate', 'exhibit', 'display'],
+            'help': ['assist', 'aid', 'support', 'facilitate'],
+            'need': ['require', 'necessitate', 'demand', 'call for']
+        };
+        
+        // Sentence restructuring patterns
+        const sentencePatterns = [
+            (sentence) => {
+                // Change from active to passive or vice versa
+                if (Math.random() > 0.5) {
+                    return sentence.replace(/^(\w+)\s+(\w+)\s+(.+)$/, (match, subj, verb, rest) => {
+                        const passiveVerbs = {
+                            'made': 'was made by',
+                            'created': 'was created by',
+                            'wrote': 'was written by',
+                            'built': 'was built by',
+                            'designed': 'was designed by'
+                        };
+                        return passiveVerbs[verb] ? `${rest} ${passiveVerbs[verb]} ${subj}` : sentence;
+                    });
+                }
+                return sentence;
+            },
+            (sentence) => {
+                // Add introductory phrases
+                const starters = ['Furthermore,', 'Moreover,', 'Additionally,', 'In addition,', 'Notably,'];
+                if (Math.random() > 0.7 && !starters.some(s => sentence.startsWith(s))) {
+                    return starters[Math.floor(Math.random() * starters.length)] + ' ' + sentence;
+                }
+                return sentence;
+            },
+            (sentence) => {
+                // Rearrange clauses
+                const parts = sentence.split(/,|\sbut\s|\salthough\s/i);
+                if (parts.length > 1) {
+                    return parts.reverse().join(', ') + (sentence.endsWith('.') ? '.' : '');
+                }
+                return sentence;
+            }
+        ];
+        
+        // Update word count
+        textInput.addEventListener('input', updateWordCount);
+        
+        function updateWordCount() {
+            const text = textInput.value.trim();
+            const words = text ? text.split(/\s+/).filter(word => word.length > 0) : [];
+            wordCount.textContent = `Words: ${words.length}`;
+            paraphraseBtn.disabled = words.length === 0;
+        }
+        
+        // Main paraphrase function
+        async function paraphrase() {
+            const text = textInput.value.trim();
+            if (!text) {
+                alert('Please enter some text to paraphrase');
+                return;
+            }
+            
+            // Show loading
+            loading.classList.add('show');
+            result.classList.remove('show');
+            paraphraseBtn.disabled = true;
+            paraphraseBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            
+            // Simulate processing time (you can remove this timeout in production)
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            try {
+                const mode = document.getElementById('mode').value;
+                const intensity = document.getElementById('intensity').value;
+                const paraphrased = paraphraseText(text, mode, intensity);
+                
+                resultText.textContent = paraphrased;
+                
+                // Update result word count
+                const resultWords = paraphrased.split(/\s+/).filter(word => word.length > 0);
+                resultWordCount.textContent = `Words: ${resultWords.length}`;
+                
+                result.classList.add('show');
+            } catch (error) {
+                resultText.textContent = 'Error: Could not paraphrase the text. Please try again.';
+                result.classList.add('show');
+            } finally {
+                // Hide loading
+                loading.classList.remove('show');
+                paraphraseBtn.disabled = false;
+                paraphraseBtn.innerHTML = '<i class="fas fa-magic"></i> Paraphrase Text';
+            }
+        }
+        
+        function paraphraseText(text, mode, intensity) {
+            // Split into sentences
+            const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+            
+            return sentences.map(sentence => {
+                let processedSentence = sentence.trim();
+                
+                // Apply mode-specific adjustments
+                switch(mode) {
+                    case 'formal':
+                        processedSentence = makeFormal(processedSentence);
+                        break;
+                    case 'casual':
+                        processedSentence = makeCasual(processedSentence);
+                        break;
+                    case 'creative':
+                        processedSentence = makeCreative(processedSentence);
+                        break;
+                    default:
+                        processedSentence = makeBalanced(processedSentence);
+                }
+                
+                // Apply intensity adjustments
+                processedSentence = applyIntensity(processedSentence, intensity);
+                
+                // Apply sentence restructuring
+                if (Math.random() > 0.3) {
+                    const pattern = sentencePatterns[Math.floor(Math.random() * sentencePatterns.length)];
+                    processedSentence = pattern(processedSentence);
+                }
+                
+                return processedSentence;
+            }).join(' ');
+        }
+        
+        function makeFormal(sentence) {
+            return sentence.split(' ').map(word => {
+                const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
+                const synonyms = synonymDatabase[cleanWord];
+                
+                if (synonyms && Math.random() > 0.4) {
+                    const synonym = synonyms[Math.floor(Math.random() * synonyms.length)];
+                    return preserveCase(word, synonym);
+                }
+                return word;
+            }).join(' ');
+        }
+        
+        function makeCasual(sentence) {
+            return sentence.split(' ').map(word => {
+                const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
+                if (synonymDatabase[cleanWord]) {
+                    // Sometimes keep the original for casual tone
+                    if (Math.random() > 0.6) {
+                        const synonyms = synonymDatabase[cleanWord];
+                        const synonym = synonyms[Math.floor(Math.random() * synonyms.length)];
+                        return preserveCase(word, synonym);
+                    }
+                }
+                return word;
+            }).join(' ');
+        }
+        
+        function makeCreative(sentence) {
+            const words = sentence.split(' ');
+            if (words.length > 5) {
+                // Reorder some words
+                const start = Math.floor(Math.random() * (words.length - 3));
+                const end = start + Math.floor(Math.random() * 3) + 2;
+                const segment = words.slice(start, end);
+                words.splice(start, segment.length, ...segment.reverse());
+            }
+            return words.join(' ');
+        }
+        
+        function makeBalanced(sentence) {
+            return sentence.split(' ').map(word => {
+                const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
+                const synonyms = synonymDatabase[cleanWord];
+                
+                if (synonyms && Math.random() > 0.5) {
+                    const synonym = synonyms[Math.floor(Math.random() * synonyms.length)];
+                    return preserveCase(word, synonym);
+                }
+                return word;
+            }).join(' ');
+        }
+        
+        function applyIntensity(sentence, intensity) {
+            let changeProbability;
+            switch(intensity) {
+                case 'low': changeProbability = 0.2; break;
+                case 'medium': changeProbability = 0.5; break;
+                case 'high': changeProbability = 0.8; break;
+                default: changeProbability = 0.5;
+            }
+            
+            return sentence.split(' ').map(word => {
+                const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
+                const synonyms = synonymDatabase[cleanWord];
+                
+                if (synonyms && Math.random() < changeProbability) {
+                    const synonym = synonyms[Math.floor(Math.random() * synonyms.length)];
+                    return preserveCase(word, synonym);
+                }
+                return word;
+            }).join(' ');
+        }
+        
+        function preserveCase(original, replacement) {
+            if (original === original.toUpperCase()) {
+                return replacement.toUpperCase();
+            } else if (original[0] === original[0].toUpperCase()) {
+                return replacement.charAt(0).toUpperCase() + replacement.slice(1);
+            }
+            return replacement;
+        }
+        
+        function copyToClipboard() {
+            const text = resultText.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const copyBtn = document.querySelector('.action-btn:nth-child(1)');
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+        
+        function speakText() {
+            const text = resultText.textContent;
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                speechSynthesis.speak(utterance);
+            } else {
+                alert('Text-to-speech is not supported in your browser');
+            }
+        }
+        
+        // Initialize
+        updateWordCount();
+    </script>
+</body>
+</html>

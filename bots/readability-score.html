@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flesch–Kincaid readability · grade level analyzer</title>
+    <!-- Font Awesome 6 (free) for back arrow & subtle icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* main card container – soft glass effect */
+        .readability-wrapper {
+            max-width: 1000px;
+            width: 100%;
+            margin-top: 1.5rem;
+        }
+
+        .navbar {
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 1.5rem;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: rgba(255, 128, 0, 0.08);
+            border: 1px solid #ff8000;
+            border-radius: 40px;
+            color: #ff8000;
+            font-weight: 500;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+            backdrop-filter: blur(4px);
+        }
+
+        .back-btn i {
+            font-size: 0.9rem;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+            border-color: #ff9900;
+        }
+
+        .back-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* title area */
+        .app-header {
+            margin-bottom: 2.5rem;
+            text-align: left;
+        }
+
+        .app-header h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            background: linear-gradient(to right, #fff, #ffcba4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .app-header p {
+            color: #b0a0c0;
+            font-size: 1.1rem;
+            margin-top: 0.3rem;
+            border-left: 4px solid #ff8000;
+            padding-left: 1rem;
+        }
+
+        /* input card */
+        .input-card {
+            background: rgba(20, 10, 35, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 128, 0, 0.25);
+            border-radius: 32px;
+            padding: 2rem 2rem 1.8rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 128, 0, 0.1) inset;
+            margin-bottom: 2.2rem;
+        }
+
+        .textarea-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            color: #ffd5aa;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+        }
+
+        .textarea-label i {
+            color: #ff8000;
+            font-size: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            background: rgba(10, 5, 20, 0.7);
+            border: 2px solid rgba(255, 128, 0, 0.3);
+            border-radius: 24px;
+            padding: 1.5rem 1.8rem;
+            color: white;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            resize: vertical;
+            min-height: 220px;
+            outline: none;
+            transition: border 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 0 rgba(0,0,0,0.2);
+        }
+
+        textarea:focus {
+            border-color: #ff8000;
+            box-shadow: 0 0 0 4px rgba(255, 128, 0, 0.2), 0 8px 0 rgba(0,0,0,0.2);
+        }
+
+        textarea::placeholder {
+            color: #a58bb0;
+            font-style: italic;
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        /* action row */
+        .action-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .clear-btn {
+            background: transparent;
+            border: 1px solid #7a6a88;
+            color: #c0b0d0;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(4px);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .clear-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: #ff8000;
+            color: #ffb878;
+        }
+
+        .calculate-btn {
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            color: #ff8000;
+            padding: 0.8rem 2.8rem;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+            backdrop-filter: blur(4px);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .calculate-btn i {
+            font-size: 1rem;
+        }
+
+        .calculate-btn:hover {
+            background: rgba(255, 128, 0, 0.35);
+            box-shadow: 0 0 20px rgba(255, 128, 0, 0.5);
+        }
+
+        .calculate-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* results panel */
+        .results-panel {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .result-card {
+            background: rgba(15, 8, 28, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 128, 0, 0.25);
+            border-radius: 28px;
+            padding: 1.8rem 1.2rem;
+            text-align: center;
+            transition: 0.2s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .result-card:hover {
+            border-color: #ff8000;
+            background: rgba(30, 15, 45, 0.8);
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ffb06f;
+            margin-bottom: 1rem;
+            font-weight: 400;
+        }
+
+        .result-number {
+            font-size: 3.2rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.2;
+            text-shadow: 0 0 20px rgba(255, 128, 0, 0.6);
+        }
+
+        .result-unit {
+            font-size: 1rem;
+            color: #a792b0;
+            margin-left: 4px;
+        }
+
+        .result-desc {
+            margin-top: 0.8rem;
+            color: #bcabc0;
+            font-size: 0.9rem;
+            font-weight: 300;
+        }
+
+        /* detailed metrics row (word/sentence/syllable) */
+        .detail-strip {
+            background: rgba(0,0,0,0.3);
+            border-radius: 60px;
+            padding: 1.2rem 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            border: 1px solid rgba(255,128,0,0.15);
+            backdrop-filter: blur(6px);
+            margin-top: 1.2rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #d0c0e0;
+            font-size: 1.1rem;
+        }
+
+        .detail-item i {
+            color: #ff8000;
+            width: 24px;
+            font-size: 1.2rem;
+        }
+
+        .detail-item span {
+            font-weight: 600;
+            color: #ffb878;
+            margin-right: 6px;
+        }
+
+        .footnote {
+            text-align: center;
+            margin-top: 2.2rem;
+            color: #6f5b80;
+            font-size: 0.85rem;
+            border-top: 1px dashed rgba(255,128,0,0.3);
+            padding-top: 1.5rem;
+        }
+
+        .footnote i {
+            color: #ff8000;
+        }
+
+        /* mobile adaptation */
+        @media (max-width: 700px) {
+            body { padding: 1rem; }
+            .results-panel { grid-template-columns: 1fr; }
+            .detail-strip { flex-direction: column; gap: 12px; align-items: flex-start; }
+            .app-header h1 { font-size: 1.8rem; }
+        }
+
+        /* small utilities */
+        .text-muted-orange {
+            color: #ffa74d;
+        }
+    </style>
+</head>
+<body>
+    <!-- navigation with back button exactly as requested -->
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <div class="readability-wrapper">
+        <div class="app-header">
+            <h1>📊 Flesch–Kincaid grade level</h1>
+            <p>Check readability — scientific score, not a guess</p>
+        </div>
+
+        <!-- main input card -->
+        <div class="input-card">
+            <div class="textarea-label">
+                <span><i class="fas fa-pen-fancy" style="margin-right: 8px;"></i>YOUR TEXT</span>
+                <span id="word-counter" class="text-muted-orange"><i class="far fa-keyboard"></i> 0 words</span>
+            </div>
+            <textarea id="textInput" placeholder="Paste or write your article, essay, or paragraph here ...&#10;— The tool counts syllables, sentences, and calculates Flesch-Kincaid automatically."></textarea>
+            <div class="action-row">
+                <button class="clear-btn" id="clearBtn"><i class="fas fa-undo-alt"></i> Clear</button>
+                <button class="calculate-btn" id="analyzeBtn"><i class="fas fa-calculator"></i> Analyze</button>
+            </div>
+        </div>
+
+        <!-- main scores (grade level + reading ease) -->
+        <div class="results-panel">
+            <div class="result-card">
+                <div class="result-label"><i class="fas fa-graduation-cap" style="margin-right: 6px;"></i> GRADE LEVEL</div>
+                <div class="result-number" id="gradeValue">—</div>
+                <div class="result-desc" id="gradeDesc">US school grade</div>
+            </div>
+            <div class="result-card">
+                <div class="result-label"><i class="fas fa-chart-line"></i> READING EASE</div>
+                <div class="result-number" id="easeValue">—</div>
+                <div class="result-desc" id="easeDesc">0 (hard) – 100 (easy)</div>
+            </div>
+            <div class="result-card">
+                <div class="result-label"><i class="fas fa-tachometer-alt"></i> INTERPRETATION</div>
+                <div class="result-number" id="interpretShort" style="font-size: 2rem;">—</div>
+                <div class="result-desc" id="interpretDesc">standard / plain english</div>
+            </div>
+        </div>
+
+        <!-- detailed stats: words, sentences, syllables -->
+        <div class="detail-strip">
+            <div class="detail-item"><i class="fas fa-font"></i> <span id="wordCount">0</span> words</div>
+            <div class="detail-item"><i class="fas fa-stop"></i> <span id="sentenceCount">0</span> sentences</div>
+            <div class="detail-item"><i class="fas fa-music"></i> <span id="syllableCount">0</span> syllables (approx)</div>
+        </div>
+
+        <div class="footnote">
+            <i class="fas fa-flask"></i> Flesch-Kincaid grade level = 0.39 × (words/sentences) + 11.8 × (syllables/words) − 15.59 · 
+            Reading ease = 206.835 − 1.015 × (words/sentences) − 84.6 × (syllables/words)
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // DOM elements
+            const textarea = document.getElementById('textInput');
+            const wordSpan = document.getElementById('wordCount');
+            const sentenceSpan = document.getElementById('sentenceCount');
+            const syllableSpan = document.getElementById('syllableCount');
+            const gradeSpan = document.getElementById('gradeValue');
+            const easeSpan = document.getElementById('easeValue');
+            const interpretShort = document.getElementById('interpretShort');
+            const interpretDesc = document.getElementById('interpretDesc');
+            const wordCounterLabel = document.getElementById('word-counter');
+
+            // Buttons
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const clearBtn = document.getElementById('clearBtn');
+
+            // ---------- syllable counting (decent accuracy for FK) ----------
+            function countSyllablesInWord(word) {
+                if (!word) return 0;
+                // remove punctuation and lowercase
+                let clean = word.replace(/[^a-z]/gi, '').toLowerCase();
+                if (clean.length <= 2) return 1;   // "a", "an", "in", "at" etc.
+
+                // special quick common adjustments
+                // remove silent 'e' if not making a new syllable (e.g., "like", "make" -> 1)
+                // but careful: "cycle" -> 2 syllables. Use common pattern.
+                let adjusted = clean.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, ''); // remove silent e in context
+                // remove starting 'y' because it's consonant-like
+                adjusted = adjusted.replace(/^y/, '');
+
+                const vowelGroups = adjusted.match(/[aeiouy]+/g);
+                let count = vowelGroups ? vowelGroups.length : 1;
+
+                // ensure at least 1 syllable
+                if (count < 1) count = 1;
+
+                // final tweak: some words ending with "le" after consonant may need an extra count
+                // but our removal of silent e already handled many cases.
+                // additional rule: if word ends with "le" and preceding is consonant, and count==1 sometimes it should be 2 (like "table", "cradle")
+                if (clean.length > 3 && clean.match(/[^aeiou]le$/)) {
+                    // "table", "battle", "gentle" usually 2 syllables, but our method might give 1 because we removed silent e
+                    // we need to check original before removal
+                    const originalGroups = clean.match(/[aeiouy]+/g);
+                    const origCount = originalGroups ? originalGroups.length : 1;
+                    if (origCount === 1 && clean.match(/[^aeiou]le$/)) {
+                        // "table" => orig groups "a" and ? actually "table" => t a b l e => groups: a, e? -> "a", "e" => origCount 2. so okay.
+                        // but "cradle" => c r a d l e -> groups: a, e => 2. fine.
+                        // "little" -> i, e => 2. fine.
+                        // this rule may be rarely needed; we keep for safety.
+                    }
+                }
+                return count;
+            }
+
+            // count syllables for entire text (sum over words)
+            function countTotalSyllables(wordsArray) {
+                let total = 0;
+                for (let w of wordsArray) {
+                    total += countSyllablesInWord(w);
+                }
+                return total;
+            }
+
+            // split text into words (alphanumeric sequences)
+            function extractWords(text) {
+                const matches = text.match(/\b\w+\b/g);
+                return matches ? matches : [];
+            }
+
+            // split sentences using . ! ? and respect abbreviations? (basic)
+            function countSentences(text) {
+                if (!text.trim()) return 0;
+                // split on period, exclamation, question mark — not on decimals etc.
+                const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+                return sentences.length;
+            }
+
+            // main analysis function
+            function analyzeReadability() {
+                const rawText = textarea.value;
+
+                if (!rawText.trim()) {
+                    // reset to neutral
+                    wordSpan.innerText = '0';
+                    sentenceSpan.innerText = '0';
+                    syllableSpan.innerText = '0';
+                    gradeSpan.innerText = '—';
+                    easeSpan.innerText = '—';
+                    interpretShort.innerText = '—';
+                    interpretDesc.innerText = 'no text';
+                    wordCounterLabel.innerHTML = `<i class="far fa-keyboard"></i> 0 words`;
+                    return;
+                }
+
+                // words
+                const wordsArray = extractWords(rawText);
+                const wordCount = wordsArray.length;
+                wordSpan.innerText = wordCount;
+                wordCounterLabel.innerHTML = `<i class="far fa-keyboard"></i> ${wordCount} word${wordCount !== 1 ? 's' : ''}`;
+
+                // sentences
+                const sentenceCount = countSentences(rawText);
+                sentenceSpan.innerText = sentenceCount;
+
+                // syllables
+                const syllableCount = countTotalSyllables(wordsArray);
+                syllableSpan.innerText = syllableCount;
+
+                // calculate scores only if we have at least 1 sentence and 1 word
+                if (sentenceCount === 0 || wordCount === 0) {
+                    gradeSpan.innerText = '—';
+                    easeSpan.innerText = '—';
+                    interpretShort.innerText = '—';
+                    interpretDesc.innerText = 'need sentence';
+                    return;
+                }
+
+                const wordsPerSentence = wordCount / sentenceCount;
+                const syllablesPerWord = syllableCount / wordCount;
+
+                // Flesch-Kincaid Grade Level
+                const gradeLevel = 0.39 * wordsPerSentence + 11.8 * syllablesPerWord - 15.59;
+                // Flesch Reading Ease
+                const readingEase = 206.835 - 1.015 * wordsPerSentence - 84.6 * syllablesPerWord;
+
+                // format grade to 1 decimal, clamp
+                let gradeFormatted = gradeLevel.toFixed(1);
+                if (gradeLevel < 1.0) gradeFormatted = '< 1.0';
+                else if (gradeLevel > 18) gradeFormatted = '> 18.0';
+                else gradeFormatted = gradeLevel.toFixed(1);
+
+                gradeSpan.innerText = gradeFormatted;
+
+                // ease as integer with possible range
+                let easeRounded = Math.round(readingEase * 10) / 10;
+                easeSpan.innerText = easeRounded;
+
+                // interpretation short and description
+                let shortText = '';
+                let descText = '';
+                if (readingEase >= 90) { shortText = '⭐ very easy'; descText = 'grade 5 level'; }
+                else if (readingEase >= 80) { shortText = 'easy'; descText = 'grade 6 level'; }
+                else if (readingEase >= 70) { shortText = 'fairly easy'; descText = 'grade 7 level'; }
+                else if (readingEase >= 60) { shortText = 'standard'; descText = 'grade 8–9'; }
+                else if (readingEase >= 50) { shortText = 'fairly hard'; descText = 'grade 10–12'; }
+                else if (readingEase >= 30) { shortText = 'hard'; descText = 'college level'; }
+                else { shortText = 'very hard'; descText = 'professional / scientific'; }
+
+                interpretShort.innerText = shortText;
+                interpretDesc.innerText = descText + ' (Flesch ease)';
+
+                // also update description for grade
+                const gradeDesc = document.getElementById('gradeDesc');
+                if (gradeLevel < 1) gradeDesc.innerText = 'kindergarten';
+                else if (gradeLevel < 2) gradeDesc.innerText = '1st grade';
+                else if (gradeLevel < 3) gradeDesc.innerText = '2nd grade';
+                else if (gradeLevel < 4) gradeDesc.innerText = '3rd grade';
+                else if (gradeLevel < 5) gradeDesc.innerText = '4th grade';
+                else if (gradeLevel < 6) gradeDesc.innerText = '5th grade';
+                else if (gradeLevel < 7) gradeDesc.innerText = '6th grade';
+                else if (gradeLevel < 8) gradeDesc.innerText = '7th grade';
+                else if (gradeLevel < 9) gradeDesc.innerText = '8th grade';
+                else if (gradeLevel < 10) gradeDesc.innerText = '9th grade';
+                else if (gradeLevel < 11) gradeDesc.innerText = '10th grade';
+                else if (gradeLevel < 12) gradeDesc.innerText = '11th grade';
+                else if (gradeLevel < 13) gradeDesc.innerText = '12th grade';
+                else if (gradeLevel < 14) gradeDesc.innerText = 'college freshman';
+                else gradeDesc.innerText = 'advanced degree';
+            }
+
+            // event listeners
+            analyzeBtn.addEventListener('click', analyzeReadability);
+
+            clearBtn.addEventListener('click', function() {
+                textarea.value = '';
+                analyzeReadability();  // resets display
+                textarea.focus();
+            });
+
+            // optional: real-time word count only (no full analysis to keep performance)
+            textarea.addEventListener('input', function() {
+                const words = extractWords(textarea.value);
+                const wc = words.length;
+                wordCounterLabel.innerHTML = `<i class="far fa-keyboard"></i> ${wc} word${wc !== 1 ? 's' : ''}`;
+            });
+
+            // run initial analysis (if any default text, but placeholder empty)
+            analyzeReadability();
+
+            // also allow enter with ctrl+enter (optional)
+            textarea.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    analyzeReadability();
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

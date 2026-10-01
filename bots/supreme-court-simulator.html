@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supreme Court Simulator</title>
+    <!-- Font Awesome 5 (same arrow icon as template) -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #f0f0f0;
+            min-height: 100vh;
+            padding: 1.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* main container */
+        .simulator {
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        /* navbar exactly as template */
+        .navbar {
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .back-btn {
+            padding: 8px 18px;
+            background: rgba(255, 128, 0, 0.15);
+            border: 1.5px solid #ff8000;
+            border-radius: 40px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(2px);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ffaa33;
+            color: #fff;
+            transform: translateX(-3px);
+            box-shadow: 0 0 12px rgba(255, 128, 0, 0.3);
+        }
+
+        .back-btn i {
+            font-size: 0.9rem;
+        }
+
+        /* header area */
+        .court-header {
+            margin-bottom: 2.5rem;
+            text-align: left;
+            width: 100%;
+        }
+
+        .court-header h1 {
+            font-size: 2.5rem;
+            font-weight: 500;
+            background: linear-gradient(135deg, #fff, #ffcc99);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .court-header .sub {
+            font-size: 1.1rem;
+            color: #b0b0d0;
+            border-left: 3px solid #ff8000;
+            padding-left: 1.2rem;
+            margin-top: 0.3rem;
+        }
+
+        /* score & reset bar */
+        .progress-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 26, 0.7);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 128, 0, 0.25);
+            border-radius: 60px;
+            padding: 0.7rem 1.5rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .score {
+            font-size: 1.4rem;
+            font-weight: 400;
+            color: #fff;
+        }
+
+        .score span {
+            color: #ff8000;
+            font-weight: 600;
+            background: rgba(255, 128, 0, 0.15);
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            margin-left: 0.5rem;
+            border: 1px solid rgba(255, 128, 0, 0.4);
+        }
+
+        .reset-btn {
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid #ff8000;
+            color: #ff8000;
+            padding: 8px 22px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.15s;
+        }
+
+        .reset-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            color: white;
+            border-color: #ffaa33;
+        }
+
+        /* grid – cards */
+        .cases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.8rem;
+            margin-bottom: 3rem;
+        }
+
+        /* card style – glassmorphic dark */
+        .case-card {
+            background: rgba(20, 15, 30, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 28px;
+            padding: 1.6rem 1.5rem 1.8rem 1.5rem;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.3s;
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .case-card:hover {
+            border-color: #ff8000;
+            transform: translateY(-5px);
+            box-shadow: 0 25px 40px -10px rgba(255, 128, 0, 0.25);
+        }
+
+        .case-name {
+            font-size: 1.7rem;
+            font-weight: 500;
+            line-height: 1.2;
+            margin-bottom: 0.2rem;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .case-year {
+            font-size: 1rem;
+            color: #ffaa66;
+            background: rgba(255, 128, 0, 0.2);
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+
+        .case-question {
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #c0c0e0;
+            margin: 1rem 0 1.4rem 0;
+            padding: 0.8rem 0;
+            border-top: 1px dashed rgba(255, 128, 0, 0.3);
+            border-bottom: 1px dashed rgba(255, 128, 0, 0.3);
+        }
+
+        .vote-buttons {
+            display: flex;
+            gap: 1rem;
+            margin: 0.5rem 0 1.2rem;
+        }
+
+        .vote-btn {
+            flex: 1;
+            padding: 12px 0;
+            background: rgba(255, 128, 0, 0.08);
+            border: 1.5px solid #ff8000;
+            border-radius: 50px;
+            color: #ff8000;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.15s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(5px);
+        }
+
+        .vote-btn:hover:not(:disabled) {
+            background: rgba(255, 128, 0, 0.25);
+            color: white;
+            box-shadow: 0 0 10px #ff8000;
+        }
+
+        .vote-btn.selected {
+            background: #ff8000;
+            color: #0a0a1a;
+            border-color: #ffaa33;
+            font-weight: 700;
+        }
+
+        .outcome-area {
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 24px;
+            padding: 1rem 1.2rem;
+            margin-top: 0.7rem;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            font-size: 0.95rem;
+        }
+
+        .actual-ruling {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ddd;
+            margin-bottom: 6px;
+        }
+
+        .actual-ruling i {
+            width: 20px;
+            font-size: 1.2rem;
+        }
+
+        .actual-ruling .fa-check-circle {
+            color: #4caf92;
+        }
+
+        .actual-ruling .fa-times-circle {
+            color: #ff6b6b;
+        }
+
+        .explanation {
+            color: #aaaacc;
+            font-style: italic;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            padding-left: 30px;
+        }
+
+        .match-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: 8px;
+        }
+
+        .match-badge i {
+            font-size: 1rem;
+        }
+
+        .correct-match {
+            color: #4caf92;
+        }
+
+        .wrong-match {
+            color: #ff6b6b;
+        }
+
+        /* footer */
+        .footer-note {
+            text-align: center;
+            color: #5a5a80;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255,128,0,0.2);
+            padding-top: 1.5rem;
+        }
+
+        /* responsiveness */
+        @media (max-width: 600px) {
+            body { padding: 1rem; }
+            .court-header h1 { font-size: 1.9rem; }
+            .progress-panel { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+    <div class="simulator">
+        <!-- navbar with back button (exactly as template) -->
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+            <span style="color: #ff8000; font-weight: 300; letter-spacing: 1px;">|</span>
+            <span style="color: #ccc; font-weight: 300;">Supreme Court · 2024 Term</span>
+        </div>
+
+        <!-- header -->
+        <div class="court-header">
+            <h1>⚖️ Supreme Court simulator</h1>
+            <div class="sub">Analyze landmark cases · cast your vote · compare with history</div>
+        </div>
+
+        <!-- score + reset -->
+        <div class="progress-panel">
+            <div class="score">
+                <i class="fas fa-gavel" style="color: #ff8000; margin-right: 8px;"></i> your matches
+                <span id="scoreDisplay">0 / 7</span>
+            </div>
+            <div class="reset-btn" id="resetAllBtn">
+                <i class="fas fa-redo-alt"></i> reset all votes
+            </div>
+        </div>
+
+        <!-- dynamic cards grid -->
+        <div id="casesContainer" class="cases-grid"></div>
+
+        <!-- footer (educational) -->
+        <div class="footer-note">
+            <i class="fas fa-scale-balanced" style="color: #ff8000;"></i> each card shows a real question. vote, then see the actual ruling.
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- LANDMARK CASES DATASET ----------
+            const cases = [
+                {
+                    id: 0,
+                    name: "Marbury v. Madison",
+                    year: 1803,
+                    question: "Should the Court order delivery of Marbury's commission?",
+                    option1: "Yes, order delivery",
+                    option2: "No, deny delivery",
+                    actual: false,   // false = second option (No)
+                    explanation: "Chief Justice Marshall ruled that the law empowering the Court to order delivery was unconstitutional → judicial review established."
+                },
+                {
+                    id: 1,
+                    name: "Brown v. Board of Education",
+                    year: 1954,
+                    question: "Is racial segregation in public schools constitutional?",
+                    option1: "Yes, it's constitutional",
+                    option2: "No, it's unconstitutional",
+                    actual: false,   // No (unconstitutional)
+                    explanation: "Unanimous decision: separate educational facilities are inherently unequal (violates 14th Amendment)."
+                },
+                {
+                    id: 2,
+                    name: "Roe v. Wade",
+                    year: 1973,
+                    question: "Does the Constitution protect a woman's right to abortion?",
+                    option1: "Yes, protected",
+                    option2: "No, not protected",
+                    actual: true,     // Yes
+                    explanation: "7–2 ruling: right to privacy extends to abortion (trimesters). (Overturned in 2022, but landmark case)."
+                },
+                {
+                    id: 3,
+                    name: "Citizens United v. FEC",
+                    year: 2010,
+                    question: "Limit independent political spending by corporations?",
+                    option1: "Yes, limits are constitutional",
+                    option2: "No, limits violate free speech",
+                    actual: false,    // No = corporations can spend (free speech)
+                    explanation: "5–4 decision: political spending is protected speech under the First Amendment."
+                },
+                {
+                    id: 4,
+                    name: "Obergefell v. Hodges",
+                    year: 2015,
+                    question: "Is there a constitutional right to same-sex marriage?",
+                    option1: "Yes, it's a right",
+                    option2: "No, states can decide",
+                    actual: true,     // Yes
+                    explanation: "5–4 ruling: 14th Amendment requires states to license and recognize same-sex marriages."
+                },
+                {
+                    id: 5,
+                    name: "Miranda v. Arizona",
+                    year: 1966,
+                    question: "Must police inform suspects of their rights before interrogation?",
+                    option1: "Yes, Miranda rights required",
+                    option2: "No, not required",
+                    actual: true,     // Yes
+                    explanation: "5–4 decision: detained suspects must be informed of rights (right to remain silent, attorney)."
+                },
+                {
+                    id: 6,
+                    name: "District of Columbia v. Heller",
+                    year: 2008,
+                    question: "Does the 2nd Amendment protect an individual's right to own guns?",
+                    option1: "Yes, individual right",
+                    option2: "No, only militia-connected",
+                    actual: true,     // Yes
+                    explanation: "5–4 ruling: Second Amendment protects an individual's right to possess a firearm unconnected with militia."
+                }
+            ];
+
+            // userVotes: null = not voted, true = option1 (yes), false = option2 (no)
+            let userVotes = new Array(cases.length).fill(null);
+
+            // DOM elements
+            const container = document.getElementById('casesContainer');
+            const scoreSpan = document.getElementById('scoreDisplay');
+
+            // helper: compute current matches
+            function computeScore() {
+                let matches = 0;
+                for (let i = 0; i < cases.length; i++) {
+                    if (userVotes[i] !== null && userVotes[i] === cases[i].actual) {
+                        matches++;
+                    }
+                }
+                return matches;
+            }
+
+            // update score display
+            function updateScore() {
+                const matched = computeScore();
+                const total = cases.length;
+                scoreSpan.textContent = `${matched} / ${total}`;
+            }
+
+            // main render function (uses event delegation, so we attach once)
+            function renderCards() {
+                let htmlStr = '';
+                for (let i = 0; i < cases.length; i++) {
+                    const c = cases[i];
+                    const vote = userVotes[i]; // null, true, false
+
+                    // Determine which button gets .selected
+                    const selectedYes = (vote === true) ? 'selected' : '';
+                    const selectedNo = (vote === false) ? 'selected' : '';
+
+                    // outcome block: only if user has voted
+                    let outcomeHtml = '';
+                    if (vote !== null) {
+                        const actualText = c.actual ? c.option1 : c.option2;
+                        const userMatch = (vote === c.actual);
+                        const matchIcon = userMatch ? 'fa-check-circle correct-match' : 'fa-times-circle wrong-match';
+                        const matchText = userMatch ? 'correct' : 'not this time';
+
+                        outcomeHtml = `
+                            <div class="outcome-area">
+                                <div class="actual-ruling">
+                                    <i class="fas ${matchIcon}"></i>
+                                    <span><strong style="color:#fff;">actual ruling:</strong> ${actualText}</span>
+                                    <span class="match-badge">
+                                        <i class="fas ${matchIcon}"></i> ${matchText}
+                                    </span>
+                                </div>
+                                <div class="explanation">
+                                    <i class="fas fa-quote-left" style="color:#ff8000; opacity:0.7; font-size:0.7rem;"></i> 
+                                    ${c.explanation}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        // no vote yet: show minimal prompt (but keep consistent height)
+                        outcomeHtml = `
+                            <div class="outcome-area" style="opacity:0.6; background:rgba(0,0,0,0.2);">
+                                <div style="display:flex; gap:6px; align-items:center; color:#a0a0c0;">
+                                    <i class="fas fa-hourglass-half" style="color:#ff8000;"></i>
+                                    <span>cast your vote to see actual ruling</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    // full card
+                    htmlStr += `
+                        <div class="case-card" data-case-index="${i}">
+                            <div class="case-name">
+                                <span>${c.name}</span>
+                                <span class="case-year">${c.year}</span>
+                            </div>
+                            <div class="case-question">
+                                <i class="fas fa-question-circle" style="color:#ff8000; margin-right:6px;"></i>
+                                ${c.question}
+                            </div>
+                            <div class="vote-buttons">
+                                <button class="vote-btn ${selectedYes}" data-vote="yes" data-case="${i}">${c.option1}</button>
+                                <button class="vote-btn ${selectedNo}" data-vote="no" data-case="${i}">${c.option2}</button>
+                            </div>
+                            ${outcomeHtml}
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = htmlStr;
+                updateScore();
+            }
+
+            // event delegation: handle votes and reset
+            container.addEventListener('click', (e) => {
+                // find if a vote button was clicked
+                const voteBtn = e.target.closest('.vote-btn');
+                if (voteBtn) {
+                    const caseIdx = voteBtn.getAttribute('data-case');
+                    const voteVal = voteBtn.getAttribute('data-vote'); // 'yes' or 'no'
+                    if (caseIdx !== null && voteVal !== null) {
+                        const idx = parseInt(caseIdx, 10);
+                        // convert 'yes' → true (option1), 'no' → false (option2)
+                        const voteBool = (voteVal === 'yes');
+                        // update state (allow re-vote)
+                        userVotes[idx] = voteBool;
+                        renderCards();
+                    }
+                    return;
+                }
+
+                // (optional) if click on card background etc – ignore
+            });
+
+            // reset button (outside container)
+            document.getElementById('resetAllBtn').addEventListener('click', () => {
+                userVotes = new Array(cases.length).fill(null);
+                renderCards();
+            });
+
+            // initial render
+            renderCards();
+
+            // extra: back button works as link; keep it.
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Probability Tree Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-3px);
+        }
+        
+        .page-title {
+            font-size: 28px;
+            color: #ff8000;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .control-panel {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(20, 10, 40, 0.7);
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .visualization {
+            flex: 2;
+            min-width: 500px;
+            background: rgba(20, 10, 40, 0.7);
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            overflow: auto;
+        }
+        
+        .section-title {
+            color: #ff8000;
+            margin-bottom: 20px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            font-size: 22px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px 15px;
+            background: rgba(10, 5, 20, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.2);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: rgba(255, 128, 0, 0.3);
+            font-weight: bold;
+        }
+        
+        .btn-primary:hover {
+            background: rgba(255, 128, 0, 0.4);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .probability-inputs {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .branch-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(10, 5, 20, 0.5);
+            border-radius: 5px;
+        }
+        
+        .branch-name {
+            min-width: 80px;
+        }
+        
+        .branch-probability {
+            flex: 1;
+        }
+        
+        .probability-slider {
+            width: 100%;
+            margin-top: 5px;
+        }
+        
+        .tree-container {
+            min-height: 500px;
+            position: relative;
+            overflow: auto;
+        }
+        
+        .tree-svg {
+            width: 100%;
+            height: 500px;
+        }
+        
+        .results-panel {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(10, 5, 20, 0.7);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .result-item {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .highlight {
+            color: #ff8000;
+            font-weight: bold;
+        }
+        
+        .instructions {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(10, 5, 20, 0.5);
+            border-radius: 8px;
+            border-left: 3px solid #ff8000;
+        }
+        
+        .instructions h3 {
+            color: #ff8000;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            line-height: 1.6;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 1100px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .visualization {
+                min-width: 100%;
+            }
+        }
+        
+        /* Tooltip for probability tree */
+        .tooltip {
+            position: absolute;
+            background: rgba(20, 10, 40, 0.95);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            padding: 10px;
+            color: white;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 100;
+            max-width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        <h1 class="page-title">Probability Tree Generator</h1>
+        <div style="width: 120px;"></div> <!-- Spacer for alignment -->
+    </div>
+    
+    <div class="container">
+        <div class="control-panel">
+            <h2 class="section-title"><i class="fas fa-sliders-h"></i> Tree Configuration</h2>
+            
+            <div class="form-group">
+                <label for="tree-name"><i class="fas fa-tree"></i> Tree Name</label>
+                <input type="text" id="tree-name" value="Coin Toss Example" placeholder="Enter tree name">
+            </div>
+            
+            <div class="form-group">
+                <label for="stages"><i class="fas fa-layer-group"></i> Number of Stages</label>
+                <input type="range" id="stages" min="1" max="5" value="2" class="probability-slider">
+                <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                    <span>1</span>
+                    <span id="stage-value">2</span>
+                    <span>5</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="branch-type"><i class="fas fa-code-branch"></i> Branches per Stage</label>
+                <select id="branch-type">
+                    <option value="same">Same for all stages</option>
+                    <option value="custom">Custom per stage</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="branches-container">
+                <label><i class="fas fa-project-diagram"></i> Branches per Stage</label>
+                <input type="number" id="branches" min="2" max="6" value="2">
+            </div>
+            
+            <div class="btn-group">
+                <button id="generate-btn" class="btn btn-primary">
+                    <i class="fas fa-sync-alt"></i> Generate Tree
+                </button>
+                <button id="calculate-btn" class="btn">
+                    <i class="fas fa-calculator"></i> Calculate Probabilities
+                </button>
+            </div>
+            
+            <div class="probability-inputs">
+                <h3 class="section-title"><i class="fas fa-percentage"></i> Branch Probabilities</h3>
+                <div id="probability-inputs-container">
+                    <!-- Dynamic content will be inserted here -->
+                </div>
+            </div>
+            
+            <div class="instructions">
+                <h3><i class="fas fa-info-circle"></i> How to Use</h3>
+                <ul>
+                    <li>Set the number of stages (decision points) in your tree</li>
+                    <li>Configure branches per stage</li>
+                    <li>Adjust probabilities for each branch</li>
+                    <li>Click "Generate Tree" to visualize</li>
+                    <li>Click "Calculate Probabilities" to see results</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="visualization">
+            <h2 class="section-title"><i class="fas fa-project-diagram"></i> Probability Tree Visualization</h2>
+            
+            <div class="tree-container">
+                <svg class="tree-svg" id="tree-svg" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Tree will be drawn here -->
+                </svg>
+                <div id="tooltip" class="tooltip" style="display: none;"></div>
+            </div>
+            
+            <div class="results-panel">
+                <h3 class="section-title"><i class="fas fa-chart-bar"></i> Probability Results</h3>
+                <div id="results-container">
+                    <div class="result-item">
+                        <span>Total number of outcomes:</span>
+                        <span id="total-outcomes" class="highlight">4</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Sum of all probabilities:</span>
+                        <span id="probability-sum" class="highlight">1.00</span>
+                    </div>
+                    <div id="path-results">
+                        <!-- Path results will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const stageSlider = document.getElementById('stages');
+        const stageValue = document.getElementById('stage-value');
+        const branchType = document.getElementById('branch-type');
+        const branchesContainer = document.getElementById('branches-container');
+        const generateBtn = document.getElementById('generate-btn');
+        const calculateBtn = document.getElementById('calculate-btn');
+        const probabilityInputsContainer = document.getElementById('probability-inputs-container');
+        const treeSvg = document.getElementById('tree-svg');
+        const tooltip = document.getElementById('tooltip');
+        const resultsContainer = document.getElementById('results-container');
+        const totalOutcomes = document.getElementById('total-outcomes');
+        const probabilitySum = document.getElementById('probability-sum');
+        const pathResults = document.getElementById('path-results');
+        
+        // Tree configuration
+        let treeConfig = {
+            stages: parseInt(stageSlider.value),
+            branchType: branchType.value,
+            branchesPerStage: 2,
+            customBranches: [],
+            probabilities: {}
+        };
+        
+        // Update stage value display
+        stageSlider.addEventListener('input', function() {
+            stageValue.textContent = this.value;
+            treeConfig.stages = parseInt(this.value);
+            updateProbabilityInputs();
+        });
+        
+        // Handle branch type change
+        branchType.addEventListener('change', function() {
+            treeConfig.branchType = this.value;
+            updateBranchInputs();
+        });
+        
+        // Generate tree button
+        generateBtn.addEventListener('click', generateTree);
+        
+        // Calculate probabilities button
+        calculateBtn.addEventListener('click', calculateProbabilities);
+        
+        // Initialize the tool
+        function init() {
+            updateBranchInputs();
+            updateProbabilityInputs();
+            generateTree();
+        }
+        
+        // Update branch inputs based on configuration
+        function updateBranchInputs() {
+            if (treeConfig.branchType === 'same') {
+                branchesContainer.innerHTML = `
+                    <label><i class="fas fa-project-diagram"></i> Branches per Stage</label>
+                    <input type="number" id="branches" min="2" max="6" value="${treeConfig.branchesPerStage}">
+                `;
+                
+                document.getElementById('branches').addEventListener('input', function() {
+                    treeConfig.branchesPerStage = parseInt(this.value);
+                    updateProbabilityInputs();
+                });
+            } else {
+                branchesContainer.innerHTML = '<label><i class="fas fa-project-diagram"></i> Branches per Stage</label>';
+                
+                for (let i = 0; i < treeConfig.stages; i++) {
+                    const branchCount = treeConfig.customBranches[i] || 2;
+                    branchesContainer.innerHTML += `
+                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                            <span style="min-width: 100px;">Stage ${i+1}:</span>
+                            <input type="number" class="custom-branch" data-stage="${i}" min="2" max="6" value="${branchCount}" style="flex: 1;">
+                        </div>
+                    `;
+                }
+                
+                // Add event listeners to custom branch inputs
+                document.querySelectorAll('.custom-branch').forEach(input => {
+                    input.addEventListener('input', function() {
+                        const stage = parseInt(this.dataset.stage);
+                        treeConfig.customBranches[stage] = parseInt(this.value);
+                        updateProbabilityInputs();
+                    });
+                });
+            }
+        }
+        
+        // Update probability inputs based on tree configuration
+        function updateProbabilityInputs() {
+            probabilityInputsContainer.innerHTML = '';
+            
+            if (treeConfig.branchType === 'same') {
+                // For same branches per stage
+                for (let stage = 0; stage < treeConfig.stages; stage++) {
+                    const stageDiv = document.createElement('div');
+                    stageDiv.className = 'form-group';
+                    stageDiv.innerHTML = `<h4>Stage ${stage + 1}</h4>`;
+                    
+                    for (let branch = 0; branch < treeConfig.branchesPerStage; branch++) {
+                        const branchId = `stage-${stage}-branch-${branch}`;
+                        const defaultProb = (1 / treeConfig.branchesPerStage).toFixed(2);
+                        
+                        stageDiv.innerHTML += `
+                            <div class="branch-row">
+                                <span class="branch-name">Branch ${String.fromCharCode(65 + branch)}</span>
+                                <div class="branch-probability">
+                                    <input type="range" class="probability-slider" id="${branchId}-slider" min="0" max="100" value="${defaultProb * 100}" step="1">
+                                    <input type="number" class="probability-input" id="${branchId}" min="0" max="1" step="0.01" value="${defaultProb}" style="margin-top: 5px;">
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    probabilityInputsContainer.appendChild(stageDiv);
+                }
+            } else {
+                // For custom branches per stage
+                for (let stage = 0; stage < treeConfig.stages; stage++) {
+                    const branchCount = treeConfig.customBranches[stage] || 2;
+                    const stageDiv = document.createElement('div');
+                    stageDiv.className = 'form-group';
+                    stageDiv.innerHTML = `<h4>Stage ${stage + 1} (${branchCount} branches)</h4>`;
+                    
+                    for (let branch = 0; branch < branchCount; branch++) {
+                        const branchId = `stage-${stage}-branch-${branch}`;
+                        const defaultProb = (1 / branchCount).toFixed(2);
+                        
+                        stageDiv.innerHTML += `
+                            <div class="branch-row">
+                                <span class="branch-name">Branch ${String.fromCharCode(65 + branch)}</span>
+                                <div class="branch-probability">
+                                    <input type="range" class="probability-slider" id="${branchId}-slider" min="0" max="100" value="${defaultProb * 100}" step="1">
+                                    <input type="number" class="probability-input" id="${branchId}" min="0" max="1" step="0.01" value="${defaultProb}" style="margin-top: 5px;">
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    probabilityInputsContainer.appendChild(stageDiv);
+                }
+            }
+            
+            // Add event listeners to probability inputs
+            document.querySelectorAll('.probability-slider').forEach(slider => {
+                slider.addEventListener('input', function() {
+                    const inputId = this.id.replace('-slider', '');
+                    document.getElementById(inputId).value = (this.value / 100).toFixed(2);
+                    normalizeProbabilities(this);
+                });
+            });
+            
+            document.querySelectorAll('.probability-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    const sliderId = this.id + '-slider';
+                    document.getElementById(sliderId).value = Math.round(this.value * 100);
+                    normalizeProbabilities(this);
+                });
+            });
+        }
+        
+        // Normalize probabilities for a stage so they sum to 1
+        function normalizeProbabilities(changedElement) {
+            // Extract stage from element ID
+            const match = changedElement.id.match(/stage-(\d+)-branch-\d+/);
+            if (!match) return;
+            
+            const stage = parseInt(match[1]);
+            const inputs = document.querySelectorAll(`[id^="stage-${stage}-branch-"]:not([id$="-slider"])`);
+            
+            // Calculate sum of probabilities for this stage
+            let sum = 0;
+            inputs.forEach(input => {
+                sum += parseFloat(input.value) || 0;
+            });
+            
+            // If sum is not 1, adjust the other inputs proportionally
+            if (Math.abs(sum - 1) > 0.001 && sum > 0) {
+                const targetSum = 1 - (parseFloat(changedElement.value) || 0);
+                let otherSum = 0;
+                
+                // Calculate sum of other inputs
+                inputs.forEach(input => {
+                    if (input !== changedElement) {
+                        otherSum += parseFloat(input.value) || 0;
+                    }
+                });
+                
+                // Adjust other inputs proportionally if they exist
+                if (otherSum > 0) {
+                    inputs.forEach(input => {
+                        if (input !== changedElement) {
+                            const currentValue = parseFloat(input.value) || 0;
+                            const newValue = (currentValue / otherSum) * targetSum;
+                            input.value = newValue.toFixed(2);
+                            
+                            // Update corresponding slider
+                            const sliderId = input.id + '-slider';
+                            document.getElementById(sliderId).value = Math.round(newValue * 100);
+                        }
+                    });
+                }
+            }
+        }
+        
+        // Generate the probability tree visualization
+        function generateTree() {
+            // Clear the SVG
+            treeSvg.innerHTML = '';
+            
+            // Get tree dimensions
+            const svgWidth = treeSvg.clientWidth;
+            const svgHeight = treeSvg.clientHeight;
+            
+            // Calculate positions for nodes
+            const stageCount = treeConfig.stages;
+            const nodePositions = [];
+            
+            // For each stage, calculate node positions
+            for (let stage = 0; stage <= stageCount; stage++) {
+                const nodesInStage = [];
+                
+                // Determine how many nodes in this stage
+                let nodeCount = 1;
+                for (let s = 0; s < stage; s++) {
+                    if (treeConfig.branchType === 'same') {
+                        nodeCount *= treeConfig.branchesPerStage;
+                    } else {
+                        nodeCount *= treeConfig.customBranches[s] || 2;
+                    }
+                }
+                
+                // Calculate vertical positions for nodes in this stage
+                const stageX = (stage / stageCount) * (svgWidth - 200) + 100;
+                
+                for (let i = 0; i < nodeCount; i++) {
+                    const nodeY = (svgHeight / (nodeCount + 1)) * (i + 1);
+                    nodesInStage.push({x: stageX, y: nodeY});
+                }
+                
+                nodePositions.push(nodesInStage);
+            }
+            
+            // Draw connections (edges) between nodes
+            for (let stage = 0; stage < stageCount; stage++) {
+                const currentNodes = nodePositions[stage];
+                const nextNodes = nodePositions[stage + 1];
+                
+                // Determine branches per node at this stage
+                let branchesPerNode;
+                if (treeConfig.branchType === 'same') {
+                    branchesPerNode = treeConfig.branchesPerStage;
+                } else {
+                    branchesPerNode = treeConfig.customBranches[stage] || 2;
+                }
+                
+                // Draw edges from each node in current stage to next stage
+                for (let nodeIndex = 0; nodeIndex < currentNodes.length; nodeIndex++) {
+                    const startNode = currentNodes[nodeIndex];
+                    
+                    for (let branch = 0; branch < branchesPerNode; branch++) {
+                        const nextNodeIndex = nodeIndex * branchesPerNode + branch;
+                        if (nextNodeIndex < nextNodes.length) {
+                            const endNode = nextNodes[nextNodeIndex];
+                            
+                            // Draw the line
+                            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                            line.setAttribute('x1', startNode.x);
+                            line.setAttribute('y1', startNode.y);
+                            line.setAttribute('x2', endNode.x);
+                            line.setAttribute('y2', endNode.y);
+                            line.setAttribute('stroke', '#ff8000');
+                            line.setAttribute('stroke-width', '2');
+                            line.setAttribute('class', 'tree-edge');
+                            line.setAttribute('data-start', `${stage}-${nodeIndex}`);
+                            line.setAttribute('data-end', `${stage+1}-${nextNodeIndex}`);
+                            line.setAttribute('data-branch', branch);
+                            
+                            treeSvg.appendChild(line);
+                            
+                            // Add probability label
+                            const midX = (startNode.x + endNode.x) / 2;
+                            const midY = (startNode.y + endNode.y) / 2;
+                            
+                            // Get probability for this branch
+                            const probabilityId = `stage-${stage}-branch-${branch}`;
+                            const probabilityInput = document.getElementById(probabilityId);
+                            const probability = probabilityInput ? parseFloat(probabilityInput.value) : (1 / branchesPerNode);
+                            
+                            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                            text.setAttribute('x', midX);
+                            text.setAttribute('y', midY - 10);
+                            text.setAttribute('text-anchor', 'middle');
+                            text.setAttribute('fill', '#ff8000');
+                            text.setAttribute('font-size', '14');
+                            text.setAttribute('font-weight', 'bold');
+                            text.textContent = probability.toFixed(2);
+                            
+                            treeSvg.appendChild(text);
+                            
+                            // Add branch name label
+                            const branchName = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                            branchName.setAttribute('x', midX);
+                            branchName.setAttribute('y', midY + 20);
+                            branchName.setAttribute('text-anchor', 'middle');
+                            branchName.setAttribute('fill', '#fff');
+                            branchName.setAttribute('font-size', '12');
+                            branchName.textContent = String.fromCharCode(65 + branch);
+                            
+                            treeSvg.appendChild(branchName);
+                        }
+                    }
+                }
+            }
+            
+            // Draw nodes (circles)
+            for (let stage = 0; stage < nodePositions.length; stage++) {
+                const nodes = nodePositions[stage];
+                
+                for (let i = 0; i < nodes.length; i++) {
+                    const node = nodes[i];
+                    
+                    // Draw circle
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute('cx', node.x);
+                    circle.setAttribute('cy', node.y);
+                    circle.setAttribute('r', '20');
+                    circle.setAttribute('fill', stage === nodePositions.length - 1 ? '#1a0a2e' : '#0a0a1a');
+                    circle.setAttribute('stroke', '#ff8000');
+                    circle.setAttribute('stroke-width', '2');
+                    circle.setAttribute('class', 'tree-node');
+                    circle.setAttribute('data-stage', stage);
+                    circle.setAttribute('data-index', i);
+                    
+                    treeSvg.appendChild(circle);
+                    
+                    // Add node label
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('x', node.x);
+                    text.setAttribute('y', node.y + 5);
+                    text.setAttribute('text-anchor', 'middle');
+                    text.setAttribute('fill', '#fff');
+                    text.setAttribute('font-size', '14');
+                    text.setAttribute('font-weight', 'bold');
+                    text.textContent = stage === 0 ? 'Start' : `${stage}.${i+1}`;
+                    
+                    treeSvg.appendChild(text);
+                }
+            }
+            
+            // Add interaction for tooltips
+            document.querySelectorAll('.tree-node, .tree-edge').forEach(element => {
+                element.addEventListener('mouseenter', showTooltip);
+                element.addEventListener('mouseleave', hideTooltip);
+            });
+            
+            // Update total outcomes
+            updateTotalOutcomes();
+        }
+        
+        // Show tooltip on hover
+        function showTooltip(event) {
+            const element = event.target;
+            const rect = treeSvg.getBoundingClientRect();
+            
+            let tooltipText = '';
+            
+            if (element.classList.contains('tree-node')) {
+                const stage = element.getAttribute('data-stage');
+                const index = element.getAttribute('data-index');
+                
+                if (stage === '0') {
+                    tooltipText = 'Start node';
+                } else {
+                    tooltipText = `Node ${parseInt(index) + 1} at Stage ${stage}`;
+                }
+            } else if (element.classList.contains('tree-edge')) {
+                const start = element.getAttribute('data-start');
+                const end = element.getAttribute('data-end');
+                const branch = element.getAttribute('data-branch');
+                
+                const branchName = String.fromCharCode(65 + parseInt(branch));
+                const probabilityId = `stage-${start.split('-')[0]}-branch-${branch}`;
+                const probabilityInput = document.getElementById(probabilityId);
+                const probability = probabilityInput ? parseFloat(probabilityInput.value).toFixed(2) : '0.50';
+                
+                tooltipText = `Branch ${branchName}: Probability = ${probability}`;
+            }
+            
+            tooltip.innerHTML = tooltipText;
+            tooltip.style.display = 'block';
+            tooltip.style.left = (event.clientX - rect.left + 10) + 'px';
+            tooltip.style.top = (event.clientY - rect.top - 30) + 'px';
+        }
+        
+        // Hide tooltip
+        function hideTooltip() {
+            tooltip.style.display = 'none';
+        }
+        
+        // Update total outcomes display
+        function updateTotalOutcomes() {
+            let total = 1;
+            
+            for (let stage = 0; stage < treeConfig.stages; stage++) {
+                if (treeConfig.branchType === 'same') {
+                    total *= treeConfig.branchesPerStage;
+                } else {
+                    total *= treeConfig.customBranches[stage] || 2;
+                }
+            }
+            
+            totalOutcomes.textContent = total;
+        }
+        
+        // Calculate all probabilities
+        function calculateProbabilities() {
+            // First, validate all probabilities sum to 1 for each stage
+            let isValid = true;
+            
+            for (let stage = 0; stage < treeConfig.stages; stage++) {
+                let sum = 0;
+                let branchCount;
+                
+                if (treeConfig.branchType === 'same') {
+                    branchCount = treeConfig.branchesPerStage;
+                } else {
+                    branchCount = treeConfig.customBranches[stage] || 2;
+                }
+                
+                for (let branch = 0; branch < branchCount; branch++) {
+                    const probabilityId = `stage-${stage}-branch-${branch}`;
+                    const probabilityInput = document.getElementById(probabilityId);
+                    const probability = parseFloat(probabilityInput.value) || 0;
+                    sum += probability;
+                }
+                
+                if (Math.abs(sum - 1) > 0.01) {
+                    isValid = false;
+                    alert(`Probabilities for Stage ${stage + 1} sum to ${sum.toFixed(2)}. They must sum to 1.`);
+                    break;
+                }
+            }
+            
+            if (!isValid) return;
+            
+            // Calculate path probabilities
+            const paths = [];
+            const totalPaths = parseInt(totalOutcomes.textContent);
+            
+            // Generate all possible paths
+            generatePaths([], 0, paths);
+            
+            // Calculate and display results
+            displayResults(paths);
+        }
+        
+        // Recursively generate all possible paths through the tree
+        function generatePaths(currentPath, stage, paths) {
+            if (stage >= treeConfig.stages) {
+                // Calculate probability for this path
+                let probability = 1;
+                let pathDescription = '';
+                
+                for (let i = 0; i < currentPath.length; i++) {
+                    const branchIndex = currentPath[i];
+                    const probabilityId = `stage-${i}-branch-${branchIndex}`;
+                    const probabilityInput = document.getElementById(probabilityId);
+                    const branchProbability = parseFloat(probabilityInput.value) || 0;
+                    
+                    probability *= branchProbability;
+                    pathDescription += String.fromCharCode(65 + branchIndex);
+                    if (i < currentPath.length - 1) pathDescription += ' → ';
+                }
+                
+                paths.push({
+                    path: pathDescription,
+                    probability: probability,
+                    branches: [...currentPath]
+                });
+                return;
+            }
+            
+            // Determine how many branches at this stage
+            let branchCount;
+            if (treeConfig.branchType === 'same') {
+                branchCount = treeConfig.branchesPerStage;
+            } else {
+                branchCount = treeConfig.customBranches[stage] || 2;
+            }
+            
+            // Explore each branch
+            for (let branch = 0; branch < branchCount; branch++) {
+                currentPath.push(branch);
+                generatePaths(currentPath, stage + 1, paths);
+                currentPath.pop();
+            }
+        }
+        
+        // Display calculation results
+        function displayResults(paths) {
+            // Update probability sum
+            let sum = 0;
+            paths.forEach(p => sum += p.probability);
+            probabilitySum.textContent = sum.toFixed(2);
+            
+            // Display path probabilities
+            pathResults.innerHTML = '';
+            
+            // Sort by probability (descending)
+            paths.sort((a, b) => b.probability - a.probability);
+            
+            // Show top 10 paths or all if less than 10
+            const displayPaths = paths.slice(0, 10);
+            
+            displayPaths.forEach((path, index) => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <span>${path.path}:</span>
+                    <span class="highlight">${path.probability.toFixed(4)}</span>
+                `;
+                pathResults.appendChild(resultItem);
+            });
+            
+            // Add note if there are more paths
+            if (paths.length > 10) {
+                const note = document.createElement('div');
+                note.className = 'result-item';
+                note.style.fontStyle = 'italic';
+                note.textContent = `... and ${paths.length - 10} more paths`;
+                pathResults.appendChild(note);
+            }
+        }
+        
+        // Initialize the application
+        init();
+    </script>
+</body>
+</html>

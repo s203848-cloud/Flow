@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Converter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        } 
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        } 
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.8);
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+            margin-bottom: 30px;
+            border-radius: 10px;
+        } 
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+        } 
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        } 
+        
+        .section {
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+        } 
+        
+        .form-group {
+            margin: 15px 0;
+        } 
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+        } 
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1rem;
+        } 
+        
+        input::placeholder {
+            color: #888;
+        } 
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 15px;
+        } 
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .result {
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            text-align: center;
+        } 
+        
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff8000;
+            margin-top: 10px;
+        }
+        
+        .result-unit {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        
+        .unit-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(30, 30, 45, 0.6);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #ccc;
+            border-left: 3px solid #ff8000;
+        }
+        
+        h2 {
+            margin-bottom: 15px;
+            color: #ff8000;
+        }
+        
+        h3 {
+            margin: 20px 0 10px 0;
+            color: #ffaa66;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            padding-bottom: 5px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .info-item {
+            background: rgba(40, 40, 60, 0.4);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .unit-type {
+            color: #ff8000;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold;">Advanced Unit Converter</span>
+    </div>
+    
+    <div class="container">
+        <div class="section">
+            <h2><i class="fas fa-exchange-alt"></i> Convert Units</h2>
+            
+            <div class="grid">
+                <div class="form-group">
+                    <label>Value to Convert</label>
+                    <input type="number" id="value" placeholder="Enter value" oninput="convert()" step="any">
+                </div>
+                
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="category" onchange="updateUnits()">
+                        <option value="length">Length / Distance</option>
+                        <option value="weight">Weight / Mass</option>
+                        <option value="temperature">Temperature</option>
+                        <option value="volume">Volume</option>
+                        <option value="area">Area</option>
+                        <option value="speed">Speed</option>
+                        <option value="pressure">Pressure</option>
+                        <option value="energy">Energy</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>From Unit</label>
+                    <select id="fromUnit" onchange="convert()"></select>
+                </div>
+                
+                <div class="form-group">
+                    <label>To Unit</label>
+                    <select id="toUnit" onchange="convert()"></select>
+                </div>
+            </div>
+            
+            <div class="result">
+                <div style="color: #aaa; margin-bottom: 10px;">Converted Result</div>
+                <div class="result-value" id="result">0</div>
+                <div class="result-unit" id="resultUnit"></div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2><i class="fas fa-info-circle"></i> Unit Information</h2>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="unit-type">American Units (US Customary)</div>
+                    <div>Inches, Feet, Yards, Miles, Ounces, Pounds, Tons, Fahrenheit, Gallons, Acres, MPH, PSI, BTU</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="unit-type">Metric (International)</div>
+                    <div>Millimeters, Centimeters, Meters, Kilometers, Grams, Kilograms, Celsius, Liters, Hectares, km/h</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="unit-type">Scientific</div>
+                    <div>Nanometers, Astronomical Units, Kelvin, Pascals, Joules, Electronvolts</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="unit-type">Historical/Regional</div>
+                    <div>Fathoms, Nautical Miles, Stones, Carats, Barrels, Knots</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Unit definitions
+        const unitCategories = {
+            length: {
+                name: "Length / Distance",
+                units: {
+                    // American units
+                    "inch": { name: "Inches", factor: 1, type: "american" },
+                    "foot": { name: "Feet", factor: 12, type: "american" },
+                    "yard": { name: "Yards", factor: 36, type: "american" },
+                    "mile": { name: "Miles", factor: 63360, type: "american" },
+                    "fathom": { name: "Fathoms", factor: 72, type: "regional" },
+                    
+                    // Non-American units (metric)
+                    "mm": { name: "Millimeters", factor: 0.0393701, type: "metric" },
+                    "cm": { name: "Centimeters", factor: 0.393701, type: "metric" },
+                    "meter": { name: "Meters", factor: 39.3701, type: "metric" },
+                    "km": { name: "Kilometers", factor: 39370.1, type: "metric" },
+                    
+                    // More non-American units
+                    "nm": { name: "Nanometers", factor: 3.93701e-8, type: "scientific" },
+                    "micrometer": { name: "Micrometers", factor: 3.93701e-5, type: "scientific" },
+                    "decimeter": { name: "Decimeters", factor: 3.93701, type: "metric" },
+                    "hectometer": { name: "Hectometers", factor: 3937.01, type: "metric" },
+                    "nauticalmile": { name: "Nautical Miles", factor: 72913.4, type: "regional" },
+                    "astronomicalunit": { name: "Astronomical Units", factor: 5.889e12, type: "scientific" },
+                    "lightyear": { name: "Light Years", factor: 3.724e17, type: "scientific" },
+                    "parsec": { name: "Parsecs", factor: 1.215e18, type: "scientific" }
+                },
+                baseUnit: "inch"
+            },
+            
+            weight: {
+                name: "Weight / Mass",
+                units: {
+                    // American units
+                    "ounce": { name: "Ounces (oz)", factor: 1, type: "american" },
+                    "pound": { name: "Pounds (lb)", factor: 16, type: "american" },
+                    "ton": { name: "US Tons", factor: 32000, type: "american" },
+                    
+                    // Non-American units (metric)
+                    "mg": { name: "Milligrams", factor: 0.000035274, type: "metric" },
+                    "g": { name: "Grams", factor: 0.035274, type: "metric" },
+                    "kg": { name: "Kilograms", factor: 35.274, type: "metric" },
+                    "metricton": { name: "Metric Tons", factor: 35274, type: "metric" },
+                    
+                    // More non-American units
+                    "microgram": { name: "Micrograms", factor: 3.5274e-8, type: "scientific" },
+                    "decigram": { name: "Decigrams", factor: 0.0035274, type: "metric" },
+                    "hectogram": { name: "Hectograms", factor: 3.5274, type: "metric" },
+                    "quintal": { name: "Quintal", factor: 3527.4, type: "regional" },
+                    "stone": { name: "Stones", factor: 224, type: "regional" },
+                    "carat": { name: "Carats", factor: 0.0070548, type: "regional" },
+                    "grain": { name: "Grains", factor: 0.00228571, type: "historical" },
+                    "pennyweight": { name: "Pennyweights", factor: 0.0548571, type: "historical" },
+                    "dram": { name: "Drams", factor: 0.0625, type: "historical" }
+                },
+                baseUnit: "ounce"
+            },
+            
+            temperature: {
+                name: "Temperature",
+                units: {
+                    "fahrenheit": { name: "Fahrenheit (°F)", type: "american" },
+                    "celsius": { name: "Celsius (°C)", type: "metric" },
+                    "kelvin": { name: "Kelvin (K)", type: "scientific" },
+                    "rankine": { name: "Rankine (°R)", type: "scientific" },
+                    "reaumur": { name: "Réaumur (°Ré)", type: "historical" },
+                    "delisle": { name: "Delisle (°De)", type: "historical" },
+                    "newton": { name: "Newton (°N)", type: "historical" },
+                    "romer": { name: "Rømer (°Rø)", type: "historical" }
+                },
+                isTemperature: true
+            },
+            
+            volume: {
+                name: "Volume",
+                units: {
+                    // American units
+                    "teaspoon": { name: "Teaspoons", factor: 1, type: "american" },
+                    "tablespoon": { name: "Tablespoons", factor: 3, type: "american" },
+                    "fluidounce": { name: "Fluid Ounces", factor: 6, type: "american" },
+                    "cup": { name: "Cups", factor: 48, type: "american" },
+                    "pint": { name: "Pints", factor: 96, type: "american" },
+                    "quart": { name: "Quarts", factor: 192, type: "american" },
+                    "gallon": { name: "Gallons", factor: 768, type: "american" },
+                    "barrel": { name: "Barrels (US)", factor: 32256, type: "american" },
+                    
+                    // Non-American units (metric)
+                    "ml": { name: "Milliliters", factor: 0.202884, type: "metric" },
+                    "cl": { name: "Centiliters", factor: 2.02884, type: "metric" },
+                    "liter": { name: "Liters", factor: 202.884, type: "metric" },
+                    "cubicmeter": { name: "Cubic Meters", factor: 202884, type: "metric" },
+                    
+                    // More non-American units
+                    "microliter": { name: "Microliters", factor: 0.000202884, type: "scientific" },
+                    "deciliter": { name: "Deciliters", factor: 20.2884, type: "metric" },
+                    "hectoliter": { name: "Hectoliters", factor: 20288.4, type: "metric" },
+                    "imperialgallon": { name: "Imperial Gallons", factor: 922.33, type: "regional" },
+                    "imperialpint": { name: "Imperial Pints", factor: 115.291, type: "regional" },
+                    "bushel": { name: "Bushels", factor: 22019.2, type: "regional" }
+                },
+                baseUnit: "teaspoon"
+            },
+            
+            area: {
+                name: "Area",
+                units: {
+                    // American units
+                    "sqinch": { name: "Square Inches", factor: 1, type: "american" },
+                    "sqfoot": { name: "Square Feet", factor: 144, type: "american" },
+                    "sqyard": { name: "Square Yards", factor: 1296, type: "american" },
+                    "acre": { name: "Acres", factor: 6272640, type: "american" },
+                    "sqmile": { name: "Square Miles", factor: 4014489600, type: "american" },
+                    
+                    // Non-American units (metric)
+                    "sqmm": { name: "Square Millimeters", factor: 0.00155, type: "metric" },
+                    "sqcm": { name: "Square Centimeters", factor: 0.155, type: "metric" },
+                    "sqmeter": { name: "Square Meters", factor: 1550, type: "metric" },
+                    "hectare": { name: "Hectares", factor: 1.55e7, type: "metric" },
+                    "sqkm": { name: "Square Kilometers", factor: 1.55e9, type: "metric" },
+                    
+                    // More non-American units
+                    "are": { name: "Ares", factor: 155000, type: "metric" },
+                    "barn": { name: "Barns", factor: 1.55e-25, type: "scientific" },
+                    "township": { name: "Townships", factor: 1.00362e11, type: "regional" },
+                    "rood": { name: "Roods", factor: 1568160, type: "historical" },
+                    "perch": { name: "Perches", factor: 39204, type: "historical" }
+                },
+                baseUnit: "sqinch"
+            },
+            
+            speed: {
+                name: "Speed",
+                units: {
+                    // American units
+                    "mph": { name: "Miles per Hour", factor: 1, type: "american" },
+                    "fps": { name: "Feet per Second", factor: 0.681818, type: "american" },
+                    
+                    // Non-American units (metric)
+                    "mps": { name: "Meters per Second", factor: 2.23694, type: "metric" },
+                    "kph": { name: "Kilometers per Hour", factor: 0.621371, type: "metric" },
+                    
+                    // More non-American units
+                    "knot": { name: "Knots", factor: 1.15078, type: "regional" },
+                    "mach": { name: "Mach", factor: 767.269, type: "scientific" },
+                    "c": { name: "Speed of Light", factor: 670616629, type: "scientific" },
+                    "beaufort": { name: "Beaufort Scale", factor: 0, type: "regional", isSpecial: true }
+                },
+                baseUnit: "mph"
+            },
+            
+            pressure: {
+                name: "Pressure",
+                units: {
+                    // American units
+                    "psi": { name: "PSI", factor: 1, type: "american" },
+                    
+                    // Non-American units (metric)
+                    "pascal": { name: "Pascals", factor: 0.000145038, type: "metric" },
+                    "hpa": { name: "Hectopascals", factor: 0.0145038, type: "metric" },
+                    "kpa": { name: "Kilopascals", factor: 0.145038, type: "metric" },
+                    "bar": { name: "Bars", factor: 14.5038, type: "metric" },
+                    
+                    // More non-American units
+                    "atm": { name: "Atmospheres", factor: 14.6959, type: "scientific" },
+                    "torr": { name: "Torr", factor: 0.0193368, type: "scientific" },
+                    "mbar": { name: "Millibars", factor: 0.0145038, type: "metric" },
+                    "mmhg": { name: "mmHg", factor: 0.0193368, type: "regional" },
+                    "inhg": { name: "inHg", factor: 0.491154, type: "regional" }
+                },
+                baseUnit: "psi"
+            },
+            
+            energy: {
+                name: "Energy",
+                units: {
+                    // American units
+                    "btu": { name: "BTU", factor: 1, type: "american" },
+                    "footpound": { name: "Foot-Pounds", factor: 0.00128507, type: "american" },
+                    
+                    // Non-American units (metric)
+                    "joule": { name: "Joules", factor: 0.000947817, type: "metric" },
+                    "kj": { name: "Kilojoules", factor: 0.947817, type: "metric" },
+                    "calorie": { name: "Calories", factor: 0.00396567, type: "metric" },
+                    "kcal": { name: "Kilocalories", factor: 3.96567, type: "metric" },
+                    
+                    // More non-American units
+                    "ev": { name: "Electronvolts", factor: 1.51857e-22, type: "scientific" },
+                    "wh": { name: "Watt-hours", factor: 3.41214, type: "metric" },
+                    "kwh": { name: "Kilowatt-hours", factor: 3412.14, type: "metric" },
+                    "therm": { name: "Therms", factor: 100000, type: "regional" },
+                    "erg": { name: "Ergs", factor: 9.47817e-11, type: "scientific" }
+                },
+                baseUnit: "btu"
+            }
+        };
+        
+        // Initialize unit dropdowns
+        function updateUnits() {
+            const category = document.getElementById('category').value;
+            const fromSelect = document.getElementById('fromUnit');
+            const toSelect = document.getElementById('toUnit');
+            
+            // Clear existing options
+            fromSelect.innerHTML = '';
+            toSelect.innerHTML = '';
+            
+            // Add options for each unit in the category
+            Object.keys(unitCategories[category].units).forEach(unitKey => {
+                const unit = unitCategories[category].units[unitKey];
+                const option1 = new Option(unit.name, unitKey);
+                const option2 = new Option(unit.name, unitKey);
+                
+                fromSelect.add(option1);
+                toSelect.add(option2);
+            });
+            
+            // Set default selections
+            if (fromSelect.options.length > 0) fromSelect.selectedIndex = 0;
+            if (toSelect.options.length > 1) toSelect.selectedIndex = 1;
+            
+            // Trigger conversion
+            convert();
+        }
+        
+        // Temperature conversion functions
+        function convertTemperature(value, fromUnit, toUnit) {
+            // Convert to Celsius first
+            let celsius;
+            
+            switch(fromUnit) {
+                case 'fahrenheit':
+                    celsius = (value - 32) * 5/9;
+                    break;
+                case 'celsius':
+                    celsius = value;
+                    break;
+                case 'kelvin':
+                    celsius = value - 273.15;
+                    break;
+                case 'rankine':
+                    celsius = (value - 491.67) * 5/9;
+                    break;
+                case 'reaumur':
+                    celsius = value * 1.25;
+                    break;
+                case 'delisle':
+                    celsius = 100 - value * 2/3;
+                    break;
+                case 'newton':
+                    celsius = value * 100/33;
+                    break;
+                case 'romer':
+                    celsius = (value - 7.5) * 40/21;
+                    break;
+                default:
+                    celsius = value;
+            }
+            
+            // Convert from Celsius to target unit
+            switch(toUnit) {
+                case 'fahrenheit':
+                    return (celsius * 9/5) + 32;
+                case 'celsius':
+                    return celsius;
+                case 'kelvin':
+                    return celsius + 273.15;
+                case 'rankine':
+                    return (celsius + 273.15) * 9/5;
+                case 'reaumur':
+                    return celsius * 0.8;
+                case 'delisle':
+                    return (100 - celsius) * 3/2;
+                case 'newton':
+                    return celsius * 33/100;
+                case 'romer':
+                    return celsius * 21/40 + 7.5;
+                default:
+                    return celsius;
+            }
+        }
+        
+        // Main conversion function
+        function convert() {
+            const value = parseFloat(document.getElementById('value').value);
+            const category = document.getElementById('category').value;
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            
+            const resultElement = document.getElementById('result');
+            const resultUnitElement = document.getElementById('resultUnit');
+            
+            if (isNaN(value)) {
+                resultElement.textContent = "Enter a value";
+                resultUnitElement.textContent = "";
+                return;
+            }
+            
+            const categoryData = unitCategories[category];
+            
+            // Special handling for temperature
+            if (categoryData.isTemperature) {
+                const result = convertTemperature(value, fromUnit, toUnit);
+                resultElement.textContent = result.toFixed(4);
+                resultUnitElement.textContent = categoryData.units[toUnit].name;
+                return;
+            }
+            
+            // Special handling for Beaufort scale (non-linear)
+            if (category === 'speed' && (fromUnit === 'beaufort' || toUnit === 'beaufort')) {
+                resultElement.textContent = "Use specific conversion tables";
+                resultUnitElement.textContent = "Beaufort scale is non-linear";
+                return;
+            }
+            
+            // Standard conversion for other units
+            const fromFactor = categoryData.units[fromUnit].factor;
+            const toFactor = categoryData.units[toUnit].factor;
+            const baseValue = value / fromFactor; // Convert to base unit
+            const result = baseValue * toFactor; // Convert from base to target
+            
+            // Format result based on magnitude
+            let formattedResult;
+            if (Math.abs(result) < 0.0001 && result !== 0) {
+                formattedResult = result.toExponential(6);
+            } else if (Math.abs(result) > 1000000) {
+                formattedResult = result.toExponential(6);
+            } else {
+                formattedResult = result.toFixed(6).replace(/\.?0+$/, '');
+            }
+            
+            resultElement.textContent = formattedResult;
+            resultUnitElement.textContent = categoryData.units[toUnit].name;
+        }
+        
+        // Initialize on page load
+        window.onload = function() {
+            updateUnits();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,2525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virus Architect Pro: Advanced Pathogen Laboratory</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a1a2e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            background-attachment: fixed;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255, 128, 0, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(0, 200, 100, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(0, 150, 255, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.85);
+            margin-bottom: 25px;
+            border-radius: 15px;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .navbar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 128, 0, 0.1), transparent);
+            animation: shine 8s infinite;
+        }
+        
+        @keyframes shine {
+            0% { left: -100%; }
+            50%, 100% { left: 100%; }
+        }
+        
+        .back-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, rgba(255, 128, 0, 0.2), rgba(255, 69, 0, 0.2));
+            border: 1px solid rgba(255, 128, 0, 0.5);
+            border-radius: 8px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .back-btn:hover {
+            background: linear-gradient(135deg, rgba(255, 128, 0, 0.3), rgba(255, 69, 0, 0.3));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 128, 0, 0.3);
+        }
+        
+        .back-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: buttonShine 3s infinite;
+        }
+        
+        @keyframes buttonShine {
+            0% { transform: rotate(45deg) translateX(-100%); }
+            100% { transform: rotate(45deg) translateX(100%); }
+        }
+        
+        .main-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff8000, #ff4500, #ff8000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 128, 0, 0.5);
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 8px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 20px;
+            height: calc(100vh - 160px);
+        }
+        
+        @media (max-width: 1400px) {
+            .container {
+                grid-template-columns: 1fr;
+                height: auto;
+                min-height: calc(100vh - 160px);
+            }
+        }
+        
+        .panel {
+            background: rgba(20, 20, 35, 0.6);
+            border: 1px solid rgba(255, 69, 0, 0.25);
+            border-radius: 15px;
+            padding: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .panel:hover {
+            border-color: rgba(255, 128, 0, 0.4);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 69, 0, 0.4);
+            position: relative;
+        }
+        
+        .panel-header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: linear-gradient(90deg, #ff8000, transparent);
+            animation: headerLine 3s infinite;
+        }
+        
+        @keyframes headerLine {
+            0%, 100% { width: 50px; }
+            50% { width: 100%; }
+        }
+        
+        .panel-title {
+            font-size: 1.3rem;
+            color: #ff8000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+        }
+        
+        .panel-title i {
+            font-size: 1.5rem;
+            filter: drop-shadow(0 0 5px rgba(255, 128, 0, 0.5));
+        }
+        
+        .tabs-container {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 69, 0, 0.3);
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            border-radius: 5px 5px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 128, 0, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .tab:hover::before {
+            left: 100%;
+        }
+        
+        .tab:hover {
+            color: #fff;
+            background: rgba(255, 128, 0, 0.1);
+        }
+        
+        .tab.active {
+            color: #ff8000;
+            border-bottom-color: #ff8000;
+            background: rgba(255, 128, 0, 0.15);
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Parts Grid with Scroll */
+        .parts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px 5px;
+            margin: 15px 0;
+        }
+        
+        .parts-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .parts-grid::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        
+        .parts-grid::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #ff8000, #ff4500);
+            border-radius: 4px;
+        }
+        
+        .part-item {
+            background: rgba(50, 50, 70, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: grab;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .part-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent, rgba(255, 128, 0, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .part-item:hover::before {
+            opacity: 1;
+        }
+        
+        .part-item:hover {
+            background: rgba(255, 128, 0, 0.15);
+            border-color: #ff8000;
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(255, 128, 0, 0.3);
+        }
+        
+        .part-item.glow {
+            animation: partGlow 2s infinite alternate;
+        }
+        
+        @keyframes partGlow {
+            from { box-shadow: 0 0 20px rgba(255, 128, 0, 0.5); }
+            to { box-shadow: 0 0 40px rgba(255, 128, 0, 0.8); }
+        }
+        
+        .part-icon {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 10px rgba(255, 128, 0, 0.5));
+            transition: all 0.3s ease;
+        }
+        
+        .part-item:hover .part-icon {
+            transform: scale(1.2) rotate(5deg);
+        }
+        
+        .part-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            color: #ffcc99;
+        }
+        
+        .part-desc {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            line-height: 1.2;
+        }
+        
+        .construction-zone {
+            height: 280px;
+            border: 2px dashed rgba(255, 128, 0, 0.4);
+            border-radius: 12px;
+            margin: 20px 0;
+            padding: 15px;
+            position: relative;
+            overflow: hidden;
+            background: rgba(30, 30, 50, 0.2);
+        }
+        
+        .construction-zone::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff8000, #ff4500, #ff8000);
+            border-radius: 14px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .construction-zone.active {
+            border-color: #ff8000;
+            background: rgba(255, 128, 0, 0.05);
+        }
+        
+        .construction-zone.active::before {
+            opacity: 0.3;
+            animation: zoneGlow 2s infinite alternate;
+        }
+        
+        @keyframes zoneGlow {
+            from { opacity: 0.3; }
+            to { opacity: 0.5; }
+        }
+        
+        .placed-part {
+            position: absolute;
+            background: rgba(255, 128, 0, 0.2);
+            border: 2px solid;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: move;
+            user-select: none;
+            min-width: 90px;
+            text-align: center;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .placed-part:hover {
+            transform: scale(1.1);
+            z-index: 100;
+        }
+        
+        .placed-part.glowing {
+            animation: placedGlow 1.5s infinite alternate;
+        }
+        
+        @keyframes placedGlow {
+            from { 
+                box-shadow: 0 0 20px rgba(255, 128, 0, 0.5),
+                            inset 0 0 20px rgba(255, 128, 0, 0.2);
+            }
+            to { 
+                box-shadow: 0 0 40px rgba(255, 128, 0, 0.8),
+                            inset 0 0 40px rgba(255, 128, 0, 0.4);
+            }
+        }
+        
+        .cell-display {
+            height: 280px;
+            background: linear-gradient(135deg, rgba(30, 30, 50, 0.6), rgba(20, 40, 60, 0.6));
+            border-radius: 12px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(0, 150, 255, 0.4);
+        }
+        
+        .cell-display::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #0096ff, #00c864, #0096ff);
+            border-radius: 14px;
+            z-index: -1;
+            opacity: 0.1;
+            animation: cellGlow 3s infinite alternate;
+        }
+        
+        @keyframes cellGlow {
+            from { opacity: 0.1; }
+            to { opacity: 0.3; }
+        }
+        
+        .cell-membrane {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 75%;
+            height: 75%;
+            border: 3px solid rgba(0, 150, 255, 0.6);
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(0, 150, 255, 0.1), transparent 70%);
+            box-shadow: 
+                inset 0 0 50px rgba(0, 150, 255, 0.2),
+                0 0 50px rgba(0, 150, 255, 0.3);
+            animation: membranePulse 4s infinite alternate;
+        }
+        
+        @keyframes membranePulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.02); }
+        }
+        
+        .cell-nucleus {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 25%;
+            height: 25%;
+            border: 2px solid rgba(255, 50, 50, 0.6);
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 40%, rgba(255, 50, 50, 0.2), transparent 70%);
+            box-shadow: 
+                inset 0 0 30px rgba(255, 50, 50, 0.3),
+                0 0 30px rgba(255, 50, 50, 0.4);
+            animation: nucleusGlow 3s infinite alternate;
+        }
+        
+        @keyframes nucleusGlow {
+            from { box-shadow: 
+                inset 0 0 30px rgba(255, 50, 50, 0.3),
+                0 0 30px rgba(255, 50, 50, 0.4);
+            }
+            to { box-shadow: 
+                inset 0 0 50px rgba(255, 50, 50, 0.4),
+                0 0 50px rgba(255, 50, 50, 0.6);
+            }
+        }
+        
+        .virus-particle {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 5;
+            box-shadow: 0 0 20px rgba(255, 128, 0, 0.5);
+            animation: virusFloat 3s infinite alternate;
+        }
+        
+        @keyframes virusFloat {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-10px) rotate(10deg); }
+        }
+        
+        .virus-particle:hover {
+            transform: scale(1.5);
+            z-index: 100;
+            box-shadow: 0 0 40px rgba(255, 128, 0, 0.8);
+        }
+        
+        .cure-particle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #00c864, #00994d);
+            box-shadow: 0 0 25px rgba(0, 200, 100, 0.7);
+            animation: cureFloat 4s infinite alternate, cureRotate 8s infinite linear;
+            z-index: 6;
+        }
+        
+        @keyframes cureFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-15px) scale(1.2); }
+        }
+        
+        @keyframes cureRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .interaction-effect {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .interaction-virus {
+            background: radial-gradient(circle, rgba(255, 128, 0, 0.8), transparent 70%);
+            animation: virusEffect 1s forwards;
+        }
+        
+        @keyframes virusEffect {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+        
+        .interaction-cure {
+            background: radial-gradient(circle, rgba(0, 200, 100, 0.8), transparent 70%);
+            animation: cureEffect 1s forwards;
+        }
+        
+        @keyframes cureEffect {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .stat-item {
+            background: linear-gradient(135deg, rgba(50, 50, 70, 0.4), rgba(30, 30, 50, 0.4));
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-item:hover {
+            border-color: #ff8000;
+            background: linear-gradient(135deg, rgba(255, 128, 0, 0.1), rgba(255, 69, 0, 0.1));
+            transform: translateY(-3px);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #ffcc99;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff8000, #ff4500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .stat-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff3232, #ff8000, #00c864);
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+        
+        .control-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(255, 128, 0, 0.3), rgba(255, 69, 0, 0.3));
+            color: #ff8000;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+            font-size: 0.95rem;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, rgba(255, 128, 0, 0.5), rgba(255, 69, 0, 0.5));
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 128, 0, 0.4);
+            color: #fff;
+        }
+        
+        button.primary {
+            background: linear-gradient(135deg, rgba(255, 69, 0, 0.4), rgba(255, 40, 0, 0.4));
+            color: #ff4500;
+        }
+        
+        button.success {
+            background: linear-gradient(135deg, rgba(0, 200, 100, 0.3), rgba(0, 150, 80, 0.3));
+            color: #00c864;
+        }
+        
+        button.danger {
+            background: linear-gradient(135deg, rgba(255, 50, 50, 0.3), rgba(200, 40, 40, 0.3));
+            color: #ff3232;
+        }
+        
+        .log-container {
+            margin-top: 20px;
+            height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .log-entry {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .log-entry:hover {
+            background: rgba(255, 255, 255, 0.05);
+            padding-left: 15px;
+        }
+        
+        .log-entry.added {
+            color: #4CAF50;
+            border-left: 3px solid #4CAF50;
+        }
+        
+        .log-entry.removed {
+            color: #f44336;
+            border-left: 3px solid #f44336;
+        }
+        
+        .log-entry.info {
+            color: #2196F3;
+            border-left: 3px solid #2196F3;
+        }
+        
+        .log-entry.warning {
+            color: #ff9800;
+            border-left: 3px solid #ff9800;
+        }
+        
+        .log-entry.cure {
+            color: #00c864;
+            border-left: 3px solid #00c864;
+        }
+        
+        .log-entry.important {
+            color: #ff8000;
+            border-left: 3px solid #ff8000;
+            background: rgba(255, 128, 0, 0.1);
+            font-weight: 600;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, rgba(20, 20, 35, 0.9), rgba(30, 20, 45, 0.9));
+            border: 2px solid;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 300px;
+            max-width: 400px;
+            transform: translateX(100%);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 10000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .notification-content {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+        
+        .floating-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ff8000;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.7;
+            animation: float 20s infinite linear;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+        }
+        
+        .category-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .category-btn {
+            padding: 8px 16px;
+            background: rgba(50, 50, 70, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+        
+        .category-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+            color: #ff8000;
+        }
+        
+        .category-btn.active {
+            background: linear-gradient(135deg, rgba(255, 128, 0, 0.3), rgba(255, 69, 0, 0.3));
+            color: #ff8000;
+            border-color: #ff8000;
+        }
+        
+        .part-rarity {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+        
+        .rarity-common { background: rgba(0, 200, 100, 0.2); color: #00c864; }
+        .rarity-rare { background: rgba(0, 150, 255, 0.2); color: #0096ff; }
+        .rarity-epic { background: rgba(150, 0, 255, 0.2); color: #9600ff; }
+        .rarity-legendary { background: rgba(255, 128, 0, 0.2); color: #ff8000; }
+        
+        .interaction-spark {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff8000;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: spark 0.5s forwards;
+        }
+        
+        @keyframes spark {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        
+        .achievement-badge {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: linear-gradient(135deg, rgba(255, 128, 0, 0.9), rgba(255, 69, 0, 0.9));
+            border-radius: 50px;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 10000;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 15px 40px rgba(255, 128, 0, 0.5);
+        }
+        
+        .achievement-badge.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .achievement-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+        }
+        
+        .achievement-text {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating particles for background effect -->
+    <div id="floatingParticles"></div>
+    
+    <!-- Achievement Badge -->
+    <div id="achievementBadge" class="achievement-badge">
+        <div class="achievement-icon">🏆</div>
+        <div class="achievement-text">Achievement Unlocked!</div>
+    </div>
+    
+    <!-- Notification System -->
+    <div id="notificationSystem"></div>
+    
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Tools
+        </a>
+        <div class="title-section">
+            <div class="main-title">🧬 VIRUS ARCHITECT PRO</div>
+            <div class="subtitle">Advanced Pathogen Engineering & Countermeasure Development Platform</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Left Panel: Enhanced Parts Library -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-dna"></i>
+                    Virus Components
+                </div>
+                <span id="partCount" style="color: #ff8000; font-weight: 700;">0/60</span>
+            </div>
+            
+            <div class="category-filter" id="virusCategories">
+                <button class="category-btn active" data-category="all">All Parts</button>
+                <button class="category-btn" data-category="capsid">Capsids</button>
+                <button class="category-btn" data-category="genome">Genomes</button>
+                <button class="category-btn" data-category="spike">Spikes</button>
+                <button class="category-btn" data-category="enzyme">Enzymes</button>
+            </div>
+            
+            <div class="parts-grid" id="virusPartsGrid">
+                <!-- Virus parts will be generated by JavaScript -->
+            </div>
+            
+            <div class="construction-zone" id="constructionZone">
+                <p style="text-align: center; opacity: 0.7; margin-top: 120px; font-size: 1.1rem;">
+                    🔬 Drag virus components here to assemble
+                </p>
+            </div>
+            
+            <div class="control-buttons">
+                <button id="clearVirusBtn" class="danger">
+                    <i class="fas fa-trash"></i> Clear Assembly
+                </button>
+                <button id="saveVirusBtn" class="primary">
+                    <i class="fas fa-save"></i> Save Design
+                </button>
+            </div>
+        </div>
+
+        <!-- Center Panel: Enhanced Analysis & Cell -->
+        <div class="panel">
+            <div class="tabs-container">
+                <button class="tab active" data-tab="analysis">Virus Analysis</button>
+                <button class="tab" data-tab="cell">Cell Lab</button>
+                <button class="tab" data-tab="stats">Statistics</button>
+                <button class="tab" data-tab="research">Research</button>
+            </div>
+            
+            <div id="analysisTab" class="tab-content active">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fas fa-microscope"></i>
+                        Pathogen Analysis
+                    </div>
+                    <button id="analyzeVirusBtn">
+                        <i class="fas fa-search"></i> Deep Analysis
+                    </button>
+                </div>
+                
+                <div class="stats-grid" id="virusStats">
+                    <div class="stat-item">
+                        <div class="stat-label">Infectivity Rating</div>
+                        <div class="stat-value">0%</div>
+                        <div class="stat-bar"><div class="stat-fill" style="width: 0%"></div></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Replication Speed</div>
+                        <div class="stat-value">0%</div>
+                        <div class="stat-bar"><div class="stat-fill" style="width: 0%"></div></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Immune Evasion</div>
+                        <div class="stat-value">0%</div>
+                        <div class="stat-bar"><div class="stat-fill" style="width: 0%"></div></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Environmental Stability</div>
+                        <div class="stat-value">0%</div>
+                        <div class="stat-bar"><div class="stat-fill" style="width: 0%"></div></div>
+                    </div>
+                </div>
+                
+                <div id="virusAnalysisResult">
+                    <div class="stat-item" style="grid-column: 1 / -1;">
+                        <div class="stat-label">Pathogen Profile</div>
+                        <div style="font-size: 0.95rem; opacity: 0.9; line-height: 1.5; margin-top: 10px;">
+                            Assemble a virus to see detailed analysis of its behavior and characteristics.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="log-container" id="analysisLog">
+                    <div class="log-entry info">Ready for pathogen analysis. Assemble a virus to begin.</div>
+                </div>
+            </div>
+            
+            <div id="cellTab" class="tab-content">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fas fa-vial"></i>
+                        Cell Laboratory
+                    </div>
+                    <button id="addVirusToCellBtn" class="primary">
+                        <i class="fas fa-plus"></i> Inject Virus
+                    </button>
+                </div>
+                
+                <div class="cell-display" id="cellDisplay">
+                    <div class="cell-membrane"></div>
+                    <div class="cell-nucleus"></div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Cell Health</div>
+                        <div class="stat-value" id="cellHealthValue">100%</div>
+                        <div class="stat-bar"><div class="stat-fill" id="cellHealthBar" style="width: 100%"></div></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Active Viruses</div>
+                        <div class="stat-value" id="activeVirusCount">0</div>
+                        <div class="stat-bar"><div class="stat-fill" id="virusCountBar" style="width: 0%"></div></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Neutralized</div>
+                        <div class="stat-value" id="neutralizedCount">0</div>
+                        <div class="stat-bar"><div class="stat-fill" id="neutralizedBar" style="width: 0%"></div></div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Treatment Progress</div>
+                        <div class="stat-value" id="treatmentProgress">0%</div>
+                        <div class="stat-bar"><div class="stat-fill" id="treatmentBar" style="width: 0%"></div></div>
+                    </div>
+                </div>
+                
+                <div class="control-buttons">
+                    <button id="stimulateCellBtn">
+                        <i class="fas fa-heartbeat"></i> Stimulate Cell
+                    </button>
+                    <button id="clearCellBtn" class="danger">
+                        <i class="fas fa-broom"></i> Clean Lab
+                    </button>
+                </div>
+            </div>
+            
+            <div id="statsTab" class="tab-content">
+                <!-- Statistics content -->
+            </div>
+            
+            <div id="researchTab" class="tab-content">
+                <!-- Research content -->
+            </div>
+        </div>
+
+        <!-- Right Panel: Enhanced Cures & Treatment -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-pills"></i>
+                    Cure Development
+                </div>
+                <span id="cureCount" style="color: #00c864; font-weight: 700;">0/60</span>
+            </div>
+            
+            <div class="category-filter" id="cureCategories">
+                <button class="category-btn active" data-category="all">All Cures</button>
+                <button class="category-btn" data-category="antiviral">Antivirals</button>
+                <button class="category-btn" data-category="vaccine">Vaccines</button>
+                <button class="category-btn" data-category="antibody">Antibodies</button>
+                <button class="category-btn" data-category="booster">Boosters</button>
+            </div>
+            
+            <div class="parts-grid" id="curePartsGrid">
+                <!-- Cure parts will be generated by JavaScript -->
+            </div>
+            
+            <div class="construction-zone" id="cureAssemblyZone">
+                <p style="text-align: center; opacity: 0.7; margin-top: 120px; font-size: 1.1rem;">
+                    💊 Click cure components to assemble treatment
+                </p>
+            </div>
+            
+            <div class="control-buttons">
+                <button id="testCureBtn" class="success">
+                    <i class="fas fa-flask"></i> Test Cure
+                </button>
+                <button id="administerCureBtn">
+                    <i class="fas fa-syringe"></i> Administer
+                </button>
+            </div>
+            
+            <div class="log-container" id="cureLog">
+                <div class="log-entry info">Cure development system ready. Select components to begin.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound Effects (hidden) -->
+    <audio id="soundPlace" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-plastic-bubble-click-1124.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="soundCure" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="soundVirus" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-sci-fi-bleep-903.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // ======================
+        // ENHANCED DATA SYSTEMS
+        // ======================
+        
+        // Comprehensive Virus Parts Database (60+ parts)
+        const virusPartsDatabase = {
+            capsids: [
+                { id: 'icosahedral_alpha', name: 'Alpha Icosahedral', icon: '🔶', rarity: 'common', color: '#FF8000', effects: { infectivity: 15, stability: 25, replication: 10 }, category: 'capsid' },
+                { id: 'helical_beta', name: 'Beta Helical', icon: '🌀', rarity: 'common', color: '#00BFFF', effects: { infectivity: 20, stability: 15, replication: 20 }, category: 'capsid' },
+                { id: 'complex_gamma', name: 'Gamma Complex', icon: '⚗️', rarity: 'rare', color: '#9370DB', effects: { infectivity: 25, stability: 20, replication: 15 }, category: 'capsid' },
+                { id: 'tetrahedral_delta', name: 'Delta Tetrahedral', icon: '🔷', rarity: 'rare', color: '#32CD32', effects: { infectivity: 18, stability: 30, replication: 12 }, category: 'capsid' },
+                { id: 'prolate_epsilon', name: 'Epsilon Prolate', icon: '📦', rarity: 'epic', color: '#FF4500', effects: { infectivity: 30, stability: 25, replication: 25 }, category: 'capsid' },
+                { id: 'filamentous_zeta', name: 'Zeta Filamentous', icon: '〰️', rarity: 'epic', color: '#FF6347', effects: { infectivity: 35, stability: 10, replication: 30 }, category: 'capsid' },
+                { id: 'asymmetric_eta', name: 'Eta Asymmetric', icon: '🔳', rarity: 'legendary', color: '#DAA520', effects: { infectivity: 40, stability: 35, replication: 35 }, category: 'capsid' },
+                { id: 'spherical_theta', name: 'Theta Spherical', icon: '🔴', rarity: 'common', color: '#FF69B4', effects: { infectivity: 12, stability: 22, replication: 18 }, category: 'capsid' },
+                { id: 'rodlike_iota', name: 'Iota Rod-like', icon: '🔲', rarity: 'rare', color: '#20B2AA', effects: { infectivity: 22, stability: 28, replication: 16 }, category: 'capsid' },
+                { id: 'pleomorphic_kappa', name: 'Kappa Pleomorphic', icon: '🔘', rarity: 'epic', color: '#8A2BE2', effects: { infectivity: 28, stability: 18, replication: 32 }, category: 'capsid' },
+                { id: 'geodesic_lambda', name: 'Lambda Geodesic', icon: '🔺', rarity: 'legendary', color: '#FFD700', effects: { infectivity: 45, stability: 40, replication: 38 }, category: 'capsid' },
+                { id: 'nanocage_mu', name: 'Mu Nanocage', icon: '🧊', rarity: 'epic', color: '#00CED1', effects: { infectivity: 32, stability: 42, replication: 20 }, category: 'capsid' }
+            ],
+            
+            genomes: [
+                { id: 'dsdna_alpha', name: 'Alpha dsDNA', icon: '🧬', rarity: 'common', color: '#32CD32', effects: { infectivity: 10, stability: 30, replication: 15, mutation: 5 }, category: 'genome' },
+                { id: 'ssrna_beta', name: 'Beta +ssRNA', icon: '📄', rarity: 'common', color: '#FF4500', effects: { infectivity: 25, stability: 15, replication: 35, mutation: 25 }, category: 'genome' },
+                { id: 'ssrna_gamma', name: 'Gamma -ssRNA', icon: '📑', rarity: 'rare', color: '#FF6347', effects: { infectivity: 20, stability: 10, replication: 30, mutation: 30 }, category: 'genome' },
+                { id: 'dsrna_delta', name: 'Delta dsRNA', icon: '📜', rarity: 'rare', color: '#9370DB', effects: { infectivity: 15, stability: 25, replication: 20, mutation: 10 }, category: 'genome' },
+                { id: 'retrovirus_epsilon', name: 'Epsilon Retrovirus', icon: '🔄', rarity: 'epic', color: '#8A2BE2', effects: { infectivity: 35, stability: 20, replication: 40, mutation: 35 }, category: 'genome' },
+                { id: 'ambisense_zeta', name: 'Zeta Ambisense', icon: '📊', rarity: 'epic', color: '#20B2AA', effects: { infectivity: 30, stability: 18, replication: 32, mutation: 28 }, category: 'genome' },
+                { id: 'circular_eta', name: 'Eta Circular', icon: '⭕', rarity: 'legendary', color: '#FFD700', effects: { infectivity: 40, stability: 35, replication: 45, mutation: 15 }, category: 'genome' },
+                { id: 'segmented_theta', name: 'Theta Segmented', icon: '🧩', rarity: 'rare', color: '#FF69B4', effects: { infectivity: 28, stability: 22, replication: 38, mutation: 40 }, category: 'genome' },
+                { id: 'linear_iota', name: 'Iota Linear', icon: '📏', rarity: 'common', color: '#00BFFF', effects: { infectivity: 18, stability: 28, replication: 22, mutation: 18 }, category: 'genome' },
+                { id: 'supercoiled_kappa', name: 'Kappa Supercoiled', icon: '🌀', rarity: 'epic', color: '#DAA520', effects: { infectivity: 32, stability: 38, replication: 28, mutation: 12 }, category: 'genome' },
+                { id: 'minicircle_lambda', name: 'Lambda Minicircle', icon: '⭕', rarity: 'legendary', color: '#FF8000', effects: { infectivity: 42, stability: 45, replication: 35, mutation: 8 }, category: 'genome' },
+                { id: 'concatemer_mu', name: 'Mu Concatemer', icon: '🔗', rarity: 'rare', color: '#00CED1', effects: { infectivity: 25, stability: 32, replication: 30, mutation: 22 }, category: 'genome' }
+            ],
+            
+            spikes: [
+                { id: 'hemagglutinin_alpha', name: 'Alpha Hemagglutinin', icon: '🔺', rarity: 'common', color: '#FF6347', effects: { infectivity: 30, stability: 5, attachment: 25 }, category: 'spike' },
+                { id: 'neuraminidase_beta', name: 'Beta Neuraminidase', icon: '🔻', rarity: 'common', color: '#FF4500', effects: { infectivity: 25, stability: 10, release: 20 }, category: 'spike' },
+                { id: 'fusion_gamma', name: 'Gamma Fusion Protein', icon: '⚡', rarity: 'rare', color: '#FFD700', effects: { infectivity: 35, stability: 8, entry: 30 }, category: 'spike' },
+                { id: 'attachment_delta', name: 'Delta Attachment', icon: '🎯', rarity: 'rare', color: '#32CD32', effects: { infectivity: 28, stability: 12, binding: 28 }, category: 'spike' },
+                { id: 'receptor_epsilon', name: 'Epsilon Receptor', icon: '🔄', rarity: 'epic', color: '#9370DB', effects: { infectivity: 40, stability: 15, targeting: 35 }, category: 'spike' },
+                { id: 'trimeric_zeta', name: 'Zeta Trimeric', icon: '🔶', rarity: 'epic', color: '#20B2AA', effects: { infectivity: 38, stability: 18, avidity: 32 }, category: 'spike' },
+                { id: 'glycoprotein_eta', name: 'Eta Glycoprotein', icon: '💎', rarity: 'legendary', color: '#8A2BE2', effects: { infectivity: 45, stability: 25, evasion: 40 }, category: 'spike' },
+                { id: 'pentameric_theta', name: 'Theta Pentameric', icon: '🔷', rarity: 'rare', color: '#00BFFF', effects: { infectivity: 32, stability: 20, stability: 28 }, category: 'spike' },
+                { id: 'hexameric_iota', name: 'Iota Hexameric', icon: '🔶', rarity: 'epic', color: '#FF69B4', effects: { infectivity: 42, stability: 22, symmetry: 38 }, category: 'spike' },
+                { id: 'viral_protein_kappa', name: 'Kappa Viral Protein', icon: '⚛️', rarity: 'legendary', color: '#FF8000', effects: { infectivity: 48, stability: 30, efficiency: 45 }, category: 'spike' },
+                { id: 'anchor_lambda', name: 'Lambda Anchor', icon: '⚓', rarity: 'rare', color: '#DAA520', effects: { infectivity: 34, stability: 25, anchoring: 30 }, category: 'spike' },
+                { id: 'crown_mu', name: 'Mu Crown', icon: '👑', rarity: 'epic', color: '#00CED1', effects: { infectivity: 44, stability: 28, recognition: 42 }, category: 'spike' }
+            ],
+            
+            enzymes: [
+                { id: 'polymerase_alpha', name: 'Alpha Polymerase', icon: '⚙️', rarity: 'common', color: '#20B2AA', effects: { replication: 30, accuracy: 20, speed: 25 }, category: 'enzyme' },
+                { id: 'reverse_beta', name: 'Beta Reverse', icon: '🔄', rarity: 'common', color: '#9370DB', effects: { replication: 35, integration: 25, mutation: 30 }, category: 'enzyme' },
+                { id: 'integrase_gamma', name: 'Gamma Integrase', icon: '🔗', rarity: 'rare', color: '#8A2BE2', effects: { replication: 25, integration: 35, latency: 30 }, category: 'enzyme' },
+                { id: 'protease_delta', name: 'Delta Protease', icon: '✂️', rarity: 'rare', color: '#FF6347', effects: { replication: 28, processing: 32, maturation: 28 }, category: 'enzyme' },
+                { id: 'helicase_epsilon', name: 'Epsilon Helicase', icon: '🌀', rarity: 'epic', color: '#FFD700', effects: { replication: 40, unwinding: 38, efficiency: 35 }, category: 'enzyme' },
+                { id: 'ligase_zeta', name: 'Zeta Ligase', icon: '🔧', rarity: 'epic', color: '#32CD32', effects: { replication: 32, repair: 40, fidelity: 30 }, category: 'enzyme' },
+                { id: 'exonuclease_eta', name: 'Eta Exonuclease', icon: '🔍', rarity: 'legendary', color: '#FF8000', effects: { replication: 45, proofreading: 45, accuracy: 42 }, category: 'enzyme' },
+                { id: 'methyltransferase_theta', name: 'Theta Methyltransferase', icon: '🔬', rarity: 'rare', color: '#00BFFF', effects: { replication: 30, evasion: 35, modification: 32 }, category: 'enzyme' },
+                { id: 'primase_iota', name: 'Iota Primase', icon: '🚀', rarity: 'epic', color: '#FF69B4', effects: { replication: 38, initiation: 42, speed: 36 }, category: 'enzyme' },
+                { id: 'replicase_kappa', name: 'Kappa Replicase', icon: '🏭', rarity: 'legendary', color: '#DAA520', effects: { replication: 50, amplification: 48, production: 45 }, category: 'enzyme' },
+                { id: 'transcriptase_lambda', name: 'Lambda Transcriptase', icon: '📝', rarity: 'epic', color: '#FF4500', effects: { replication: 42, transcription: 45, expression: 40 }, category: 'enzyme' },
+                { id: 'ribozyme_mu', name: 'Mu Ribozyme', icon: '🧪', rarity: 'legendary', color: '#00CED1', effects: { replication: 48, catalysis: 50, autocatalysis: 46 }, category: 'enzyme' }
+            ],
+            
+            envelopes: [
+                { id: 'lipid_alpha', name: 'Alpha Lipid', icon: '🎈', rarity: 'common', color: '#9370DB', effects: { infectivity: 25, stability: -15, evasion: 20 }, category: 'envelope' },
+                { id: 'phospholipid_beta', name: 'Beta Phospholipid', icon: '🛡️', rarity: 'common', color: '#8A2BE2', effects: { infectivity: 28, stability: -12, fusion: 22 }, category: 'envelope' },
+                { id: 'glycolipid_gamma', name: 'Gamma Glycolipid', icon: '🍬', rarity: 'rare', color: '#20B2AA', effects: { infectivity: 32, stability: -10, recognition: 28 }, category: 'envelope' },
+                { id: 'cholesterol_delta', name: 'Delta Cholesterol', icon: '💎', rarity: 'rare', color: '#FFD700', effects: { infectivity: 30, stability: -8, rigidity: 25 }, category: 'envelope' },
+                { id: 'sphingolipid_epsilon', name: 'Epsilon Sphingolipid', icon: '🔮', rarity: 'epic', color: '#FF8000', effects: { infectivity: 38, stability: -5, signaling: 32 }, category: 'envelope' },
+                { id: 'nanodisc_zeta', name: 'Zeta Nanodisc', icon: '💿', rarity: 'epic', color: '#00CED1', effects: { infectivity: 35, stability: 10, stability: 30 }, category: 'envelope' },
+                { id: 'liposome_eta', name: 'Eta Liposome', icon: '🔘', rarity: 'legendary', color: '#FF4500', effects: { infectivity: 42, stability: 5, delivery: 38 }, category: 'envelope' }
+            ],
+            
+            accessories: [
+                { id: 'tegument_alpha', name: 'Alpha Tegument', icon: '📦', rarity: 'common', color: '#DAA520', effects: { stability: 15, evasion: 20, transport: 18 }, category: 'accessory' },
+                { id: 'matrix_beta', name: 'Beta Matrix', icon: '🏗️', rarity: 'common', color: '#FF69B4', effects: { stability: 18, assembly: 22, structure: 20 }, category: 'accessory' },
+                { id: 'scaffold_gamma', name: 'Gamma Scaffold', icon: '🔨', rarity: 'rare', color: '#00BFFF', effects: { stability: 25, organization: 28, efficiency: 24 }, category: 'accessory' },
+                { id: 'chaperone_delta', name: 'Delta Chaperone', icon: '👕', rarity: 'rare', color: '#32CD32', effects: { stability: 22, folding: 30, quality: 26 }, category: 'accessory' },
+                { id: 'viroplasm_epsilon', name: 'Epsilon Viroplasm', icon: '🌪️', rarity: 'epic', color: '#9370DB', effects: { stability: 30, replication: 35, compartmentalization: 32 }, category: 'accessory' },
+                { id: 'portal_zeta', name: 'Zeta Portal', icon: '🚪', rarity: 'epic', color: '#FF6347', effects: { stability: 28, packaging: 32, exit: 30 }, category: 'accessory' },
+                { id: 'cargo_eta', name: 'Eta Cargo', icon: '📦', rarity: 'legendary', color: '#8A2BE2', effects: { stability: 35, delivery: 40, payload: 38 }, category: 'accessory' }
+            ]
+        };
+
+        // Comprehensive Cures Database (60+ cures)
+        const curesDatabase = {
+            antivirals: [
+                { id: 'acyclovir', name: 'Acyclovir', icon: '💊', rarity: 'common', color: '#00c864', targets: ['herpes', 'dsDNA'], effectiveness: 65, category: 'antiviral' },
+                { id: 'oseltamivir', name: 'Oseltamivir', icon: '🦠', rarity: 'common', color: '#0096ff', targets: ['influenza', 'neuraminidase'], effectiveness: 70, category: 'antiviral' },
+                { id: 'remdesivir', name: 'Remdesivir', icon: '⚡', rarity: 'rare', color: '#32cd32', targets: ['RNA', 'polymerase'], effectiveness: 75, category: 'antiviral' },
+                { id: 'ribavirin', name: 'Ribavirin', icon: '🧬', rarity: 'common', color: '#ff8000', targets: ['RNA', 'broad'], effectiveness: 60, category: 'antiviral' },
+                { id: 'favipiravir', name: 'Favipiravir', icon: '🌀', rarity: 'rare', color: '#ff4500', targets: ['RNA', 'influenza'], effectiveness: 68, category: 'antiviral' },
+                { id: 'molnupiravir', name: 'Molnupiravir', icon: '🎯', rarity: 'epic', color: '#9370db', targets: ['RNA', 'mutation'], effectiveness: 82, category: 'antiviral' },
+                { id: 'paxlovid', name: 'Paxlovid', icon: '🛡️', rarity: 'legendary', color: '#ffd700', targets: ['protease', 'coronavirus'], effectiveness: 88, category: 'antiviral' },
+                { id: 'maraviroc', name: 'Maraviroc', icon: '🚫', rarity: 'epic', color: '#20b2aa', targets: ['CCR5', 'HIV'], effectiveness: 78, category: 'antiviral' },
+                { id: 'enfuvirtide', name: 'Enfuvirtide', icon: '🔒', rarity: 'rare', color: '#ff69b4', targets: ['fusion', 'HIV'], effectiveness: 72, category: 'antiviral' },
+                { id: 'sofosbuvir', name: 'Sofosbuvir', icon: '🏥', rarity: 'epic', color: '#00ced1', targets: ['hepatitis', 'polymerase'], effectiveness: 85, category: 'antiviral' },
+                { id: 'daclatasvir', name: 'Daclatasvir', icon: '🎯', rarity: 'rare', color: '#8a2be2', targets: ['NS5A', 'hepatitis'], effectiveness: 76, category: 'antiviral' },
+                { id: 'zanamivir', name: 'Zanamivir', icon: '❄️', rarity: 'common', color: '#00bfff', targets: ['influenza', 'neuraminidase'], effectiveness: 66, category: 'antiviral' }
+            ],
+            
+            vaccines: [
+                { id: 'mRNA_vaccine', name: 'mRNA Vaccine', icon: '🧬', rarity: 'epic', color: '#32cd32', targets: ['spike', 'adaptive'], effectiveness: 90, category: 'vaccine' },
+                { id: 'vector_vaccine', name: 'Vector Vaccine', icon: '🚀', rarity: 'rare', color: '#ff8000', targets: ['broad', 'cellular'], effectiveness: 78, category: 'vaccine' },
+                { id: 'subunit_vaccine', name: 'Subunit Vaccine', icon: '⚛️', rarity: 'common', color: '#0096ff', targets: ['protein', 'safe'], effectiveness: 65, category: 'vaccine' },
+                { id: 'inactivated_vaccine', name: 'Inactivated', icon: '☠️', rarity: 'common', color: '#ff4500', targets: ['whole', 'traditional'], effectiveness: 62, category: 'vaccine' },
+                { id: 'attenuated_vaccine', name: 'Attenuated', icon: '⚡', rarity: 'rare', color: '#9370db', targets: ['live', 'strong'], effectiveness: 85, category: 'vaccine' },
+                { id: 'DNA_vaccine', name: 'DNA Vaccine', icon: '🔬', rarity: 'epic', color: '#ffd700', targets: ['nuclear', 'long'], effectiveness: 82, category: 'vaccine' },
+                { id: 'viral_like', name: 'VLP Vaccine', icon: '🎭', rarity: 'legendary', color: '#00c864', targets: ['structure', 'safe'], effectiveness: 88, category: 'vaccine' },
+                { id: 'conjugate_vaccine', name: 'Conjugate', icon: '🔗', rarity: 'rare', color: '#20b2aa', targets: ['polysaccharide', 'enhanced'], effectiveness: 74, category: 'vaccine' },
+                { id: 'toxoid_vaccine', name: 'Toxoid Vaccine', icon: '☣️', rarity: 'common', color: '#ff69b4', targets: ['toxin', 'bacterial'], effectiveness: 68, category: 'vaccine' },
+                { id: 'heterologous', name: 'Heterologous', icon: '🔄', rarity: 'epic', color: '#00ced1', targets: ['prime-boost', 'enhanced'], effectiveness: 87, category: 'vaccine' },
+                { id: 'multivalent', name: 'Multivalent', icon: '🎯', rarity: 'legendary', color: '#8a2be2', targets: ['multiple', 'broad'], effectiveness: 92, category: 'vaccine' },
+                { id: 'personalized', name: 'Personalized', icon: '👤', rarity: 'legendary', color: '#dda0dd', targets: ['individual', 'precise'], effectiveness: 95, category: 'vaccine' }
+            ],
+            
+            antibodies: [
+                { id: 'monoclonal_alpha', name: 'Alpha mAb', icon: '🎯', rarity: 'rare', color: '#00c864', targets: ['spike', 'neutralizing'], effectiveness: 80, category: 'antibody' },
+                { id: 'polyclonal_beta', name: 'Beta pAb', icon: '🛡️', rarity: 'common', color: '#0096ff', targets: ['multiple', 'broad'], effectiveness: 70, category: 'antibody' },
+                { id: 'neutralizing_gamma', name: 'Gamma nAb', icon: '🚫', rarity: 'epic', color: '#ff8000', targets: ['attachment', 'blocking'], effectiveness: 85, category: 'antibody' },
+                { id: 'bispecific_delta', name: 'Delta Bi-specific', icon: '🔗', rarity: 'legendary', color: '#ffd700', targets: ['dual', 'enhanced'], effectiveness: 90, category: 'antibody' },
+                { id: 'camelid_epsilon', name: 'Epsilon Nanobody', icon: '🐫', rarity: 'rare', color: '#9370db', targets: ['small', 'penetrating'], effectiveness: 75, category: 'antibody' },
+                { id: 'humanized_zeta', name: 'Zeta Humanized', icon: '👤', rarity: 'epic', color: '#20b2aa', targets: ['compatible', 'reduced'], effectiveness: 82, category: 'antibody' },
+                { id: 'chimeric_eta', name: 'Eta Chimeric', icon: '🧬', rarity: 'legendary', color: '#00ced1', targets: ['hybrid', 'effective'], effectiveness: 88, category: 'antibody' },
+                { id: 'conjugated_theta', name: 'Theta Conjugated', icon: '💎', rarity: 'epic', color: '#ff69b4', targets: ['drug', 'targeted'], effectiveness: 84, category: 'antibody' },
+                { id: 'catalytic_iota', name: 'Iota Catalytic', icon: '⚡', rarity: 'legendary', color: '#8a2be2', targets: ['enzyme', 'destructive'], effectiveness: 92, category: 'antibody' },
+                { id: 'intrabody_kappa', name: 'Kappa Intrabody', icon: '🏠', rarity: 'rare', color: '#ff4500', targets: ['intracellular', 'direct'], effectiveness: 77, category: 'antibody' },
+                { id: 'anti_idiotypic', name: 'Anti-Idiotypic', icon: '🎭', rarity: 'epic', color: '#32cd32', targets: ['mimic', 'vaccine-like'], effectiveness: 79, category: 'antibody' },
+                { id: 'fc_enhanced', name: 'Fc-Enhanced', icon: '⚡', rarity: 'legendary', color: '#dda0dd', targets: ['effector', 'enhanced'], effectiveness: 89, category: 'antibody' }
+            ],
+            
+            boosters: [
+                { id: 'interferon_alpha', name: 'Alpha Interferon', icon: '⚡', rarity: 'common', color: '#ff8000', targets: ['innate', 'broad'], effectiveness: 60, category: 'booster' },
+                { id: 'cytokine_beta', name: 'Beta Cytokine', icon: '📡', rarity: 'rare', color: '#00c864', targets: ['signaling', 'immune'], effectiveness: 72, category: 'booster' },
+                { id: 'adjuvant_gamma', name: 'Gamma Adjuvant', icon: '💥', rarity: 'common', color: '#0096ff', targets: ['response', 'enhancer'], effectiveness: 58, category: 'booster' },
+                { id: 'immunomodulator', name: 'Immunomodulator', icon: '🎛️', rarity: 'epic', color: '#9370db', targets: ['regulation', 'balanced'], effectiveness: 81, category: 'booster' },
+                { id: 'antioxidant', name: 'Antioxidant', icon: '🛡️', rarity: 'rare', color: '#ffd700', targets: ['oxidative', 'protection'], effectiveness: 68, category: 'booster' },
+                { id: 'probiotic', name: 'Probiotic', icon: '🦠', rarity: 'common', color: '#20b2aa', targets: ['microbiome', 'indirect'], effectiveness: 55, category: 'booster' },
+                { id: 'vitamin_c', name: 'Vitamin C Booster', icon: '🍊', rarity: 'common', color: '#ff4500', targets: ['immune', 'support'], effectiveness: 52, category: 'booster' },
+                { id: 'zinc_ionophore', name: 'Zinc Ionophore', icon: '⚛️', rarity: 'rare', color: '#00ced1', targets: ['intracellular', 'zinc'], effectiveness: 71, category: 'booster' },
+                { id: 'peptide_therapy', name: 'Peptide Therapy', icon: '🧬', rarity: 'epic', color: '#ff69b4', targets: ['signaling', 'precise'], effectiveness: 78, category: 'booster' },
+                { id: 'stem_cell', name: 'Stem Cell', icon: '🔬', rarity: 'legendary', color: '#8a2be2', targets: ['regeneration', 'repair'], effectiveness: 86, category: 'booster' },
+                { id: 'exosome', name: 'Exosome Therapy', icon: '📦', rarity: 'epic', color: '#32cd32', targets: ['signaling', 'repair'], effectiveness: 83, category: 'booster' },
+                { id: 'crispr_immune', name: 'CRISPR Immune', icon: '✂️', rarity: 'legendary', color: '#dda0dd', targets: ['genetic', 'permanent'], effectiveness: 94, category: 'booster' }
+            ],
+            
+            disruptors: [
+                { id: 'entry_inhibitor', name: 'Entry Inhibitor', icon: '🚫', rarity: 'rare', color: '#ff6347', targets: ['attachment', 'fusion'], effectiveness: 76, category: 'disruptor' },
+                { id: 'uncoating', name: 'Uncoating Blocker', icon: '📦', rarity: 'common', color: '#00bfff', targets: ['capsid', 'release'], effectiveness: 64, category: 'disruptor' },
+                { id: 'assembly', name: 'Assembly Disruptor', icon: '🏗️', rarity: 'epic', color: '#ffd700', targets: ['assembly', 'maturation'], effectiveness: 82, category: 'disruptor' },
+                { id: 'release', name: 'Release Inhibitor', icon: '🔒', rarity: 'rare', color: '#9370db', targets: ['budding', 'exit'], effectiveness: 73, category: 'disruptor' },
+                { id: 'viral_factory', name: 'Factory Disruptor', icon: '🏭', rarity: 'legendary', color: '#ff8000', targets: ['replication', 'compartment'], effectiveness: 89, category: 'disruptor' },
+                { id: 'lipid_synthesis', name: 'Lipid Synthesis', icon: '🛢️', rarity: 'epic', color: '#00ced1', targets: ['envelope', 'membrane'], effectiveness: 79, category: 'disruptor' },
+                { id: 'protein_synthesis', name: 'Protein Synthesis', icon: '🏗️', rarity: 'rare', color: '#20b2aa', targets: ['translation', 'production'], effectiveness: 75, category: 'disruptor' },
+                { id: 'rna_synthesis', name: 'RNA Synthesis', icon: '📝', rarity: 'common', color: '#ff69b4', targets: ['transcription', 'replication'], effectiveness: 67, category: 'disruptor' },
+                { id: 'dna_synthesis', name: 'DNA Synthesis', icon: '🧬', rarity: 'epic', color: '#8a2be2', targets: ['replication', 'genome'], effectiveness: 84, category: 'disruptor' },
+                { id: 'energy_blocker', name: 'Energy Blocker', icon: '⚡', rarity: 'legendary', color: '#32cd32', targets: ['ATP', 'metabolism'], effectiveness: 91, category: 'disruptor' },
+                { id: 'ph_modulator', name: 'pH Modulator', icon: '🧪', rarity: 'rare', color: '#ff4500', targets: ['environment', 'acidification'], effectiveness: 70, category: 'disruptor' },
+                { id: 'ion_channel', name: 'Ion Channel', icon: '⚡', rarity: 'epic', color: '#dda0dd', targets: ['channel', 'homeostasis'], effectiveness: 81, category: 'disruptor' }
+            ]
+        };
+
+        // ======================
+        // GLOBAL STATE
+        // ======================
+        const state = {
+            virusParts: [],
+            cureComponents: [],
+            cell: {
+                viruses: [],
+                cures: [],
+                health: 100,
+                temperature: 37.0,
+                ph: 7.4,
+                nutrients: 100
+            },
+            achievements: [],
+            research: {
+                points: 100,
+                discoveries: []
+            },
+            currentVirusStats: {
+                infectivity: 0,
+                replication: 0,
+                stability: 0,
+                evasion: 0,
+                severity: 0
+            },
+            currentCureEffectiveness: 0
+        };
+
+        // ======================
+        // INITIALIZATION
+        // ======================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Create background particles
+            createFloatingParticles();
+            
+            // Initialize UI
+            initializePartsGrid();
+            initializeCuresGrid();
+            initializeDragAndDrop();
+            initializeEventListeners();
+            initializeTabs();
+            
+            // Start ambient animations
+            startAmbientAnimations();
+            
+            // Show welcome notification
+            setTimeout(() => {
+                showNotification('Welcome to Virus Architect Pro!', 'Begin by dragging virus components to the construction zone.', 'info');
+            }, 1000);
+        });
+
+        function createFloatingParticles() {
+            const container = document.getElementById('floatingParticles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'floating-particle';
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.animationDelay = `${Math.random() * 20}s`;
+                particle.style.background = i % 2 === 0 ? '#ff8000' : '#00c864';
+                container.appendChild(particle);
+            }
+        }
+
+        function initializePartsGrid() {
+            const grid = document.getElementById('virusPartsGrid');
+            grid.innerHTML = '';
+            
+            // Combine all parts
+            const allParts = [
+                ...virusPartsDatabase.capsids,
+                ...virusPartsDatabase.genomes,
+                ...virusPartsDatabase.spikes,
+                ...virusPartsDatabase.enzymes,
+                ...virusPartsDatabase.envelopes,
+                ...virusPartsDatabase.accessories
+            ];
+            
+            // Add 12 more generated parts to reach 60+
+            for (let i = 0; i < 12; i++) {
+                allParts.push(generateRandomPart(i));
+            }
+            
+            allParts.forEach(part => {
+                const partElement = createPartElement(part);
+                grid.appendChild(partElement);
+            });
+            
+            updatePartCounter();
+        }
+
+        function generateRandomPart(index) {
+            const categories = ['capsid', 'genome', 'spike', 'enzyme', 'envelope', 'accessory'];
+            const icons = ['🔷', '🔶', '⚛️', '💎', '✨', '🌟', '⚡', '🌀', '🎯', '🛡️'];
+            const colors = ['#FF8000', '#00BFFF', '#32CD32', '#FF4500', '#9370DB', '#FFD700', '#00CED1', '#FF69B4'];
+            const rarities = ['common', 'rare', 'epic', 'legendary'];
+            
+            const category = categories[Math.floor(Math.random() * categories.length)];
+            const rarity = rarities[Math.floor(Math.random() * rarities.length)];
+            
+            return {
+                id: `generated_${category}_${index}`,
+                name: `${rarity.charAt(0).toUpperCase() + rarity.slice(1)} ${category}`,
+                icon: icons[Math.floor(Math.random() * icons.length)],
+                rarity: rarity,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                effects: {
+                    infectivity: Math.floor(Math.random() * 30) + 10,
+                    stability: Math.floor(Math.random() * 30) + 10,
+                    replication: Math.floor(Math.random() * 30) + 10
+                },
+                category: category
+            };
+        }
+
+        function createPartElement(part) {
+            const div = document.createElement('div');
+            div.className = 'part-item';
+            div.draggable = true;
+            div.dataset.id = part.id;
+            div.dataset.category = part.category;
+            
+            div.innerHTML = `
+                <div class="part-icon">${part.icon}</div>
+                <div class="part-name">${part.name}</div>
+                <div class="part-desc">${part.category.toUpperCase()}</div>
+                <div class="part-rarity rarity-${part.rarity}">${part.rarity}</div>
+            `;
+            
+            div.style.borderColor = part.color;
+            
+            // Add glow effect for legendary parts
+            if (part.rarity === 'legendary') {
+                div.classList.add('glow');
+            }
+            
+            return div;
+        }
+
+        function initializeCuresGrid() {
+            const grid = document.getElementById('curePartsGrid');
+            grid.innerHTML = '';
+            
+            // Combine all cures
+            const allCures = [
+                ...curesDatabase.antivirals,
+                ...curesDatabase.vaccines,
+                ...curesDatabase.antibodies,
+                ...curesDatabase.boosters,
+                ...curesDatabase.disruptors
+            ];
+            
+            // Add more generated cures to reach 60+
+            for (let i = 0; i < 15; i++) {
+                allCures.push(generateRandomCure(i));
+            }
+            
+            allCures.forEach(cure => {
+                const cureElement = createCureElement(cure);
+                grid.appendChild(cureElement);
+            });
+            
+            updateCureCounter();
+        }
+
+        function generateRandomCure(index) {
+            const categories = ['antiviral', 'vaccine', 'antibody', 'booster', 'disruptor'];
+            const icons = ['💊', '🛡️', '🎯', '⚡', '✨', '🌟', '⚛️', '🌀', '🔬', '🧪'];
+            const colors = ['#00c864', '#0096ff', '#ff8000', '#9370db', '#ffd700', '#00ced1', '#ff69b4', '#8a2be2'];
+            const rarities = ['common', 'rare', 'epic', 'legendary'];
+            
+            const category = categories[Math.floor(Math.random() * categories.length)];
+            const rarity = rarities[Math.floor(Math.random() * rarities.length)];
+            
+            return {
+                id: `generated_cure_${category}_${index}`,
+                name: `${rarity.charAt(0).toUpperCase() + rarity.slice(1)} ${category}`,
+                icon: icons[Math.floor(Math.random() * icons.length)],
+                rarity: rarity,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                targets: [category, 'broad'],
+                effectiveness: Math.floor(Math.random() * 40) + 50,
+                category: category
+            };
+        }
+
+        function createCureElement(cure) {
+            const div = document.createElement('div');
+            div.className = 'cure-item';
+            div.dataset.id = cure.id;
+            div.dataset.category = cure.category;
+            
+            div.innerHTML = `
+                <div class="part-icon">${cure.icon}</div>
+                <div class="part-name">${cure.name}</div>
+                <div class="part-desc">${Math.floor(cure.effectiveness)}% effective</div>
+                <div class="part-rarity rarity-${cure.rarity}">${cure.rarity}</div>
+            `;
+            
+            div.style.borderColor = cure.color;
+            
+            // Add click handler
+            div.addEventListener('click', () => {
+                addCureComponent(cure);
+                createInteractionSpark(div);
+                playSound('soundCure');
+            });
+            
+            return div;
+        }
+
+        function initializeDragAndDrop() {
+            // Make virus parts draggable
+            document.querySelectorAll('#virusPartsGrid .part-item').forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+            });
+            
+            // Set up drop zone
+            const constructionZone = document.getElementById('constructionZone');
+            constructionZone.addEventListener('dragover', handleDragOver);
+            constructionZone.addEventListener('drop', handleDrop);
+            constructionZone.addEventListener('dragenter', handleDragEnter);
+            constructionZone.addEventListener('dragleave', handleDragLeave);
+        }
+
+        function initializeEventListeners() {
+            // Virus controls
+            document.getElementById('clearVirusBtn').addEventListener('click', clearVirus);
+            document.getElementById('saveVirusBtn').addEventListener('click', saveVirusDesign);
+            document.getElementById('analyzeVirusBtn').addEventListener('click', analyzeVirus);
+            
+            // Cell controls
+            document.getElementById('addVirusToCellBtn').addEventListener('click', injectVirusToCell);
+            document.getElementById('stimulateCellBtn').addEventListener('click', stimulateCell);
+            document.getElementById('clearCellBtn').addEventListener('click', clearCell);
+            
+            // Cure controls
+            document.getElementById('testCureBtn').addEventListener('click', testCure);
+            document.getElementById('administerCureBtn').addEventListener('click', administerCure);
+            
+            // Category filters
+            document.querySelectorAll('#virusCategories .category-btn').forEach(btn => {
+                btn.addEventListener('click', () => filterParts(btn.dataset.category, 'virus'));
+            });
+            
+            document.querySelectorAll('#cureCategories .category-btn').forEach(btn => {
+                btn.addEventListener('click', () => filterParts(btn.dataset.category, 'cure'));
+            });
+        }
+
+        function initializeTabs() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.dataset.tab;
+                    
+                    // Update active tab
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Show corresponding content
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(tabId + 'Tab').classList.add('active');
+                    
+                    // Create interaction effect
+                    createInteractionEffect(tab, 'cure');
+                });
+            });
+        }
+
+        // ======================
+        // DRAG AND DROP
+        // ======================
+        let draggedPart = null;
+
+        function handleDragStart(e) {
+            draggedPart = e.target;
+            const partId = e.target.dataset.id;
+            
+            // Find part data
+            const allParts = [
+                ...virusPartsDatabase.capsids,
+                ...virusPartsDatabase.genomes,
+                ...virusPartsDatabase.spikes,
+                ...virusPartsDatabase.enzymes,
+                ...virusPartsDatabase.envelopes,
+                ...virusPartsDatabase.accessories
+            ];
+            const partData = allParts.find(p => p.id === partId) || 
+                            generateRandomPart(0); // Fallback
+            
+            e.dataTransfer.setData('application/json', JSON.stringify(partData));
+            e.target.style.opacity = '0.5';
+            
+            // Create visual effect
+            createInteractionEffect(e.target, 'virus');
+            playSound('soundPlace');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            const zone = document.getElementById('constructionZone');
+            zone.classList.add('active');
+            
+            // Add visual feedback
+            zone.style.background = 'radial-gradient(circle, rgba(255,128,0,0.1), transparent)';
+        }
+
+        function handleDragLeave(e) {
+            if (!e.currentTarget.contains(e.relatedTarget)) {
+                const zone = document.getElementById('constructionZone');
+                zone.classList.remove('active');
+                zone.style.background = '';
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const zone = document.getElementById('constructionZone');
+            zone.classList.remove('active');
+            zone.style.background = '';
+            
+            try {
+                const partData = JSON.parse(e.dataTransfer.getData('application/json'));
+                
+                // Check if part already exists
+                if (state.virusParts.some(p => p.id === partData.id)) {
+                    showNotification('Part Already Added', 'This component is already in the assembly.', 'warning');
+                    return;
+                }
+                
+                // Add part to state
+                const placedPart = {
+                    ...partData,
+                    position: {
+                        x: e.offsetX - 45,
+                        y: e.offsetY - 45
+                    }
+                };
+                
+                state.virusParts.push(placedPart);
+                
+                // Create visual placed part
+                createPlacedPart(placedPart);
+                
+                // Update UI
+                updatePartCounter();
+                updateVirusStats();
+                logEvent(`Added ${partData.name} to virus assembly`, 'added', 'analysisLog');
+                
+                // Achievement check
+                checkAchievements();
+                
+                // Visual feedback
+                createInteractionEffect(zone, 'virus');
+                playSound('soundVirus');
+                
+                // Particle effect
+                createParticleEffect(e.offsetX, e.offsetY, partData.color);
+                
+            } catch (err) {
+                console.error('Drop error:', err);
+            }
+        }
+
+        function createPlacedPart(part) {
+            const zone = document.getElementById('constructionZone');
+            const partElement = document.createElement('div');
+            
+            partElement.className = 'placed-part';
+            partElement.style.left = `${part.position.x}px`;
+            partElement.style.top = `${part.position.y}px`;
+            partElement.style.borderColor = part.color;
+            partElement.style.background = `linear-gradient(135deg, ${part.color}20, ${part.color}40)`;
+            partElement.style.color = part.color;
+            
+            partElement.innerHTML = `
+                <div style="font-size: 1.8rem; text-align: center;">${part.icon}</div>
+                <div style="font-size: 0.7rem; margin-top: 5px; font-weight: 600;">${part.name.split(' ')[0]}</div>
+            `;
+            
+            // Add glowing effect for rare parts
+            if (part.rarity === 'epic' || part.rarity === 'legendary') {
+                partElement.classList.add('glowing');
+            }
+            
+            // Make draggable within construction zone
+            makeDraggable(partElement, part.id);
+            
+            // Add click to inspect
+            partElement.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showPartDetails(part);
+            });
+            
+            zone.appendChild(partElement);
+        }
+
+        function makeDraggable(element, partId) {
+            let offsetX, offsetY, isDragging = false;
+            
+            element.addEventListener('mousedown', startDrag);
+            
+            function startDrag(e) {
+                isDragging = true;
+                offsetX = e.offsetX;
+                offsetY = e.offsetY;
+                
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', stopDrag);
+                
+                element.style.zIndex = '1000';
+                element.style.cursor = 'grabbing';
+            }
+            
+            function drag(e) {
+                if (!isDragging) return;
+                
+                const zone = document.getElementById('constructionZone');
+                const rect = zone.getBoundingClientRect();
+                
+                let x = e.clientX - rect.left - offsetX;
+                let y = e.clientY - rect.top - offsetY;
+                
+                // Constrain within zone
+                x = Math.max(10, Math.min(x, rect.width - 80));
+                y = Math.max(10, Math.min(y, rect.height - 80));
+                
+                element.style.left = `${x}px`;
+                element.style.top = `${y}px`;
+                
+                // Update position in state
+                const partIndex = state.virusParts.findIndex(p => p.id === partId);
+                if (partIndex !== -1) {
+                    state.virusParts[partIndex].position = { x, y };
+                }
+            }
+            
+            function stopDrag() {
+                isDragging = false;
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('mouseup', stopDrag);
+                
+                element.style.zIndex = '10';
+                element.style.cursor = 'move';
+                
+                // Update stats after moving
+                updateVirusStats();
+            }
+        }
+
+        // ======================
+        // CURE SYSTEM
+        // ======================
+        function addCureComponent(cure) {
+            if (state.cureComponents.length >= 6) {
+                showNotification('Limit Reached', 'Maximum 6 cure components allowed per treatment.', 'warning');
+                return;
+            }
+            
+            if (state.cureComponents.some(c => c.id === cure.id)) {
+                showNotification('Already Added', 'This cure component is already in the assembly.', 'warning');
+                return;
+            }
+            
+            state.cureComponents.push(cure);
+            updateCureDisplay();
+            updateCureCounter();
+            
+            logEvent(`Added ${cure.name} to cure assembly`, 'cure', 'cureLog');
+            
+            // Visual feedback
+            const assemblyZone = document.getElementById('cureAssemblyZone');
+            createInteractionEffect(assemblyZone, 'cure');
+        }
+
+        function updateCureDisplay() {
+            const zone = document.getElementById('cureAssemblyZone');
+            zone.innerHTML = '';
+            
+            if (state.cureComponents.length === 0) {
+                zone.innerHTML = `
+                    <p style="text-align: center; opacity: 0.7; margin-top: 120px; font-size: 1.1rem;">
+                        💊 Click cure components to assemble treatment
+                    </p>
+                `;
+                return;
+            }
+            
+            state.cureComponents.forEach((cure, index) => {
+                const cureElement = document.createElement('div');
+                cureElement.className = 'cure-part';
+                cureElement.style.borderColor = cure.color;
+                cureElement.style.background = `linear-gradient(135deg, ${cure.color}20, ${cure.color}40)`;
+                
+                cureElement.innerHTML = `
+                    <span style="font-size: 1.2rem;">${cure.icon}</span>
+                    <span style="font-size: 0.8rem; margin-left: 8px;">${cure.name}</span>
+                    <button class="remove-cure" data-index="${index}" style="
+                        background: rgba(255,50,50,0.3);
+                        border: none;
+                        color: #ff3232;
+                        width: 20px;
+                        height: 20px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        margin-left: 10px;
+                        font-size: 0.7rem;
+                    ">×</button>
+                `;
+                
+                // Add remove handler
+                cureElement.querySelector('.remove-cure').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    removeCureComponent(index);
+                });
+                
+                zone.appendChild(cureElement);
+            });
+            
+            // Calculate effectiveness
+            calculateCureEffectiveness();
+        }
+
+        function removeCureComponent(index) {
+            const removed = state.cureComponents.splice(index, 1)[0];
+            updateCureDisplay();
+            updateCureCounter();
+            logEvent(`Removed ${removed.name} from cure`, 'removed', 'cureLog');
+        }
+
+        function calculateCureEffectiveness() {
+            if (state.cureComponents.length === 0) {
+                state.currentCureEffectiveness = 0;
+                return;
+            }
+            
+            let effectiveness = 0;
+            let synergyBonus = 1;
+            
+            // Base effectiveness
+            state.cureComponents.forEach(cure => {
+                effectiveness += cure.effectiveness;
+            });
+            
+            // Synergy bonus for multiple components
+            if (state.cureComponents.length > 1) {
+                synergyBonus = 1 + (state.cureComponents.length * 0.05);
+            }
+            
+            // Rarity bonus
+            const rarityBonus = state.cureComponents.filter(c => c.rarity === 'legendary').length * 5;
+            
+            effectiveness = (effectiveness / state.cureComponents.length) * synergyBonus + rarityBonus;
+            state.currentCureEffectiveness = Math.min(100, Math.round(effectiveness));
+            
+            // Update display
+            document.getElementById('treatmentProgress').textContent = `${state.currentCureEffectiveness}%`;
+            document.getElementById('treatmentBar').style.width = `${state.currentCureEffectiveness}%`;
+        }
+
+        function testCure() {
+            if (state.cureComponents.length === 0) {
+                showNotification('No Cure Assembled', 'Select cure components first.', 'warning');
+                return;
+            }
+            
+            calculateCureEffectiveness();
+            
+            const effectiveness = state.currentCureEffectiveness;
+            let result = '';
+            let color = '#ff3232';
+            
+            if (effectiveness >= 90) {
+                result = 'Excellent cure! Highly effective against most viruses.';
+                color = '#00c864';
+            } else if (effectiveness >= 70) {
+                result = 'Good cure. Will be effective against many viruses.';
+                color = '#32cd32';
+            } else if (effectiveness >= 50) {
+                result = 'Moderate cure. May require additional components.';
+                color = '#ffd700';
+            } else {
+                result = 'Weak cure. Consider adding more effective components.';
+                color = '#ff8000';
+            }
+            
+            showNotification('Cure Test Results', 
+                `Effectiveness: ${effectiveness}%\n\n${result}`, 
+                'cure');
+            
+            logEvent(`Cure tested: ${effectiveness}% effectiveness`, 'cure', 'cureLog');
+            
+            // Visual feedback
+            const cureZone = document.getElementById('cureAssemblyZone');
+            createInteractionEffect(cureZone, 'cure', color);
+            playSound('soundCure');
+        }
+
+        function administerCure() {
+            if (state.cell.viruses.length === 0) {
+                showNotification('No Target', 'Inject viruses into the cell first.', 'warning');
+                return;
+            }
+            
+            if (state.cureComponents.length === 0) {
+                showNotification('No Cure', 'Assemble a cure first.', 'warning');
+                return;
+            }
+            
+            calculateCureEffectiveness();
+            const effectiveness = state.currentCureEffectiveness;
+            
+            // Calculate how many viruses to neutralize
+            const virusesToNeutralize = Math.ceil(state.cell.viruses.length * (effectiveness / 100));
+            
+            // Neutralize viruses
+            let neutralized = 0;
+            for (let i = 0; i < virusesToNeutralize && i < state.cell.viruses.length; i++) {
+                if (Math.random() < effectiveness / 100) {
+                    state.cell.viruses[i].neutralized = true;
+                    neutralized++;
+                    
+                    // Visual effect for neutralization
+                    createCureParticle();
+                }
+            }
+            
+            // Update cell health
+            state.cell.health = Math.min(100, state.cell.health + (neutralized * 5));
+            
+            // Update UI
+            updateCellDisplay();
+            logEvent(`Administered cure: Neutralized ${neutralized}/${state.cell.viruses.length} viruses`, 
+                    'cure', 'analysisLog');
+            
+            showNotification('Treatment Administered', 
+                `Cure effectiveness: ${effectiveness}%\nNeutralized viruses: ${neutralized}\nCell health improved.`, 
+                'cure');
+            
+            // Achievement check
+            if (neutralized >= 10) {
+                unlockAchievement('Master Healer', 'Neutralized 10 viruses with a single cure');
+            }
+        }
+
+        // ======================
+        // CELL SYSTEM
+        // ======================
+        function injectVirusToCell() {
+            if (state.virusParts.length === 0) {
+                showNotification('No Virus', 'Assemble a virus first.', 'warning');
+                return;
+            }
+            
+            // Create virus particle
+            const virusId = `virus_${Date.now()}`;
+            const x = 20 + Math.random() * 60;
+            const y = 20 + Math.random() * 60;
+            const color = state.virusParts[0]?.color || '#ff8000';
+            
+            state.cell.viruses.push({
+                id: virusId,
+                parts: [...state.virusParts],
+                position: { x, y },
+                color: color,
+                neutralized: false,
+                replication: state.currentVirusStats.replication
+            });
+            
+            // Create visual particle
+            createVirusParticle(virusId, x, y, color);
+            
+            // Update cell health
+            state.cell.health = Math.max(0, state.cell.health - 8);
+            
+            // Update UI
+            updateCellDisplay();
+            logEvent(`Injected virus into cell (${state.cell.viruses.length} active)`, 
+                    'warning', 'analysisLog');
+            
+            // Visual feedback
+            const cellDisplay = document.getElementById('cellDisplay');
+            createInteractionEffect(cellDisplay, 'virus');
+            playSound('soundVirus');
+            
+            // Achievement check
+            if (state.cell.viruses.length >= 5) {
+                unlockAchievement('Virus Farmer', 'Injected 5 viruses into a single cell');
+            }
+        }
+
+        function createVirusParticle(id, x, y, color) {
+            const cell = document.getElementById('cellDisplay');
+            const particle = document.createElement('div');
+            
+            particle.className = 'virus-particle';
+            particle.id = id;
+            particle.style.left = `${x}%`;
+            particle.style.top = `${y}%`;
+            particle.style.background = `radial-gradient(circle, ${color}, ${color}dd)`;
+            particle.style.boxShadow = `0 0 30px ${color}`;
+            
+            // Add replication animation based on virus stats
+            const replication = state.currentVirusStats.replication;
+            particle.style.animationDuration = `${5 - (replication / 20)}s`;
+            
+            // Click to inspect
+            particle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const virus = state.cell.viruses.find(v => v.id === id);
+                if (virus) {
+                    showVirusDetails(virus);
+                }
+            });
+            
+            cell.appendChild(particle);
+        }
+
+        function createCureParticle() {
+            const cell = document.getElementById('cellDisplay');
+            const x = 10 + Math.random() * 80;
+            const y = 10 + Math.random() * 80;
+            
+            const particle = document.createElement('div');
+            particle.className = 'cure-particle';
+            particle.style.left = `${x}%`;
+            particle.style.top = `${y}%`;
+            
+            cell.appendChild(particle);
+            
+            // Remove after animation
+            setTimeout(() => {
+                if (particle.parentNode) {
+                    particle.remove();
+                }
+            }, 4000);
+        }
+
+        function stimulateCell() {
+            if (state.cell.health <= 0) {
+                showNotification('Cell Dead', 'Cannot stimulate a dead cell.', 'warning');
+                return;
+            }
+            
+            // Stimulation increases health but can also trigger virus replication
+            state.cell.health = Math.min(100, state.cell.health + 15);
+            state.cell.nutrients = Math.min(100, state.cell.nutrients + 20);
+            
+            // Chance for viruses to replicate
+            state.cell.viruses.forEach(virus => {
+                if (!virus.neutralized && Math.random() < 0.3) {
+                    // Virus replicates
+                    injectVirusToCell(); // Simplified replication
+                }
+            });
+            
+            updateCellDisplay();
+            logEvent('Cell stimulated. Health +15, Nutrients +20', 'info', 'analysisLog');
+            
+            // Visual feedback
+            const cell = document.getElementById('cellDisplay');
+            createInteractionEffect(cell, 'cure', '#00c864');
+            
+            showNotification('Cell Stimulated', 'Cell health improved. Nutrients replenished.', 'info');
+        }
+
+        function clearCell() {
+            state.cell.viruses = [];
+            state.cell.cures = [];
+            state.cell.health = 100;
+            
+            // Clear visual particles
+            document.querySelectorAll('.virus-particle, .cure-particle').forEach(p => p.remove());
+            
+            updateCellDisplay();
+            logEvent('Cell laboratory cleaned', 'info', 'analysisLog');
+            
+            showNotification('Laboratory Cleaned', 'All viruses and cures removed. Cell restored to 100% health.', 'info');
+        }
+
+        function updateCellDisplay() {
+            const activeViruses = state.cell.viruses.filter(v => !v.neutralized).length;
+            const neutralized = state.cell.viruses.filter(v => v.neutralized).length;
+            
+            // Update stats
+            document.getElementById('cellHealthValue').textContent = `${Math.round(state.cell.health)}%`;
+            document.getElementById('cellHealthBar').style.width = `${state.cell.health}%`;
+            
+            document.getElementById('activeVirusCount').textContent = activeViruses;
+            document.getElementById('virusCountBar').style.width = `${Math.min(100, activeViruses * 10)}%`;
+            
+            document.getElementById('neutralizedCount').textContent = neutralized;
+            document.getElementById('neutralizedBar').style.width = `${Math.min(100, neutralized * 10)}%`;
+            
+            // Color code health bar
+            const healthBar = document.getElementById('cellHealthBar');
+            if (state.cell.health > 70) {
+                healthBar.style.background = 'linear-gradient(90deg, #00c864, #32cd32)';
+            } else if (state.cell.health > 30) {
+                healthBar.style.background = 'linear-gradient(90deg, #ffd700, #ff8000)';
+            } else {
+                healthBar.style.background = 'linear-gradient(90deg, #ff3232, #ff4500)';
+            }
+        }
+
+        // ======================
+        // VIRUS ANALYSIS
+        // ======================
+        function analyzeVirus() {
+            if (state.virusParts.length === 0) {
+                showNotification('No Virus', 'Assemble a virus first.', 'warning');
+                return;
+            }
+            
+            updateVirusStats();
+            const stats = state.currentVirusStats;
+            
+            // Update stat bars
+            document.querySelectorAll('.stat-value')[0].textContent = `${stats.infectivity}%`;
+            document.querySelectorAll('.stat-fill')[0].style.width = `${stats.infectivity}%`;
+            
+            document.querySelectorAll('.stat-value')[1].textContent = `${stats.replication}%`;
+            document.querySelectorAll('.stat-fill')[1].style.width = `${stats.replication}%`;
+            
+            document.querySelectorAll('.stat-value')[2].textContent = `${stats.evasion}%`;
+            document.querySelectorAll('.stat-fill')[2].style.width = `${stats.evasion}%`;
+            
+            document.querySelectorAll('.stat-value')[3].textContent = `${stats.stability}%`;
+            document.querySelectorAll('.stat-fill')[3].style.width = `${stats.stability}%`;
+            
+            // Generate analysis report
+            const analysis = generateVirusAnalysis(stats);
+            document.getElementById('virusAnalysisResult').innerHTML = analysis;
+            
+            logEvent(`Virus analysis complete: ${analysis.match(/<strong>(.*?)<\/strong>/)?.[1] || 'Unknown Virus'}`, 
+                    'important', 'analysisLog');
+            
+            showNotification('Analysis Complete', 'Virus characteristics have been analyzed.', 'info');
+        }
+
+        function updateVirusStats() {
+            if (state.virusParts.length === 0) {
+                state.currentVirusStats = { infectivity: 0, replication: 0, stability: 0, evasion: 0, severity: 0 };
+                return;
+            }
+            
+            let stats = { infectivity: 0, replication: 0, stability: 0, evasion: 0, severity: 0 };
+            
+            state.virusParts.forEach(part => {
+                if (part.effects) {
+                    stats.infectivity += part.effects.infectivity || 0;
+                    stats.replication += part.effects.replication || 0;
+                    stats.stability += part.effects.stability || 0;
+                    stats.evasion += part.effects.evasion || (part.effects.immuneEvasion || 0);
+                    stats.severity += part.effects.severity || (part.effects.hostDamage || 0);
+                }
+            });
+            
+            // Apply bonuses for rare parts
+            const legendaryCount = state.virusParts.filter(p => p.rarity === 'legendary').length;
+            const epicCount = state.virusParts.filter(p => p.rarity === 'epic').length;
+            
+            stats.infectivity += legendaryCount * 5 + epicCount * 2;
+            stats.replication += legendaryCount * 4 + epicCount * 1;
+            
+            // Normalize to percentages
+            Object.keys(stats).forEach(key => {
+                stats[key] = Math.min(100, Math.max(0, Math.round(stats[key])));
+            });
+            
+            state.currentVirusStats = stats;
+        }
+
+        function generateVirusAnalysis(stats) {
+            let virusType = 'Mild';
+            let description = 'Low-risk virus with minimal health impact.';
+            let color = '#00c864';
+            
+            const severity = stats.infectivity + stats.severity + stats.replication;
+            
+            if (severity > 200) {
+                virusType = 'Apocalyptic';
+                description = 'Extremely dangerous virus with pandemic potential. Requires maximum containment.';
+                color = '#ff3232';
+            } else if (severity > 150) {
+                virusType = 'Dangerous';
+                description = 'High-risk virus with significant health impact. Requires advanced treatment.';
+                color = '#ff4500';
+            } else if (severity > 100) {
+                virusType = 'Moderate';
+                description = 'Moderate-risk virus that requires medical attention.';
+                color = '#ff8000';
+            } else if (severity > 50) {
+                virusType = 'Mild';
+                description = 'Low-risk virus with typical cold-like symptoms.';
+                color = '#ffd700';
+            }
+            
+            return `
+                <div class="stat-item" style="grid-column: 1 / -1;">
+                    <div class="stat-label">Pathogen Profile</div>
+                    <div style="margin-top: 15px; padding: 15px; background: ${color}20; border-radius: 8px; border-left: 4px solid ${color};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <strong style="font-size: 1.1rem; color: ${color};">${virusType} Virus</strong>
+                            <span style="font-size: 0.9rem; opacity: 0.8;">Severity: ${severity}/300</span>
+                        </div>
+                        <div style="font-size: 0.95rem; opacity: 0.9; line-height: 1.5; margin-bottom: 15px;">
+                            ${description}
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 0.85rem;">
+                            <div>
+                                <strong>Transmission:</strong> ${stats.infectivity > 70 ? 'Airborne' : stats.infectivity > 40 ? 'Droplet' : 'Contact'}
+                            </div>
+                            <div>
+                                <strong>Incubation:</strong> ${stats.replication > 70 ? 'Short (1-3 days)' : stats.replication > 40 ? 'Medium (4-7 days)' : 'Long (8+ days)'}
+                            </div>
+                            <div>
+                                <strong>Containment:</strong> ${stats.severity > 70 ? 'BSL-4' : stats.severity > 40 ? 'BSL-3' : 'BSL-2'}
+                            </div>
+                            <div>
+                                <strong>Treatment:</strong> ${stats.evasion > 70 ? 'Experimental' : stats.evasion > 40 ? 'Advanced' : 'Standard'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ======================
+        // HELPER FUNCTIONS
+        // ======================
+        function updatePartCounter() {
+            document.getElementById('partCount').textContent = `${state.virusParts.length}/60`;
+        }
+
+        function updateCureCounter() {
+            document.getElementById('cureCount').textContent = `${state.cureComponents.length}/60`;
+        }
+
+        function filterParts(category, type) {
+            const grid = type === 'virus' ? 
+                document.getElementById('virusPartsGrid') : 
+                document.getElementById('curePartsGrid');
+            
+            const items = grid.querySelectorAll('.part-item');
+            
+            items.forEach(item => {
+                if (category === 'all' || item.dataset.category === category) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // Update active category button
+            const container = type === 'virus' ? 
+                document.getElementById('virusCategories') :
+                document.getElementById('cureCategories');
+            
+            container.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.category === category);
+            });
+        }
+
+        function clearVirus() {
+            state.virusParts = [];
+            document.getElementById('constructionZone').innerHTML = `
+                <p style="text-align: center; opacity: 0.7; margin-top: 120px; font-size: 1.1rem;">
+                    🔬 Drag virus components here to assemble
+                </p>
+            `;
+            updatePartCounter();
+            updateVirusStats();
+            logEvent('Virus assembly cleared', 'removed', 'analysisLog');
+            showNotification('Assembly Cleared', 'All virus components have been removed.', 'info');
+        }
+
+        function saveVirusDesign() {
+            if (state.virusParts.length === 0) {
+                showNotification('Nothing to Save', 'Assemble a virus first.', 'warning');
+                return;
+            }
+            
+            const design = {
+                name: `Virus Design ${new Date().toLocaleTimeString()}`,
+                parts: state.virusParts.map(p => p.name),
+                stats: state.currentVirusStats,
+                timestamp: new Date().toISOString()
+            };
+            
+            // In a real app, this would save to a database
+            // For now, we'll show a notification
+            showNotification('Design Saved', 
+                `Virus design "${design.name}" has been saved to your library.`, 
+                'info');
+            
+            logEvent('Virus design saved to library', 'added', 'analysisLog');
+            
+            // Achievement
+            unlockAchievement('Architect', 'Saved your first virus design');
+        }
+
+        function showPartDetails(part) {
+            showNotification(part.name, 
+                `Category: ${part.category}\nRarity: ${part.rarity}\nEffects: ${JSON.stringify(part.effects || {}, null, 2)}`, 
+                'info');
+        }
+
+        function showVirusDetails(virus) {
+            showNotification('Virus Particle', 
+                `Components: ${virus.parts.length}\nStatus: ${virus.neutralized ? 'Neutralized' : 'Active'}\nReplication: ${virus.replication}%`, 
+                virus.neutralized ? 'cure' : 'warning');
+        }
+
+        function createInteractionEffect(element, type, color = null) {
+            const effect = document.createElement('div');
+            effect.className = `interaction-effect interaction-${type}`;
+            
+            if (color) {
+                effect.style.background = `radial-gradient(circle, ${color}80, transparent 70%)`;
+            }
+            
+            const rect = element.getBoundingClientRect();
+            effect.style.left = `${rect.left + rect.width/2 - 50}px`;
+            effect.style.top = `${rect.top + rect.height/2 - 50}px`;
+            
+            document.body.appendChild(effect);
+            
+            setTimeout(() => effect.remove(), 1000);
+        }
+
+        function createInteractionSpark(element) {
+            const rect = element.getBoundingClientRect();
+            const spark = document.createElement('div');
+            spark.className = 'interaction-spark';
+            spark.style.left = `${rect.left + rect.width/2 - 5}px`;
+            spark.style.top = `${rect.top + rect.height/2 - 5}px`;
+            
+            document.body.appendChild(spark);
+            
+            setTimeout(() => spark.remove(), 500);
+        }
+
+        function createParticleEffect(x, y, color) {
+            for (let i = 0; i < 5; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = '4px';
+                particle.style.height = '4px';
+                particle.style.background = color;
+                particle.style.borderRadius = '50%';
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '1000';
+                
+                document.getElementById('constructionZone').appendChild(particle);
+                
+                // Animate particle
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 20 + Math.random() * 30;
+                const duration = 300 + Math.random() * 200;
+                
+                particle.animate([
+                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                    { transform: `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(0)`, opacity: 0 }
+                ], {
+                    duration: duration,
+                    easing: 'ease-out'
+                }).onfinish = () => particle.remove();
+            }
+        }
+
+        function showNotification(title, message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            
+            const icon = type === 'info' ? 'ℹ️' : 
+                         type === 'warning' ? '⚠️' : 
+                         type === 'cure' ? '💊' : 
+                         type === 'added' ? '✅' : '❌';
+            
+            notification.innerHTML = `
+                <div class="notification-title" style="color: ${getNotificationColor(type)}">
+                    ${icon} ${title}
+                </div>
+                <div class="notification-content">
+                    ${message.replace(/\n/g, '<br>')}
+                </div>
+            `;
+            
+            notification.style.borderColor = getNotificationColor(type);
+            
+            document.getElementById('notificationSystem').appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => notification.classList.add('show'), 10);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 500);
+            }, 5000);
+        }
+
+        function getNotificationColor(type) {
+            return type === 'info' ? '#2196F3' :
+                   type === 'warning' ? '#ff9800' :
+                   type === 'cure' ? '#00c864' :
+                   type === 'added' ? '#4CAF50' : '#f44336';
+        }
+
+        function logEvent(message, type = 'info', containerId = 'analysisLog') {
+            const container = document.getElementById(containerId);
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `
+                <span style="font-size: 0.7rem; opacity: 0.6;">[${new Date().toLocaleTimeString([], { hour12: false })}]</span>
+                <span>${message}</span>
+            `;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function playSound(soundId) {
+            try {
+                const sound = document.getElementById(soundId);
+                sound.currentTime = 0;
+                sound.play().catch(() => {
+                    // Sound playback failed, ignore
+                });
+            } catch (e) {
+                // Sound not available, continue silently
+            }
+        }
+
+        function unlockAchievement(title, description) {
+            if (state.achievements.includes(title)) return;
+            
+            state.achievements.push(title);
+            
+            // Show achievement badge
+            const badge = document.getElementById('achievementBadge');
+            badge.querySelector('.achievement-text').textContent = title;
+            
+            badge.classList.add('show');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                badge.classList.remove('show');
+            }, 3000);
+            
+            // Log achievement
+            logEvent(`🏆 Achievement Unlocked: ${title} - ${description}`, 'important', 'analysisLog');
+            
+            showNotification('Achievement Unlocked!', 
+                `${title}\n${description}\n\nTotal Achievements: ${state.achievements.length}`, 
+                'cure');
+        }
+
+        function checkAchievements() {
+            // Check for various achievements
+            if (state.virusParts.length >= 10 && !state.achievements.includes('Master Builder')) {
+                unlockAchievement('Master Builder', 'Assembled a virus with 10+ components');
+            }
+            
+            const legendaryParts = state.virusParts.filter(p => p.rarity === 'legendary').length;
+            if (legendaryParts >= 3 && !state.achievements.includes('Legendary Collector')) {
+                unlockAchievement('Legendary Collector', 'Collected 3 legendary virus components');
+            }
+            
+            const cureCount = state.cureComponents.filter(c => c.rarity === 'legendary').length;
+            if (cureCount >= 2 && !state.achievements.includes('Pharmaceutical Genius')) {
+                unlockAchievement('Pharmaceutical Genius', 'Collected 2 legendary cure components');
+            }
+        }
+
+        function startAmbientAnimations() {
+            // Pulsing effects for construction zones
+            setInterval(() => {
+                const zones = document.querySelectorAll('.construction-zone');
+                zones.forEach(zone => {
+                    if (zone.children.length > 0 && !zone.classList.contains('active')) {
+                        zone.style.boxShadow = `0 0 ${20 + Math.sin(Date.now() / 1000) * 10}px rgba(255,128,0,0.3)`;
+                    }
+                });
+            }, 100);
+            
+            // Cell membrane pulse
+            setInterval(() => {
+                const membrane = document.querySelector('.cell-membrane');
+                if (membrane) {
+                    const scale = 1 + Math.sin(Date.now() / 2000) * 0.02;
+                    membrane.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                }
+            }, 50);
+            
+            // Update cell environment periodically
+            setInterval(() => {
+                if (state.cell.viruses.length > 0) {
+                    // Viruses consume nutrients
+                    state.cell.nutrients = Math.max(0, state.cell.nutrients - 0.5);
+                    
+                    // Low nutrients affect virus replication
+                    if (state.cell.nutrients < 30 && Math.random() < 0.1) {
+                        const virus = state.cell.viruses.find(v => !v.neutralized);
+                        if (virus) {
+                            virus.neutralized = true;
+                            logEvent('Virus died due to nutrient deficiency', 'removed', 'analysisLog');
+                        }
+                    }
+                    
+                    // Update display occasionally
+                    updateCellDisplay();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

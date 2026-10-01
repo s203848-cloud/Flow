@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number line</title>
+    <!-- Font Awesome for back button icon (same as template) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* navigation bar – exactly as provided */
+        .navbar {
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 32px;
+        }
+
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+
+        /* main card – elegant, subtle glow */
+        .numberline-card {
+            width: 100%;
+            max-width: 1000px;
+            background: rgba(10, 10, 26, 0.6);
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(255, 128, 0, 0.25);
+            border-radius: 32px;
+            padding: 30px 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,128,0,0.1) inset;
+        }
+
+        h1 {
+            font-weight: 400;
+            font-size: 2.2rem;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        h1 span {
+            color: #ff8000;
+            font-weight: 300;
+            font-size: 1rem;
+            background: rgba(255,128,0,0.15);
+            padding: 4px 12px;
+            border-radius: 40px;
+            border: 1px solid rgba(255,128,0,0.4);
+        }
+
+        .canvas-wrapper {
+            background: rgba(0,0,0,0.35);
+            border-radius: 28px;
+            padding: 30px 10px 20px 10px;
+            margin: 25px 0 20px 0;
+            border: 1px solid #ff8000;
+            box-shadow: 0 8px 0 rgba(0,0,0,0.4);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 16px;
+            cursor: crosshair;
+            background: rgba(0, 0, 0, 0.2);
+            margin: 0 auto;
+            border: 1px solid rgba(255,128,0,0.3);
+        }
+
+        /* control panel – clean, accessible */
+        .control-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px 30px;
+            justify-content: center;
+            margin-top: 25px;
+            background: rgba(0,0,0,0.25);
+            border-radius: 48px;
+            padding: 25px 25px;
+            border: 1px solid rgba(255,128,0,0.2);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 130px;
+        }
+
+        .input-group label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            color: #ff8000;
+            opacity: 0.9;
+        }
+
+        .input-group input {
+            background: rgba(10, 10, 26, 0.8);
+            border: 1px solid #ff8000;
+            border-radius: 40px;
+            padding: 12px 18px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 400;
+            outline: none;
+            transition: 0.15s;
+        }
+
+        .input-group input:focus {
+            border-color: #ffaa33;
+            box-shadow: 0 0 0 3px rgba(255,128,0,0.3);
+            background: #0f0f20;
+        }
+
+        .input-group input[type=number]::-webkit-inner-spin-button {
+            opacity: 0.6;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid #ff8000;
+            color: #ff8000;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.3px;
+            backdrop-filter: blur(4px);
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 128, 0, 0.25);
+            border-color: #ffa64d;
+            color: white;
+            transform: scale(1.02);
+        }
+
+        .warning-message {
+            text-align: center;
+            min-height: 32px;
+            color: #ffaa66;
+            font-weight: 400;
+            background: rgba(255, 68, 0, 0.15);
+            border-radius: 60px;
+            padding: 8px 18px;
+            margin-top: 15px;
+            border: 1px solid #ff8000;
+            font-size: 0.95rem;
+            display: inline-block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .footer-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+        }
+
+        .marker-hint {
+            color: #ff8000;
+            background: rgba(255,128,0,0.08);
+            padding: 5px 15px;
+            border-radius: 30px;
+            border: 1px dashed #ff8000;
+        }
+
+        i.fa-arrow-left {
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <!-- back button exactly as in template -->
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <div class="numberline-card">
+        <h1>
+            ⏢ number line lab
+            <span>interactive · K‑12</span>
+        </h1>
+
+        <!-- canvas wrapper for consistent spacing -->
+        <div class="canvas-wrapper">
+            <canvas id="numberLineCanvas" width="800" height="250"></canvas>
+        </div>
+
+        <!-- dynamic warning / info -->
+        <div id="warningBox" class="warning-message">
+            <!-- filled by JS -->
+        </div>
+
+        <!-- main controls -->
+        <div class="control-panel">
+            <div class="input-group">
+                <label><i class="fas fa-minus-circle" style="color:#ff8000;"></i> MIN</label>
+                <input type="number" id="minInput" value="-5" step="any">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-plus-circle" style="color:#ff8000;"></i> MAX</label>
+                <input type="number" id="maxInput" value="5" step="any">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-ruler-combined"></i> STEP</label>
+                <input type="number" id="stepInput" value="1" step="any" min="0.01">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-map-pin"></i> MARKER</label>
+                <input type="number" id="markerInput" value="0" step="any" placeholder="none">
+            </div>
+            <div class="button-row">
+                <button class="action-btn" id="resetBtn"><i class="fas fa-undo-alt"></i> reset</button>
+                <button class="action-btn" id="clearMarkerBtn"><i class="fas fa-times"></i> clear marker</button>
+            </div>
+        </div>
+
+        <!-- extra info & click hint -->
+        <div class="footer-info">
+            <div class="marker-hint">
+                <i class="fas fa-mouse-pointer"></i> click on canvas to place marker
+            </div>
+            <div style="display: flex; gap: 20px;">
+                <span><i class="fas fa-arrow-left" style="color:#ff8000;"></i> ticks: max 50</span>
+                <span><i class="fas fa-circle" style="color:#ff8000; font-size: 0.7rem;"></i> orange = marker</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // DOM elements
+            const canvas = document.getElementById('numberLineCanvas');
+            const ctx = canvas.getContext('2d');
+            const minInput = document.getElementById('minInput');
+            const maxInput = document.getElementById('maxInput');
+            const stepInput = document.getElementById('stepInput');
+            const markerInput = document.getElementById('markerInput');
+            const warningBox = document.getElementById('warningBox');
+            const resetBtn = document.getElementById('resetBtn');
+            const clearMarkerBtn = document.getElementById('clearMarkerBtn');
+
+            // default constants
+            const DEFAULT_MIN = -5;
+            const DEFAULT_MAX = 5;
+            const DEFAULT_STEP = 1;
+            const DEFAULT_MARKER = 0;
+
+            // margins (fixed for 800 width)
+            const LEFT_MARGIN = 60;
+            const RIGHT_MARGIN = 60;
+            const BASELINE_Y = 125;    // vertical center
+            const TICK_SIZE = 10;
+            const LABEL_Y = 150;        // below baseline
+            const MARKER_CENTER_Y = 115; // circle center
+
+            // helper: format numbers nicely (avoid .00, limit decimals)
+            function formatNumber(value) {
+                if (isNaN(value)) return '?';
+                // if it's an integer (close enough)
+                if (Math.abs(value - Math.round(value)) < 1e-10) return Math.round(value).toString();
+                // otherwise trim to 2 decimals, remove trailing zeros
+                let s = value.toFixed(4);
+                // remove trailing zeros after decimal
+                s = s.replace(/\.?0+$/, '');
+                return s;
+            }
+
+            // main drawing function
+            function drawNumberLine() {
+                // read and parse values
+                let min = parseFloat(minInput.value);
+                let max = parseFloat(maxInput.value);
+                let step = parseFloat(stepInput.value);
+                let markerRaw = markerInput.value.trim();
+                let marker = markerRaw === '' ? NaN : parseFloat(markerRaw);
+
+                // validation
+                let hasError = false;
+                let warningMsg = '';
+
+                if (isNaN(min) || isNaN(max) || isNaN(step)) {
+                    warningMsg = '✗ please fill all fields with valid numbers.';
+                    hasError = true;
+                } else if (min >= max) {
+                    warningMsg = '✗ minimum must be less than maximum.';
+                    hasError = true;
+                } else if (step <= 0) {
+                    warningMsg = '✗ step must be positive.';
+                    hasError = true;
+                }
+
+                // generate tick values (only if valid range)
+                let tickValues = [];
+                let tooManyTicks = false;
+                if (!hasError) {
+                    // start from the smallest multiple of step that is >= min
+                    let start = Math.ceil(min / step) * step;
+                    // fix floating point edge (e.g., 0.3 fraction)
+                    if (start < min) start += step;
+                    let count = 0;
+                    for (let val = start; val <= max + 1e-12; val += step) {
+                        // avoid overshoot due to floating drift
+                        if (val > max + 1e-9) break;
+                        tickValues.push(val);
+                        count++;
+                        if (count > 200) break; // safety break, but we will check >50 later
+                    }
+
+                    if (tickValues.length > 50) {
+                        tooManyTicks = true;
+                        warningMsg = `⚠ too many ticks (${tickValues.length}). increase step or reduce range.`;
+                        hasError = true; // treat as error to avoid drawing
+                    }
+                }
+
+                // clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // if error or no ticks, show warning and stop
+                if (hasError || tooManyTicks) {
+                    warningBox.innerText = warningMsg || 'invalid parameters';
+                    return;
+                }
+
+                // if there are no ticks (possible if step huge) – but still draw baseline
+                if (tickValues.length === 0) {
+                    warningBox.innerText = 'no ticks within range (step too large?)';
+                } else {
+                    warningBox.innerText = `✔ ${tickValues.length} ticks · ${formatNumber(min)} to ${formatNumber(max)}`;
+                }
+
+                // mapping function: number -> x coordinate
+                function mapX(value) {
+                    const t = (value - min) / (max - min);
+                    return LEFT_MARGIN + t * (canvas.width - LEFT_MARGIN - RIGHT_MARGIN);
+                }
+
+                // ----- draw baseline -----
+                ctx.beginPath();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2.5;
+                ctx.moveTo(LEFT_MARGIN, BASELINE_Y);
+                ctx.lineTo(canvas.width - RIGHT_MARGIN, BASELINE_Y);
+                ctx.stroke();
+
+                // ----- draw ticks and labels -----
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '500 12px "Segoe UI", monospace';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.lineWidth = 1.8;
+                ctx.strokeStyle = '#ff8000';
+
+                for (let val of tickValues) {
+                    let x = mapX(val);
+                    // boundary safety (just in case)
+                    if (x < LEFT_MARGIN - 5 || x > canvas.width - RIGHT_MARGIN + 5) continue;
+
+                    // tick line (above and below)
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#ff8000';
+                    ctx.lineWidth = 1.5;
+                    ctx.moveTo(x, BASELINE_Y - TICK_SIZE/2);
+                    ctx.lineTo(x, BASELINE_Y + TICK_SIZE/2);
+                    ctx.stroke();
+
+                    // label (below)
+                    let label = formatNumber(val);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(label, x, LABEL_Y);
+                }
+
+                // ----- optional marker (if within range and valid) -----
+                if (!isNaN(marker) && marker >= min && marker <= max) {
+                    let markerX = mapX(marker);
+                    if (markerX >= LEFT_MARGIN && markerX <= canvas.width - RIGHT_MARGIN) {
+                        // draw orange glow & marker
+                        ctx.shadowColor = '#ff8000';
+                        ctx.shadowBlur = 12;
+                        ctx.beginPath();
+                        ctx.arc(markerX, MARKER_CENTER_Y, 10, 0, 2 * Math.PI);
+                        ctx.fillStyle = '#ff8000';
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                        ctx.shadowColor = 'transparent';
+
+                        // inner white dot
+                        ctx.beginPath();
+                        ctx.arc(markerX, MARKER_CENTER_Y, 4, 0, 2 * Math.PI);
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fill();
+
+                        // small label above marker
+                        ctx.font = 'bold 12px "Segoe UI"';
+                        ctx.fillStyle = '#ff8000';
+                        ctx.shadowBlur = 6;
+                        ctx.shadowColor = '#ff8000';
+                        ctx.fillText(`◉ ${formatNumber(marker)}`, markerX - 20, MARKER_CENTER_Y - 22);
+                        ctx.shadowBlur = 0;
+                    }
+                }
+
+                // draw two little end markers (optional decoration)
+                ctx.font = 'bold 14px "Segoe UI"';
+                ctx.fillStyle = '#ff8000';
+                ctx.fillText('◀', LEFT_MARGIN-25, BASELINE_Y-5);
+                ctx.fillText('▶', canvas.width - RIGHT_MARGIN + 10, BASELINE_Y-5);
+            }
+
+            // update and redraw on any input change
+            function updateFromInputs() {
+                drawNumberLine();
+            }
+
+            // reset to defaults
+            function resetDefaults() {
+                minInput.value = DEFAULT_MIN;
+                maxInput.value = DEFAULT_MAX;
+                stepInput.value = DEFAULT_STEP;
+                markerInput.value = DEFAULT_MARKER;
+                drawNumberLine();
+            }
+
+            // clear marker field (empty = no marker)
+            function clearMarker() {
+                markerInput.value = '';
+                drawNumberLine();
+            }
+
+            // click on canvas: set marker to clicked number
+            function handleCanvasClick(e) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;   // canvas physical size vs CSS
+                const mouseCanvasX = (e.clientX - rect.left) * scaleX;
+
+                // read current min/max
+                let min = parseFloat(minInput.value);
+                let max = parseFloat(maxInput.value);
+                if (isNaN(min) || isNaN(max) || min >= max) return; // ignore if invalid
+
+                // convert x to number
+                const pixelRange = canvas.width - LEFT_MARGIN - RIGHT_MARGIN;
+                if (pixelRange <= 0) return;
+                const t = (mouseCanvasX - LEFT_MARGIN) / pixelRange;
+                let number = min + t * (max - min);
+                // clamp to [min, max]
+                number = Math.min(max, Math.max(min, number));
+                // round to 3 decimals for cleaner input, but keep precision
+                number = Math.round(number * 1000) / 1000;
+
+                markerInput.value = number;
+                drawNumberLine();
+            }
+
+            // attach event listeners
+            minInput.addEventListener('input', updateFromInputs);
+            maxInput.addEventListener('input', updateFromInputs);
+            stepInput.addEventListener('input', updateFromInputs);
+            markerInput.addEventListener('input', updateFromInputs);
+            resetBtn.addEventListener('click', resetDefaults);
+            clearMarkerBtn.addEventListener('click', clearMarker);
+            canvas.addEventListener('click', handleCanvasClick);
+
+            // also handle step "any" fine, but we might want to enforce step > 0
+            stepInput.addEventListener('blur', function() {
+                let s = parseFloat(stepInput.value);
+                if (isNaN(s) || s <= 0) stepInput.value = DEFAULT_STEP;
+                drawNumberLine();
+            });
+
+            // initial draw
+            resetDefaults();
+
+            // optional: if min/max inversion fix via blur
+            minInput.addEventListener('blur', function() {
+                let a = parseFloat(minInput.value);
+                let b = parseFloat(maxInput.value);
+                if (!isNaN(a) && !isNaN(b) && a >= b) {
+                    maxInput.value = a + 1;
+                }
+                drawNumberLine();
+            });
+            maxInput.addEventListener('blur', function() {
+                let a = parseFloat(minInput.value);
+                let b = parseFloat(maxInput.value);
+                if (!isNaN(a) && !isNaN(b) && a >= b) {
+                    minInput.value = b - 1;
+                }
+                drawNumberLine();
+            });
+        })();
+    </script>
+    <!-- small note: back button leads to ../tools-list.html (placeholder) -->
+</body>
+</html>

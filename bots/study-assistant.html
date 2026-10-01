@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Assistant - AI Tutor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background: rgba(20, 20, 35, 0.8);
+    border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    background: linear-gradient(to right, #ffc400, #ff8000, #ff5900, #ff8000, #ffc400);
+    background-size: 800% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbow-h 8s linear infinite;
+}
+
+.back-btn {
+    padding: 8px 15px;
+    background: rgba(255, 128, 0, 0.2);
+    border: 1px solid #ff8000;
+    border-radius: 5px;
+    color: #ff8000;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.back-btn:hover {
+    background: rgba(255, 128, 0, 0.3);
+}
+
+.container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 20px;
+}
+
+.chat-box {
+    flex: 1;
+    background: rgba(20, 20, 35, 0.5);
+    border: 1px solid rgba(255, 69, 0, 0.2);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.message {
+    display: flex;
+    gap: 10px;
+    animation: slideIn 0.3s ease;
+}
+
+.message.user {
+    justify-content: flex-end;
+}
+
+.message.bot {
+    justify-content: flex-start;
+}
+
+.message-content {
+    max-width: 70%;
+    padding: 12px 15px;
+    border-radius: 10px;
+    word-wrap: break-word;
+    line-height: 1.5;
+}
+
+.message.user .message-content {
+    background: linear-gradient(to right, #ff7e00, #ff4500);
+    color: white;
+}
+
+.message.bot .message-content {
+    background: rgba(50, 50, 70, 0.6);
+    color: #ccc;
+    border: 1px solid rgba(255, 128, 0, 0.2);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.input-area {
+    display: flex;
+    gap: 10px;
+}
+
+.input-area input {
+    flex: 1;
+    padding: 12px 15px;
+    background: rgba(50, 50, 70, 0.6);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.95rem;
+}
+
+.input-area input::placeholder {
+    color: #888;
+}
+
+.input-area input:focus {
+    outline: none;
+    border-color: #ff8000;
+    background: rgba(50, 50, 70, 0.8);
+}
+
+.input-area button {
+    padding: 12px 25px;
+    background: linear-gradient(to right, #ff7e00, #ff4500);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.input-area button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 69, 0, 0.4);
+}
+
+@keyframes rainbow-h {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 0%; }
+}
+
+@media (max-width: 600px) {
+    .message-content {
+        max-width: 85%;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <div class="logo">E Z - Study Assistant</div>
+        <div style="width: 60px;"></div>
+    </div>
+
+    <div class="container">
+        <div class="chat-box" id="chatBox"></div>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Ask about any subject, or get study tips...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+
+        const knowledgeBase = {
+            'algebra': {
+                keywords: ['algebra', 'equation', 'variable', 'solve', 'linear'],
+                response: `Great question about algebra! Here are key concepts:
+• Linear equations: Solve by isolating the variable (add/subtract, multiply/divide)
+• Order of operations: PEMDAS (Parentheses, Exponents, Multiply/Divide, Add/Subtract)
+• Factoring: Break down expressions into simpler parts
+• Quadratic equations: ax² + bx + c = 0 - use factoring or quadratic formula
+• Systems of equations: Solve multiple equations together using substitution or elimination
+
+Pro tip: Always check your answer by substituting back into the original equation!`
+            },
+            'geometry': {
+                keywords: ['geometry', 'angle', 'area', 'perimeter', 'triangle', 'circle', 'shape'],
+                response: `Excellent! Here's geometry help:
+• Angles: Sum of angles in a triangle = 180°, in a quadrilateral = 360°
+• Area formulas: Rectangle (L×W), Circle (πr²), Triangle (½×base×height)
+• Pythagorean theorem: a² + b² = c² (for right triangles)
+• Perimeter: Add all side lengths
+• Volume (3D): Different formulas for cylinders, spheres, cubes
+
+Study tip: Draw diagrams! Visual representation helps you understand shapes better.`
+            },
+            'trigonometry': {
+                keywords: ['trig', 'sine', 'cosine', 'tangent', 'soh cah toa'],
+                response: `Trigonometry essentials:
+• SOH CAH TOA: Sin = Opposite/Hypotenuse, Cos = Adjacent/Hypotenuse, Tan = Opposite/Adjacent
+• Special angles: 0°, 30°, 45°, 60°, 90° - memorize their values
+• Pythagorean identity: sin²θ + cos²θ = 1
+• Unit circle: Shows all angle values and their trig ratios
+• Applications: Find unknown sides/angles in triangles
+
+Trick: Use the UNIT CIRCLE to visualize all relationships!`
+            },
+            'chemistry': {
+                keywords: ['chemistry', 'atom', 'molecule', 'element', 'bond', 'reaction', 'periodic'],
+                response: `Chemistry fundamentals:
+• Atomic structure: Protons (positive), neutrons (neutral), electrons (negative)
+• Chemical bonds: Ionic (electron transfer), Covalent (electron sharing), Metallic
+• Reactions: Reactants → Products. Balance equations by counting atoms
+• pH scale: 0-14, where 7 is neutral, <7 is acidic, >7 is basic
+• Periodic table: Organized by atomic number and chemical properties
+
+Study tip: Do practice problems! Chemistry is learned by doing reactions, not just reading.`
+            },
+            'biology': {
+                keywords: ['biology', 'cell', 'dna', 'evolution', 'photosynthesis', 'organism', 'enzyme'],
+                response: `Biology key topics:
+• Cells: Basic unit of life - prokaryotic (no nucleus) vs eukaryotic (has nucleus)
+• DNA: Stores genetic information in double helix structure
+• Photosynthesis: Plants convert light energy to chemical energy (glucose)
+• Cellular respiration: Cells break down glucose for energy (ATP)
+• Evolution: Natural selection favors traits that increase survival
+• Ecosystems: Producers (plants) → Consumers (animals) → Decomposers
+
+Memory tip: Use mnemonics! For mitochondria layers, remember "MEME" or create your own.`
+            },
+            'physics': {
+                keywords: ['physics', 'force', 'motion', 'energy', 'velocity', 'acceleration', 'newton'],
+                response: `Physics fundamentals:
+• Newton's Laws: 1) Objects stay in motion unless acted upon. 2) F=ma. 3) Equal and opposite reactions
+• Velocity: Speed with direction. Acceleration: Change in velocity over time
+• Kinetic energy: KE = ½mv². Potential energy: PE = mgh
+• Work: W = Force × Distance. Power: P = Work/Time
+• Momentum: p = mv. Conservation: Total momentum stays constant
+
+Real-world: Physics explains everyday things - gravity, electricity, light, sound!`
+            },
+            'history': {
+                keywords: ['history', 'war', 'revolution', 'century', 'events', 'timeline', 'historical'],
+                response: `History study tips:
+• Create timelines: Organize events chronologically to see cause-and-effect
+• Learn causes AND effects: Wars don't just happen - understand why
+• Key figures: Know major leaders and their impact on events
+• Geography: Understand where events happened - context matters
+• Primary sources: Read original documents from the time period
+• Patterns: Look for recurring themes across different time periods
+
+Approach: Don't memorize dates - understand the story and context behind them!`
+            },
+            'english': {
+                keywords: ['english', 'literature', 'essay', 'grammar', 'writing', 'vocabulary', 'book'],
+                response: `English language skills:
+• Grammar: Subject-verb agreement, proper tenses, correct punctuation
+• Vocabulary: Read widely to naturally expand word choices
+• Essays: Strong thesis, supporting evidence, clear reasoning
+• Literature: Identify themes, symbolism, character development, author's purpose
+• Reading comprehension: Annotate while reading, ask questions, summarize
+• Writing process: Outline → Draft → Revise → Edit → Proofread
+
+Tip: Read your writing aloud to catch errors and improve flow!`
+            },
+            'study tips': {
+                keywords: ['study', 'test', 'exam', 'tip', 'help', 'prepare', 'learn'],
+                response: `Powerful study techniques:
+• Spaced repetition: Review material after 1 day, 3 days, 1 week, 2 weeks
+• Active recall: Test yourself, don't just re-read notes
+• Pomodoro: Study 25 min intensely, then 5 min break (4 cycles, then 15 min break)
+• Teach others: Explain concepts to someone - if you can't, you don't understand
+• Mix subjects: Don't study one topic for 3 hours - switch every 30-45 min
+• Sleep: Your brain consolidates memories during sleep - sleep after studying!
+• Exercise: Physical activity improves focus and memory
+• Practice tests: Use past exams or create your own questions
+
+Remember: Quality beats quantity. 2 hours focused study > 5 hours distracted!`
+            },
+            'motivation': {
+                keywords: ['motivation', 'stuck', 'struggling', 'hard', 'difficult', 'help', 'can\'t'],
+                response: `Don't give up! Here's real advice:
+• Break it down: Big topics feel impossible - break into smaller chunks
+• Celebrate small wins: Master one concept, then move to the next
+• Find the 'why': Connect material to your goals or real-world applications
+• Take breaks: Mental fatigue is real - short breaks actually improve learning
+• Change environment: Study somewhere different if you're stuck
+• Ask questions: Confused about something? Ask a teacher, tutor, or study friend
+• Progress over perfection: You don't need to understand everything immediately
+• Remember: Every expert was once a beginner who didn't give up!
+
+You've got this! What specific topic is giving you trouble?`
+            },
+            'default': {
+                keywords: [],
+                response: `Hi! I'm your Study Assistant. I can help with:
+• 📚 Subjects: Algebra, Geometry, Chemistry, Biology, Physics, History, English
+• 💡 Study tips: Effective techniques, test prep, memory tricks
+• 🎯 Motivation: Feeling stuck? Need encouragement?
+
+What would you like help with today? Ask me anything about your studies!`
+            }
+        };
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = text;
+            messageDiv.appendChild(contentDiv);
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function getResponse(input) {
+            const lower = input.toLowerCase();
+            
+            for (const [category, data] of Object.entries(knowledgeBase)) {
+                if (category !== 'default') {
+                    for (const keyword of data.keywords) {
+                        if (lower.includes(keyword)) {
+                            return data.response;
+                        }
+                    }
+                }
+            }
+            
+            return knowledgeBase.default.response;
+        }
+
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            userInput.value = '';
+
+            setTimeout(() => {
+                const response = getResponse(message);
+                addMessage(response, 'bot');
+            }, 300);
+        }
+
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Initial message
+        addMessage('👋 Welcome to Study Assistant! I can help you understand any subject - ask me about algebra, geometry, chemistry, biology, physics, history, English, or study techniques. What would you like to learn about?', 'bot');
+    </script>
+</body>
+</html>

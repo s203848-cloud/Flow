@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sight-Reading Trainer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-3px);
+        }
+        
+        .title {
+            font-size: 2rem;
+            background: linear-gradient(to right, #ff8000, #ffcc00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .controls {
+            background: rgba(20, 15, 40, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .control-label {
+            color: #ffcc00;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .slider-value {
+            min-width: 30px;
+            text-align: center;
+            color: #ff8000;
+            font-weight: bold;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 128, 0, 0.2);
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #ff8000;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .difficulty-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .difficulty-btn {
+            padding: 10px 15px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ffcc00;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .difficulty-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .difficulty-btn.active {
+            background: rgba(255, 128, 0, 0.5);
+            font-weight: bold;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 128, 0, 0.2);
+        }
+        
+        .generate-btn {
+            padding: 15px 30px;
+            background: linear-gradient(to right, #ff8000, #ff5500);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            grid-column: 1 / -1;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(255, 128, 0, 0.3);
+        }
+        
+        .sheet-music-container {
+            background: rgba(10, 5, 25, 0.9);
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            overflow-x: auto;
+        }
+        
+        .staff {
+            position: relative;
+            height: 180px;
+            background: linear-gradient(to bottom, 
+                transparent 0%, transparent 19%,
+                rgba(255, 255, 255, 0.05) 20%, rgba(255, 255, 255, 0.05) 39%,
+                transparent 40%, transparent 59%,
+                rgba(255, 255, 255, 0.05) 60%, rgba(255, 255, 255, 0.05) 79%,
+                transparent 80%, transparent 100%);
+            margin-bottom: 40px;
+        }
+        
+        .staff::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .staff::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .clef {
+            position: absolute;
+            left: 30px;
+            top: 10px;
+            font-size: 100px;
+            color: #ffcc00;
+            font-family: 'Times New Roman', serif;
+            font-weight: bold;
+        }
+        
+        .time-signature {
+            position: absolute;
+            left: 130px;
+            top: 40px;
+            font-size: 40px;
+            color: #ff8000;
+            font-family: 'Times New Roman', serif;
+            font-weight: bold;
+        }
+        
+        .notes-container {
+            position: absolute;
+            left: 180px;
+            right: 30px;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+        
+        .note {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ffcc00;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0a0a1a;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .note::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 60px;
+            background: #fff;
+            left: 50%;
+            transform: translateX(-50%);
+            top: -10px;
+        }
+        
+        .note.rest {
+            background: #ff8000;
+            border-radius: 0;
+            width: 30px;
+            height: 10px;
+        }
+        
+        .note.rest::before {
+            display: none;
+        }
+        
+        .ledger-line {
+            position: absolute;
+            width: 50px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.8);
+            left: -5px;
+        }
+        
+        .info-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .info-box {
+            background: rgba(20, 15, 40, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .info-title {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .current-settings {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .setting-name {
+            color: #aaa;
+        }
+        
+        .setting-value {
+            color: #ff8000;
+            font-weight: bold;
+        }
+        
+        .tips-list {
+            list-style-type: none;
+        }
+        
+        .tips-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .tips-list li:before {
+            content: "•";
+            color: #ff8000;
+            font-size: 1.5rem;
+        }
+        
+        .practice-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .practice-btn {
+            padding: 10px 20px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ffcc00;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .practice-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .metronome-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .metronome-display {
+            font-size: 1.5rem;
+            color: #ff8000;
+            font-weight: bold;
+            min-width: 60px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #aaa;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 128, 0, 0.2);
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .difficulty-buttons {
+                flex-direction: column;
+            }
+            
+            .staff {
+                height: 150px;
+            }
+            
+            .notes-container {
+                left: 150px;
+            }
+            
+            .clef {
+                font-size: 70px;
+                left: 20px;
+            }
+            
+            .time-signature {
+                left: 100px;
+                font-size: 30px;
+            }
+            
+            .note {
+                width: 30px;
+                height: 30px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Tools
+            </a>
+            <h1 class="title">Sight-Reading Trainer</h1>
+            <div style="width: 100px;"></div> <!-- Spacer for alignment -->
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label class="control-label">Difficulty Level</label>
+                <div class="difficulty-buttons">
+                    <button class="difficulty-btn active" data-level="1">Beginner</button>
+                    <button class="difficulty-btn" data-level="2">Intermediate</button>
+                    <button class="difficulty-btn" data-level="3">Advanced</button>
+                    <button class="difficulty-btn" data-level="4">Expert</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label class="control-label">Number of Notes: <span id="notes-value" class="slider-value">8</span></label>
+                <div class="slider-container">
+                    <span>4</span>
+                    <input type="range" id="notes-slider" min="4" max="16" value="8" step="1">
+                    <span>16</span>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label class="control-label">Tempo (BPM): <span id="tempo-value" class="slider-value">120</span></label>
+                <div class="slider-container">
+                    <span>60</span>
+                    <input type="range" id="tempo-slider" min="60" max="200" value="120" step="5">
+                    <span>200</span>
+                </div>
+            </div>
+            
+            <button id="generate-btn" class="generate-btn">
+                <i class="fas fa-music"></i> Generate New Exercise
+            </button>
+        </div>
+        
+        <div class="sheet-music-container">
+            <div class="staff" id="staff">
+                <div class="clef" id="clef">𝄞</div>
+                <div class="time-signature" id="time-signature">4/4</div>
+                <div class="notes-container" id="notes-container">
+                    <!-- Notes will be generated here -->
+                </div>
+            </div>
+            
+            <div class="practice-controls">
+                <button class="practice-btn" id="play-btn">
+                    <i class="fas fa-play"></i> Play Back
+                </button>
+                <button class="practice-btn" id="metronome-btn">
+                    <i class="fas fa-tachometer-alt"></i> Toggle Metronome
+                </button>
+                <div class="metronome-container">
+                    <div class="metronome-display" id="metronome-display">120 BPM</div>
+                    <input type="range" id="metronome-slider" min="40" max="200" value="120" step="5" style="width: 100px;">
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <div class="info-box">
+                <h3 class="info-title">
+                    <i class="fas fa-cog"></i> Current Settings
+                </h3>
+                <div class="current-settings" id="current-settings">
+                    <!-- Settings will be updated here -->
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <h3 class="info-title">
+                    <i class="fas fa-lightbulb"></i> Sight-Reading Tips
+                </h3>
+                <ul class="tips-list">
+                    <li>Look ahead to the next measure while playing</li>
+                    <li>Keep a steady tempo, even if you make mistakes</li>
+                    <li>Practice with a metronome regularly</li>
+                    <li>Start slowly and gradually increase speed</li>
+                    <li>Focus on rhythm as much as pitch</li>
+                </ul>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Sight-Reading Trainer v1.0 • Use this tool to improve your music reading skills • Generated exercises are random and unlimited</p>
+        </footer>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const notesSlider = document.getElementById('notes-slider');
+        const notesValue = document.getElementById('notes-value');
+        const tempoSlider = document.getElementById('tempo-slider');
+        const tempoValue = document.getElementById('tempo-value');
+        const metronomeSlider = document.getElementById('metronome-slider');
+        const metronomeDisplay = document.getElementById('metronome-display');
+        const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+        const generateBtn = document.getElementById('generate-btn');
+        const playBtn = document.getElementById('play-btn');
+        const metronomeBtn = document.getElementById('metronome-btn');
+        const notesContainer = document.getElementById('notes-container');
+        const clefElement = document.getElementById('clef');
+        const timeSignatureElement = document.getElementById('time-signature');
+        const currentSettingsElement = document.getElementById('current-settings');
+        
+        // App State
+        let currentDifficulty = 1;
+        let currentNotesCount = 8;
+        let currentTempo = 120;
+        let isMetronomeOn = false;
+        let metronomeInterval;
+        let currentExercise = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSliders();
+            generateExercise();
+            updateSettingsDisplay();
+            
+            // Set up event listeners
+            notesSlider.addEventListener('input', updateSliders);
+            tempoSlider.addEventListener('input', updateSliders);
+            metronomeSlider.addEventListener('input', updateMetronome);
+            
+            difficultyButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    difficultyButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentDifficulty = parseInt(this.getAttribute('data-level'));
+                    generateExercise();
+                    updateSettingsDisplay();
+                });
+            });
+            
+            generateBtn.addEventListener('click', generateExercise);
+            playBtn.addEventListener('click', playExercise);
+            metronomeBtn.addEventListener('click', toggleMetronome);
+        });
+        
+        // Update slider displays
+        function updateSliders() {
+            currentNotesCount = parseInt(notesSlider.value);
+            currentTempo = parseInt(tempoSlider.value);
+            
+            notesValue.textContent = currentNotesCount;
+            tempoValue.textContent = currentTempo;
+            
+            // Update metronome if it's synced with tempo
+            if (!isMetronomeOn) {
+                metronomeSlider.value = currentTempo;
+                metronomeDisplay.textContent = `${currentTempo} BPM`;
+            }
+            
+            updateSettingsDisplay();
+        }
+        
+        // Update metronome display
+        function updateMetronome() {
+            const bpm = parseInt(metronomeSlider.value);
+            metronomeDisplay.textContent = `${bpm} BPM`;
+            
+            if (isMetronomeOn) {
+                clearInterval(metronomeInterval);
+                startMetronome(bpm);
+            }
+        }
+        
+        // Toggle metronome on/off
+        function toggleMetronome() {
+            isMetronomeOn = !isMetronomeOn;
+            
+            if (isMetronomeOn) {
+                const bpm = parseInt(metronomeSlider.value);
+                startMetronome(bpm);
+                metronomeBtn.innerHTML = '<i class="fas fa-tachometer-alt"></i> Stop Metronome';
+                metronomeBtn.style.background = 'rgba(255, 128, 0, 0.5)';
+            } else {
+                clearInterval(metronomeInterval);
+                metronomeBtn.innerHTML = '<i class="fas fa-tachometer-alt"></i> Toggle Metronome';
+                metronomeBtn.style.background = 'rgba(255, 128, 0, 0.2)';
+            }
+        }
+        
+        // Start metronome with given BPM
+        function startMetronome(bpm) {
+            const interval = 60000 / bpm; // Convert BPM to milliseconds
+            
+            metronomeInterval = setInterval(() => {
+                // Visual feedback
+                metronomeDisplay.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    metronomeDisplay.style.transform = 'scale(1)';
+                }, 100);
+                
+                // Audio feedback (would need Web Audio API for actual sound)
+                console.log("Tick"); // Placeholder for actual metronome sound
+            }, interval);
+        }
+        
+        // Generate a new sight-reading exercise
+        function generateExercise() {
+            // Clear previous notes
+            notesContainer.innerHTML = '';
+            
+            // Set clef based on difficulty
+            const clef = currentDifficulty >= 3 ? '𝄢' : '𝄞'; // Bass clef for advanced, treble for others
+            clefElement.textContent = clef;
+            
+            // Set time signature based on difficulty
+            let timeSignature = '4/4';
+            if (currentDifficulty >= 2) {
+                const signatures = ['3/4', '4/4', '6/8'];
+                timeSignature = signatures[Math.floor(Math.random() * signatures.length)];
+            }
+            timeSignatureElement.textContent = timeSignature;
+            
+            // Generate notes based on difficulty
+            const notes = [];
+            const noteNames = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+            const accidentals = ['', '♭', '♯'];
+            
+            // Determine note range based on difficulty
+            let minOctave = 4;
+            let maxOctave = 5;
+            
+            if (currentDifficulty >= 2) {
+                minOctave = 3;
+                maxOctave = 5;
+            }
+            
+            if (currentDifficulty >= 3) {
+                minOctave = 2;
+                maxOctave = 6;
+            }
+            
+            if (currentDifficulty >= 4) {
+                minOctave = 1;
+                maxOctave = 7;
+            }
+            
+            // Generate each note
+            for (let i = 0; i < currentNotesCount; i++) {
+                const noteName = noteNames[Math.floor(Math.random() * noteNames.length)];
+                const octave = Math.floor(Math.random() * (maxOctave - minOctave + 1)) + minOctave;
+                
+                // Add accidentals for higher difficulty levels
+                let accidental = '';
+                if (currentDifficulty >= 2 && Math.random() > 0.7) {
+                    accidental = accidentals[Math.floor(Math.random() * accidentals.length)];
+                }
+                
+                // Add rests for intermediate and higher
+                let isRest = false;
+                if (currentDifficulty >= 2 && Math.random() > 0.85) {
+                    isRest = true;
+                }
+                
+                notes.push({
+                    name: noteName,
+                    octave: octave,
+                    accidental: accidental,
+                    isRest: isRest,
+                    id: i
+                });
+            }
+            
+            // Store current exercise
+            currentExercise = {
+                notes: notes,
+                clef: clef,
+                timeSignature: timeSignature,
+                difficulty: currentDifficulty,
+                tempo: currentTempo
+            };
+            
+            // Render notes on staff
+            renderNotes(notes);
+            updateSettingsDisplay();
+        }
+        
+        // Render notes on the staff
+        function renderNotes(notes) {
+            notes.forEach((note, index) => {
+                const noteElement = document.createElement('div');
+                noteElement.className = `note ${note.isRest ? 'rest' : ''}`;
+                noteElement.id = `note-${note.id}`;
+                
+                if (!note.isRest) {
+                    noteElement.textContent = note.name + note.accidental;
+                }
+                
+                // Position note on staff (simplified positioning)
+                // In a real app, this would calculate exact position based on pitch
+                const noteSpacing = 100 / notes.length;
+                noteElement.style.left = `${(index * noteSpacing) + (noteSpacing / 2)}%`;
+                
+                // Random vertical position within staff bounds
+                const staffHeight = 180;
+                const verticalPosition = Math.floor(Math.random() * 9) * 20; // 0 to 160 in steps of 20
+                noteElement.style.top = `${verticalPosition}px`;
+                
+                // Add ledger lines for notes outside the staff
+                if (verticalPosition < 20 || verticalPosition > 140) {
+                    const ledgerLine = document.createElement('div');
+                    ledgerLine.className = 'ledger-line';
+                    ledgerLine.style.top = `${verticalPosition + 18}px`;
+                    noteElement.appendChild(ledgerLine);
+                }
+                
+                notesContainer.appendChild(noteElement);
+                
+                // Add animation with staggered delay
+                setTimeout(() => {
+                    noteElement.style.opacity = '1';
+                    noteElement.style.transform = 'scale(1)';
+                }, index * 100);
+            });
+        }
+        
+        // Play back the exercise (visual simulation)
+        function playExercise() {
+            if (!currentExercise) return;
+            
+            const notes = currentExercise.notes;
+            const noteDuration = 60000 / currentTempo; // ms per quarter note
+            
+            // Reset all notes
+            document.querySelectorAll('.note').forEach(note => {
+                note.style.background = note.classList.contains('rest') ? '#ff8000' : '#ffcc00';
+            });
+            
+            // Highlight each note in sequence
+            notes.forEach((note, index) => {
+                setTimeout(() => {
+                    const noteElement = document.getElementById(`note-${note.id}`);
+                    if (noteElement) {
+                        // Highlight the current note
+                        noteElement.style.background = '#ff5500';
+                        noteElement.style.transform = 'scale(1.2)';
+                        
+                        // Return to normal after a moment
+                        setTimeout(() => {
+                            noteElement.style.background = note.isRest ? '#ff8000' : '#ffcc00';
+                            noteElement.style.transform = 'scale(1)';
+                        }, noteDuration * 0.7);
+                    }
+                }, index * noteDuration);
+            });
+            
+            // Visual feedback for play button
+            playBtn.innerHTML = '<i class="fas fa-play"></i> Playing...';
+            playBtn.disabled = true;
+            
+            setTimeout(() => {
+                playBtn.innerHTML = '<i class="fas fa-play"></i> Play Back';
+                playBtn.disabled = false;
+            }, notes.length * noteDuration);
+        }
+        
+        // Update the settings display
+        function updateSettingsDisplay() {
+            const difficultyNames = {
+                1: 'Beginner',
+                2: 'Intermediate',
+                3: 'Advanced',
+                4: 'Expert'
+            };
+            
+            const settingsHTML = `
+                <div class="setting-item">
+                    <span class="setting-name">Difficulty:</span>
+                    <span class="setting-value">${difficultyNames[currentDifficulty]}</span>
+                </div>
+                <div class="setting-item">
+                    <span class="setting-name">Notes Count:</span>
+                    <span class="setting-value">${currentNotesCount}</span>
+                </div>
+                <div class="setting-item">
+                    <span class="setting-name">Tempo:</span>
+                    <span class="setting-value">${currentTempo} BPM</span>
+                </div>
+                <div class="setting-item">
+                    <span class="setting-name">Clef:</span>
+                    <span class="setting-value">${currentDifficulty >= 3 ? 'Bass' : 'Treble'}</span>
+                </div>
+                <div class="setting-item">
+                    <span class="setting-name">Time Signature:</span>
+                    <span class="setting-value">${timeSignatureElement.textContent}</span>
+                </div>
+                <div class="setting-item">
+                    <span class="setting-name">Exercise ID:</span>
+                    <span class="setting-value">${Math.floor(Math.random() * 10000)}</span>
+                </div>
+            `;
+            
+            currentSettingsElement.innerHTML = settingsHTML;
+        }
+        
+        // Generate initial exercise
+        generateExercise();
+    </script>
+</body>
+</html>

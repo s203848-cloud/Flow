@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python IDE - Dark Theme</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/theme/monokai.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.95);
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+        }
+
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+
+        .file-btn {
+            padding: 8px 15px;
+            background: rgba(0, 150, 255, 0.2);
+            border: 1px solid #0096ff;
+            border-radius: 5px;
+            color: #0096ff;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-left: 10px;
+        }
+
+        .file-btn:hover {
+            background: rgba(0, 150, 255, 0.3);
+        }
+
+        .run-btn {
+            padding: 8px 15px;
+            background: rgba(0, 200, 83, 0.2);
+            border: 1px solid #00c853;
+            border-radius: 5px;
+            color: #00c853;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-left: 10px;
+        }
+
+        .run-btn:hover {
+            background: rgba(0, 200, 83, 0.3);
+        }
+
+        .audio-btn {
+            padding: 8px 15px;
+            background: rgba(156, 39, 176, 0.2);
+            border: 1px solid #9c27b0;
+            border-radius: 5px;
+            color: #9c27b0;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-left: 10px;
+        }
+
+        .audio-btn:hover {
+            background: rgba(156, 39, 176, 0.3);
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 70px);
+        }
+
+        .sidebar {
+            width: 280px;
+            background: rgba(30, 30, 50, 0.9);
+            border-right: 1px solid rgba(255, 69, 0, 0.2);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .file-tree {
+            list-style: none;
+        }
+
+        .file-tree li {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .file-tree li:hover {
+            background: rgba(255, 128, 0, 0.1);
+        }
+
+        .file-tree li.active {
+            background: rgba(255, 128, 0, 0.2);
+            border-left: 3px solid #ff8000;
+        }
+
+        .file-tree li i {
+            margin-right: 10px;
+            width: 20px;
+        }
+
+        .file-tree .folder i {
+            color: #ffcc00;
+        }
+
+        .file-tree .file i {
+            color: #0096ff;
+        }
+
+        .file-tree .python i {
+            color: #00ff88;
+        }
+
+        .file-tree .image i {
+            color: #ff4081;
+        }
+
+        .file-tree .audio i {
+            color: #9c27b0;
+        }
+
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+
+        .editor-tabs {
+            display: flex;
+            gap: 5px;
+        }
+
+        .editor-tab {
+            padding: 8px 15px;
+            background: rgba(50, 30, 70, 0.5);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .editor-tab.active {
+            background: rgba(255, 128, 0, 0.2);
+            border-bottom: none;
+        }
+
+        .code-editor {
+            flex: 1;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .CodeMirror {
+            height: 100% !important;
+            font-size: 14px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .output-container {
+            margin-top: 20px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .output-header {
+            padding: 10px 20px;
+            background: rgba(50, 30, 70, 0.5);
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .output-content {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.5);
+            color: #00ff88;
+            font-family: 'Consolas', 'Monaco', monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .output-content.error {
+            color: #ff5555;
+        }
+
+        .output-content img {
+            max-width: 200px;
+            max-height: 150px;
+            margin: 5px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin: 10px 0;
+            background: rgba(156, 39, 176, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .audio-player audio {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .audio-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .audio-control-btn {
+            padding: 5px 15px;
+            background: rgba(156, 39, 176, 0.3);
+            border: 1px solid #9c27b0;
+            border-radius: 5px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .audio-control-btn:hover {
+            background: rgba(156, 39, 176, 0.5);
+        }
+
+        .audio-visualizer {
+            width: 100%;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .visualizer-bar {
+            position: absolute;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to top, #9c27b0, #673ab7);
+            border-radius: 2px 2px 0 0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a0a2e, #0a0a1a);
+            border: 2px solid #0096ff;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .modal h2 {
+            color: #0096ff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal input, .modal select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.5);
+            border-radius: 5px;
+            color: white;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .modal-btn.primary {
+            background: #0096ff;
+            color: white;
+        }
+
+        .modal-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ff4500;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .autocomplete-hint {
+            position: absolute;
+            background: rgba(30, 30, 50, 0.95);
+            border: 1px solid rgba(255, 128, 0, 0.5);
+            border-radius: 5px;
+            padding: 5px;
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .autocomplete-item {
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .autocomplete-item:hover {
+            background: rgba(255, 128, 0, 0.2);
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 200px;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .navbar-buttons {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 5px;
+            }
+            
+            .editor-tabs {
+                overflow-x: auto;
+                max-width: 300px;
+            }
+        }
+
+        /* Custom CodeMirror Theme */
+        .cm-s-monokai.CodeMirror {
+            background: rgba(20, 20, 35, 0.95);
+        }
+        .cm-s-monokai .CodeMirror-gutters {
+            background: rgba(30, 30, 50, 0.9);
+            border-right: 1px solid rgba(255, 128, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <a><i class="fab fa-python"></i></a>
+        <span style="font-size: 1.5rem; font-weight: bold;">Python IDE</span>
+        <div class="navbar-buttons">
+            <button class="file-btn" onclick="showNewFileModal()"><i class="fas fa-file"></i> New File</button>
+            <button class="file-btn" onclick="showNewFolderModal()"><i class="fas fa-folder"></i> New Folder</button>
+            <button class="file-btn" onclick="uploadFile()"><i class="fas fa-upload"></i> Upload</button>
+            <button class="file-btn" onclick="downloadFile()"><i class="fas fa-download"></i> Download</button>
+            <button class="audio-btn" onclick="toggleAudioControls()"><i class="fas fa-music"></i> Audio</button>
+            <button class="run-btn" onclick="runPython()"><i class="fas fa-play"></i> Run Code</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Files</h3>
+                <button class="file-btn" onclick="refreshFileTree()"><i class="fas fa-sync-alt"></i></button>
+            </div>
+            <ul class="file-tree" id="fileTree">
+                <!-- Files will be loaded here -->
+            </ul>
+        </div>
+
+        <div class="editor-container">
+            <div class="editor-header">
+                <div class="editor-tabs" id="editorTabs">
+                    <!-- Tabs will be generated here -->
+                </div>
+                <div>
+                    <span id="currentFileName">No file selected</span>
+                </div>
+            </div>
+            <div class="code-editor">
+                <textarea id="codeEditor"></textarea>
+            </div>
+            <div class="output-container">
+                <div class="output-header">
+                    <span>Output</span>
+                    <div>
+                        <button class="file-btn" onclick="clearOutput()"><i class="fas fa-trash"></i> Clear</button>
+                        <button class="audio-btn" onclick="toggleAudioPanel()"><i class="fas fa-volume-up"></i> Audio Panel</button>
+                    </div>
+                </div>
+                <div class="output-content" id="outputContent">
+                    Output will appear here...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- File Upload Modal -->
+    <div class="modal" id="uploadModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeUploadModal()">×</button>
+            <h2>Upload Files</h2>
+            <input type="file" id="fileUpload" multiple webkitdirectory directory accept=".py,.png,.jpg,.jpeg,.gif,.txt,.mp3,.wav,.ogg,.flac,.m4a">
+            <p style="color: #ff8000; margin: 10px 0; font-size: 0.9rem;">
+                Note: You can upload Python files (.py), images (.png, .jpg, .jpeg, .gif), text files (.txt), audio files (.mp3, .wav, .ogg, .flac, .m4a), and folders
+            </p>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeUploadModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="processUpload()">Upload</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New File Modal -->
+    <div class="modal" id="newFileModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeNewFileModal()">×</button>
+            <h2>Create New File</h2>
+            <input type="text" id="newFileName" placeholder="filename.py">
+            <select id="fileType">
+                <option value="python">Python File (.py)</option>
+                <option value="text">Text File (.txt)</option>
+                <option value="audio">Audio File (.mp3)</option>
+                <option value="folder">Folder</option>
+            </select>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeNewFileModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="createNewFile()">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Controls Modal -->
+    <div class="modal" id="audioControlsModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeAudioControls()">×</button>
+            <h2><i class="fas fa-music"></i> Audio Controls</h2>
+            <div class="audio-player" id="audioModalPlayer">
+                <h4>No audio file selected</h4>
+                <p>Select an audio file from the file tree to play it here</p>
+            </div>
+            <div class="audio-controls">
+                <button class="audio-control-btn" onclick="playAudio()"><i class="fas fa-play"></i> Play</button>
+                <button class="audio-control-btn" onclick="pauseAudio()"><i class="fas fa-pause"></i> Pause</button>
+                <button class="audio-control-btn" onclick="stopAudio()"><i class="fas fa-stop"></i> Stop</button>
+                <button class="audio-control-btn" onclick="downloadAudio()"><i class="fas fa-download"></i> Download</button>
+            </div>
+            <div class="audio-visualizer" id="audioVisualizer">
+                <!-- Visualizer bars will be generated here -->
+            </div>
+            <div style="margin-top: 15px;">
+                <label for="volumeControl">Volume:</label>
+                <input type="range" id="volumeControl" min="0" max="1" step="0.1" value="0.5" oninput="changeVolume(this.value)">
+            </div>
+        </div>
+    </div>
+
+    <!-- Autocomplete Hint -->
+    <div class="autocomplete-hint" id="autocompleteHint"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/hint/show-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/hint/python-hint.min.js"></script>
+    <script>
+        // Initialize variables
+        let editor;
+        let files = {};
+        let currentFile = null;
+        let currentAudio = null;
+        let audioContext = null;
+        let analyser = null;
+        let audioSource = null;
+        let isAudioPlaying = false;
+        let visualizerInterval = null;
+        let fileTree = document.getElementById('fileTree');
+        let editorTabs = document.getElementById('editorTabs');
+        let outputContent = document.getElementById('outputContent');
+        let autocompleteHint = document.getElementById('autocompleteHint');
+        
+        // Python keywords and built-in functions for autocomplete
+        const pythonKeywords = [
+            'and', 'as', 'assert', 'break', 'class', 'continue', 'def', 'del',
+            'elif', 'else', 'except', 'False', 'finally', 'for', 'from', 'global',
+            'if', 'import', 'in', 'is', 'lambda', 'None', 'nonlocal', 'not', 'or',
+            'pass', 'raise', 'return', 'True', 'try', 'while', 'with', 'yield'
+        ];
+        
+        const pythonBuiltins = [
+            'abs', 'all', 'any', 'ascii', 'bin', 'bool', 'bytearray', 'bytes',
+            'callable', 'chr', 'classmethod', 'compile', 'complex', 'delattr',
+            'dict', 'dir', 'divmod', 'enumerate', 'eval', 'exec', 'filter',
+            'float', 'format', 'frozenset', 'getattr', 'globals', 'hasattr',
+            'hash', 'help', 'hex', 'id', 'input', 'int', 'isinstance', 'issubclass',
+            'iter', 'len', 'list', 'locals', 'map', 'max', 'memoryview', 'min',
+            'next', 'object', 'oct', 'open', 'ord', 'pow', 'print', 'property',
+            'range', 'repr', 'reversed', 'round', 'set', 'setattr', 'slice',
+            'sorted', 'staticmethod', 'str', 'sum', 'super', 'tuple', 'type',
+            'vars', 'zip', '__import__'
+        ];
+        
+        const pythonModules = [
+            'math', 'os', 'sys', 'json', 'datetime', 'random', 're', 'collections',
+            'itertools', 'functools', 'typing', 'pathlib', 'numpy', 'pandas'
+        ];
+
+        // Initialize CodeMirror editor
+        editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
+            mode: 'python',
+            theme: 'monokai',
+            lineNumbers: true,
+            lineWrapping: true,
+            matchBrackets: true,
+            autoCloseBrackets: true,
+            extraKeys: {
+                "Ctrl-Space": "autocomplete",
+                "Tab": function(cm) {
+                    if (cm.somethingSelected()) {
+                        cm.indentSelection("add");
+                    } else {
+                        cm.replaceSelection("    ", "end");
+                    }
+                }
+            }
+        });
+
+        // Initialize with sample files
+        function initializeFiles() {
+            files = {
+                'main.py': {
+                    type: 'python',
+                    content: `# Welcome to Python IDE
+print("Hello, World!")
+
+# Simple calculator function
+def add(a, b):
+    return a + b
+
+# List example
+fruits = ['apple', 'banana', 'cherry']
+for fruit in fruits:
+    print(f"I like {fruit}")
+
+# Try running this code!`,
+                    path: '/'
+                },
+                'README.txt': {
+                    type: 'text',
+                    content: 'Welcome to Python IDE\n\nFeatures:\n1. Write and run Python code\n2. File management\n3. Code autocompletion\n4. Image support\n5. Audio support\n6. File upload/download',
+                    path: '/'
+                },
+                'images': {
+                    type: 'folder',
+                    content: [],
+                    path: '/'
+                },
+                'audio': {
+                    type: 'folder',
+                    content: [],
+                    path: '/'
+                },
+                'examples': {
+                    type: 'folder',
+                    content: [],
+                    path: '/'
+                }
+            };
+            
+            // Add example files
+            files['examples']['content'].push('example.py');
+            files['example.py'] = {
+                type: 'python',
+                content: `# Example: Fibonacci sequence
+def fibonacci(n):
+    a, b = 0, 1
+    for _ in range(n):
+        yield a
+        a, b = b, a + b
+
+# Generate first 10 Fibonacci numbers
+print("Fibonacci sequence:")
+for num in fibonacci(10):
+    print(num, end=' ')`,
+                path: '/examples/'
+            };
+            
+            updateFileTree();
+            updateEditorTabs();
+        }
+
+        // Update file tree view
+        function updateFileTree() {
+            fileTree.innerHTML = '';
+            
+            // Add root files and folders
+            for (const fileName in files) {
+                if (files[fileName].path === '/') {
+                    addFileToTree(fileName, files[fileName]);
+                }
+            }
+        }
+
+        // Add file to tree
+        function addFileToTree(fileName, file) {
+            const li = document.createElement('li');
+            li.className = `${file.type} ${currentFile === fileName ? 'active' : ''}`;
+            
+            let icon = 'fa-file';
+            if (file.type === 'folder') icon = 'fa-folder';
+            if (file.type === 'python') icon = 'fa-code';
+            if (file.type === 'image') icon = 'fa-image';
+            if (file.type === 'audio') icon = 'fa-music';
+            
+            li.innerHTML = `<i class="fas ${icon}"></i> ${fileName}`;
+            
+            li.onclick = () => selectFile(fileName);
+            li.ondblclick = () => {
+                if (file.type === 'folder') {
+                    toggleFolder(fileName);
+                } else if (file.type === 'audio') {
+                    playAudioFile(fileName);
+                }
+            };
+            
+            // Context menu for files
+            li.oncontextmenu = (e) => {
+                e.preventDefault();
+                showContextMenu(e, fileName);
+            };
+            
+            fileTree.appendChild(li);
+            
+            // Add children for folders
+            if (file.type === 'folder' && file.content && file.content.length > 0) {
+                const ul = document.createElement('ul');
+                ul.className = 'nested-folder';
+                ul.style.display = 'none';
+                ul.style.marginLeft = '20px';
+                
+                file.content.forEach(childName => {
+                    if (files[childName]) {
+                        const childLi = document.createElement('li');
+                        childLi.className = `${files[childName].type} ${currentFile === childName ? 'active' : ''}`;
+                        
+                        let childIcon = 'fa-file';
+                        if (files[childName].type === 'folder') childIcon = 'fa-folder';
+                        if (files[childName].type === 'python') childIcon = 'fa-code';
+                        if (files[childName].type === 'image') childIcon = 'fa-image';
+                        if (files[childName].type === 'audio') childIcon = 'fa-music';
+                        
+                        childLi.innerHTML = `<i class="fas ${childIcon}"></i> ${childName}`;
+                        childLi.onclick = () => selectFile(childName);
+                        childLi.ondblclick = () => {
+                            if (files[childName].type === 'audio') {
+                                playAudioFile(childName);
+                            }
+                        };
+                        childLi.oncontextmenu = (e) => {
+                            e.preventDefault();
+                            showContextMenu(e, childName);
+                        };
+                        ul.appendChild(childLi);
+                    }
+                });
+                
+                li.appendChild(ul);
+            }
+        }
+
+        // Toggle folder expand/collapse
+        function toggleFolder(folderName) {
+            const li = Array.from(fileTree.querySelectorAll('li')).find(
+                li => li.textContent.includes(folderName)
+            );
+            if (li) {
+                const ul = li.querySelector('ul');
+                if (ul) {
+                    ul.style.display = ul.style.display === 'none' ? 'block' : 'none';
+                    const icon = li.querySelector('i');
+                    icon.className = ul.style.display === 'none' ? 'fas fa-folder' : 'fas fa-folder-open';
+                }
+            }
+        }
+
+        // Update editor tabs
+        function updateEditorTabs() {
+            editorTabs.innerHTML = '';
+            
+            for (const fileName in files) {
+                if (files[fileName].type === 'python' || files[fileName].type === 'text') {
+                    const tab = document.createElement('div');
+                    tab.className = `editor-tab ${currentFile === fileName ? 'active' : ''}`;
+                    tab.textContent = fileName;
+                    
+                    tab.onclick = () => selectFile(fileName);
+                    
+                    const closeBtn = document.createElement('span');
+                    closeBtn.innerHTML = ' ×';
+                    closeBtn.style.cursor = 'pointer';
+                    closeBtn.style.marginLeft = '5px';
+                    closeBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        closeFile(fileName);
+                    };
+                    
+                    tab.appendChild(closeBtn);
+                    editorTabs.appendChild(tab);
+                }
+            }
+        }
+
+        // Select file
+        function selectFile(fileName) {
+            if (!files[fileName]) return;
+            
+            currentFile = fileName;
+            const file = files[fileName];
+            
+            // Update active states
+            document.querySelectorAll('.file-tree li').forEach(li => {
+                li.classList.remove('active');
+                if (li.textContent.includes(fileName)) {
+                    li.classList.add('active');
+                }
+            });
+            
+            // Update tabs
+            updateEditorTabs();
+            
+            // Update editor content
+            if (file.type === 'python' || file.type === 'text') {
+                editor.setValue(file.content || '');
+                editor.setOption('mode', file.type === 'python' ? 'python' : 'text');
+                document.getElementById('currentFileName').textContent = fileName;
+            } else if (file.type === 'image') {
+                editor.setValue(`# Image file: ${fileName}\n# Preview shown in output area`);
+                document.getElementById('currentFileName').textContent = fileName;
+                showImagePreview(fileName);
+            } else if (file.type === 'audio') {
+                editor.setValue(`# Audio file: ${fileName}\n# Use the audio panel to play this file`);
+                document.getElementById('currentFileName').textContent = fileName;
+                showAudioPreview(fileName);
+            }
+        }
+
+        // Show audio preview
+        function showAudioPreview(fileName) {
+            const file = files[fileName];
+            if (file && file.type === 'audio' && file.content) {
+                outputContent.innerHTML = `
+                    <div class="audio-player">
+                        <h4>Audio File: ${fileName}</h4>
+                        <audio id="audioPreview" controls>
+                            <source src="${file.content}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <div class="audio-controls">
+                            <button class="audio-control-btn" onclick="playAudioPreview()"><i class="fas fa-play"></i> Play</button>
+                            <button class="audio-control-btn" onclick="pauseAudioPreview()"><i class="fas fa-pause"></i> Pause</button>
+                            <button class="audio-control-btn" onclick="stopAudioPreview()"><i class="fas fa-stop"></i> Stop</button>
+                            <button class="audio-control-btn" onclick="openAudioInPanel()"><i class="fas fa-expand"></i> Open in Panel</button>
+                        </div>
+                    </div>
+                `;
+                setupAudioVisualizer(fileName);
+            }
+        }
+
+        // Setup audio visualizer
+        function setupAudioVisualizer(fileName) {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+            }
+            
+            const file = files[fileName];
+            if (file && file.content) {
+                // Store the audio file for use in visualizer
+                currentAudio = fileName;
+            }
+        }
+
+        // Play audio file
+        function playAudioFile(fileName) {
+            const file = files[fileName];
+            if (!file || file.type !== 'audio') return;
+            
+            showAudioPreview(fileName);
+            playAudioPreview();
+        }
+
+        function playAudioPreview() {
+            const audioElement = document.getElementById('audioPreview');
+            if (audioElement) {
+                audioElement.play();
+                startVisualizer();
+            }
+        }
+
+        function pauseAudioPreview() {
+            const audioElement = document.getElementById('audioPreview');
+            if (audioElement) {
+                audioElement.pause();
+                stopVisualizer();
+            }
+        }
+
+        function stopAudioPreview() {
+            const audioElement = document.getElementById('audioPreview');
+            if (audioElement) {
+                audioElement.pause();
+                audioElement.currentTime = 0;
+                stopVisualizer();
+            }
+        }
+
+        function openAudioInPanel() {
+            toggleAudioControls();
+        }
+
+        // Audio visualizer functions
+        function startVisualizer() {
+            stopVisualizer();
+            
+            if (!currentAudio || !files[currentAudio]) return;
+            
+            const audioElement = document.getElementById('audioPreview');
+            if (!audioElement) return;
+            
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            if (!analyser) {
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+            }
+            
+            if (audioSource) {
+                audioSource.disconnect();
+            }
+            
+            audioSource = audioContext.createMediaElementSource(audioElement);
+            audioSource.connect(analyser);
+            analyser.connect(audioContext.destination);
+            
+            visualizerInterval = setInterval(updateVisualizer, 100);
+        }
+
+        function updateVisualizer() {
+            const visualizer = document.getElementById('audioVisualizer');
+            if (!visualizer || !analyser) return;
+            
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            analyser.getByteFrequencyData(dataArray);
+            
+            visualizer.innerHTML = '';
+            const barWidth = (visualizer.offsetWidth / bufferLength) * 2.5;
+            
+            for (let i = 0; i < bufferLength; i++) {
+                const barHeight = (dataArray[i] / 255) * visualizer.offsetHeight;
+                const bar = document.createElement('div');
+                bar.className = 'visualizer-bar';
+                bar.style.height = `${barHeight}px`;
+                bar.style.left = `${i * (barWidth + 1)}px`;
+                bar.style.width = `${barWidth}px`;
+                visualizer.appendChild(bar);
+            }
+        }
+
+        function stopVisualizer() {
+            if (visualizerInterval) {
+                clearInterval(visualizerInterval);
+                visualizerInterval = null;
+            }
+            const visualizer = document.getElementById('audioVisualizer');
+            if (visualizer) {
+                visualizer.innerHTML = '';
+            }
+        }
+
+        // Close file
+        function closeFile(fileName) {
+            if (currentFile === fileName) {
+                currentFile = null;
+                editor.setValue('');
+                document.getElementById('currentFileName').textContent = 'No file selected';
+            }
+            updateEditorTabs();
+        }
+
+        // Show image preview
+        function showImagePreview(fileName) {
+            const file = files[fileName];
+            if (file && file.type === 'image' && file.content) {
+                outputContent.innerHTML = `<h4>Image Preview: ${fileName}</h4><img src="${file.content}" alt="${fileName}">`;
+            }
+        }
+
+        // Run Python code
+        function runPython() {
+            if (!currentFile || files[currentFile].type !== 'python') {
+                outputContent.textContent = 'Please select a Python file to run.';
+                outputContent.className = 'output-content error';
+                return;
+            }
+            
+            // Save current content
+            files[currentFile].content = editor.getValue();
+            
+            outputContent.textContent = 'Running...';
+            outputContent.className = 'output-content';
+            
+            // Use Skulpt or Pyodide for Python execution in browser
+            // For simplicity, we'll use a mock execution with JavaScript eval for basic Python
+            setTimeout(() => {
+                try {
+                    // This is a simplified Python runner using JavaScript
+                    // In production, you would use Pyodide or Skulpt
+                    const code = editor.getValue();
+                    const result = mockPythonExecution(code);
+                    outputContent.textContent = result;
+                    outputContent.className = 'output-content';
+                } catch (error) {
+                    outputContent.textContent = `Error: ${error.message}`;
+                    outputContent.className = 'output-content error';
+                }
+            }, 500);
+        }
+
+        // Mock Python execution (for demonstration)
+        function mockPythonExecution(code) {
+            // Simple mock execution - in reality you'd use Pyodide
+            const lines = code.split('\n');
+            let output = '';
+            
+            lines.forEach(line => {
+                if (line.includes('print(')) {
+                    const match = line.match(/print\(['"](.*?)['"]\)/);
+                    if (match) {
+                        output += match[1] + '\n';
+                    }
+                } else if (line.includes('#') && line.indexOf('#') < line.indexOf('print')) {
+                    // Handle comments
+                }
+            });
+            
+            if (!output) {
+                output = 'Code executed successfully.\n(Note: This is a mock execution. For full Python support, integrate with Pyodide)';
+            }
+            
+            return output;
+        }
+
+        // Clear output
+        function clearOutput() {
+            outputContent.textContent = '';
+            outputContent.className = 'output-content';
+            stopVisualizer();
+        }
+
+        // Toggle audio panel
+        function toggleAudioPanel() {
+            if (currentFile && files[currentFile].type === 'audio') {
+                showAudioPreview(currentFile);
+            } else {
+                outputContent.innerHTML = '<div class="audio-player"><h4>Audio Panel</h4><p>Select an audio file from the file tree to use the audio panel.</p></div>';
+            }
+        }
+
+        // Audio controls modal
+        function toggleAudioControls() {
+            const modal = document.getElementById('audioControlsModal');
+            if (modal.style.display === 'flex') {
+                closeAudioControls();
+            } else {
+                modal.style.display = 'flex';
+                updateAudioModal();
+            }
+        }
+
+        function closeAudioControls() {
+            document.getElementById('audioControlsModal').style.display = 'none';
+            stopAudio();
+        }
+
+        function updateAudioModal() {
+            const playerDiv = document.getElementById('audioModalPlayer');
+            if (currentFile && files[currentFile].type === 'audio') {
+                const file = files[currentFile];
+                playerDiv.innerHTML = `
+                    <h4>Now Playing: ${currentFile}</h4>
+                    <audio id="modalAudio" controls>
+                        <source src="${file.content}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                `;
+            } else {
+                playerDiv.innerHTML = '<h4>No audio file selected</h4><p>Select an audio file from the file tree to play it here</p>';
+            }
+        }
+
+        function playAudio() {
+            const audioElement = document.getElementById('modalAudio');
+            if (audioElement) {
+                audioElement.play();
+                startVisualizer();
+            }
+        }
+
+        function pauseAudio() {
+            const audioElement = document.getElementById('modalAudio');
+            if (audioElement) {
+                audioElement.pause();
+                stopVisualizer();
+            }
+        }
+
+        function stopAudio() {
+            const audioElement = document.getElementById('modalAudio');
+            if (audioElement) {
+                audioElement.pause();
+                audioElement.currentTime = 0;
+                stopVisualizer();
+            }
+        }
+
+        function changeVolume(value) {
+            const audioElement = document.getElementById('modalAudio');
+            if (audioElement) {
+                audioElement.volume = value;
+            }
+        }
+
+        function downloadAudio() {
+            if (!currentFile || files[currentFile].type !== 'audio') {
+                alert('Please select an audio file to download.');
+                return;
+            }
+            downloadFile();
+        }
+
+        // File upload
+        function uploadFile() {
+            document.getElementById('uploadModal').style.display = 'flex';
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').style.display = 'none';
+        }
+
+        function processUpload() {
+            const fileInput = document.getElementById('fileUpload');
+            const uploadedFiles = Array.from(fileInput.files);
+            
+            uploadedFiles.forEach(file => {
+                const reader = new FileReader();
+                const fileName = file.name;
+                const fileType = getFileType(fileName);
+                
+                reader.onload = function(e) {
+                    files[fileName] = {
+                        type: fileType,
+                        content: e.target.result,
+                        path: '/'
+                    };
+                    
+                    // Add to audio folder if it's an audio file
+                    if (fileType === 'audio' && files['audio']) {
+                        files['audio'].content.push(fileName);
+                    }
+                    
+                    updateFileTree();
+                };
+                
+                if (fileType === 'image' || fileType === 'audio') {
+                    reader.readAsDataURL(file);
+                } else {
+                    reader.readAsText(file);
+                }
+            });
+            
+            closeUploadModal();
+            fileInput.value = '';
+        }
+
+        // Download file
+        function downloadFile() {
+            if (!currentFile || !files[currentFile]) {
+                alert('Please select a file to download.');
+                return;
+            }
+            
+            const file = files[currentFile];
+            let content, mimeType, fileName;
+            
+            if (file.type === 'image') {
+                content = file.content;
+                mimeType = 'image/png';
+                fileName = currentFile;
+            } else if (file.type === 'audio') {
+                content = file.content.split(',')[1]; // Remove data URL prefix
+                mimeType = getAudioMimeType(currentFile);
+                fileName = currentFile;
+            } else {
+                content = file.content;
+                mimeType = file.type === 'python' ? 'text/x-python' : 'text/plain';
+                fileName = currentFile;
+            }
+            
+            const blob = file.type === 'audio' ? 
+                new Blob([base64ToArrayBuffer(content)], { type: mimeType }) :
+                new Blob([content], { type: mimeType });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function base64ToArrayBuffer(base64) {
+            const binaryString = atob(base64);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function getAudioMimeType(fileName) {
+            const ext = fileName.split('.').pop().toLowerCase();
+            switch(ext) {
+                case 'mp3': return 'audio/mpeg';
+                case 'wav': return 'audio/wav';
+                case 'ogg': return 'audio/ogg';
+                case 'flac': return 'audio/flac';
+                case 'm4a': return 'audio/mp4';
+                default: return 'audio/mpeg';
+            }
+        }
+
+        // New file modal
+        function showNewFileModal() {
+            document.getElementById('newFileModal').style.display = 'flex';
+        }
+
+        function closeNewFileModal() {
+            document.getElementById('newFileModal').style.display = 'none';
+        }
+
+        function createNewFile() {
+            const fileName = document.getElementById('newFileName').value.trim();
+            const fileType = document.getElementById('fileType').value;
+            
+            if (!fileName) {
+                alert('Please enter a file name.');
+                return;
+            }
+            
+            let finalFileName = fileName;
+            let type = fileType;
+            
+            if (fileType === 'python' && !fileName.endsWith('.py')) {
+                finalFileName += '.py';
+                type = 'python';
+            } else if (fileType === 'text' && !fileName.endsWith('.txt')) {
+                finalFileName += '.txt';
+                type = 'text';
+            } else if (fileType === 'audio' && !fileName.endsWith('.mp3')) {
+                finalFileName += '.mp3';
+                type = 'audio';
+            } else if (fileType === 'folder') {
+                type = 'folder';
+            }
+            
+            if (files[finalFileName]) {
+                alert('File already exists!');
+                return;
+            }
+            
+            files[finalFileName] = {
+                type: type,
+                content: type === 'folder' ? [] : 
+                        type === 'python' ? '# New Python file\nprint("Hello, World!")' : 
+                        type === 'audio' ? 'data:audio/mpeg;base64,//uQx' : // Placeholder for audio
+                        '',
+                path: '/'
+            };
+            
+            // Add to appropriate folder
+            if (type === 'audio' && files['audio']) {
+                files['audio'].content.push(finalFileName);
+            }
+            
+            updateFileTree();
+            selectFile(finalFileName);
+            closeNewFileModal();
+        }
+
+        // New folder modal
+        function showNewFolderModal() {
+            document.getElementById('newFileModal').style.display = 'flex';
+            document.getElementById('fileType').value = 'folder';
+            document.getElementById('newFileName').value = 'new_folder';
+        }
+
+        // Get file type from extension
+        function getFileType(fileName) {
+            const ext = fileName.split('.').pop().toLowerCase();
+            if (ext === 'py') return 'python';
+            if (['png', 'jpg', 'jpeg', 'gif'].includes(ext)) return 'image';
+            if (['mp3', 'wav', 'ogg', 'flac', 'm4a'].includes(ext)) return 'audio';
+            if (ext === 'txt') return 'text';
+            return 'text';
+        }
+
+        // Context menu
+        function showContextMenu(e, fileName) {
+            // Remove existing context menu
+            const existingMenu = document.getElementById('contextMenu');
+            if (existingMenu) existingMenu.remove();
+            
+            const menu = document.createElement('div');
+            menu.id = 'contextMenu';
+            menu.style.position = 'absolute';
+            menu.style.background = 'rgba(30, 30, 50, 0.95)';
+            menu.style.border = '1px solid rgba(255, 128, 0, 0.5)';
+            menu.style.borderRadius = '5px';
+            menu.style.padding = '10px';
+            menu.style.zIndex = '1000';
+            menu.style.left = e.pageX + 'px';
+            menu.style.top = e.pageY + 'px';
+            
+            const file = files[fileName];
+            const options = [
+                { text: 'Rename', action: () => renameFile(fileName) },
+                { text: 'Delete', action: () => deleteFile(fileName) },
+                { text: 'Download', action: () => { selectFile(fileName); downloadFile(); } }
+            ];
+            
+            if (file.type === 'audio') {
+                options.unshift(
+                    { text: 'Play', action: () => { selectFile(fileName); playAudioPreview(); } }
+                );
+            }
+            
+            options.forEach(option => {
+                const div = document.createElement('div');
+                div.textContent = option.text;
+                div.style.padding = '8px 12px';
+                div.style.cursor = 'pointer';
+                div.style.borderRadius = '3px';
+                div.onmouseover = () => div.style.background = 'rgba(255, 128, 0, 0.2)';
+                div.onmouseout = () => div.style.background = 'transparent';
+                div.onclick = () => {
+                    option.action();
+                    menu.remove();
+                };
+                menu.appendChild(div);
+            });
+            
+            document.body.appendChild(menu);
+            
+            // Close menu when clicking elsewhere
+            setTimeout(() => {
+                document.addEventListener('click', function closeMenu() {
+                    menu.remove();
+                    document.removeEventListener('click', closeMenu);
+                });
+            }, 100);
+        }
+
+        // Rename file
+        function renameFile(oldName) {
+            const newName = prompt('Enter new name:', oldName);
+            if (newName && newName !== oldName) {
+                if (files[newName]) {
+                    alert('File already exists!');
+                    return;
+                }
+                
+                files[newName] = files[oldName];
+                delete files[oldName];
+                
+                // Update references in parent folders
+                for (const fileName in files) {
+                    if (files[fileName].type === 'folder' && files[fileName].content) {
+                        const index = files[fileName].content.indexOf(oldName);
+                        if (index !== -1) {
+                            files[fileName].content[index] = newName;
+                        }
+                    }
+                }
+                
+                if (currentFile === oldName) {
+                    currentFile = newName;
+                }
+                
+                updateFileTree();
+                updateEditorTabs();
+            }
+        }
+
+        // Delete file
+        function deleteFile(fileName) {
+            if (confirm(`Are you sure you want to delete "${fileName}"?`)) {
+                delete files[fileName];
+                
+                // Remove from parent folders
+                for (const file in files) {
+                    if (files[file].type === 'folder' && files[file].content) {
+                        const index = files[file].content.indexOf(fileName);
+                        if (index !== -1) {
+                            files[file].content.splice(index, 1);
+                        }
+                    }
+                }
+                
+                if (currentFile === fileName) {
+                    currentFile = null;
+                    editor.setValue('');
+                    document.getElementById('currentFileName').textContent = 'No file selected';
+                }
+                
+                updateFileTree();
+                updateEditorTabs();
+            }
+        }
+
+        // Refresh file tree
+        function refreshFileTree() {
+            updateFileTree();
+        }
+
+        // Save current file
+        function saveCurrentFile() {
+            if (currentFile) {
+                files[currentFile].content = editor.getValue();
+                alert('File saved!');
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeFiles();
+            
+            // Auto-save when editor loses focus
+            editor.on('blur', () => {
+                if (currentFile) {
+                    files[currentFile].content = editor.getValue();
+                }
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    saveCurrentFile();
+                }
+                if (e.ctrlKey && e.key === 'r') {
+                    e.preventDefault();
+                    runPython();
+                }
+                if (e.ctrlKey && e.key === 'n') {
+                    e.preventDefault();
+                    showNewFileModal();
+                }
+                if (e.ctrlKey && e.key === 'm') {
+                    e.preventDefault();
+                    toggleAudioControls();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
