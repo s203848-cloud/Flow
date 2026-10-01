@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLOW · account</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .logo {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 40px;
+            background: linear-gradient(to right, #ffc400, #ff8000, #ff5900, #ff8000, #ffc400);
+            background-size: 800% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbow-h 8s linear infinite;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: rgba(20, 20, 35, 0.8);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .card-title {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            color: #ff8000;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* tab navigation */
+        .tab-container {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            gap: 5px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 15px 10px;
+            color: #aaa;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-btn.active {
+            color: #ff8000;
+            border-bottom-color: #ff8000;
+            text-shadow: 0 0 5px rgba(255, 128, 0, 0.3);
+        }
+
+        .tab-btn:hover {
+            color: #ff8000;
+            background: rgba(255, 128, 0, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #aaa;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(30, 30, 50, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: #ff8000;
+            box-shadow: 0 0 15px rgba(255, 128, 0, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 8px;
+            color: #ff8000;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            box-shadow: 0 0 15px rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            padding: 10px 20px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+
+        /* student number split input */
+        .student-number-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0 5px;
+        }
+
+        .s-prefix {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 60px;
+            background: rgba(100, 100, 120, 0.5);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            font-size: 1.5rem;
+            color: #aaa;
+            font-weight: bold;
+        }
+
+        .number-inputs {
+            display: flex;
+        }
+
+        .number-input {
+            width: 50px;
+            height: 60px;
+            background: rgba(30, 30, 50, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-left: none;
+            text-align: center;
+            font-size: 1.5rem;
+            color: white;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .number-input:first-child {
+            border-left: 1px solid rgba(255, 128, 0, 0.3);
+        }
+
+        .number-input:focus {
+            border-color: #ff8000;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.2);
+            z-index: 1;
+        }
+
+        .verify-info {
+            background: rgba(30, 30, 50, 0.5);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .user-name {
+            font-size: 1.8rem;
+            color: #ff8000;
+            margin: 15px 0;
+            font-weight: 600;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .icon-large {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #ffc400, #ff8000, #ff5900, #ff8000, #ffc400);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .success-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            border-radius: 8px;
+            color: #4CAF50;
+        }
+
+        .error-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            border-radius: 8px;
+            color: #ff4444;
+            display: none;
+        }
+
+        .edit-name-link {
+            color: #ff8000;
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: inline-block;
+            margin-top: 15px;
+            transition: all 0.3s;
+            border-bottom: 1px dotted transparent;
+        }
+
+        .edit-name-link:hover {
+            color: #ffc400;
+            border-bottom-color: #ffc400;
+        }
+
+        .welcome-message {
+            text-align: center;
+            margin-top: 25px;
+            color: #aaa;
+            font-size: 0.95rem;
+        }
+
+        @keyframes rainbow-h {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 0%; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 40%, 60%, 80% { transform: translateX(-4px); }
+            10%, 30%, 50%, 70% { transform: translateX(4px); }
+        }
+
+        .shake {
+            animation: shake 0.4s ease;
+        }
+
+        @media (max-width: 600px) {
+            .card { padding: 30px 20px; }
+            .logo { font-size: 3rem; margin-bottom: 30px; }
+            .back-btn { top: 20px; left: 20px; }
+            .number-input { width: 45px; height: 55px; }
+            .s-prefix { width: 45px; height: 55px; }
+        }
+        @media (max-width: 400px) {
+            .number-input { width: 38px; height: 50px; font-size: 1.3rem; }
+            .s-prefix { width: 38px; height: 50px; font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+    <a href="#" class="back-btn" id="backBtn"><i class="fas fa-arrow-left"></i> Back</a>
+    <div class="logo">FLOW</div>
+
+    <div class="container">
+        <!-- ACCOUNT SCREEN (sign in / register combined) -->
+        <div id="accountScreen" class="screen active">
+            <div class="card">
+                <!-- tab navigation -->
+                <div class="tab-container">
+                    <button class="tab-btn active" id="signInTab"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+                    <button class="tab-btn" id="registerTab"><i class="fas fa-user-plus"></i> Register</button>
+                </div>
+
+                <!-- first name -->
+                <div class="form-group">
+                    <label class="form-label">First Name</label>
+                    <input type="text" id="firstName" class="form-input" placeholder="Your first name" autocomplete="off">
+                </div>
+
+                <!-- last name -->
+                <div class="form-group">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" id="lastName" class="form-input" placeholder="Your last name" autocomplete="off">
+                </div>
+
+                <!-- student number (split inputs) -->
+                <div class="form-group">
+                    <label class="form-label">Student Number</label>
+                    <div class="student-number-container">
+                        <div class="s-prefix">s</div>
+                        <div class="number-inputs">
+                            <input type="text" maxlength="1" class="number-input" id="num1" data-index="0" inputmode="numeric">
+                            <input type="text" maxlength="1" class="number-input" id="num2" data-index="1" inputmode="numeric">
+                            <input type="text" maxlength="1" class="number-input" id="num3" data-index="2" inputmode="numeric">
+                            <input type="text" maxlength="1" class="number-input" id="num4" data-index="3" inputmode="numeric">
+                            <input type="text" maxlength="1" class="number-input" id="num5" data-index="4" inputmode="numeric">
+                            <input type="text" maxlength="1" class="number-input" id="num6" data-index="5" inputmode="numeric">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- dynamic submit button -->
+                <button id="submitAccountBtn" class="btn">Sign In <i class="fas fa-sign-in-alt"></i></button>
+
+                <!-- single error message container -->
+                <div class="error-message" id="accountError">
+                    <i class="fas fa-exclamation-circle"></i> <span>Error</span>
+                </div>
+
+                <div class="welcome-message">
+                    <i class="fas fa-lock" style="opacity: 0.7;"></i> Enter your credentials grant access to FLOW tools <i class="fas fa-lock" style="opacity: 0.7;"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- VERIFICATION SCREEN (success) -->
+        <div id="verifyScreen" class="screen">
+            <div class="card">
+                <div class="icon-large">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2 class="card-title">Access Granted</h2>
+                <div class="verify-info">
+                    <p>Welcome to FLOW</p>
+                    <div class="user-name" id="displayName">—</div>
+                    <p>Student Number: <span id="displayStudentNumber">s000000</span></p>
+                    <p>your account is active</p>
+                </div>
+                <div class="success-message">
+                    <i class="fas fa-check-circle"></i> You now have access to the Tool Library
+                </div>
+                <button id="goToDashboardBtn" class="btn">
+                    Go to Tool Library <i class="fas fa-rocket"></i>
+                </button>
+                <div style="text-align: center; margin-top: 15px;">
+                    <a href="#" id="editNameVerifyLink" class="edit-name-link">
+                        <i class="fas fa-edit"></i> Edit name or student number
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ----- DOM elements -----
+            const accountScreen = document.getElementById('accountScreen');
+            const verifyScreen = document.getElementById('verifyScreen');
+
+            // tabs & button
+            const signInTab = document.getElementById('signInTab');
+            const registerTab = document.getElementById('registerTab');
+            const submitBtn = document.getElementById('submitAccountBtn');
+
+            // inputs
+            const firstNameInput = document.getElementById('firstName');
+            const lastNameInput = document.getElementById('lastName');
+            const numberInputs = [
+                document.getElementById('num1'),
+                document.getElementById('num2'),
+                document.getElementById('num3'),
+                document.getElementById('num4'),
+                document.getElementById('num5'),
+                document.getElementById('num6')
+            ];
+
+            // display elements (verify screen)
+            const displayNameSpan = document.getElementById('displayName');
+            const displayStudentNumberSpan = document.getElementById('displayStudentNumber');
+
+            // error
+            const accountError = document.getElementById('accountError');
+            const errorTextSpan = accountError.querySelector('span'); // to set message dynamically
+
+            // links
+            const editVerifyLink = document.getElementById('editNameVerifyLink');
+            const backBtn = document.getElementById('backBtn');
+            const goToDashboard = document.getElementById('goToDashboardBtn');
+
+            // ----- local storage: users array -----
+            let users = JSON.parse(localStorage.getItem('flow_users')) || [];
+
+            // current active user (after login/reg)
+            let currentUser = null;
+
+            // ----- helper functions -----
+            function hideError() {
+                accountError.style.display = 'none';
+            }
+
+            function showError(message) {
+                errorTextSpan.textContent = ' ' + message;
+                accountError.style.display = 'block';
+            }
+
+            // get full student number (6-digit string)
+            function getStudentNumber() {
+                return numberInputs.map(inp => inp.value).join('');
+            }
+
+            // clear all fields
+            function clearAllInputs() {
+                firstNameInput.value = '';
+                lastNameInput.value = '';
+                numberInputs.forEach(inp => inp.value = '');
+            }
+
+            // update button style & icon based on active tab
+            function updateButtonStyle() {
+                if (signInTab.classList.contains('active')) {
+                    submitBtn.innerHTML = 'Sign In <i class="fas fa-sign-in-alt"></i>';
+                } else {
+                    submitBtn.innerHTML = 'Register <i class="fas fa-user-plus"></i>';
+                }
+            }
+
+            // ----- tab switching -----
+            signInTab.addEventListener('click', () => {
+                signInTab.classList.add('active');
+                registerTab.classList.remove('active');
+                updateButtonStyle();
+                hideError();
+            });
+
+            registerTab.addEventListener('click', () => {
+                registerTab.classList.add('active');
+                signInTab.classList.remove('active');
+                updateButtonStyle();
+                hideError();
+            });
+
+            // ----- number input behavior (auto‑move, restrict) -----
+            numberInputs.forEach((input, index) => {
+                input.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, ''); // only digits
+                    hideError();
+
+                    if (this.value.length === 1 && index < numberInputs.length - 1) {
+                        numberInputs[index + 1].focus();
+                    }
+                });
+
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
+                        numberInputs[index - 1].focus();
+                    }
+                    if (e.key === 'ArrowLeft' && index > 0) {
+                        numberInputs[index - 1].focus();
+                    }
+                    if (e.key === 'ArrowRight' && index < numberInputs.length - 1) {
+                        numberInputs[index + 1].focus();
+                    }
+                });
+            });
+
+            // enter key on last number triggers submit
+            numberInputs[5].addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    submitBtn.click();
+                }
+            });
+
+            // also pressing enter on last name focuses first number input
+            lastNameInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    numberInputs[0].focus();
+                }
+            });
+
+            // ----- main submit: sign in / register -----
+            submitBtn.addEventListener('click', function() {
+                const isSignIn = signInTab.classList.contains('active');
+                const firstName = firstNameInput.value.trim();
+                const lastName = lastNameInput.value.trim();
+                const studentNum = getStudentNumber();
+
+                // validation
+                if (!firstName || !lastName || studentNum.length !== 6) {
+                    showError('Please complete all fields (6‑digit student number)');
+                    accountScreen.classList.add('shake');
+                    setTimeout(() => accountScreen.classList.remove('shake'), 400);
+                    return;
+                }
+
+                if (isSignIn) {
+                    // SIGN IN: find match (case‑insensitive name, exact student number)
+                    const matchedUser = users.find(u => 
+                        u.firstName.toLowerCase() === firstName.toLowerCase() &&
+                        u.lastName.toLowerCase() === lastName.toLowerCase() &&
+                        u.studentNumber === studentNum
+                    );
+
+                    if (!matchedUser) {
+                        showError('No matching account. Please check name / student number.');
+                        accountScreen.classList.add('shake');
+                        setTimeout(() => accountScreen.classList.remove('shake'), 400);
+                        return;
+                    }
+
+                    currentUser = matchedUser;
+                } else {
+                    // REGISTER: check if student number already used
+                    const existing = users.find(u => u.studentNumber === studentNum);
+                    if (existing) {
+                        showError('Student number already registered. Try signing in.');
+                        accountScreen.classList.add('shake');
+                        setTimeout(() => accountScreen.classList.remove('shake'), 400);
+                        return;
+                    }
+
+                    // create new user object (preserve name casing as entered)
+                    const newUser = {
+                        firstName: firstName,
+                        lastName: lastName,
+                        studentNumber: studentNum
+                    };
+                    users.push(newUser);
+                    localStorage.setItem('flow_users', JSON.stringify(users));
+                    currentUser = newUser;
+                }
+
+                // SUCCESS: update verify screen, switch view
+                displayNameSpan.textContent = `${currentUser.firstName} ${currentUser.lastName}`;
+                displayStudentNumberSpan.textContent = `s${currentUser.studentNumber}`;
+
+                // clear any previous error
+                hideError();
+
+                // move to verify screen
+                accountScreen.classList.remove('active');
+                verifyScreen.classList.add('active');
+
+                // optional: clear fields for next time (but keep currentUser)
+                clearAllInputs();
+            });
+
+            // ----- go back to account screen (edit from verify) -----
+            editVerifyLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                verifyScreen.classList.remove('active');
+                accountScreen.classList.add('active');
+                currentUser = null;          // discard temporary session
+                hideError();
+                // keep tab as was (signIn/register unchanged)
+                // optionally focus first name
+                firstNameInput.focus();
+            });
+
+            // ----- back button logic -----
+            backBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                if (verifyScreen.classList.contains('active')) {
+                    // from verify -> account screen
+                    verifyScreen.classList.remove('active');
+                    accountScreen.classList.add('active');
+                    currentUser = null;
+                    hideError();
+                } else if (accountScreen.classList.contains('active')) {
+                    // if on main screen, just go back in history (or you could do nothing)
+                    window.history.back();
+                } else {
+                    window.history.back();
+                }
+            });
+
+            // ----- go to tools list -----
+            goToDashboard.addEventListener('click', function() {
+                if (!currentUser) {
+                    // fallback: should never happen if verify screen active
+                    window.location.href = './tools-list.html';
+                    return;
+                }
+                // store a simple flag / name for welcome (optional)
+                localStorage.setItem('flow_active_user', JSON.stringify({
+                    name: `${currentUser.firstName} ${currentUser.lastName}`,
+                    studentNumber: currentUser.studentNumber
+                }));
+
+                // loading animation
+                goToDashboard.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+                goToDashboard.disabled = true;
+
+                setTimeout(() => {
+                    window.location.href = './tools-list.html';
+                }, 600);
+            });
+
+            // ----- initial focus -----
+            firstNameInput.focus();
+
+            // extra: when register tab is active, you may hint password? not needed.
+            // ensure error disappears on typing
+            firstNameInput.addEventListener('input', hideError);
+            lastNameInput.addEventListener('input', hideError);
+
+            // set default button style
+            updateButtonStyle();
+        })();
+    </script>
+</body>
+</html>

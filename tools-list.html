@@ -1,0 +1,3242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Tools - EZ Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+    color: #fff;
+    min-height: 100vh;
+    padding: 20px;
+    transition: all 0.3s ease, margin-left 0.3s ease;
+}
+
+body.light-mode {
+    background: linear-gradient(135deg, #f0f2f5, #ffffff);
+    color: #333;
+}
+
+body.sidebar-open {
+    margin-left: 0px;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background: rgba(20, 20, 35, 0.8);
+    border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+    margin-bottom: 30px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+body.light-mode .navbar {
+    background: rgba(240, 242, 245, 0.9);
+    border-bottom: 1px solid rgba(255, 128, 0, 0.4);
+}
+
+.logo {
+    font-size: 6rem;
+    font-weight: bold;
+    background: linear-gradient(to right, #ffbb00, #ff8000, #ff5900, #ff7700, #ff5900, #ff8000, #ffbb00);
+    background-size: 800% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbow 8s linear infinite;
+}
+
+body.light-mode .logo {
+    background: linear-gradient(to right, #ff6b00, #ff8c00, #ff6b00, #ff8c00);
+    background-size: 800% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.nav-btn {
+    padding: 8px 15px;
+    background: rgba(255, 128, 0, 0.2);
+    border: 1px solid #ff8000;
+    border-radius: 5px;
+    color: #ff8000;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 128, 0, 0.3);
+}
+
+body.light-mode .nav-btn {
+    background: rgba(255, 128, 0, 0.1);
+    color: #ff6b00;
+    border-color: #ff8c00;
+}
+
+body.light-mode .nav-btn:hover {
+    background: rgba(255, 128, 0, 0.2);
+}
+
+.theme-toggle {
+    background: none;
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    border-radius: 5px;
+    color: #ff8000;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    transform-origin: center;
+}
+
+.theme-toggle:hover {
+    background: rgba(255, 128, 0, 0.1);
+    transform: translateY(-5px) rotate(5deg) scale(1.1);
+}
+
+.theme-toggle.rotating {
+    animation: rotateDouble 0.5s ease-in-out forwards;
+}
+
+@keyframes rotateDouble {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(720deg);
+    }
+}
+@keyframes rotateFull {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+@keyframes rotateHalf {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(230deg);
+    }
+}
+
+body.light-mode .theme-toggle {
+    color: #ff6b00;
+    border-color: rgba(255, 107, 0, 0.3);
+}
+
+.back-btn {
+    padding: 8px 15px;
+    background: rgba(255, 128, 0, 0.2);
+    border: 1px solid #ff8000;
+    border-radius: 5px;
+    color: #ff8000;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+body.light-mode .back-btn {
+    background: rgba(255, 128, 0, 0.1);
+    color: #ff6b00;
+    border-color: #ff8c00;
+}
+
+/* Compact Clock Styles */
+.compact-clock-container {
+    margin-left: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.compact-clock {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(20, 20, 35, 0.8);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-family: 'Segoe UI', monospace;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(5px);
+}
+
+body.light-mode .compact-clock {
+    background: rgba(240, 242, 245, 0.9);
+    border: 1px solid rgba(255, 128, 0, 0.4);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.clock-part {
+    display: inline-flex;
+}
+
+.digit {
+    display: inline-block;
+    min-width: 8px;
+    text-align: center;
+    color: #ff8000;
+    font-size: 0.75rem;
+    text-shadow: 0 0 5px rgba(255, 128, 0, 0.5);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    height: 14px;
+    line-height: 14px;
+}
+
+body.light-mode .digit {
+    color: #ff6b00;
+    text-shadow: 0 0 3px rgba(255, 107, 0, 0.3);
+}
+
+.digit.changing {
+    animation: digitChange 0.1s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+@keyframes digitChange {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.clock-separator {
+    color: #ff8000;
+    margin: 0 2px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(255, 128, 0, 0.5);
+}
+
+body.light-mode .clock-separator {
+    color: #ff6b00;
+}
+
+.milli .digit {
+    font-size: 0.65rem;
+    min-width: 6px;
+}
+
+/* Compact clock hover effect */
+.compact-clock:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 128, 0, 0.2);
+    border-color: #ff8000;
+}
+
+body.light-mode .compact-clock:hover {
+    border-color: #ff6b00;
+    box-shadow: 0 4px 12px rgba(255, 107, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+    .compact-clock-container {
+        display: none;
+    }
+}
+
+.sidebar-toggle {
+    position: fixed;
+    left: -112px;
+    top: 30px;
+    z-index: 1001;
+    background: rgba(20, 20, 35, 0.9);
+    border: 1.5px solid rgba(255, 128, 0, 0.3);
+    color: #ff8000;
+    border-radius: 5px;
+    padding: 25px 10px; /* Taller vertical padding */
+    cursor: pointer;
+    font-size: 7.5rem; /* Slightly larger text */
+    transition: left 0.3s ease, all 0.3s ease;
+    display: flex;
+    align-items: center; /* Perfect vertical centering */
+}
+
+body.sidebar-open .sidebar-toggle {
+    left: 138px;
+    z-index: 1;
+}
+
+body.light-mode .sidebar-toggle {
+    background: rgba(240, 242, 245, 0.9);
+    color: #ff6b00;
+    border-color: rgba(255, 107, 0, 0.3);
+}
+
+/* Sidebar Styles */
+.sidebar {
+    position: fixed;
+    left: -250px;
+    top: 0;
+    width: 250px;
+    height: 100vh;
+    background: rgba(15, 15, 30, 0.95);
+    border-right: 1px solid rgba(255, 128, 0, 0.2);
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 1000;
+    transition: left 0.3s ease, all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+body.sidebar-open .sidebar {
+    left: 0;
+}
+
+body.light-mode .sidebar {
+    background: rgba(240, 242, 245, 0.95);
+    border-right: 1px solid rgba(255, 128, 0, 0.3);
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+}
+
+.sidebar-title {
+    font-size: 1.5rem;
+    color: #ff8000;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+body.light-mode .sidebar-title {
+    color: #ff6b00;
+}
+
+.close-sidebar {
+    background: none;
+    border: none;
+    color: #ff8000;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+body.light-mode .close-sidebar {
+    color: #ff6b00;
+}
+
+.sidebar-category {
+    margin-bottom: 25px;
+}
+
+.category-title {
+    color: #ff8000;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    border-left: 3px solid #ff8000;
+    transition: all 0.3s ease;
+}
+
+body.light-mode .category-title {
+    color: #ff6b00;
+    border-left-color: #ff6b00;
+}
+
+.category-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.category-link {
+    color: #ddd;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+.category-link:hover {
+    background: rgba(255, 128, 0, 0.1);
+    color: #ff8000;
+}
+
+body.light-mode .category-link {
+    color: #555;
+}
+
+body.light-mode .category-link:hover {
+    background: rgba(255, 128, 0, 0.15);
+    color: #ff6b00;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    transition: margin-left 0.3s ease;
+}
+
+body.sidebar-open .container {
+    margin-left: 20px;
+}
+
+/* Search Bar Styles - MOVED ABOVE */
+.search-container {
+    margin-bottom: 30px;
+    background: rgba(20, 20, 35, 0.5);
+    border: 1px solid rgba(255, 69, 0, 0.2);
+    border-radius: 10px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+body.light-mode .search-container {
+    background: rgba(240, 242, 245, 0.7);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+}
+
+.search-box {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 15px 50px 15px 20px;
+    background: rgba(30, 30, 50, 0.8);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    border-radius: 8px;
+    color: white;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s;
+}
+
+body.light-mode .search-box input {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 128, 0, 0.4);
+    color: #333;
+}
+
+.search-box input:focus {
+    border-color: #ff8000;
+    box-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+}
+
+body.light-mode .search-box input:focus {
+    border-color: #ff6b00;
+    box-shadow: 0 0 10px rgba(255, 107, 0, 0.3);
+}
+
+.search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ff8000;
+    font-size: 20px;
+}
+
+.search-icon:hover {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ff8000;
+    font-size: 20px;
+    transform: rotate(-360);
+}
+
+body.light-mode .search-icon {
+    color: #ff6b00;
+}
+
+.search-stats {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #aaa;
+}
+
+body.light-mode .search-stats {
+    color: #666;
+}
+
+/* Favorites & Recent Section - NOW BELOW SEARCH */
+.favorites-recent-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.favorites-section, .recent-section {
+    background: rgba(20, 20, 35, 0.5);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+body.light-mode .favorites-section,
+body.light-mode .recent-section {
+    background: rgba(240, 242, 245, 0.7);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.section-header h3 {
+    color: #ff8000;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: color 0.3s ease;
+}
+
+body.light-mode .section-header h3 {
+    color: #ff6b00;
+}
+
+.reset-btn {
+    padding: 5px 10px;
+    background: rgba(255, 69, 0, 0.2);
+    border: 1px solid #ff4500;
+    border-radius: 4px;
+    color: #ff4500;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+
+.reset-btn:hover {
+    background: rgba(255, 69, 0, 0.3);
+}
+
+body.light-mode .reset-btn {
+    background: rgba(255, 69, 0, 0.15);
+    color: #ff4500;
+    border-color: #ff4500;
+}
+
+body.light-mode .reset-btn:hover {
+    background: rgba(255, 69, 0, 0.25);
+}
+
+.favorites-grid, .recent-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+    min-height: 60px;
+}
+
+.empty-message {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 20px;
+    grid-column: 1 / -1;
+}
+
+body.light-mode .empty-message {
+    color: #666;
+}
+
+/* Main Tool Sections */
+.section {
+    background: rgba(20, 20, 35, 0.5);
+    border: 1px solid rgba(255, 69, 0, 0.2);
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 30px;
+    transition: all 0.3s ease;
+}
+
+body.light-mode .section {
+    background: rgba(240, 242, 245, 0.7);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+}
+
+.section-title {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #ff8000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: color 0.3s ease;
+}
+
+body.light-mode .section-title {
+    color: #ff6b00;
+}
+
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.tool-card {
+    background: rgba(50, 50, 70, 0.4);
+    border: 1px solid rgba(255, 128, 0, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+}
+
+body.light-mode .tool-card {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    color: #333;
+}
+
+.tool-card:hover {
+    border-color: #ff8000;
+    background: rgba(50, 50, 70, 0.6);
+    transform: translateY(-15px) rotate(3deg);
+}
+
+body.light-mode .tool-card:hover {
+    border-color: #ff6b00;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 5px 15px rgba(255, 107, 0, 0.1);
+    transform: translateY(-15px) rotate(3deg);
+}
+
+.favorite-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #ffd700;
+    cursor: pointer;
+    font-size: 1.2rem;
+    z-index: 10;
+    transition: all 0.2s;
+    padding: 5px;
+}
+
+.favorite-btn:hover {
+    transform: scale(1.2) translateY(-4.5px) translateX(4.5px) rotate(8deg);
+}
+
+.favorite-btn.active {
+    color: #ff8000;
+    animation: rotateHalf 0.5s ease forwards;
+}
+
+body.light-mode .favorite-btn {
+    color: #ffd700;
+}
+
+body.light-mode .favorite-btn.active {
+    color: #ff6b00;
+}
+
+.tool-icon {
+    font-size: 2.25rem;
+    background: linear-gradient(to right, #ffbb00, #ff8000, #ff5900, #ff7700, #ff5900, #ff8000, #ffbb00);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbow 3.2s linear infinite;
+}
+
+body.light-mode .tool-icon {
+    background: linear-gradient(to right, #ff6b00, #ff8c00, #ff6b00, #ff8c00);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+@keyframes rainbow {
+  to {
+    background-position: 200% center;
+  }
+}
+
+.tool-name {
+    font-weight: bold;
+    font-size: 0.95rem;
+    margin-right: 25px;
+}
+
+body.light-mode .tool-name {
+    color: #222;
+}
+
+.tool-desc {
+    font-size: 0.85rem;
+    color: #aaa;
+}
+
+body.light-mode .tool-desc {
+    color: #666;
+}
+
+/* Search results highlighting */
+.highlight {
+    background-color: rgba(255, 128, 0, 0.3);
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+body.light-mode .highlight {
+    background-color: rgba(255, 128, 0, 0.2);
+}
+
+.no-results {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+    font-style: italic;
+    display: none;
+}
+
+body.light-mode .no-results {
+    color: #666;
+}
+
+.hidden-section {
+    display: none;
+}
+
+@keyframes rainbow-h {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 0%; }
+}
+
+@media (max-width: 1100px) {
+    .favorites-recent-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .tools-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    body.sidebar-open {
+        margin-left: 0;
+    }
+    
+    .sidebar {
+        width: 100%;
+        left: -100%;
+    }
+    
+    body.sidebar-open .sidebar {
+        left: 0;
+    }
+    
+    .sidebar-toggle {
+        left: 20px;
+    }
+    
+    body.sidebar-open .sidebar-toggle {
+        left: 20px;
+    }
+    
+    .navbar {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .nav-right {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .search-box {
+        width: 100%;
+    }
+    
+    .container {
+        margin-left: 0 !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .tools-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    
+    .favorites-grid, .recent-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .logo {
+        font-size: 4rem;
+    }
+}
+
+/* NEW: Tool Counter */
+.tool-counter {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(255, 128, 0, 0.9);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    z-index: 999;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+body.light-mode .tool-counter {
+    background: rgba(255, 107, 0, 0.9);
+}
+
+/* NEW: Enhanced Sidebar Categories */
+.sidebar-category {
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 128, 0, 0.1);
+    padding-bottom: 15px;
+}
+
+.category-title {
+    color: #ff8000;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.category-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+}
+
+.category-link {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    background: rgba(255, 128, 0, 0.05);
+    border-radius: 4px;
+}
+
+/* NEW: Global Stats in Navbar */
+.global-stats {
+    display: flex;
+    gap: 20px;
+    margin-left: 20px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ff8000;
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    color: #aaa;
+}
+
+body.light-mode .stat-label {
+    color: #666;
+}
+
+/* Settings Modal - FIXED */
+.settings-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.settings-content {
+    background: rgba(25, 25, 40, 0.95);
+    width: 90%;
+    max-width: 500px;
+    border-radius: 15px;
+    padding: 30px;
+    border: 2px solid rgba(255, 128, 0, 0.3);
+    box-shadow: 0 15px 40px rgba(255, 128, 0, 0.2);
+    backdrop-filter: blur(10px);
+    position: relative;
+    transform: translateY(0);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+body.light-mode .settings-content {
+    background: rgba(245, 245, 250, 0.95);
+    border: 2px solid rgba(255, 128, 0, 0.2);
+}
+
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(255, 128, 0, 0.2);
+}
+
+.settings-header h2 {
+    color: #ff8000;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.close-settings {
+    background: none;
+    border: none;
+    color: #ff8000;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-settings:hover {
+    background: rgba(255, 128, 0, 0.1);
+    transform: rotate(90deg);
+}
+
+.setting-group {
+    margin-bottom: 25px;
+}
+
+.setting-group h3 {
+    color: #ff8000;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brightness-control {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.brightness-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 10px;
+    border-radius: 5px;
+    background: linear-gradient(to right, #333, #666, #999);
+    outline: none;
+    cursor: pointer;
+}
+
+.brightness-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #ff8000;
+    cursor: pointer;
+    border: 3px solid white;
+    box-shadow: 0 0 10px rgba(255, 128, 0, 0.5);
+}
+
+.brightness-value {
+    min-width: 50px;
+    text-align: center;
+    font-weight: bold;
+    color: #ff8000;
+    font-size: 1.1rem;
+}
+
+.theme-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.theme-option {
+    padding: 15px;
+    border: 2px solid rgba(255, 128, 0, 0.2);
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: rgba(30, 30, 45, 0.5);
+}
+
+.theme-option:hover {
+    transform: translateY(-5px);
+    border-color: #ff8000;
+    box-shadow: 0 5px 15px rgba(255, 128, 0, 0.2);
+}
+
+.theme-option.active {
+    border-color: #ff8000;
+    background: rgba(255, 128, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(255, 128, 0, 0.3);
+}
+
+.theme-option i {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.font-size-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.font-size-btn {
+    flex: 1;
+    padding: 12px;
+    background: rgba(255, 128, 0, 0.1);
+    border: 2px solid rgba(255, 128, 0, 0.3);
+    border-radius: 8px;
+    color: #ff8000;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+}
+
+.font-size-btn:hover {
+    background: rgba(255, 128, 0, 0.2);
+    transform: translateY(-3px);
+}
+
+.font-size-btn.active {
+    background: rgba(255, 128, 0, 0.3);
+    border-color: #ff8000;
+    box-shadow: 0 5px 15px rgba(255, 128, 0, 0.2);
+}
+
+.advanced-settings {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 128, 0, 0.2);
+}
+
+.setting-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 12px 0;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.setting-checkbox:hover {
+    background: rgba(255, 128, 0, 0.05);
+}
+
+.setting-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #ff8000;
+    cursor: pointer;
+}
+
+.setting-checkbox label {
+    cursor: pointer;
+    flex: 1;
+    color: #ddd;
+}
+
+body.light-mode .setting-checkbox label {
+    color: #333;
+}
+    </style>
+</head>
+<body>
+    <!-- Sidebar Toggle Button -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Categories</div>
+            <button class="close-sidebar" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-category">
+            <div class="category-title">Artificial Inteligence</div>
+            <div class="category-links">
+                <a href="#ai" class="category-link">AI</a>
+            </div>
+        </div>
+
+        <div class="sidebar-category">
+            <div class="category-title">Writing & Language</div>
+            <div class="category-links">
+                <a href="#writing" class="category-link">Dictionary & Thesaurus</a>
+                <a href="#writing" class="category-link">Essay Helper</a>
+                <a href="#writing" class="category-link">Grammar Checker</a>
+                <a href="#writing" class="category-link">Vocabulary Builder</a>
+            </div>
+        </div>
+        
+        <div class="sidebar-category">
+            <div class="category-title">Math</div>
+            <div class="category-links">
+                <a href="#math" class="category-link">Calculator</a>
+                <a href="#math" class="category-link">Graphing</a>
+                <a href="#math" class="category-link">Geometry</a>
+                <a href="#math" class="category-link">Statistics</a>
+            </div>
+        </div>
+        
+        <div class="sidebar-category">
+            <div class="category-title">Science</div>
+            <div class="category-links">
+                <a href="#science" class="category-link">Chemistry</a>
+                <a href="#science" class="category-link">Physics</a>
+                <a href="#science" class="category-link">Biology</a>
+                <a href="#science" class="category-link">Astronomy</a>
+            </div>
+        </div>
+
+        <div class="sidebar-category">
+            <div class="category-title">Geography</div>
+            <div class="category-links">
+                <a href="#geography" class="category-link">History</a>
+                <a href="#geography" class="category-link">Capitalism</a>
+                <a href="#geography" class="category-link">Law</a>
+            </div>
+        </div>
+
+        <div class="sidebar-category">
+            <div class="category-title">Communication</div>
+            <div class="category-links">
+                <a href="#communication" class="category-link">Conversion</a>
+                <a href="#communication" class="category-link">Colaboration</a>
+                <a href="#communication" class="category-link">Psychology</a>
+            </div>
+        </div>
+        
+        <div class="sidebar-category">
+            <div class="category-title">Studing</div>
+            <div class="category-links">
+                <a href="#study" class="category-link">Flashcards</a>
+                <a href="#study" class="category-link">Quiz Generator</a>
+                <a href="#study" class="category-link">Study Planner</a>
+                <a href="#study" class="category-link">Mind Maps</a>
+            </div>
+        </div>
+        
+        <div class="sidebar-category">
+            <div class="category-title">Programming</div>
+            <div class="category-links">
+                <a href="#programming" class="category-link">IDE</a>
+            </div>
+        </div>
+        
+        <div class="sidebar-category">
+            <div class="category-title">Music</div>
+            <div class="category-links">
+                <a href="#music" class="category-link">Music Making</a>
+                <a href="#music" class="category-link">Music Learning</a>
+            </div>
+        </div>
+
+        <div class="sidebar-category">
+            <div class="category-title">Art & Design</div>
+            <div class="category-links">
+                <a href="#art" class="category-link">Drawing</a>
+                <a href="#art" class="category-link">Animation</a>
+                <a href="#art" class="category-link">Video Editor</a>
+                <a href="#art" class="category-link">3D Modeling</a>
+            </div>
+        </div>
+        
+        <div class="sidebar-category">
+            <div class="category-title">Utilities</div>
+            <div class="category-links">
+                <a href="#utility" class="category-link">Converters</a>
+                <a href="#utility" class="category-link">Calculators</a>
+                <a href="#utility" class="category-link">Generators</a>
+                <a href="#utility" class="category-link">Trackers</a>
+                <a href="#utility" class="category-link">Files</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="navbar">
+    <a href="./sign-in.html" class="back-btn" id="userBackBtn">
+        <i class="fas fa-arrow-left"></i> <span id="userNameDisplay">Logout</span>
+    </a>
+    
+    <div class="compact-clock-container" id="compactClockContainer">
+        <div class="compact-clock">
+            <div class="clock-part year">
+                <span class="digit">2</span><span class="digit">0</span><span class="digit">2</span><span class="digit">3</span>
+            </div>
+            <span class="clock-separator">.</span>
+            <div class="clock-part month">
+                <span class="digit">0</span><span class="digit">1</span>
+            </div>
+            <span class="clock-separator">.</span>
+            <div class="clock-part day">
+                <span class="digit">0</span><span class="digit">1</span>
+            </div>
+            <span class="clock-separator">.</span>
+            <div class="clock-part hour">
+                <span class="digit">0</span><span class="digit">0</span>
+            </div>
+            <span class="clock-separator">.</span>
+            <div class="clock-part minute">
+                <span class="digit">0</span><span class="digit">0</span>
+            </div>
+            <span class="clock-separator">.</span>
+            <div class="clock-part second">
+                <span class="digit">0</span><span class="digit">0</span>
+            </div>
+            <span class="clock-separator">.</span>
+            <div class="clock-part milli">
+                <span class="digit">0</span><span class="digit">0</span><span class="digit">0</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="logo">FLOW</div>
+    
+    <div class="global-stats">
+        <div class="stat-item">
+            <div class="stat-value" id="totalToolsNav">0</div>
+            <div class="stat-label">Total Tools</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="activeTools">0</div>
+            <div class="stat-label">Active</div>
+        </div>
+    </div>
+    
+    <div class="nav-right">
+        <button class="nav-btn" id="toggleFavorites">
+            <i class="fas fa-star"></i> Favorites
+        </button>
+        <button class="nav-btn" id="toggleRecent">
+            <i class="fas fa-history"></i> Recent
+        </button>
+        <button class="nav-btn" id="settingsBtn">
+        <i class="fas fa-cog"></i> Settings
+    </button>
+        <button class="theme-toggle" id="themeToggle">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+</div>
+
+    <div class="container">
+        <!-- Search Bar - NOW AT THE TOP -->
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search for tools by name or description...">
+                <div class="search-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+            <div class="search-stats">
+                <span id="resultsCount">All tools available</span>
+            </div>
+        </div>
+
+        <!-- Favorites Section - BELOW SEARCH -->
+        <div class="favorites-section" id="favoritesSection">
+            <div class="section-header">
+                <h3><i class="fas fa-star"></i> Favorite Tools</h3>
+                <button class="reset-btn" id="resetFavorites">Clear All</button>
+            </div>
+            <div class="favorites-grid" id="favoritesGrid">
+                <div class="empty-message">No favorite tools yet. Click the star icon on any tool to add it here.</div>
+            </div>
+        </div>
+
+        <!-- Recent Tools Section -->
+        <div class="recent-section" id="recentSection">
+            <div class="section-header">
+                <h3><i class="fas fa-history"></i> Recently Used</h3>
+                <button class="reset-btn" id="resetRecent">Clear All</button>
+            </div>
+            <div class="recent-grid" id="recentGrid">
+                <div class="empty-message">No recently used tools. Your activity will appear here.</div>
+            </div>
+        </div>
+
+        <!-- AI Tools -->
+        <div class="section" data-category="ai">
+            <h2 class="section-title"><i class="fas fa-brain"></i> Artificial Inteligence Tools [EXPERIMENTAL]</h2>
+            <div class="tools-grid">
+                <a href="./bots/chat-bot.html" class="tool-card" data-name="Chat Bot" data-desc="AI Messaging Bot">
+                    <button class="favorite-btn" data-tool="Chat Bot"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="far fa-comments"></i></div>
+                    <div class="tool-name">Chat Bot</div>
+                    <div class="tool-desc">AI Messaging Bot</div>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Writing Tools -->
+        <div class="section" data-category="writing">
+            <h2 class="section-title"><i class="fas fa-pen-fancy"></i> Writing & Language Tools</h2>
+            <div class="tools-grid">
+                <a href="./bots/dictionary.html" class="tool-card" data-name="Dictionary" data-desc="Search up words and their definition">
+                    <button class="favorite-btn" data-tool="Dictionary"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><span class="material-symbols-outlined">dictionary</span></div>
+                    <div class="tool-name">Dictionary</div>
+                    <div class="tool-desc">Search up words and their definition</div>
+                </a>
+                <a href="./bots/thesaurus.html" class="tool-card" data-name="Thesaurus" data-desc="Search up words and their synonyms & antonym">
+                    <button class="favorite-btn" data-tool="Thesaurus"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><span class="material-symbols-outlined">dictionary</span></div>
+                    <div class="tool-name">Thesaurus</div>
+                    <div class="tool-desc">Search up words and their synonyms & antonym</div>
+                </a>
+                <a href="./bots/translator.html" class="tool-card" data-name="Translator" data-desc="Language translator">
+                    <button class="favorite-btn" data-tool="Translator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-language"></i></div>
+                    <div class="tool-name">Translator</div>
+                    <div class="tool-desc">Language translator</div>
+                </a> 
+                <a href="./bots/essay-helper.html" class="tool-card" data-name="Essay Helper" data-desc="Writing tips & structure">
+                    <button class="favorite-btn" data-tool="Essay Helper"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-pen-fancy"></i></div>
+                    <div class="tool-name">Essay Helper</div>
+                    <div class="tool-desc">Writing tips & structure</div>
+                </a>
+                <a href="./bots/mad-libs.html" class="tool-card" data-name="Mad-Libs Generator" data-desc="Generate Mad-Libs Puzzles">
+                    <button class="favorite-btn" data-tool="Mad-Libs Generator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-grip-lines"></i></div>
+                    <div class="tool-name">Mad-Libs Generator</div>
+                    <div class="tool-desc">Generate Mad-Libs Puzzles</div>
+                </a>
+                <a href="./bots/grammar-checker.html" class="tool-card" data-name="Grammar Checker" data-desc="Check grammar & spelling">
+                    <button class="favorite-btn" data-tool="Grammar Checker"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-spell-check"></i></div>
+                    <div class="tool-name">Grammar Checker</div>
+                    <div class="tool-desc">Check grammar & spelling</div>
+                </a>
+                <a href="./bots/vocabulary-builder.html" class="tool-card" data-name="Vocabulary Builder" data-desc="Learn new words">
+                    <button class="favorite-btn" data-tool="Vocabulary Builder"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-book-open"></i></div>
+                    <div class="tool-name">Vocabulary Builder</div>
+                    <div class="tool-desc">Learn new words</div>
+                </a>
+                <a href="./bots/paraphraser.html" class="tool-card" data-name="Paraphraser" data-desc="Rephrase text better">
+                    <button class="favorite-btn" data-tool="Paraphraser"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-minimize"></i></div>
+                    <div class="tool-name">Paraphraser</div>
+                    <div class="tool-desc">Rephrase text better</div>
+                </a>
+                <a href="./bots/summarizer.html" class="tool-card" data-name="Text Summarizer" data-desc="Condense long texts">
+                    <button class="favorite-btn" data-tool="Text Summarizer"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-compress"></i></div>
+                    <div class="tool-name">Text Summarizer</div>
+                    <div class="tool-desc">Condense long texts</div>
+                </a>
+                <a href="./bots/plagiarism-checker.html" class="tool-card" data-name="Plagiarism Checker" data-desc="Check originality">
+                    <button class="favorite-btn" data-tool="Plagiarism Checker"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-search"></i></div>
+                    <div class="tool-name">Plagiarism Checker</div>
+                    <div class="tool-desc">Check originality</div>
+                </a>
+                <a href="./bots/typing.html" class="tool-card" data-name="Typing Practice" data-desc="Practice Typing">
+                    <button class="favorite-btn" data-tool="Typing Practice"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-i-cursor"></i></div>
+                    <div class="tool-name">Typing Practice</div>
+                    <div class="tool-desc">Practice Typing</div>
+                </a>
+                <a href="./bots/emotion-wheel.html" class="tool-card" data-name="Emotion Wheel" data-desc="A wheel of emotions and there parts">
+                    <button class="favorite-btn" data-tool="Emotion Wheel"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-chart-pie"></i></div>
+                    <div class="tool-name">Emotion Wheel</div>
+                    <div class="tool-desc">A wheel of emotions and there parts</div>
+                </a>
+                <a href="./bots/character-web.html" class="tool-card" data-name="Character Relationship Web" data-desc="Create a Web of Character Relations">
+                    <button class="favorite-btn" data-tool="Character Relationship Web"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-link"></i></div>
+                    <div class="tool-name">Character Relationship Web</div>
+                    <div class="tool-desc">Create a Web of Character Relations</div>
+                </a>
+                <a href="./bots/rhyme-finder.html" class="tool-card" data-name="Rhyme Finder" data-desc="For poets and songwriters">
+                    <button class="favorite-btn" data-tool="Rhyme Finder"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fab fa-itunes-note"></i></div>
+                    <div class="tool-name">Rhyme Finder</div>
+                    <div class="tool-desc">For poets and songwriters</div>
+                </a>
+                <a href="./bots/character-name-generator.html" class="tool-card" data-name="Character Name Generator" data-desc="Fantasy, sci-fi, or historical names">
+                    <button class="favorite-btn" data-tool="Character Name Generator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-person"></i></div>
+                    <div class="tool-name">Character Name Generator</div>
+                    <div class="tool-desc">Fantasy, sci-fi, or historical names</div>
+                </a>
+                <a href="./bots/syllable-counter.html" class="tool-card" data-name="Syllable Counter" data-desc="Useful for poetry and lyrics">
+                    <button class="favorite-btn" data-tool="Syllable Counter"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fab fa-wordpress"></i></div>
+                    <div class="tool-name">Syllable Counter</div>
+                    <div class="tool-desc">Useful for poetry and lyrics</div>
+                </a>
+                <a href="./bots/alliteration-generator.html" class="tool-card" data-name="Alliteration Generator" data-desc="Create fun phrases for tongue twisters or ads">
+                    <button class="favorite-btn" data-tool="Alliteration Generator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-repeat"></i></div>
+                    <div class="tool-name">Alliteration Generator</div>
+                    <div class="tool-desc">Create fun phrases for tongue twisters or ads</div>
+                </a>
+                <a href="./bots/cliche-finder.html" class="tool-card" data-name="Cliché Finder" data-desc="Highlight overused phrases in your text">
+                    <button class="favorite-btn" data-tool="Cliché Finder"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-underline"></i></div>
+                    <div class="tool-name">Cliché Finder</div>
+                    <div class="tool-desc">Highlight overused phrases in your text</div>
+                </a>
+                <a href="./bots/readability-score.html" class="tool-card" data-name="Readability Score" data-desc="Check Flesch-Kincaid grade level of your writing">
+                    <button class="favorite-btn" data-tool="Readability Score"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fab fa-readme"></i></div>
+                    <div class="tool-name">Readability Score</div>
+                    <div class="tool-desc">Check Flesch-Kincaid grade level of your writing</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Math Tools -->
+        <div class="section" data-category="math">
+            <h2 class="section-title"><i class="fas fa-calculator"></i> Math Tools</h2>
+            <div class="tools-grid">
+                <a href="./bots/bar-graph-calculator.html" class="tool-card" data-name="Bar Graph Calculator" data-desc="Plot functions">
+                    <button class="favorite-btn" data-tool="Bar Graph Calculator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="tool-name">Bar Graph Calculator</div>
+                    <div class="tool-desc">Plot functions</div>
+                </a>
+                <a href="./bots/coordinate-plane.html" class="tool-card" data-name="Coordinate Plane" data-desc="Graph Points & Lines">
+                    <button class="favorite-btn" data-tool="Coordinate Plane"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-table-cells"></i></div>
+                    <div class="tool-name">Coordinate Plane</div>
+                    <div class="tool-desc">Graph Points & Lines</div>
+                </a>
+                <a href="./bots/virtual-protractor.html" class="tool-card" data-name="Virtual Protractor" data-desc="Digitaly find Angles">
+                    <button class="favorite-btn" data-tool="Virtual Protractor"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-pen-ruler"></i></div>
+                    <div class="tool-name">Virtual Protractor</div>
+                    <div class="tool-desc">Digitaly find Angles</div>
+                </a>
+                <a href="./bots/probabillity-tree.html" class="tool-card" data-name="Probabillity Tree Generator" data-desc="Generate Probabillity Tree's">
+                    <button class="favorite-btn" data-tool="Probabillity Tree Generator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-tree"></i></div>
+                    <div class="tool-name">Probabillity Tree Generator</div>
+                    <div class="tool-desc">Generate Probabillity Tree's</div>
+                </a>
+                <a href="./bots/equation-solver.html" class="tool-card" data-name="Equation Solver" data-desc="Linear & quadratic">
+                    <button class="favorite-btn" data-tool="Equation Solver"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-equals"></i></div>
+                    <div class="tool-name">Equation Solver</div>
+                    <div class="tool-desc">Linear & quadratic</div>
+                </a>
+                <a href="./bots/chart-creator.html" class="tool-card" data-name="Chart Creator" data-desc="Create/Generate a Chart">
+                    <button class="favorite-btn" data-tool="Chart Creator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-chart-column"></i></div>
+                    <div class="tool-name">Chart Creator</div>
+                    <div class="tool-desc">Create/Generate a Chart</div>
+                </a>
+                <a href="./bots/calculator.html" class="tool-card" data-name="Scientific Calculator" data-desc="Advanced calculations">
+                    <button class="favorite-btn" data-tool="Scientific Calculator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-calculator"></i></div>
+                    <div class="tool-name">Scientific Calculator</div>
+                    <div class="tool-desc">Advanced calculations</div>
+                </a>
+                <a href="./bots/graphing-calculator.html" class="tool-card" data-name="Graphing Calculator" data-desc="Plot functions">
+                    <button class="favorite-btn" data-tool="Graphing Calculator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="tool-name">Graphing Calculator</div>
+                    <div class="tool-desc">Plot functions</div>
+                </a>
+                <a href="./bots/unit-converter.html" class="tool-card" data-name="Unit Converter" data-desc="Convert measurements">
+                    <button class="favorite-btn" data-tool="Unit Converter"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-exchange-alt"></i></div>
+                    <div class="tool-name">Unit Converter</div>
+                    <div class="tool-desc">Convert measurements</div>
+                </a>
+                <a href="./bots/geometry-helper.html" class="tool-card" data-name="Geometry Helper" data-desc="Shapes & angles">
+                    <button class="favorite-btn" data-tool="Geometry Helper"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-shapes"></i></div>
+                    <div class="tool-name">Geometry Helper</div>
+                    <div class="tool-desc">Shapes & angles</div>
+                </a>
+                <a href="./bots/prime-factorization-tool.html" class="tool-card" data-name="Prime Factorization Tool" data-desc="Break numbers into prime factors">
+                    <button class="favorite-btn" data-tool="Prime Factorization Tool"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-divide"></i></div>
+                    <div class="tool-name">Prime Factorization Tool</div>
+                    <div class="tool-desc">Break numbers into prime factors</div>
+                </a>
+                <a href="./bots/statistics-calculator.html" class="tool-card" data-name="Statistics Calculator" data-desc="Mean, median, mode, SD">
+                    <button class="favorite-btn" data-tool="Statistics Calculator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-chart-pie"></i></div>
+                    <div class="tool-name">Statistics Calculator</div>
+                    <div class="tool-desc">Mean, median, mode, SD</div>
+                </a>
+                <a href="./bots/calculus-helper.html" class="tool-card" data-name="Calculus Helper" data-desc="Derivatives & integrals">
+                    <button class="favorite-btn" data-tool="Calculus Helper"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-plus"></i></div>
+                    <div class="tool-name">Calculus Helper</div>
+                    <div class="tool-desc">Derivatives & integrals</div>
+                </a>
+                <a href="./bots/fraction-calculator.html" class="tool-card" data-name="Fraction Calculator" data-desc="Simplify, add, subtract, multiply, divide fractions visually">
+                    <button class="favorite-btn" data-tool="Fraction Calculator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-divide"></i></div>
+                    <div class="tool-name">Fraction Calculator</div>
+                    <div class="tool-desc">Simplify, add, subtract, multiply, divide fractions visually</div>
+                </a>
+                <a href="./bots/matrix-calculator.html" class="tool-card" data-name="Matrix Calculator" data-desc="Perform matrix operations (addition, multiplication, inverse)">
+                    <button class="favorite-btn" data-tool="Matrix Calculator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-qrcode"></i></div>
+                    <div class="tool-name">Matrix Calculator</div>
+                    <div class="tool-desc">Perform matrix operations (addition, multiplication, inverse)</div>
+                </a>
+                <a href="./bots/polynomial-solver.html" class="tool-card" data-name="Polynomial Solver" data-desc="Find roots and factor polynomials">
+                    <button class="favorite-btn" data-tool="Polynomial Solver"><i class="far fa-star"></i></button>
+                    <div class="tool-icon">5x^2</div>
+                    <div class="tool-name">Polynomial Solver</div>
+                    <div class="tool-desc">Find roots and factor polynomi2als</div>
+                </a>
+                <a href="./bots/trigonometry-helper.html" class="tool-card" data-name="Trigonometry Helper" data-desc="Unit circle, sine/cosine waves, angle conversions">
+                    <button class="favorite-btn" data-tool="Trigonometry Helper"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-play"></i></div>
+                    <div class="tool-name">Trigonometry Helper</div>
+                    <div class="tool-desc">Unit circle, sine/cosine waves, angle conversions</div>
+                </a>
+                <a href="./bots/3d-graph-plotter.html" class="tool-card" data-name="3D Graph Plotter" data-desc="Visualize functions in three dimensions">
+                    <button class="favorite-btn" data-tool="3D Graph Plotter"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-star-of-life"></i></div>
+                    <div class="tool-name">3D Graph Plotter</div>
+                    <div class="tool-desc">Visualize functions in three dimensions</div>
+                </a>
+                <a href="./bots/number-line-generator.html" class="tool-card" data-name="Number Line Generator" data-desc="Visualize functions in three dimensions">
+                    <button class="favorite-btn" data-tool="Number Line Generator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-arrow-trend-up"></i></div>
+                    <div class="tool-name">Number Line Generator</div>
+                    <div class="tool-desc">Visualize functions in three dimensions</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Science Tools -->
+        <div class="section" data-category="science">
+            <h2 class="section-title"><i class="fas fa-atom"></i> Science Tools</h2>
+            <div class="tools-grid">
+                <a href="./bots/electric-circut.html" class="tool-card" data-name="Electric Circuts" data-desc="Simulate Electricity">
+                    <button class="favorite-btn" data-tool="Chemistry Helper"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-charging-station"></i></div>
+                    <div class="tool-name">Electric Circuts</div>
+                    <div class="tool-desc">Simulate Electricity</div>
+                </a>
+                <a href="./bots/genetics-sim.html" class="tool-card" data-name="Genetics Simulator" data-desc="Simulate Genetics with DNA & RNA">
+                    <button class="favorite-btn" data-tool="Genetics Simulator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-dna"></i></div>
+                    <div class="tool-name">Genetics Simulator</div>
+                    <div class="tool-desc">Simulate Genetics with DNA & RNA</div>
+                </a>
+                <a href="./bots/chemistry-helper.html" class="tool-card" data-name="Chemistry Helper" data-desc="Molecular formulas">
+                    <button class="favorite-btn" data-tool="Chemistry Helper"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-flask"></i></div>
+                    <div class="tool-name">Chemistry Helper</div>
+                    <div class="tool-desc">Molecular formulas</div>
+                </a>
+                <a href="./bots/periodic-table.html" class="tool-card" data-name="Periodic Table" data-desc="Elements info">
+                    <button class="favorite-btn" data-tool="Periodic Table"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-th"></i></div>
+                    <div class="tool-name">Periodic Table</div>
+                    <div class="tool-desc">Elements info</div>
+                </a>
+                <a href="./bots/physics-solver.html" class="tool-card" data-name="Physics Solver" data-desc="Physics equations">
+                    <button class="favorite-btn" data-tool="Physics Solver"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-apple-whole"></i></div>
+                    <div class="tool-name">Physics Solver</div>
+                    <div class="tool-desc">Physics equations</div>
+                </a>
+                <a href="./bots/physics-sim.html" class="tool-card" data-name="Physics Simulator" data-desc="Simulate & Learn Physics">
+                    <button class="favorite-btn" data-tool="Physics Simulator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-arrow-up-from-ground-water"></i></div>
+                    <div class="tool-name">Physics Simulator</div>
+                    <div class="tool-desc">Simulate & Learn Physics</div>
+                </a>
+                <a href="./bots/weather-simulator.html" class="tool-card" data-name="Weather Simulator" data-desc="Simulate & Learn Weather Patterns">
+                    <button class="favorite-btn" data-tool="Weather Simulator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-cloud-sun-rain"></i></div>
+                    <div class="tool-name">Weather Simulator</div>
+                    <div class="tool-desc">Simulate & Learn Weather Patterns</div>
+                </a>
+                <a href="./bots/chemical-reaction-balance.html" class="tool-card" data-name="Chemical Reaction Balancer" data-desc="Balance Chemical Reactions">
+                    <button class="favorite-btn" data-tool="Chemical Reaction Balancer"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-flask-vial"></i></div>
+                    <div class="tool-name">Chemical Reaction Balancer</div>
+                    <div class="tool-desc">Balance Chemical Reactions</div>
+                </a>
+                <a href="./bots/science-glossary.html" class="tool-card" data-name="Scientific Glossary" data-desc="List of Science words">
+                    <button class="favorite-btn" data-tool="Scientific Glossary"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-book-journal-whills"></i></div>
+                    <div class="tool-name">Scientific Glossary</div>
+                    <div class="tool-desc">List of Science words</div>
+                </a>
+                <a href="./bots/virus-lab.html" class="tool-card" data-name="Virus Lab" data-desc="Create Viruses & Cures">
+                    <button class="favorite-btn" data-tool="Virus Lab"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-virus-covid"></i></div>
+                    <div class="tool-name">Virus Lab</div>
+                    <div class="tool-desc">Create Viruses & Cures</div>
+                </a>
+                <a href="./bots/ocean-architect.html" class="tool-card" data-name="Ocean Architect" data-desc="Learn Oceanology">
+                    <button class="favorite-btn" data-tool="Ocean Architect"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-water"></i></div>
+                    <div class="tool-name">Ocean Architect</div>
+                    <div class="tool-desc">Learn Oceanology</div>
+                </a>
+                <a href="./bots/botany-architect.html" class="tool-card" data-name="Botany Architect" data-desc="Learn Botany">
+                    <button class="favorite-btn" data-tool="Botany Architect"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-seedling"></i></div>
+                    <div class="tool-name">Botany Architect</div>
+                    <div class="tool-desc">Learn Botany</div>
+                </a>
+                <a href="./bots/astral-map.html" class="tool-card" data-name="Astral Map" data-desc="Space & stars">
+                    <button class="favorite-btn" data-tool="Astral Map"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-star-and-crescent"></i></div>
+                    <div class="tool-name">Astral Map</div>
+                    <div class="tool-desc">Space & Stars</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Economic Specific -->
+        <div class="section" data-category="economic">
+            <h2 class="section-title"><i class="fas fa-sack-dollar"></i> Finance & Economics</h2>
+            <div class="tools-grid">
+                <a href="./bots/compound-interest-calculator.html" class="tool-card" data-name="Compound Interest Calculator" data-desc="Visualize growth over time">
+                    <button class="favorite-btn" data-tool="Compound Interest Calculator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-chart-line"></i> <i class="fas fa-dollar-sign"></i></div>
+                    <div class="tool-name">Compound Interest Calculator</div>
+                    <div class="tool-desc">Visualize growth over time</div>
+                </a>
+                <a href="./bots/budget-planner.html" class="tool-card" data-name="Budget Planner" data-desc="Income vs. expenses with charts">
+                    <button class="favorite-btn" data-tool="Budget Planner"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-wallet"></i></div>
+                    <div class="tool-name">Budget Planner</div>
+                    <div class="tool-desc">Income vs. expenses with charts</div>
+                </a>
+                <a href="./bots/budget-planner.html" class="tool-card" data-name="Budget Planner" data-desc="Income vs. expenses with charts">
+                    <button class="favorite-btn" data-tool="Budget Planner"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-wallet"></i></div>
+                    <div class="tool-name">Budget Planner</div>
+                    <div class="tool-desc">Income vs. expenses with charts</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Geography Specific -->
+        <div class="section" data-category="geography">
+            <h2 class="section-title"><i class="fas fa-globe"></i> Geography & Government Tools</h2>
+            <div class="tools-grid">
+                <a href="./bots/government-guide.html" class="tool-card" data-name="Government Guide" data-desc="Civics help">
+                    <button class="favorite-btn" data-tool="Government Guide"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-landmark"></i></div>
+                    <div class="tool-name">Government Guide</div>
+                    <div class="tool-desc">Civics help</div>
+                </a>
+                <a href="./bots/economics-calculator.html" class="tool-card" data-name="Economics Tools" data-desc="Economic concepts">
+                    <button class="favorite-btn" data-tool="Economics Tools"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-chart-bar"></i></div>
+                    <div class="tool-name">Economics Tools</div>
+                    <div class="tool-desc">Economic concepts</div>
+                </a>
+                <a href="./bots/history-timeline.html" class="tool-card" data-name="US History Timeline" data-desc="Timeline">
+                    <button class="favorite-btn" data-tool="US History Timeline"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-history"></i></div>
+                    <div class="tool-name">US History Timeline</div>
+                    <div class="tool-desc">Timeline</div>
+                </a>
+                <a href="./bots/law-guide.html" class="tool-card" data-name="US Law Guide" data-desc="Guide to US Law">
+                    <button class="favorite-btn" data-tool="US Law Guide"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-gavel"></i></div>
+                    <div class="tool-name">US Law Guide</div>
+                    <div class="tool-desc">Guide to US Law</div>
+                </a>
+                <a href="./bots/map.html" class="tool-card" data-name="World Map" data-desc="Map of the World">
+                    <button class="favorite-btn" data-tool="World Map"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-map-location-dot"></i></div>
+                    <div class="tool-name">World Map</div>
+                    <div class="tool-desc">Map of the World</div>
+                </a>
+                <a href="./bots/bill-of-rights-explorer.html" class="tool-card" data-name="Interactive guide to the US Bill of Rights" data-desc="Bill of Rights">
+                    <button class="favorite-btn" data-tool="Bill of Rights Explorer"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-receipt"></i></div>
+                    <div class="tool-name">Bill of Rights Explorer</div>
+                    <div class="tool-desc">Interactive guide to the US Bill of Rights</div>
+                </a>
+                <a href="./bots/flag-identifier.html" class="tool-card" data-name="Flag Identifier" data-desc="Learn flags of countries">
+                    <button class="favorite-btn" data-tool="Flag Identifier"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-flag"></i></div>
+                    <div class="tool-name">Flag Identifier</div>
+                    <div class="tool-desc">Learn flags of countries</div>
+                </a>
+                <a href="./bots/capital-city-quiz.html" class="tool-card" data-name="Capital City Quiz" data-desc="Test knowledge of world capitals">
+                    <button class="favorite-btn" data-tool="Capital City Quiz"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-city"></i></div>
+                    <div class="tool-name">Capital City Quiz</div>
+                    <div class="tool-desc">Test knowledge of world capitals</div>
+                </a>
+                <a href="./bots/legislative-process-simulator.html" class="tool-card" data-name="Legislative Process Simulator" data-desc="See how a bill becomes a law">
+                    <button class="favorite-btn" data-tool="Legislative Process Simulator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-gavel"></i></div>
+                    <div class="tool-name">Legislative Process Simulator</div>
+                    <div class="tool-desc">See how a bill becomes a law</div>
+                </a>
+                <a href="./bots/country-comparison-tool.html" class="tool-card" data-name="Country Comparison Tool" data-desc="Compare area, population, GDP, etc">
+                    <button class="favorite-btn" data-tool="Country Comparison Tool"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-earth-americas"></i><i class="fas fa-arrow-right-arrow-left"></i><i class="fas fa-earth-asia"></i></div>
+                    <div class="tool-name">Country Comparison Tool</div>
+                    <div class="tool-desc">Compare area, population, GDP, etc</div>
+                </a>
+                <a href="./bots/interactive-globe.html" class="tool-card" data-name="Interactive Globe" data-desc="Rotate Earth, view satellite imagery">
+                    <button class="favorite-btn" data-tool="Interactive Globe"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-globe"></i></div>
+                    <div class="tool-name">Interactive Globe</div>
+                    <div class="tool-desc">Rotate Earth, view satellite imagery</div>
+                </a>
+                <a href="./bots/constitution-annotator.html" class="tool-card" data-name="Constitution Annotator" data-desc="Read and annotate the U.S. Constitution line by line">
+                    <button class="favorite-btn" data-tool="Constitution Annotator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-marker"></i></div>
+                    <div class="tool-name">Constitution Annotator</div>
+                    <div class="tool-desc">Read and annotate the U.S. Constitution line by line</div>
+                </a>
+                <a href="./bots/supreme-court-simulator.html" class="tool-card" data-name="Supreme Court Simulator" data-desc="Analyze landmark cases and vote">
+                    <button class="favorite-btn" data-tool="Supreme Court Simulator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-gavel"></i></div>
+                    <div class="tool-name">Supreme Court Simulator</div>
+                    <div class="tool-desc">Analyze landmark cases and vote</div>
+                </a>
+                <a href="./bots/time-zone-converter.html" class="tool-card" data-name="Time Zone Converter" data-desc="Find current times worldwide">
+                    <button class="favorite-btn" data-tool="Time Zone Converter"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="far fa-clock"></i><i class="fas fa-arrow-right-arrow-left"></i><i class="far fa-clock"></i></div>
+                    <div class="tool-name">Time Zone Converter</div>
+                    <div class="tool-desc">Find current times worldwide</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Communication Tools -->
+        <div class="section" data-category="communication">
+            <h2 class="section-title"><i class="fas fa-atom"></i> Communication Tools</h2>
+            <div class="tools-grid">
+                <a href="./bots/psychology-helper.html" class="tool-card" data-name="Psychology Helper" data-desc="Psychology guide">
+                    <button class="favorite-btn" data-tool="Psychology Helper"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-brain"></i></div>
+                    <div class="tool-name">Psychology Helper</div>
+                    <div class="tool-desc">Psychology guide</div>
+                </a>
+                <a href="./bots/text-to-speech.html" class="tool-card" data-name="Text -> Speech" data-desc="Turn Text to Sound">
+                    <button class="favorite-btn" data-tool="Text -> Speech"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-phone-volume"></i></div>
+                    <div class="tool-name">Text -> Speech</div>
+                    <div class="tool-desc">Turn Text to Sound</div>
+                </a>
+                <a href="./bots/speech-to-text.html" class="tool-card" data-name="Speech -> Text" data-desc="Turn Sounds to Text">
+                    <button class="favorite-btn" data-tool="Speech -> Text"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-microphone"></i></div>
+                    <div class="tool-name">Speech -> Text</div>
+                    <div class="tool-desc">Turn Sounds to Text</div>
+                </a>
+                <a href="./bots/colaborative-document.html" class="tool-card" data-name="Colaborative Document" data-desc="Document you can write on with your friends">
+                    <button class="favorite-btn" data-tool="Colaborative Document"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-pencil"></i></div>
+                    <div class="tool-name">Colaborative Document</div>
+                    <div class="tool-desc">Document you can write on with your friends</div>
+                </a>
+                <a href="./bots/colaborative-board.html" class="tool-card" data-name="Colaborative Board" data-desc="Board you can draw on with your friends">
+                    <button class="favorite-btn" data-tool="Colaborative Board"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-pen-to-square"></i></div>
+                    <div class="tool-name">Colaborative Board</div>
+                    <div class="tool-desc">Board you can draw on with your friends</div>
+                </a>
+                <a href="./bots/colaborative-story-board.html" class="tool-card" data-name="Colaborative Story Board" data-desc="Board were you can create storys with your friends">
+                    <button class="favorite-btn" data-tool="Colaborative Story Board"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-table-cells"></i></div>
+                    <div class="tool-name">Colaborative Story Board</div>
+                    <div class="tool-desc">Board were you can create storys with your friends</div>
+                </a>
+                <a href="./bots/colaborative-calander.html" class="tool-card" data-name="Colaborative Calander" data-desc="Calander were you can schedule events with your friends">
+                    <button class="favorite-btn" data-tool="Colaborative Calander"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-calendar"></i></div>
+                    <div class="tool-name">Colaborative Calander</div>
+                    <div class="tool-desc">Calander were you can schedule events with your friends</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Study Tools -->
+        <div class="section" data-category="study">
+            <h2 class="section-title"><i class="fas fa-book"></i> Study & Learning Tools</h2>
+            <div class="tools-grid">
+                <a href="./bots/flashcards.html" class="tool-card" data-name="Flashcard Maker" data-desc="Create study cards">
+                    <button class="favorite-btn" data-tool="Flashcard Maker"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-brain"></i></div>
+                    <div class="tool-name">Flashcard Maker</div>
+                    <div class="tool-desc">Create study cards</div>
+                </a>
+                <a href="./bots/assignment-creator.html" class="tool-card" data-name="Assignment Creator" data-desc="Create Custom Assignments with Custom Problems">
+                    <button class="favorite-btn" data-tool="Assignment Creator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="far fa-file-pdf"></i></div>
+                    <div class="tool-name">Assignment Creator</div>
+                    <div class="tool-desc">Create Custom Assignments with Custom Problems</div>
+                </a>
+                <a href="./bots/quiz-generator.html" class="tool-card" data-name="Quiz Generator" data-desc="Create quizzes">
+                    <button class="favorite-btn" data-tool="Quiz Generator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-question-circle"></i></div>
+                    <div class="tool-name">Quiz Generator</div>
+                    <div class="tool-desc">Create quizzes</div>
+                </a>
+                <a href="./bots/study-planner.html" class="tool-card" data-name="Study Planner" data-desc="Plan study sessions">
+                    <button class="favorite-btn" data-tool="Study Planner"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-sheet-plastic"></i></div>
+                    <div class="tool-name">Study Planner</div>
+                    <div class="tool-desc">Plan study sessions</div>
+                </a>
+                <a href="./bots/project-planner.html" class="tool-card" data-name="Project Planner" data-desc="Plan study sessions">
+                    <button class="favorite-btn" data-tool="Project Planner"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-calendar-check"></i></div>
+                    <div class="tool-name">Study Planner</div>
+                    <div class="tool-desc">Plan study sessions</div>
+                </a>
+                <a href="./bots/task-manager.html" class="tool-card" data-name="Task Manager" data-desc="Manage Tasks">
+                    <button class="favorite-btn" data-tool="Task Manager"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-list-check"></i></div>
+                    <div class="tool-name">Task Manager</div>
+                    <div class="tool-desc">Manage Tasks</div>
+                </a>
+                <a href="./bots/mind-map.html" class="tool-card" data-name="Mind Map Creator" data-desc="Visual learning">
+                    <button class="favorite-btn" data-tool="Mind Map Creator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-sitemap"></i></div>
+                    <div class="tool-name">Mind Map Creator</div>
+                    <div class="tool-desc">Visual learning</div>
+                </a>
+                <a href="./bots/spaced-repetition.html" class="tool-card" data-name="Spaced Repetition" data-desc="Memory retention">
+                    <button class="favorite-btn" data-tool="Spaced Repetition"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-sync"></i></div>
+                    <div class="tool-name">Spaced Repetition</div>
+                    <div class="tool-desc">Memory retention</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Test Prep -->
+        <div class="section" data-category="test">
+            <h2 class="section-title"><i class="fas fa-graduation-cap"></i> Test Prep Tools</h2>
+            <div class="tools-grid">
+                <a href="./bots/sat-prep.html" class="tool-card" data-name="SAT Prep" data-desc="SAT practice">
+                    <button class="favorite-btn" data-tool="SAT Prep"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-pencil-alt"></i></div>
+                    <div class="tool-name">SAT Prep</div>
+                    <div class="tool-desc">SAT practice</div>
+                </a>
+                <a href="./bots/act-prep.html" class="tool-card" data-name="ACT Prep" data-desc="ACT practice">
+                    <button class="favorite-btn" data-tool="ACT Prep"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-pencil-alt"></i></div>
+                    <div class="tool-name">ACT Prep</div>
+                    <div class="tool-desc">ACT practice</div>
+                </a>
+                <a href="./bots/ap-exam-prep.html" class="tool-card" data-name="AP Exam Prep" data-desc="AP test review">
+                    <button class="favorite-btn" data-tool="AP Exam Prep"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-star"></i></div>
+                    <div class="tool-name">AP Exam Prep</div>
+                    <div class="tool-desc">AP test review</div>
+                </a>
+                <a href="./bots/gre-prep.html" class="tool-card" data-name="GRE Prep" data-desc="GRE practice">
+                    <button class="favorite-btn" data-tool="GRE Prep"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-book-reader"></i></div>
+                    <div class="tool-name">GRE Prep</div>
+                    <div class="tool-desc">GRE practice</div>
+                </a>
+                <a href="./bots/interview-prep.html" class="tool-card" data-name="Interview Prep" data-desc="Interview practice">
+                    <button class="favorite-btn" data-tool="Interview Prep"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-file-pen"></i></div>
+                    <div class="tool-name">Interview Prep</div>
+                    <div class="tool-desc">Interview practice</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Research Tools -->
+        <div class="section" data-category="research">
+            <h2 class="section-title"><i class="fas fa-search"></i> Research & Reference Tools</h2>
+            <div class="tools-grid">
+                <a href="./bots/citation-generator.html" class="tool-card" data-name="Citation Generator" data-desc="MLA, APA, Chicago">
+                    <button class="favorite-btn" data-tool="Citation Generator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-clipboard-list"></i></div>
+                    <div class="tool-name">Citation Generator</div>
+                    <div class="tool-desc">MLA, APA, Chicago</div>
+                </a>
+                <a href="./bots/multi-search.html" class="tool-card" data-name="Multi Search" data-desc="A unified search bar that fetches results from academic databases">
+                    <button class="favorite-btn" data-tool="Multi Search"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-search"></i></div>
+                    <div class="tool-name">Multi Search</div>
+                    <div class="tool-desc">A unified search bar that fetches results from academic databases</div>
+                </a>
+                <a href="./bots/bibliography-maker.html" class="tool-card" data-name="Bibliography Maker" data-desc="Create bibliography">
+                    <button class="favorite-btn" data-tool="Bibliography Maker"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-list-ol"></i></div>
+                    <div class="tool-name">Bibliography Maker</div>
+                    <div class="tool-desc">Create bibliography</div>
+                </a>
+                <a href="./bots/research-organizer.html" class="tool-card" data-name="Research Organizer" data-desc="Organize research">
+                    <button class="favorite-btn" data-tool="Research Organizer"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-folder-open"></i></div>
+                    <div class="tool-name">Research Organizer</div>
+                    <div class="tool-desc">Organize research</div>
+                </a>
+                <a href="./bots/fact-checker.html" class="tool-card" data-name="Fact Checker" data-desc="Verify information">
+                    <button class="favorite-btn" data-tool="Fact Checker"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-check-double"></i></div>
+                    <div class="tool-name">Fact Checker</div>
+                    <div class="tool-desc">Verify information</div>
+                </a>
+                <a href="./bots/source-evaluator.html" class="tool-card" data-name="Source Evaluator" data-desc="Check source quality">
+                    <button class="favorite-btn" data-tool="Source Evaluator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-balance-scale"></i></div>
+                    <div class="tool-name">Source Evaluator</div>
+                    <div class="tool-desc">Check source quality</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Programing Tools -->
+        <div class="section" data-category="programming">
+            <h2 class="section-title"><i class="fas fa-code"></i> Programming & Coding</h2>
+            <div class="tools-grid">
+                <a href="./bots/markdown.html" class="tool-card" data-name="Markdown Editor" data-desc="Live Markdown Generation">
+                    <button class="favorite-btn" data-tool="Markdown Editor"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fab fa-markdown"></i></div>
+                    <div class="tool-name">Markdown Editor</div>
+                    <div class="tool-desc">Live Markdown Generation</div>
+                </a>
+                <a href="./bots/html-ide.html" class="tool-card" data-name="HTML IDE" data-desc="Code with HTML, CSS ,and Javascript">
+                    <button class="favorite-btn" data-tool="HTML IDE"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fab fa-html5"></i></div>
+                    <div class="tool-name">HTML IDE</div>
+                    <div class="tool-desc">Code with HTML, CSS, and Javascript</div>
+                </a>
+                <a href="./bots/css-generator.html" class="tool-card" data-name="CSS Generator" data-desc="Visual CSS Generator">
+                    <button class="favorite-btn" data-tool="CSS Generator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fab fa-css3-alt"></i></div>
+                    <div class="tool-name">CSS Generator</div>
+                    <div class="tool-desc">Visual CSS Generator</div>
+                </a>
+                <a href="./bots/javascript-ide.html" class="tool-card" data-name="JavaScript IDE" data-desc="Online editor with console and output">
+                    <button class="favorite-btn" data-tool="JavaScript IDE"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fab fa-js"></i></div>
+                    <div class="tool-name">JavaScript IDE</div>
+                    <div class="tool-desc">Online editor with console and output</div>
+                </a>
+                <a href="./bots/python-ide.html" class="tool-card" data-name="Python IDE" data-desc="Code with Python">
+                    <button class="favorite-btn" data-tool="Python IDE"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fab fa-python"></i></div>
+                    <div class="tool-name">Python IDE</div>
+                    <div class="tool-desc">Code with Python</div>
+                </a>
+                <a href="./bots/c-ide.html" class="tool-card" data-name="C IDE" data-desc="Code with C">
+                    <button class="favorite-btn" data-tool="C IDE"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-c"></i></div>
+                    <div class="tool-name">C IDE</div>
+                    <div class="tool-desc">Code with C</div>
+                </a>
+                <a href="./bots/cpp-ide.html" class="tool-card" data-name="C++ IDE" data-desc="Code with C++">
+                    <button class="favorite-btn" data-tool="C++ IDE"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-c"></i><i class="fas fa-plus"></i><i class="fas fa-plus"></i></div>
+                    <div class="tool-name">C++ IDE</div>
+                    <div class="tool-desc">Code with C++</div>
+                </a>
+                <a href="./bots/gas-ide.html" class="tool-card" data-name="Google Apps Script IDE" data-desc="Code in Google Apps Script">
+                    <button class="favorite-btn" data-tool="Google Apps Script IDE"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fab fa-google-plus-g"></i></div>
+                    <div class="tool-name">Google Apps Script IDE</div>
+                    <div class="tool-desc">Code in Google Apps Script</div>
+                </a>
+                <a href="./bots/java-ide.html" class="tool-card" data-name="Java IDE" data-desc="Online Java compiler">
+                    <button class="favorite-btn" data-tool="Java IDE"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fab fa-java"></i></div>
+                    <div class="tool-name">Java IDE</div>
+                    <div class="tool-desc">Online Java compiler</div>
+                </a>
+                <a href="./bots/regex-tester.html" class="tool-card" data-name="Regex Tester" data-desc="Test and debug regular expressions">
+                    <button class="favorite-btn" data-tool="Regex Tester"><i class="far fa-star"></i></button>
+                    <div class="tool-icon">(.*)</div>
+                    <div class="tool-name">Regex Tester</div>
+                    <div class="tool-desc">Test and debug regular expressions</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Organization Tools -->
+        <div class="section" data-category="organization">
+            <h2 class="section-title"><i class="fas fa-tasks"></i> Organization & Time Management</h2>
+            <div class="tools-grid">
+                <a href="./bots/assignment-tracker.html" class="tool-card" data-name="Assignment Tracker" data-desc="Track deadlines">
+                    <button class="favorite-btn" data-tool="Assignment Tracker"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="tool-name">Assignment Tracker</div>
+                    <div class="tool-desc">Track deadlines</div>
+                </a>
+                <a href="./bots/timer.html" class="tool-card" data-name="Timer" data-desc="It's a Timer">
+                    <button class="favorite-btn" data-tool="Timer"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-hourglass"></i></div>
+                    <div class="tool-name">Timer</div>
+                    <div class="tool-desc">It's a Timer</div>
+                </a>
+                <a href="./bots/stopwatch.html" class="tool-card" data-name="Stopwatch" data-desc="It's a Stopwatch">
+                    <button class="favorite-btn" data-tool="Stopwatch"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-stopwatch"></i></div>
+                    <div class="tool-name">Stopwatch</div>
+                    <div class="tool-desc">It's a Stopwatch</div>
+                </a>
+                <a href="./bots/alarm.html" class="tool-card" data-name="Alarm" data-desc="It's a Alarm">
+                    <button class="favorite-btn" data-tool="Alarm"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="far fa-bell"></i></div>
+                    <div class="tool-name">Alarm</div>
+                    <div class="tool-desc">It's a Alarm</div>
+                </a>
+                <a href="./bots/countdown-timer.html" class="tool-card" data-name="Countdown Timer" data-desc="Set a future date and count down">
+                    <button class="favorite-btn" data-tool="Countdown Timer"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-stopwatch"></i></div>
+                    <div class="tool-name">Countdown Timer</div>
+                    <div class="tool-desc">It's a Alarm</div>
+                </a>
+                <a href="./bots/notes.html" class="tool-card" data-name="Note Organizer" data-desc="Organize notes">
+                    <button class="favorite-btn" data-tool="Note Organizer"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-sticky-note"></i></div>
+                    <div class="tool-name">Note Organizer</div>
+                    <div class="tool-desc">Organize notes</div>
+                </a>
+                <a href="./bots/grade-calculator.html" class="tool-card" data-name="Grade Calculator" data-desc="Track GPA">
+                    <button class="favorite-btn" data-tool="Grade Calculator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-chart-pie"></i></div>
+                    <div class="tool-name">Grade Calculator</div>
+                    <div class="tool-desc">Track GPA</div>
+                </a>
+                <a href="./bots/schedule-builder.html" class="tool-card" data-name="Schedule Builder" data-desc="Create timetable">
+                    <button class="favorite-btn" data-tool="Schedule Builder"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-calendar"></i></div>
+                    <div class="tool-name">Schedule Builder</div>
+                    <div class="tool-desc">Create timetable</div>
+                </a>
+                <a href="./bots/assignment-tracker.html" class="tool-card" data-name="Assignment Tracker" data-desc="Track the Assignemnts you've completed or not">
+                    <button class="favorite-btn" data-tool="Assignment Tracker"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fa-solid fa-business-time"></i></div>
+                    <div class="tool-name">Assignment Tracker</div>
+                    <div class="tool-desc">Track the Assignemnts you've completed or not</div>
+                </a>
+                <a href="./bots/to-do-list.html" class="tool-card" data-name="To-Do List" data-desc="Task management">
+                    <button class="favorite-btn" data-tool="To-Do List"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-list-check"></i></div>
+                    <div class="tool-name">To-Do List</div>
+                    <div class="tool-desc">Task management</div>
+                </a>
+                <a href="./bots/time-tracking.html" class="tool-card" data-name="Time Tracking" data-desc="Interactive timer with project tagging">
+                    <button class="favorite-btn" data-tool="Time Tracking"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-business-time"></i></div>
+                    <div class="tool-name">Time Tracking</div>
+                    <div class="tool-desc">Interactive timer with project tagging</div>
+                </a>
+                <a href="./bots/digital-planner.html" class="tool-card" data-name="Digital Planner" data-desc="Daily/weekly layouts with goal tracking">
+                    <button class="favorite-btn" data-tool="Digital Planner"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="tool-name">Digital Planner</div>
+                    <div class="tool-desc">Daily/weekly layouts with goal tracking</div>
+                </a>
+                <a href="./bots/digital-board.html" class="tool-card" data-name="Digital Board" data-desc="A virtual board to organize thoughts and ideas">
+                    <button class="favorite-btn" data-tool="Digital Board"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-pen-to-square"></i></div>
+                    <div class="tool-name">Digital Board</div>
+                    <div class="tool-desc">A virtual board to organize thoughts and ideas</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Music -->
+        <div class="section" data-category="music">
+            <h2 class="section-title"><i class="fas fa-music"></i> Music</h2>
+            <div class="tools-grid">
+                <a href="./bots/music-studio.html" class="tool-card" data-name="Music Studio" data-desc="Music Maker">
+                    <button class="favorite-btn" data-tool="Music Studio"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-music"></i></div>
+                    <div class="tool-name">Music Studio</div>
+                    <div class="tool-desc">Music maker</div>
+                </a>
+                <a href="./bots/song-structure-builder.html" class="tool-card" data-name="Song Structure Builder" data-desc="Create your own Song">
+                    <button class="favorite-btn" data-tool="Song Structure Builder"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-radio"></i></div>
+                    <div class="tool-name">Song Structure Builder</div>
+                    <div class="tool-desc">Create your own Song</div>
+                </a>
+                <a href="./bots/beat-maker.html" class="tool-card" data-name="Beat Maker" data-desc="Make Custom Beats">
+                    <button class="favorite-btn" data-tool="Beat Maker"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-drum"></i></div>
+                    <div class="tool-name">Beat Maker</div>
+                    <div class="tool-desc">Make Custom Beats</div>
+                </a>
+                <a href="./bots/music-sheet-creator.html" class="tool-card" data-name="Music Sheet Creator" data-desc="Music Notation">
+                    <button class="favorite-btn" data-tool="Music Sheet Creator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-music"></i></div>
+                    <div class="tool-name">Music Sheet Creator</div>
+                    <div class="tool-desc">Music Notation</div>
+                </a>
+                <a href="./bots/melody-creator.html" class="tool-card" data-name="Melody Creator" data-desc="Create a Melody">
+                    <button class="favorite-btn" data-tool="Melody Creator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-music"></i></div>
+                    <div class="tool-name">Melody Creator</div>
+                    <div class="tool-desc">Create a Melody</div>
+                </a>
+                <a href="./bots/ear-trainer.html" class="tool-card" data-name="Ear Trainer" data-desc="Train to Recognize Sounds">
+                    <button class="favorite-btn" data-tool="Ear Trainer"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-ear-listen"></i></div>
+                    <div class="tool-name">Ear Trainer</div>
+                    <div class="tool-desc">Train to Recognize Sounds</div>
+                </a>
+                <a href="./bots/scale-explorer.html" class="tool-card" data-name="Scale Explorer" data-desc="Explore diffrent Scales">
+                    <button class="favorite-btn" data-tool="Scale Explorer"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-sliders"></i></div>
+                    <div class="tool-name">Scale Explorer</div>
+                    <div class="tool-desc">Explore diffrent Scales</div>
+                </a>
+                <a href="./bots/synth-pad.html" class="tool-card" data-name="Synth Pad" data-desc="Filter with Synth Pad">
+                    <button class="favorite-btn" data-tool="Synth Pad"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-border-all"></i></div>
+                    <div class="tool-name">Synth Pad</div>
+                    <div class="tool-desc">Filter with Synth Pad</div>
+                </a>
+                <a href="./bots/bpm-tapper.html" class="tool-card" data-name="BPM Tapper" data-desc="Tap Beats Per Minute">
+                    <button class="favorite-btn" data-tool="BPM Tapper"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="far fa-circle-stop"></i></div>
+                    <div class="tool-name">BPM Tapper</div>
+                    <div class="tool-desc">Tap Beats Per Minute</div>
+                </a>
+                <a href="./bots/metronome.html" class="tool-card" data-name="Metronome" data-desc="Adjustable BPM with visual and audio cues">
+                    <button class="favorite-btn" data-tool="Metronome"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="far fa-circle-stop"></i></div>
+                    <div class="tool-name">Metronome</div>
+                    <div class="tool-desc">Adjustable BPM with visual and audio cues</div>
+                </a>
+                <a href="./bots/chord-creator.html" class="tool-card" data-name="Chord Creator" data-desc="Create Songs out of String Instruments">
+                    <button class="favorite-btn" data-tool="Chord Creator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-guitar"></i></div>
+                    <div class="tool-name">Chord Creator</div>
+                    <div class="tool-desc">Create Songs out of String Instruments</div>
+                </a>
+                <a href="./bots/vocal-harmony.html" class="tool-card" data-name="Vocal Harmony" data-desc="Vocal Harmony Generator">
+                    <button class="favorite-btn" data-tool="Vocal Harmony"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-microphone-lines"></i></div>
+                    <div class="tool-name">Vocal Harmony</div>
+                    <div class="tool-desc">Vocal Harmony Generator</div>
+                </a>
+                <a href="./bots/auto-tune.html" class="tool-card" data-name="Auto-Tune" data-desc="Automaticly Ajust the Pitch of Vocal lines">
+                    <button class="favorite-btn" data-tool="Auto-Tune"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-microphone-lines"></i></div>
+                    <div class="tool-name">Auto-Tune</div>
+                    <div class="tool-desc">Automaticly Ajust the Pitch of Vocal lines</div>
+                </a>
+                <a href="./bots/sight-reading.html" class="tool-card" data-name="Sight Reading" data-desc="Sign Reading Practice">
+                    <button class="favorite-btn" data-tool="Sight Reading"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-music"></i></div>
+                    <div class="tool-name">Sight Reading</div>
+                    <div class="tool-desc">Sign Reading Practice</div>
+                </a>
+                <a href="./bots/sight-reading.html" class="tool-card" data-name="Instrument Tuner" data-desc="Microphone-based tuning for guitar, violin, etc">
+                    <button class="favorite-btn" data-tool="Instrument Tuner"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-guitar"></i></div>
+                    <div class="tool-name">Instrument Tuner</div>
+                    <div class="tool-desc">Microphone-based tuning for guitar, violin, etc</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Art -->
+        <div class="section" data-category="art">
+            <h2 class="section-title"><i class="fas fa-palette"></i> Art</h2>
+            <div class="tools-grid">
+                <a href="./bots/logo-maker.html" class="tool-card" data-name="Logo Maker" data-desc="Custom Logo Designer">
+                    <button class="favorite-btn" data-tool="Logo Maker"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fab fa-amazon"></i></div>
+                    <div class="tool-name">Logo Maker</div>
+                    <div class="tool-desc">Custom Logo Designer</div>
+                </a>
+                <a href="./bots/animation.html" class="tool-card" data-name="2D Animation" data-desc="2D Animation Software">
+                    <button class="favorite-btn" data-tool="2D Animation"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-clapperboard"></i></div>
+                    <div class="tool-name">2D Animation</div>
+                    <div class="tool-desc">2D Animation Software</div>
+                </a>
+                <a href="./bots/video_editor.html" class="tool-card" data-name="Video Editor" data-desc="Edit Videos">
+                    <button class="favorite-btn" data-tool="Video Editor"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-film"></i></div>
+                    <div class="tool-name">Video Editor</div>
+                    <div class="tool-desc">Edit Videos</div>
+                </a>
+                <a href="./bots/video_splicer.html" class="tool-card" data-name="Video Splicer" data-desc="Cut a video in to images. For Scratch">
+                    <button class="favorite-btn" data-tool="Video Splicer"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-scissors"></i></div>
+                    <div class="tool-name">Video Splicer</div>
+                    <div class="tool-desc">Cut a video in to images. For Scratch</div>
+                </a>
+                <a href="./bots/pattern-generator.html" class="tool-card" data-name="Pattern Generator" data-desc="Generate Cool Patterns">
+                    <button class="favorite-btn" data-tool="Pattern Generator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-grip-lines-vertical"></i><i class="fas fa-grip-lines-vertical"></i></div>
+                    <div class="tool-name">Pattern Generator</div>
+                    <div class="tool-desc">Generate Cool Patterns</div>
+                </a>
+                <a href="./bots/color-remover.html" class="tool-card" data-name="Color Remover" data-desc="Remove Colors">
+                    <button class="favorite-btn" data-tool="Color Remover"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-eraser"></i></div>
+                    <div class="tool-name">Color Remover</div>
+                    <div class="tool-desc">Remove Colors</div>
+                </a>
+                <a href="./bots/color-picker.html" class="tool-card" data-name="Color Picker" data-desc="Get the RGB,Hex, and HSL of Colors">
+                    <button class="favorite-btn" data-tool="Color Remover"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-eyedropper"></i></div>
+                    <div class="tool-name">Color Picker</div>
+                    <div class="tool-desc">Get the RGB,Hex, and HSL of Colors</div>
+                </a>
+                <a href="./bots/palette-generator.html" class="tool-card" data-name="Palette Generator" data-desc="Generate a Palette of colors">
+                    <button class="favorite-btn" data-tool="Palette Generator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-palette"></i></div>
+                    <div class="tool-name">Palette Generator</div>
+                    <div class="tool-desc">Generate a Palette of colors</div>
+                </a>
+                <a href="./bots/comic.html" class="tool-card" data-name="Comic Creator" data-desc="Comic Drawing software">
+                    <button class="favorite-btn" data-tool="Comic Creator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="far fa-pen-to-square"></i></div>
+                    <div class="tool-name">Comic Creator</div>
+                    <div class="tool-desc">Comic Drawing software</div>
+                </a>
+                <a href="./bots/pdf-annotation.html" class="tool-card" data-name="PDF Annotation" data-desc="Annotate a imported PDF">
+                    <button class="favorite-btn" data-tool="PDF Annotation"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="far fa-file-pdf"></i></div>
+                    <div class="tool-name">PDF Annotation</div>
+                    <div class="tool-desc">Annotate a imported PDF</div>
+                </a>
+                <a href="./bots/drawing.html" class="tool-card" data-name="Drawing" data-desc="Drawing software">
+                    <button class="favorite-btn" data-tool="Drawing"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-paint-brush"></i></div>
+                    <div class="tool-name">Drawing</div>
+                    <div class="tool-desc">Drawing software</div>
+                </a>
+                <a href="./bots/pixel-art.html" class="tool-card" data-name="Pixel Art Creator" data-desc="Pixel Grid Drawing for creating pixel art/sprites">
+                    <button class="favorite-btn" data-tool="Pixel Art Creator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-brush"></i></div>
+                    <div class="tool-name">Pixel Art Creator</div>
+                    <div class="tool-desc">Pixel Grid Drawing for creating pixel art/sprites</div>
+                </a>
+                <a href="./bots/pixel-art-animation.html" class="tool-card" data-name="Pixel Art Animation" data-desc="Create and loop simple sprite animations">
+                    <button class="favorite-btn" data-tool="Pixel Art Animation"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-pen-nib"></i></div>
+                    <div class="tool-name">Pixel Art Animation</div>
+                    <div class="tool-desc">Create and loop simple sprite animations</div>
+                </a>
+                <a href="./bots/modeling.html" class="tool-card" data-name="Modeling" data-desc="3D Modeling">
+                    <button class="favorite-btn" data-tool="Modeling"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-cube"></i></div>
+                    <div class="tool-name">Modeling</div>
+                    <div class="tool-desc">3D Modeling</div>
+                </a>
+                <a href="./bots/sculpting.html" class="tool-card" data-name="Sculpting" data-desc="3D Sculpting">
+                    <button class="favorite-btn" data-tool="Sculpting"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-circle"></i></div>
+                    <div class="tool-name">Sculpting</div>
+                    <div class="tool-desc">3D Sculpting</div>
+                </a>
+                <a href="./bots/font-creator.html" class="tool-card" data-name="Font Creator" data-desc="Custom Logo Designer">
+                    <button class="favorite-btn" data-tool="Font Creator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fab fa-facebook-f"></i><i class="fas fa-feather-pointed"></i></div>
+                    <div class="tool-name">Font Creator</div>
+                    <div class="tool-desc">Custom Logo Designer</div>
+                </a>
+                <a href="./bots/gradient-generator.html" class="tool-card" data-name="Gradient Generator" data-desc="Create CSS gradients with live preview">
+                    <button class="favorite-btn" data-tool="Gradient Generator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-square"></i></div>
+                    <div class="tool-name">Gradient Generator</div>
+                    <div class="tool-desc">Create CSS gradients with live preview</div>
+                </a>
+                <a href="./bots/svg-editor.html" class="tool-card" data-name="SVG Editor" data-desc="Draw and export vector graphics">
+                    <button class="favorite-btn" data-tool="SVG Editor"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-pen-fancy"></i></div>
+                    <div class="tool-name">SVG Editor</div>
+                    <div class="tool-desc">Draw and export vector graphics</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Utility Tools -->
+        <div class="section" data-category="utility">
+            <h2 class="section-title"><i class="fas fa-hammer"></i> Utility Tools</h2>
+            <div class="tools-grid">
+                <a href="./bots/date-time.html" class="tool-card" data-name="Date Tracker" data-desc="Count time & date down to the millisecond">
+                    <button class="favorite-btn" data-tool="Date Tracker"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="far fa-clock"></i></div>
+                    <div class="tool-name">Date Tracker</div>
+                    <div class="tool-desc">Count time & date down to the millisecond</div>
+                </a>
+                <a href="./bots/age-calculator.html" class="tool-card" data-name="Age Calculator" data-desc="Count time since you were born down to the millisecond">
+                    <button class="favorite-btn" data-tool="Age Calculator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="far fa-clock"></i></div>
+                    <div class="tool-name">Age Calculator</div>
+                    <div class="tool-desc">Count time since you were born down to the millisecond</div>
+                </a>
+                <a href="./bots/word-counter.html" class="tool-card" data-name="Word Counter" data-desc="Count words">
+                    <button class="favorite-btn" data-tool="Word Counter"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-file-word"></i></div>
+                    <div class="tool-name">Word Counter</div>
+                    <div class="tool-desc">Count words</div>
+                </a>
+                <a href="./bots/character-counter.html" class="tool-card" data-name="Character Counter" data-desc="Count characters">
+                    <button class="favorite-btn" data-tool="Character Counter"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-hashtag"></i></div>
+                    <div class="tool-name">Character Counter</div>
+                    <div class="tool-desc">Count characters</div>
+                </a>
+                <a href="./bots/morse-converter.html" class="tool-card" data-name="Morse Code Conversion" data-desc="Conversion to Morse Code">
+                    <button class="favorite-btn" data-tool="Morse Code Conversion"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-ellipsis"></i></div>
+                    <div class="tool-name">Morse Code Conversion</div>
+                    <div class="tool-desc">Conversion to Morse Code</div>
+                </a>
+                <a href="./bots/braille-converter.html" class="tool-card" data-name="Braille Conversion" data-desc="Conversion to Braille">
+                    <button class="favorite-btn" data-tool="Braille Conversion"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-ellipsis"></i></div>
+                    <div class="tool-name">Braille Conversion</div>
+                    <div class="tool-desc">Conversion to Braille</div>
+                </a>
+                <a href="./bots/case-converter.html" class="tool-card" data-name="Case Converter" data-desc="Convert text case">
+                    <button class="favorite-btn" data-tool="Case Converter"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-font"></i></div>
+                    <div class="tool-name">Case Converter</div>
+                    <div class="tool-desc">Convert text case</div>
+                </a>
+                <a href="./bots/currency-converter.html" class="tool-card" data-name="Currency Converter" data-desc="Convert between Currencys">
+                    <button class="favorite-btn" data-tool="Currency Converter"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-money-bill-transfer"></i></div>
+                    <div class="tool-name">Currencys Converter</div>
+                    <div class="tool-desc">Convert between Currencys</div>
+                </a>
+                <a href="./bots/ip-address-info.html" class="tool-card" data-name="IP Address Info" data-desc="Show your public IP and location">
+                    <button class="favorite-btn" data-tool="IP Address Info"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-location-dot"></i></div>
+                    <div class="tool-name">IP Address Info</div>
+                    <div class="tool-desc">Show your public IP and location</div>
+                </a>
+                <a href="./bots/text-formatter.html" class="tool-card" data-name="Text Formatter" data-desc="Format text">
+                    <button class="favorite-btn" data-tool="Text Formatter"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-align-left"></i></div>
+                    <div class="tool-name">Text Formatter</div>
+                    <div class="tool-desc">Format text</div>
+                </a>
+                <a href="./bots/qr-code-gen.html" class="tool-card" data-name="QR Code Generator" data-desc="Generate QR codes">
+                    <button class="favorite-btn" data-tool="QR Code Generator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-qrcode"></i></div>
+                    <div class="tool-name">QR Code Generator</div>
+                    <div class="tool-desc">Generate QR codes</div>
+                </a>
+                <a href="./bots/password-strength.html" class="tool-card" data-name="Password Checker" data-desc="Check password strength">
+                    <button class="favorite-btn" data-tool="Password Checker"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-lock"></i></div>
+                    <div class="tool-name">Password Checker</div>
+                    <div class="tool-desc">Check password strength</div>
+                </a>
+                <a href="./bots/file-compresser.html" class="tool-card" data-name="File Compressor" data-desc="Shrink the size of the File">
+                    <button class="favorite-btn" data-tool="File Compressor"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-minimize"></i></div>
+                    <div class="tool-name">File Compressor</div>
+                    <div class="tool-desc">Shrink the size of the File</div>
+                </a>
+                <a href="./bots/file-encoder.html" class="tool-card" data-name="Base64" data-desc="Encode & Decode Files">
+                    <button class="favorite-btn" data-tool="Base64"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="tool-name">Base64</div>
+                    <div class="tool-desc">Encode & Decode Files</div>
+                </a>
+                <a href="./bots/cryptography.html" class="tool-card" data-name="Cryptography" data-desc="Encode & Decode Files">
+                    <button class="favorite-btn" data-tool="Cryptography"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="tool-name">Cryptography</div>
+                    <div class="tool-desc">Encode & Decode Files</div>
+                </a>
+                <a href="./bots/mhtml-html-converter.html" class="tool-card" data-name="MHTML Converter" data-desc="MHTML -> HTML Converter">
+                    <button class="favorite-btn" data-tool="MHTML Converter"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fab fa-html5"></i><i class="fas fa-arrow-right-arrow-left"></i><i class="fab fa-html5"></i></div>
+                    <div class="tool-name">MHTML Converter</div>
+                    <div class="tool-desc">MHTML -> HTML Converter</div>
+                </a>
+                <a href="./bots/device-info.html" class="tool-card" data-name="Device Info" data-desc="Display browser, screen size, user agent">
+                    <button class="favorite-btn" data-tool="Device Info"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-computer"></i> <i class="fas fa-laptop"></i> <i class="fas fa-mobile-screen-button"></i> <i class="fas fa-tablet-screen-button"></i></div>
+                    <div class="tool-name">Device Info</div>
+                    <div class="tool-desc">Display browser, screen size, user agent</div>
+                </a>
+                <a href="./bots/random-number-generator.html" class="tool-card" data-name="Random Number Generator" data-desc="With customizable ranges and count">
+                    <button class="favorite-btn" data-tool="Random Number Generator"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-repeat"></i></div>
+                    <div class="tool-name">Random Number Generator</div>
+                    <div class="tool-desc">With customizable ranges and count</div>
+                </a>
+                <a href="./bots/list-randomizer.html" class="tool-card" data-name="List Randomizer" data-desc="Shuffle or pick random items">
+                    <button class="favorite-btn" data-tool="List Randomizer"><i class="far fa-star"></i></button>
+                    <div class="tool-icon"><i class="fas fa-align-center"></i> <i class="fas fa-random"></i></div>
+                    <div class="tool-name">List Randomizer</div>
+                    <div class="tool-desc">Shuffle or pick random items</div>
+                </a>
+            </div>
+        </div>
+        
+        <!-- No Results Message -->
+        <div id="noResults" class="no-results">
+            <i class="fas fa-search" style="font-size: 48px; margin-bottom: 15px;"></i>
+            <h3>No tools found</h3>
+            <p>Try searching for something else</p>
+        </div>
+    </div>
+
+    <!-- Tool Counter -->
+    <div class="tool-counter">
+        <span id="totalTools">0</span> tools available
+    </div>
+
+    <footer>
+    <div style="text-align: center;">
+        <p>| Flow Education/School Tools |</p>
+        <p>| All processing is done locally in your browser | Works best with Chrome, Firefox, or Edge |</p> 
+        <p>| Made by Jonathan Dollé |</p>
+    </div>
+    </footer>
+
+    <!-- Settings Modal - KEEP THIS ONE ONLY -->
+<div class="settings-modal" id="settingsModal">
+    <div class="settings-content">
+        <div class="settings-header">
+            <h2><i class="fas fa-cog"></i> Settings</h2>
+            <button class="close-settings" id="closeSettings">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="setting-group">
+            <h3><i class="fas fa-adjust"></i> Display Brightness</h3>
+            <div class="brightness-control">
+                <i class="fas fa-moon" style="color: #666;"></i>
+                <input type="range" min="50" max="150" value="100" class="brightness-slider" id="brightnessSlider">
+                <i class="fas fa-sun" style="color: #ffd700;"></i>
+                <span class="brightness-value" id="brightnessValue">100%</span>
+            </div>
+        </div>
+        
+        <div class="setting-group">
+            <h3><i class="fas fa-palette"></i> Theme</h3>
+            <div class="theme-options">
+                <div class="theme-option" data-theme="dark">
+                    <i class="fas fa-moon"></i>
+                    <div>Dark</div>
+                </div>
+                <div class="theme-option" data-theme="light">
+                    <i class="fas fa-sun"></i>
+                    <div>Light</div>
+                </div>
+                <div class="theme-option" data-theme="orange">
+                    <i class="fas fa-fire"></i>
+                    <div>Orange</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="setting-group">
+            <h3><i class="fas fa-text-height"></i> Font Size</h3>
+            <div class="font-size-control">
+                <button class="font-size-btn" id="fontSmall">Small</button>
+                <button class="font-size-btn active" id="fontNormal">Normal</button>
+                <button class="font-size-btn" id="fontLarge">Large</button>
+            </div>
+        </div>
+        
+        <div class="advanced-settings">
+            <h3><i class="fas fa-sliders-h"></i> Advanced Settings</h3>
+            
+            <div class="setting-checkbox">
+                <input type="checkbox" id="reduceMotion">
+                <label for="reduceMotion">Reduce animations</label>
+            </div>
+            
+            <div class="setting-checkbox">
+                <input type="checkbox" id="highContrast">
+                <label for="highContrast">High contrast mode</label>
+            </div>
+            
+            <div class="setting-checkbox">
+                <input type="checkbox" id="compactMode">
+                <label for="compactMode">Compact tool view</label>
+            </div>
+            
+            <div class="setting-checkbox">
+                <input type="checkbox" id="autoSave" checked>
+                <label for="autoSave">Auto-save settings</label>
+            </div>
+        </div>
+        
+        <button id="resetSettings" style="
+            width: 100%;
+            padding: 12px;
+            margin-top: 25px;
+            background: rgba(255, 69, 0, 0.2);
+            border: 1px solid #ff4500;
+            border-radius: 8px;
+            color: #ff4500;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        ">
+            <i class="fas fa-undo"></i> Reset All Settings
+        </button>
+    </div>
+</div>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Local Storage Keys
+    const FAVORITES_KEY = 'flow_favorites';
+    const RECENT_KEY = 'flow_recent_tools';
+    const THEME_KEY = 'flow_theme';
+    const USER_NAME_KEY = 'flow_userName';
+    const MAX_RECENT = 5;
+    const MAX_FAVORITES = 5;
+
+    // DOM Elements
+    const searchInput = document.getElementById('searchInput');
+    const resultsCount = document.getElementById('resultsCount');
+    const toolCards = document.querySelectorAll('.tool-card');
+    const sections = document.querySelectorAll('.section');
+    const noResults = document.getElementById('noResults');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const closeSidebar = document.getElementById('closeSidebar');
+    const sidebar = document.getElementById('sidebar');
+    const favoritesSection = document.getElementById('favoritesSection');
+    const recentSection = document.getElementById('recentSection');
+    const favoritesGrid = document.getElementById('favoritesGrid');
+    const recentGrid = document.getElementById('recentGrid');
+    const resetFavoritesBtn = document.getElementById('resetFavorites');
+    const resetRecentBtn = document.getElementById('resetRecent');
+    const toggleFavoritesBtn = document.getElementById('toggleFavorites');
+    const toggleRecentBtn = document.getElementById('toggleRecent');
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('i');
+    
+    // Tool Counter Elements
+    const totalToolsElement = document.getElementById('totalTools');
+    const totalToolsNav = document.getElementById('totalToolsNav');
+    const activeToolsElement = document.getElementById('activeTools');
+    
+    // Settings Elements
+    const settingsModal = document.getElementById('settingsModal');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const closeSettings = document.getElementById('closeSettings');
+    const brightnessSlider = document.getElementById('brightnessSlider');
+    const brightnessValue = document.getElementById('brightnessValue');
+    const themeOptions = document.querySelectorAll('.theme-option');
+    const fontButtons = document.querySelectorAll('.font-size-btn');
+    const resetSettingsBtn = document.getElementById('resetSettings');
+    
+    // Store original text for highlighting
+    const originalTexts = new Map();
+    const toolData = new Map();
+    
+    // Initialize tool counters
+    totalToolsElement.textContent = toolCards.length;
+    totalToolsNav.textContent = toolCards.length;
+    activeToolsElement.textContent = toolCards.length;
+    
+    toolCards.forEach(card => {
+        const nameElement = card.querySelector('.tool-name');
+        const descElement = card.querySelector('.tool-desc');
+        const toolName = card.getAttribute('data-name');
+        const toolDesc = card.getAttribute('data-desc');
+        const toolIcon = card.querySelector('.tool-icon').innerHTML;
+        const toolHref = card.getAttribute('href');
+        
+        originalTexts.set(card, {
+            name: nameElement.textContent,
+            desc: descElement.textContent
+        });
+        
+        toolData.set(toolName, {
+            name: toolName,
+            desc: toolDesc,
+            icon: toolIcon,
+            href: toolHref,
+            card: card
+        });
+    });
+    
+    // Initialize from localStorage
+    let favorites = JSON.parse(localStorage.getItem(FAVORITES_KEY)) || [];
+    let recentTools = JSON.parse(localStorage.getItem(RECENT_KEY)) || [];
+    let isLightMode = localStorage.getItem(THEME_KEY) === 'light';
+
+    // Retrieve and display user name
+    const storedUserName = localStorage.getItem('flow_userName');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    const userBackBtn = document.getElementById('userBackBtn');
+
+    if (storedUserName && userNameDisplay) {
+        userNameDisplay.textContent = storedUserName;
+        userBackBtn.setAttribute('title', `Signed in as ${storedUserName}. Click to sign out.`);
+    } else {
+        userNameDisplay.textContent = 'Back (No Acount Detected)';
+    }
+    
+    // Apply saved theme
+    if (isLightMode) {
+        document.body.classList.add('light-mode');
+        themeIcon.className = 'fas fa-sun';
+    }
+    
+    // Update UI
+    updateFavoritesUI();
+    updateRecentUI();
+    updateFavoriteButtons();
+    
+    // ================= SETTINGS MODAL FUNCTIONALITY =================
+    
+    // Open settings modal
+    settingsBtn.addEventListener('click', () => {
+        settingsModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    });
+    
+    // Close settings modal
+    closeSettings.addEventListener('click', () => {
+        settingsModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    });
+    
+    // Close modal when clicking outside
+    settingsModal.addEventListener('click', (e) => {
+        if (e.target === settingsModal) {
+            settingsModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
+    
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && settingsModal.style.display === 'flex') {
+            settingsModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
+    
+    // Brightness Control
+    const savedBrightness = localStorage.getItem('flow_brightness') || 100;
+    brightnessSlider.value = savedBrightness;
+    brightnessValue.textContent = `${savedBrightness}%`;
+    document.body.style.filter = `brightness(${savedBrightness}%)`;
+    
+    brightnessSlider.addEventListener('input', function() {
+        const value = this.value;
+        brightnessValue.textContent = `${value}%`;
+        document.body.style.filter = `brightness(${value}%)`;
+        localStorage.setItem('flow_brightness', value);
+    });
+    
+    // Theme Options
+    const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+    themeOptions.forEach(option => {
+        if (option.getAttribute('data-theme') === savedTheme) {
+            option.classList.add('active');
+        }
+        
+        option.addEventListener('click', function() {
+            const theme = this.getAttribute('data-theme');
+            
+            themeOptions.forEach(o => o.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Remove all theme classes
+            document.body.classList.remove('light-mode');
+            
+            // Apply selected theme
+            if (theme === 'light') {
+                document.body.classList.add('light-mode');
+                themeIcon.className = 'fas fa-sun';
+            } else if (theme === 'orange') {
+                document.body.classList.add('light-mode');
+                themeIcon.className = 'fas fa-fire';
+            } else {
+                document.body.classList.remove('light-mode');
+                themeIcon.className = 'fas fa-moon';
+            }
+            
+            localStorage.setItem(THEME_KEY, theme);
+        });
+    });
+    
+    // Font Size Control
+    const savedFontSize = localStorage.getItem('flow_fontSize') || 'normal';
+    document.getElementById(`font${savedFontSize.charAt(0).toUpperCase() + savedFontSize.slice(1)}`).classList.add('active');
+    document.body.style.fontSize = savedFontSize === 'small' ? '14px' : 
+                                  savedFontSize === 'large' ? '18px' : '16px';
+    
+    fontButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const size = this.id.replace('font', '').toLowerCase();
+            
+            fontButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            let fontSize;
+            if (size === 'small') fontSize = '14px';
+            else if (size === 'large') fontSize = '18px';
+            else fontSize = '16px';
+            
+            document.body.style.fontSize = fontSize;
+            localStorage.setItem('flow_fontSize', size);
+        });
+    });
+    
+    // Reset Settings
+    resetSettingsBtn.addEventListener('click', () => {
+        if (confirm('Reset all settings to default?')) {
+            localStorage.removeItem('flow_brightness');
+            localStorage.removeItem('flow_fontSize');
+            localStorage.removeItem('flow_reduceMotion');
+            localStorage.removeItem('flow_highContrast');
+            localStorage.removeItem('flow_compactMode');
+            localStorage.removeItem('flow_autoSave');
+            
+            // Reset brightness
+            brightnessSlider.value = 100;
+            brightnessValue.textContent = '100%';
+            document.body.style.filter = 'brightness(100%)';
+            
+            // Reset theme
+            themeOptions.forEach(o => o.classList.remove('active'));
+            document.querySelector('[data-theme="dark"]').classList.add('active');
+            document.body.classList.remove('light-mode');
+            themeIcon.className = 'fas fa-moon';
+            localStorage.setItem(THEME_KEY, 'dark');
+            
+            // Reset font size
+            fontButtons.forEach(b => b.classList.remove('active'));
+            document.getElementById('fontNormal').classList.add('active');
+            document.body.style.fontSize = '16px';
+            localStorage.setItem('flow_fontSize', 'normal');
+            
+            // Reset checkboxes
+            document.getElementById('reduceMotion').checked = false;
+            document.getElementById('highContrast').checked = false;
+            document.getElementById('compactMode').checked = false;
+            document.getElementById('autoSave').checked = true;
+            
+            alert('Settings reset successfully!');
+        }
+    });
+    
+    // ================= ORIGINAL FUNCTIONALITY =================
+    
+    // Theme Toggle with rotation animation
+    themeToggle.addEventListener('click', () => {
+        themeToggle.classList.add('rotating');
+        
+        setTimeout(() => {
+            isLightMode = !isLightMode;
+            document.body.classList.toggle('light-mode');
+            
+            if (isLightMode) {
+                themeIcon.className = 'fas fa-sun';
+                localStorage.setItem(THEME_KEY, 'light');
+            } else {
+                themeIcon.className = 'fas fa-moon';
+                localStorage.setItem(THEME_KEY, 'dark');
+            }
+            
+            setTimeout(() => {
+                themeToggle.classList.remove('rotating');
+            }, 500);
+        }, 100);
+    });
+    
+    // Sidebar Toggle
+    sidebarToggle.addEventListener('click', () => {
+        document.body.classList.toggle('sidebar-open');
+    });
+    
+    closeSidebar.addEventListener('click', () => {
+        document.body.classList.remove('sidebar-open');
+    });
+    
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 900 && 
+            document.body.classList.contains('sidebar-open') &&
+            !sidebar.contains(e.target) && 
+            !sidebarToggle.contains(e.target)) {
+            document.body.classList.remove('sidebar-open');
+        }
+    });
+    
+    // Toggle Favorites/Recent sections
+    toggleFavoritesBtn.addEventListener('click', () => {
+        favoritesSection.style.display = favoritesSection.style.display === 'none' ? 'block' : 'none';
+    });
+    
+    toggleRecentBtn.addEventListener('click', () => {
+        recentSection.style.display = recentSection.style.display === 'none' ? 'block' : 'none';
+    });
+    
+    // Reset buttons
+    resetFavoritesBtn.addEventListener('click', () => {
+        if (confirm('Clear all favorite tools?')) {
+            favorites = [];
+            localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+            updateFavoritesUI();
+            updateFavoriteButtons();
+        }
+    });
+    
+    resetRecentBtn.addEventListener('click', () => {
+        if (confirm('Clear all recent tools?')) {
+            recentTools = [];
+            localStorage.setItem(RECENT_KEY, JSON.stringify(recentTools));
+            updateRecentUI();
+        }
+    });
+    
+    // Favorite button click handler
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.favorite-btn')) {
+            const btn = e.target.closest('.favorite-btn');
+            const toolName = btn.getAttribute('data-tool');
+            
+            toggleFavorite(toolName);
+            e.preventDefault();
+        }
+        
+        if (e.target.closest('.tool-card') && !e.target.closest('.favorite-btn')) {
+            const card = e.target.closest('.tool-card');
+            const toolName = card.getAttribute('data-name');
+            
+            addToRecent(toolName);
+        }
+    });
+    
+    // Favorite functions
+    function toggleFavorite(toolName) {
+        const index = favorites.indexOf(toolName);
+        
+        if (index === -1) {
+            if (favorites.length < MAX_FAVORITES) {
+                favorites.push(toolName);
+            } else {
+                alert(`Maximum ${MAX_FAVORITES} favorites allowed. Remove some favorites first.`);
+                return;
+            }
+        } else {
+            favorites.splice(index, 1);
+        }
+        
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+        updateFavoritesUI();
+        updateFavoriteButtons();
+    }
+    
+    function addToRecent(toolName) {
+        const index = recentTools.indexOf(toolName);
+        if (index !== -1) {
+            recentTools.splice(index, 1);
+        }
+        
+        recentTools.unshift(toolName);
+        
+        if (recentTools.length > MAX_RECENT) {
+            recentTools = recentTools.slice(0, MAX_RECENT);
+        }
+        
+        localStorage.setItem(RECENT_KEY, JSON.stringify(recentTools));
+        updateRecentUI();
+    }
+    
+    function updateFavoritesUI() {
+        favoritesGrid.innerHTML = '';
+        
+        if (favorites.length === 0) {
+            favoritesGrid.innerHTML = '<div class="empty-message">No favorite tools yet. Click the star icon on any tool to add it here.</div>';
+            return;
+        }
+        
+        favorites.forEach(toolName => {
+            const tool = toolData.get(toolName);
+            if (tool) {
+                const card = document.createElement('a');
+                card.href = tool.href;
+                card.className = 'tool-card';
+                card.setAttribute('data-name', tool.name);
+                card.setAttribute('data-desc', tool.desc);
+                card.innerHTML = `
+                    <button class="favorite-btn active" data-tool="${tool.name}"><i class="fas fa-star"></i></button>
+                    <div class="tool-icon">${tool.icon}</div>
+                    <div class="tool-name">${tool.name}</div>
+                    <div class="tool-desc">${tool.desc}</div>
+                `;
+                favoritesGrid.appendChild(card);
+            }
+        });
+    }
+    
+    function updateRecentUI() {
+        recentGrid.innerHTML = '';
+        
+        if (recentTools.length === 0) {
+            recentGrid.innerHTML = '<div class="empty-message">No recently used tools. Your activity will appear here.</div>';
+            return;
+        }
+        
+        recentTools.forEach(toolName => {
+            const tool = toolData.get(toolName);
+            if (tool) {
+                const card = document.createElement('a');
+                card.href = tool.href;
+                card.className = 'tool-card';
+                card.setAttribute('data-name', tool.name);
+                card.setAttribute('data-desc', tool.desc);
+                card.innerHTML = `
+                    <div class="tool-icon">${tool.icon}</div>
+                    <div class="tool-name">${tool.name}</div>
+                    <div class="tool-desc">${tool.desc}</div>
+                `;
+                recentGrid.appendChild(card);
+            }
+        });
+    }
+    
+    function updateFavoriteButtons() {
+        document.querySelectorAll('.favorite-btn').forEach(btn => {
+            const toolName = btn.getAttribute('data-tool');
+            const icon = btn.querySelector('i');
+            
+            if (favorites.includes(toolName)) {
+                btn.classList.add('active');
+                icon.className = 'fas fa-star';
+            } else {
+                btn.classList.remove('active');
+                icon.className = 'far fa-star';
+            }
+        });
+    }
+    
+    // Category links in sidebar
+    document.querySelectorAll('.category-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const category = link.getAttribute('href').substring(1);
+            const targetSection = document.querySelector(`.section[data-category="${category}"]`);
+            
+            if (targetSection) {
+                if (window.innerWidth <= 900) {
+                    document.body.classList.remove('sidebar-open');
+                }
+                
+                targetSection.scrollIntoView({ behavior: 'smooth' });
+                
+                targetSection.style.boxShadow = '0 0 20px rgba(255, 128, 0, 0.3)';
+                setTimeout(() => {
+                    targetSection.style.boxShadow = '';
+                }, 2000);
+            }
+        });
+    });
+    
+    // Search functionality
+    function highlightText(text, searchTerm) {
+        if (!searchTerm) return text;
+        
+        const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        return text.replace(regex, '<span class="highlight">$1</span>');
+    }
+    
+    function performSearch() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        let visibleTools = 0;
+        let visibleSections = 0;
+        
+        if (searchTerm === '') {
+            sections.forEach(section => {
+                section.classList.remove('hidden-section');
+                const cards = section.querySelectorAll('.tool-card');
+                cards.forEach(card => {
+                    card.style.display = 'flex';
+                    const original = originalTexts.get(card);
+                    card.querySelector('.tool-name').innerHTML = original.name;
+                    card.querySelector('.tool-desc').innerHTML = original.desc;
+                });
+            });
+            resultsCount.textContent = 'All tools available';
+            noResults.style.display = 'none';
+            
+            // Update active tools counter
+            activeToolsElement.textContent = toolCards.length;
+            return;
+        }
+        
+        sections.forEach(section => {
+            section.classList.add('hidden-section');
+        });
+        
+        toolCards.forEach(card => {
+            const toolName = card.getAttribute('data-name').toLowerCase();
+            const toolDesc = card.getAttribute('data-desc').toLowerCase();
+            const parentSection = card.closest('.section');
+            
+            if (toolName.includes(searchTerm) || toolDesc.includes(searchTerm)) {
+                card.style.display = 'flex';
+                visibleTools++;
+                
+                parentSection.classList.remove('hidden-section');
+                
+                const original = originalTexts.get(card);
+                card.querySelector('.tool-name').innerHTML = highlightText(original.name, searchTerm);
+                card.querySelector('.tool-desc').innerHTML = highlightText(original.desc, searchTerm);
+                
+                if (!Array.from(sections).some(s => s === parentSection && !s.classList.contains('hidden-section'))) {
+                    visibleSections++;
+                }
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Update counters
+        resultsCount.textContent = `${visibleTools} tool${visibleTools !== 1 ? 's' : ''} found`;
+        activeToolsElement.textContent = visibleTools;
+        
+        if (visibleTools === 0) {
+            noResults.style.display = 'block';
+        } else {
+            noResults.style.display = 'none';
+        }
+    }
+    
+    // Event listener for search input
+    searchInput.addEventListener('input', performSearch);
+    
+    // Clear search on Escape key
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            searchInput.value = '';
+            performSearch();
+        }
+    });
+    
+    // Focus search input on '/' key press
+    document.addEventListener('keydown', function(e) {
+        if (e.key === '/' && e.target !== searchInput) {
+            e.preventDefault();
+            searchInput.focus();
+        }
+    });
+    
+    // ================= COMPACT CLOCK =================
+    function initCompactClock() {
+        const clockContainer = document.getElementById('compactClockContainer');
+        if (!clockContainer) return;
+        
+        const digits = {
+            year: clockContainer.querySelectorAll('.year .digit'),
+            month: clockContainer.querySelectorAll('.month .digit'),
+            day: clockContainer.querySelectorAll('.day .digit'),
+            hour: clockContainer.querySelectorAll('.hour .digit'),
+            minute: clockContainer.querySelectorAll('.minute .digit'),
+            second: clockContainer.querySelectorAll('.second .digit'),
+            milli: clockContainer.querySelectorAll('.milli .digit')
+        };
+        
+        let previousValues = {
+            year: '0000',
+            month: '00',
+            day: '00',
+            hour: '00',
+            minute: '00',
+            second: '00',
+            milli: '000'
+        };
+        
+        function formatTimePart(value, length) {
+            return value.toString().padStart(length, '0');
+        }
+        
+        function animateDigitChange(digitElement, newValue) {
+            if (digitElement.textContent !== newValue) {
+                digitElement.classList.add('changing');
+                digitElement.textContent = newValue;
+                setTimeout(() => {
+                    digitElement.classList.remove('changing');
+                }, 300);
+            }
+        }
+        
+        function updateCompactClock() {
+            const now = new Date();
+            
+            const year = now.getFullYear().toString();
+            const month = formatTimePart(now.getMonth() + 1, 2);
+            const day = formatTimePart(now.getDate(), 2);
+            const hour = formatTimePart(now.getHours(), 2);
+            const minute = formatTimePart(now.getMinutes(), 2);
+            const second = formatTimePart(now.getSeconds(), 2);
+            const milli = formatTimePart(now.getMilliseconds(), 3);
+            
+            if (year !== previousValues.year) {
+                year.split('').forEach((digit, index) => {
+                    animateDigitChange(digits.year[index], digit);
+                });
+                previousValues.year = year;
+            }
+            
+            if (month !== previousValues.month) {
+                month.split('').forEach((digit, index) => {
+                    animateDigitChange(digits.month[index], digit);
+                });
+                previousValues.month = month;
+            }
+            
+            if (day !== previousValues.day) {
+                day.split('').forEach((digit, index) => {
+                    animateDigitChange(digits.day[index], digit);
+                });
+                previousValues.day = day;
+            }
+            
+            if (hour !== previousValues.hour) {
+                hour.split('').forEach((digit, index) => {
+                    animateDigitChange(digits.hour[index], digit);
+                });
+                previousValues.hour = hour;
+            }
+            
+            if (minute !== previousValues.minute) {
+                minute.split('').forEach((digit, index) => {
+                    animateDigitChange(digits.minute[index], digit);
+                });
+                previousValues.minute = minute;
+            }
+            
+            if (second !== previousValues.second) {
+                second.split('').forEach((digit, index) => {
+                    animateDigitChange(digits.second[index], digit);
+                });
+                previousValues.second = second;
+            }
+            
+            milli.split('').forEach((digit, index) => {
+                if (digit !== previousValues.milli[index]) {
+                    animateDigitChange(digits.milli[index], digit);
+                }
+            });
+            previousValues.milli = milli;
+        }
+        
+        updateCompactClock();
+        setInterval(updateCompactClock, 10);
+    }
+    
+    initCompactClock();
+});
+
+</script>
+</body>
+</html>
