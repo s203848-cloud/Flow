@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual fraction calculator · add · subtract · multiply · divide</title>
+    <!-- Font Awesome for back icon (same as template hint) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #f0eaff;
+            min-height: 100vh;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .navbar {
+            width: 100%;
+            max-width: 1100px;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            padding: 8px 18px;
+            background: rgba(255, 128, 0, 0.18);
+            border: 1.5px solid #ff8000;
+            border-radius: 40px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+            backdrop-filter: blur(4px);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.35);
+            border-color: #ffa64d;
+            color: #ffd1a3;
+        }
+
+        /* main calculator card */
+        .calc-container {
+            max-width: 1100px;
+            width: 100%;
+            background: rgba(10, 8, 25, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid #ff800030;
+            border-radius: 48px;
+            padding: 30px 30px 45px;
+            box-shadow: 0 25px 40px -10px #00000080;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        h1 i {
+            color: #ff8000;
+            font-size: 2rem;
+        }
+        .sub {
+            color: #b0a0d0;
+            margin-bottom: 40px;
+            border-left: 3px solid #ff8000;
+            padding-left: 18px;
+            font-weight: 300;
+        }
+
+        /* fraction inputs */
+        .fraction-panel {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 15px 25px;
+            background: rgba(0,0,0,0.25);
+            border-radius: 80px;
+            padding: 20px 30px;
+            margin-bottom: 35px;
+            border: 1px solid #ff800025;
+        }
+
+        .fraction-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #0d0b1a;
+            padding: 10px 22px;
+            border-radius: 60px;
+            border: 1px solid #ff800040;
+        }
+
+        .frac-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .frac-input label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #ffaa33;
+            margin-bottom: 4px;
+        }
+        .frac-input input {
+            width: 75px;
+            background: #1e1a2f;
+            border: 1px solid #ff800060;
+            border-radius: 30px;
+            padding: 8px 12px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+            text-align: center;
+            outline: none;
+        }
+        .frac-input input:focus {
+            border-color: #ff8000;
+            box-shadow: 0 0 0 2px #ff800030;
+        }
+        .frac-slash {
+            font-size: 2.2rem;
+            font-weight: 300;
+            color: #ff8000;
+            margin: 0 2px;
+        }
+
+        .operation-selector {
+            background: #0d0b1a;
+            padding: 8px 12px;
+            border-radius: 50px;
+            border: 1px solid #ff8000;
+        }
+        .operation-selector select {
+            background: transparent;
+            border: none;
+            color: #ff8000;
+            font-size: 1.4rem;
+            font-weight: 600;
+            padding: 5px 10px;
+            outline: none;
+            cursor: pointer;
+        }
+        .operation-selector select option {
+            background: #1a0a2e;
+            color: white;
+        }
+
+        .calculate-btn {
+            background: rgba(255, 128, 0, 0.2);
+            border: 2px solid #ff8000;
+            border-radius: 50px;
+            padding: 12px 38px;
+            color: #ff8000;
+            font-weight: 700;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: 0.2s;
+            letter-spacing: 1px;
+            backdrop-filter: blur(5px);
+        }
+        .calculate-btn:hover {
+            background: #ff8000;
+            color: #0a0a1a;
+            box-shadow: 0 0 20px #ff8000a0;
+        }
+
+        /* result panel */
+        .result-card {
+            background: #0d0b1c;
+            border-radius: 40px;
+            padding: 25px 30px;
+            margin: 35px 0 30px;
+            border: 1px solid #ff800040;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .fraction-result {
+            display: flex;
+            align-items: baseline;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .fraction-result .label {
+            color: #b5a5d9;
+            font-size: 1.1rem;
+        }
+        .simplified {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffc285;
+        }
+        .simplified small {
+            font-size: 1.3rem;
+            font-weight: 400;
+            color: #a0a0c0;
+            margin: 0 8px;
+        }
+        .decimal-result {
+            background: #00000030;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-size: 1.7rem;
+            color: #ffb259;
+            border: 1px dashed #ff8000;
+        }
+
+        /* visual grid area */
+        .visual-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px 40px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .visual-item {
+            background: #140e22;
+            border-radius: 32px;
+            padding: 20px 20px 25px;
+            flex: 1 1 250px;
+            min-width: 240px;
+            border: 1px solid #ff800030;
+            text-align: center;
+        }
+        .visual-title {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            color: #ffb56b;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .grid-visual {
+            display: inline-grid;
+            gap: 4px;
+            justify-content: center;
+            background: #0a051a;
+            padding: 15px;
+            border-radius: 30px;
+            border: 1px solid #ff800020;
+            width: 100%;
+            max-width: 280px;
+            margin: 0 auto;
+        }
+        .grid-cell {
+            aspect-ratio: 1 / 1;
+            width: 100%;
+            background: #2a1e3c;
+            border-radius: 6px;
+            border: 1px solid #ff800070;
+            transition: 0.1s;
+        }
+        .grid-cell.filled {
+            background: #ff8000;
+            border-color: #ffaa40;
+            box-shadow: 0 0 8px #ff8000c0;
+        }
+        .visual-note {
+            margin-top: 12px;
+            color: #a89bcb;
+            font-size: 0.9rem;
+        }
+        .limit-warning {
+            color: #ff8040;
+            font-size: 0.85rem;
+            background: #ff800010;
+            padding: 4px 12px;
+            border-radius: 30px;
+            display: inline-block;
+        }
+
+        hr {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #ff8000, transparent);
+            margin: 20px 0;
+        }
+
+        footer {
+            color: #5a4a75;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <div class="calc-container">
+        <h1>
+            <i class="fas fa-chart-pie"></i> 
+            fraction lens
+        </h1>
+        <div class="sub">simplify · add · subtract · multiply · divide · see the pieces</div>
+
+        <!-- input zone -->
+        <div class="fraction-panel">
+            <!-- fraction a -->
+            <div class="fraction-box">
+                <div class="frac-input">
+                    <label>num</label>
+                    <input type="number" id="numA" value="2" step="1" min="-20" max="20">
+                </div>
+                <span class="frac-slash">/</span>
+                <div class="frac-input">
+                    <label>den</label>
+                    <input type="number" id="denA" value="3" step="1" min="1" max="20">
+                </div>
+            </div>
+
+            <!-- operation -->
+            <div class="operation-selector">
+                <select id="operation">
+                    <option value="add" selected>+  add</option>
+                    <option value="subtract">−  subtract</option>
+                    <option value="multiply">×  multiply</option>
+                    <option value="divide">÷  divide</option>
+                </select>
+            </div>
+
+            <!-- fraction b -->
+            <div class="fraction-box">
+                <div class="frac-input">
+                    <label>num</label>
+                    <input type="number" id="numB" value="1" step="1" min="-20" max="20">
+                </div>
+                <span class="frac-slash">/</span>
+                <div class="frac-input">
+                    <label>den</label>
+                    <input type="number" id="denB" value="2" step="1" min="1" max="20">
+                </div>
+            </div>
+
+            <button class="calculate-btn" id="calculateBtn"> = calculate</button>
+        </div>
+
+        <!-- result area -->
+        <div class="result-card" id="resultCard">
+            <div class="fraction-result">
+                <span class="label">result ↦</span>
+                <span class="simplified" id="simplifiedResult">2/3</span>
+                <span id="improperTag" style="color:#b5a5d9;"> </span>
+            </div>
+            <div class="decimal-result" id="decimalResult">≈ 0.667</div>
+        </div>
+
+        <!-- visual grids (fraction tiles) -->
+        <div class="visual-row">
+            <!-- fraction A visual -->
+            <div class="visual-item">
+                <div class="visual-title"><i class="fas fa-cube"></i> fraction A</div>
+                <div id="visualA" class="grid-visual"></div>
+                <div class="visual-note" id="noteA">2/3</div>
+            </div>
+
+            <!-- fraction B visual -->
+            <div class="visual-item">
+                <div class="visual-title"><i class="fas fa-cube"></i> fraction B</div>
+                <div id="visualB" class="grid-visual"></div>
+                <div class="visual-note" id="noteB">1/2</div>
+            </div>
+
+            <!-- result visual -->
+            <div class="visual-item">
+                <div class="visual-title"><i class="fas fa-crown"></i> result</div>
+                <div id="visualR" class="grid-visual"></div>
+                <div class="visual-note" id="noteR">2/3</div>
+            </div>
+        </div>
+        <div style="text-align: right; font-size: 0.85rem; opacity: 0.7; margin-top: 5px;">
+            <span class="limit-warning"><i class="fas fa-eye"></i> visual max denominator 16 (cells filled up to numerator)</span>
+        </div>
+        <hr>
+        <footer>click = · all fractions simplified · improper >1 fills all cells</footer>
+    </div>
+
+    <script>
+        (function() {
+            // ----- helpers -----
+            function gcd(a, b) {
+                a = Math.abs(a);
+                b = Math.abs(b);
+                while (b !== 0) {
+                    let t = b;
+                    b = a % b;
+                    a = t;
+                }
+                return a;
+            }
+
+            function simplifyFraction(num, den) {
+                if (den === 0) return { num: NaN, den: 0 }; // undefined
+                let g = gcd(num, den);
+                let n = num / g;
+                let d = den / g;
+                // keep sign in numerator
+                if (d < 0) {
+                    n = -n;
+                    d = -d;
+                }
+                return { num: n, den: d };
+            }
+
+            // ----- render grid visual (max denominator 16 for readability) -----
+            function renderGrid(containerId, numerator, denominator, labelId) {
+                const container = document.getElementById(containerId);
+                const label = document.getElementById(labelId);
+                if (!container) return;
+
+                // absolute values for cells (visual shows magnitude, sign shown in label)
+                let absNum = Math.abs(numerator);
+                const absDen = Math.abs(denominator);
+
+                // update text label
+                if (label) {
+                    let signChar = (numerator < 0 || denominator < 0) ? '−' : '';
+                    if (numerator < 0 && denominator < 0) signChar = ''; // double negative makes positive
+                    else if (numerator < 0 || denominator < 0) signChar = '−';
+                    // but simplification already keeps sign in num, so we can just show raw fraction with possible negative
+                    label.textContent = `${numerator}/${denominator}`;
+                }
+
+                // limit denominator for visual to 16, else show message
+                const MAX_DEN_VISUAL = 16;
+                if (absDen > MAX_DEN_VISUAL || absDen === 0) {
+                    container.innerHTML = `<div style="grid-column:1/-1; padding:15px; color:#ff8040; text-align:center;"><i class="fas fa-eye-slash"></i> den >16 or zero</div>`;
+                    return;
+                }
+
+                // how many cells to fill: up to absNum, but we cannot exceed denominator (full grid)
+                let fillCount = Math.min(absNum, absDen);
+                // create grid with columns = denominator
+                container.style.gridTemplateColumns = `repeat(${absDen}, 1fr)`;
+                
+                // build cells
+                let html = '';
+                for (let i = 0; i < absDen; i++) {
+                    let fillClass = (i < fillCount) ? 'filled' : '';
+                    html += `<div class="grid-cell ${fillClass}"></div>`;
+                }
+                container.innerHTML = html;
+
+                // add small note if improper (numerator >= denominator)
+                const noteElement = document.getElementById(labelId?.replace('note','visual') ? `note${containerId.slice(-1)}` : null); 
+                // we'll use the note field anyway
+                if (absNum > absDen) {
+                    const note = document.getElementById('note' + containerId.slice(-1));
+                    if (note) {
+                        let baseNote = `${numerator}/${denominator}`;
+                        note.innerHTML = `${baseNote} <span style="color:#ffb56b;">(>1, full grid)</span>`;
+                    }
+                } else {
+                    const note = document.getElementById('note' + containerId.slice(-1));
+                    if (note) note.innerHTML = `${numerator}/${denominator}`;
+                }
+            }
+
+            // ----- main calculation and update -----
+            function calculateAndRender() {
+                // get inputs
+                let numA = parseFloat(document.getElementById('numA').value);
+                let denA = parseFloat(document.getElementById('denA').value);
+                let numB = parseFloat(document.getElementById('numB').value);
+                let denB = parseFloat(document.getElementById('denB').value);
+                const op = document.getElementById('operation').value;
+
+                // validate (non-numeric or denom zero)
+                if (isNaN(numA) || isNaN(denA) || isNaN(numB) || isNaN(denB)) {
+                    alert('Please enter valid numbers in all fields.');
+                    return;
+                }
+                if (denA === 0 || denB === 0) {
+                    alert('Denominator cannot be zero.');
+                    return;
+                }
+
+                // perform operation
+                let resNum, resDen;
+                if (op === 'add') {
+                    resNum = numA * denB + numB * denA;
+                    resDen = denA * denB;
+                } else if (op === 'subtract') {
+                    resNum = numA * denB - numB * denA;
+                    resDen = denA * denB;
+                } else if (op === 'multiply') {
+                    resNum = numA * numB;
+                    resDen = denA * denB;
+                } else if (op === 'divide') {
+                    if (numB === 0) {
+                        alert('Division by zero fraction (numerator of divisor is zero)');
+                        return;
+                    }
+                    resNum = numA * denB;
+                    resDen = denA * numB;
+                }
+
+                // simplify result
+                let simplified = simplifyFraction(resNum, resDen);
+                let simpNum = simplified.num;
+                let simpDen = simplified.den;
+
+                // display simplified fraction
+                const simpSpan = document.getElementById('simplifiedResult');
+                const decimalSpan = document.getElementById('decimalResult');
+                if (isNaN(simpNum) || isNaN(simpDen) || simpDen === 0) {
+                    simpSpan.innerHTML = 'undefined';
+                    decimalSpan.innerHTML = '—';
+                } else {
+                    let displayFrac;
+                    if (simpDen === 1) {
+                        displayFrac = `${simpNum}`;
+                    } else {
+                        displayFrac = `${simpNum}/${simpDen}`;
+                    }
+                    simpSpan.innerHTML = displayFrac;
+                    // decimal with 4 places
+                    let decimalValue = simpNum / simpDen;
+                    decimalSpan.innerHTML = `≈ ${decimalValue.toFixed(4)}`;
+                }
+
+                // update visuals for A and B (always)
+                renderGrid('visualA', numA, denA, 'noteA');
+                renderGrid('visualB', numB, denB, 'noteB');
+
+                // update result visual (use simplified values, but keep sign)
+                if (!isNaN(simpNum) && !isNaN(simpDen) && simpDen !== 0) {
+                    renderGrid('visualR', simpNum, simpDen, 'noteR');
+                } else {
+                    // show empty / error grid
+                    const visR = document.getElementById('visualR');
+                    visR.innerHTML = `<div style="grid-column:1/-1; color:#ff8040;">invalid</div>`;
+                    document.getElementById('noteR').innerHTML = '?';
+                }
+
+                // update improper tag for result (just optional)
+                if (simpDen !== 0 && Math.abs(simpNum) > Math.abs(simpDen) && !isNaN(simpNum)) {
+                    document.getElementById('improperTag').innerHTML = '(improper)';
+                } else {
+                    document.getElementById('improperTag').innerHTML = '';
+                }
+            }
+
+            // initial render
+            calculateAndRender();
+
+            // event listener
+            document.getElementById('calculateBtn').addEventListener('click', calculateAndRender);
+
+            // optional: trigger on enter, but we keep it simple
+            // add listeners to inputs for better ux? we keep button only
+            // but if you want to update on change, could add, but we stick to button for clarity
+
+            // also allow pressing Enter in any input to trigger
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        document.getElementById('calculateBtn').click();
+                    }
+                });
+            });
+
+            // initial note for improper: already handled
+        })();
+    </script>
+
+    <!-- back button uses Font Awesome, ensure fallback -->
+    <noscript>JavaScript needed for calculation</noscript>
+</body>
+</html>

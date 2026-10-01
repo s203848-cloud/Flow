@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Device Info · Browser · Screen · Battery</title>
+    <!-- Font Awesome 6 for clean icons (matching template style) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ----- base & template reset ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0a0a1a 0%, #1a0a2e 100%);
+            color: #f0eaff;
+            min-height: 100vh;
+            padding: 1.5rem 1.8rem;
+            line-height: 1.5;
+        }
+
+        /* ----- back button (exactly as provided) ----- */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 8px 18px;
+            background: rgba(255, 128, 0, 0.12);
+            border: 1px solid #ff8000;
+            border-radius: 40px;
+            color: #ffb347;
+            font-weight: 500;
+            text-decoration: none;
+            font-size: 0.95rem;
+            backdrop-filter: blur(2px);
+            transition: all 0.2s ease;
+        }
+
+        .back-btn i {
+            font-size: 0.9rem;
+            color: #ff8000;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.25);
+            border-color: #ffaa33;
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(255, 128, 0, 0.3);
+        }
+
+        .navbar {
+            margin-bottom: 2.5rem;
+        }
+
+        /* ----- main container & cards (dark / orange accent) ----- */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 500;
+            margin-bottom: 1.8rem;
+            letter-spacing: 1px;
+            border-left: 6px solid #ff8000;
+            padding-left: 1.3rem;
+            background: linear-gradient(130deg, rgba(255,128,0,0.15) 0%, transparent 70%);
+            display: inline-block;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-card {
+            background: rgba(10, 15, 30, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 128, 0, 0.25);
+            border-radius: 28px;
+            padding: 1.6rem 1.4rem;
+            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 128, 0, 0.1) inset;
+            transition: transform 0.1s ease, border-color 0.2s;
+        }
+
+        .info-card:hover {
+            border-color: rgba(255, 128, 0, 0.5);
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .info-card h2 {
+            font-size: 1.3rem;
+            font-weight: 400;
+            color: #ffb86b;
+            margin-bottom: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            border-bottom: 1px dashed rgba(255, 128, 0, 0.3);
+            padding-bottom: 0.6rem;
+        }
+
+        .info-card h2 i {
+            color: #ff8000;
+            font-size: 1.3rem;
+            width: 1.8rem;
+            text-align: center;
+        }
+
+        .info-value {
+            font-size: 1.3rem;
+            font-weight: 400;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 0.9rem 1.2rem;
+            border-radius: 22px;
+            border: 1px solid rgba(255,128,0,0.2);
+            word-break: break-word;
+            color: #ffffff;
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.4);
+        }
+
+        .user-agent {
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            background: #0d0b1a;
+        }
+
+        /* small screen refinement */
+        @media (max-width: 560px) {
+            body { padding: 1rem; }
+            h1 { font-size: 1.8rem; }
+            .info-value { font-size: 1.1rem; }
+        }
+
+        /* loading / error state subtle */
+        .detect-load {
+            opacity: 0.8;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .detect-load i { color: #ff8000; }
+    </style>
+</head>
+<body>
+    <!-- Navigation: back button exactly as requested (points to tools-list.html) -->
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to tools</a>
+    </div>
+
+    <main class="container">
+        <h1>📱 Device Info</h1>
+
+        <!-- 3‑card grid: screen, browser, battery -->
+        <div class="info-grid">
+            <!-- Screen size card -->
+            <div class="info-card">
+                <h2><i class="fas fa-expand-alt"></i> Screen (px)</h2>
+                <div id="screenSize" class="info-value detect-load">
+                    <i class="fas fa-spinner fa-pulse"></i> reading...
+                </div>
+            </div>
+
+            <!-- Browser card (name + version) -->
+            <div class="info-card">
+                <h2><i class="fas fa-globe"></i> Browser</h2>
+                <div id="browser" class="info-value detect-load">
+                    <i class="fas fa-spinner fa-pulse"></i> detecting...
+                </div>
+            </div>
+
+            <!-- Battery card (level + status) -->
+            <div class="info-card">
+                <h2><i class="fas fa-battery-three-quarters"></i> Battery</h2>
+                <div id="battery" class="info-value detect-load">
+                    <i class="fas fa-spinner fa-pulse"></i> querying...
+                </div>
+            </div>
+        </div>
+
+        <!-- Full width: raw user agent string -->
+        <div class="info-card full-width">
+            <h2><i class="fas fa-code"></i> User agent</h2>
+            <div id="userAgent" class="info-value user-agent detect-load">
+                <i class="fas fa-spinner fa-pulse"></i> loading...
+            </div>
+        </div>
+    </main>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // --- helper: robust browser detection from userAgent (clean names) ---
+            function getBrowserInfo() {
+                const ua = navigator.userAgent;
+                const uaLower = ua.toLowerCase();
+
+                // edge / edg / chrome / safari / firefox / opera
+                if (ua.includes('Firefox/')) {
+                    const match = ua.match(/Firefox\/([\d.]+)/);
+                    return { name: 'Firefox', version: match ? match[1] : '?' };
+                }
+                if (ua.includes('SamsungBrowser/')) {
+                    const match = ua.match(/SamsungBrowser\/([\d.]+)/);
+                    return { name: 'Samsung Internet', version: match ? match[1] : '?' };
+                }
+                if (ua.includes('Edg/') || ua.includes('Edge/')) {
+                    const match = ua.match(/Edg\/([\d.]+)/) || ua.match(/Edge\/([\d.]+)/);
+                    return { name: 'Edge', version: match ? match[1] : '?' };
+                }
+                if (ua.includes('OPR/') || ua.includes('Opera/')) {
+                    const match = ua.match(/OPR\/([\d.]+)/) || ua.match(/Opera\/([\d.]+)/);
+                    return { name: 'Opera', version: match ? match[1] : '?' };
+                }
+                if (ua.includes('Chrome/') && !ua.includes('Edg/') && !ua.includes('OPR/')) {
+                    const match = ua.match(/Chrome\/([\d.]+)/);
+                    // could be Brave, but we keep as Chrome (generic chromium)
+                    if (navigator.brave && navigator.brave.isBrave) {
+                        // brave detection experimental
+                        return { name: 'Brave', version: match ? match[1] : '?' };
+                    }
+                    return { name: 'Chrome', version: match ? match[1] : '?' };
+                }
+                if (ua.includes('Safari/') && !ua.includes('Chrome/') && !ua.includes('Edg/')) {
+                    const match = ua.match(/Version\/([\d.]+)/);
+                    return { name: 'Safari', version: match ? match[1] : '?' };
+                }
+                // fallback: just extract name if possible
+                if (uaLower.includes('ucbrowser')) return { name: 'UC Browser', version: '?' };
+                if (uaLower.includes('miuibrowser')) return { name: 'Miui Browser', version: '?' };
+
+                return { name: navigator.userAgentData?.brands?.[0]?.brand || 'Unknown', version: '?' };
+            }
+
+            // --- update DOM safely ---
+            function setElementText(id, text, fallbackIcon = false) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (fallbackIcon) {
+                    el.innerHTML = text;  // allow icon injection if needed (but we use plain most of the time)
+                } else {
+                    el.innerText = text;
+                }
+            }
+
+            // --- 1. screen size (always available) ---
+            function displayScreenInfo() {
+                const width = window.screen.width;
+                const height = window.screen.height;
+                const availWidth = window.screen.availWidth;
+                const availHeight = window.screen.availHeight;
+                const colorDepth = window.screen.colorDepth || '?';
+
+                let screenText = `${width} × ${height}`;
+                // optionally add available (excluding taskbars)
+                if (availWidth && availHeight) {
+                    screenText += `  ·  available: ${availWidth} x ${availHeight}`;
+                }
+                screenText += `  ·  ${colorDepth}bit`;
+                setElementText('screenSize', screenText);
+            }
+
+            // --- 2. user agent (simple) ---
+            function displayUserAgent() {
+                const ua = navigator.userAgent;
+                setElementText('userAgent', ua);
+            }
+
+            // --- 3. browser info (name + version) ---
+            function displayBrowserInfo() {
+                const info = getBrowserInfo();
+                let browserText = `${info.name} ${info.version}`;
+                // optional: also show if it's mobile / tablet? we skip for clarity
+                setElementText('browser', browserText);
+            }
+
+            // --- 4. battery (with error handling + live update if possible) ---
+            function displayBatteryInfo() {
+                const batteryEl = document.getElementById('battery');
+                if (!batteryEl) return;
+
+                // fallback function if battery API unsupported / fails
+                const setBatteryFallback = (msg = '⚠️ Battery API not available') => {
+                    batteryEl.innerHTML = `<span style="opacity:0.8">${msg}</span>`;
+                };
+
+                if (!navigator.getBattery) {
+                    setBatteryFallback('❌ Battery API not supported');
+                    return;
+                }
+
+                navigator.getBattery().then(battery => {
+                    // helper to update level and charging status
+                    const updateBatteryDisplay = () => {
+                        const levelPercent = Math.round(battery.level * 100);
+                        const charging = battery.charging ? '⚡ charging' : '🔋 not charging';
+                        // choose icon based on level
+                        let icon = 'fa-battery-empty';
+                        if (levelPercent >= 90) icon = 'fa-battery-full';
+                        else if (levelPercent >= 60) icon = 'fa-battery-three-quarters';
+                        else if (levelPercent >= 30) icon = 'fa-battery-half';
+                        else if (levelPercent >= 10) icon = 'fa-battery-quarter';
+                        else icon = 'fa-battery-empty';
+
+                        batteryEl.innerHTML = `<i class="fas ${icon}" style="margin-right:0.6rem; color:#ff8000;"></i> ${levelPercent}% · ${charging}`;
+                    };
+
+                    // initial update
+                    updateBatteryDisplay();
+
+                    // optional event listeners for real‑time changes (level / charging)
+                    battery.addEventListener('levelchange', updateBatteryDisplay);
+                    battery.addEventListener('chargingchange', updateBatteryDisplay);
+
+                    // fallback: if we want to remove listeners after page hide (optional) — fine
+                }).catch(error => {
+                    console.warn('Battery error:', error);
+                    setBatteryFallback('⛔ unable to read battery');
+                });
+            }
+
+            // --- run all displays after DOM ready ---
+            window.addEventListener('DOMContentLoaded', () => {
+                displayScreenInfo();
+                displayUserAgent();
+                displayBrowserInfo();
+                displayBatteryInfo();
+
+                // (optional) update screen size on orientation change (tablet)
+                window.addEventListener('resize', () => {
+                    // only update screen info because orientation may change dimensions
+                    displayScreenInfo();
+                });
+            });
+        })();
+    </script>
+
+    <!-- tiny extra explanation (no dependencies, fully self-contained) -->
+    <!-- 
+        SETUP INSTRUCTIONS:
+        ===================
+        1. Save this file as `device-info.html` inside any folder (e.g. `tools/` or root).
+        2. The back button points to `../tools-list.html` — adjust if your file structure differs.
+           (e.g. if both files are in same folder, change href to "tools-list.html")
+        3. Open the html file in any modern browser (local file or served).
+        4. For battery info: works on Chrome/Edge/Chromium based browsers over HTTPS or localhost.
+           Some browsers may require a secure context. Fallback message appears if not available.
+        5. No build, no server needed – pure HTML/CSS/JS.
+    -->
+</body>
+</html>

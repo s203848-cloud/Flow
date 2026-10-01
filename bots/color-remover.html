@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Color Remover Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, .8);
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: rgba(255, 128, 0, .2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, .4);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(20, 20, 35, .5);
+            border: 1px solid rgba(255, 69, 0, .2);
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #ff8000, #ff5500);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #aaaacc;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .app-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .upload-section, .control-section {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(20, 20, 35, .5);
+            border: 1px solid rgba(255, 69, 0, .2);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ff8000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: #ff5500;
+        }
+
+        .file-upload-area {
+            border: 2px dashed rgba(255, 69, 0, .5);
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+            background: rgba(50, 50, 70, .3);
+        }
+
+        .file-upload-area:hover {
+            background: rgba(255, 128, 0, 0.1);
+            border-color: #ff8000;
+        }
+
+        .file-upload-area i {
+            font-size: 3rem;
+            color: #ff8000;
+            margin-bottom: 15px;
+        }
+
+        .file-upload-area p {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .file-upload-area span {
+            color: #aaaacc;
+            font-size: 0.9rem;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .color-picker-container {
+            margin-bottom: 25px;
+        }
+
+        .color-picker-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #ffaa66;
+        }
+
+        .color-picker-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #colorPicker {
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        .color-hex-input {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .color-hex-input label {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #ffaa66;
+        }
+
+        .color-hex-input input {
+            padding: 12px 15px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 69, 0, .3);
+            background: rgba(30, 30, 50, .6);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .tolerance-container {
+            margin-bottom: 25px;
+        }
+
+        .tolerance-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .tolerance-value {
+            font-weight: 600;
+            color: #ff8000;
+        }
+
+        .tolerance-slider {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(50, 50, 70, .6);
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .tolerance-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff8000;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .action-button {
+            flex: 1;
+            min-width: 140px;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .action-button i {
+            font-size: 1.2rem;
+        }
+
+        .remove-color-btn {
+            background: linear-gradient(90deg, #ff5500, #ff8000);
+            color: white;
+            border: 1px solid rgba(255, 128, 0, .3);
+        }
+
+        .remove-color-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(255, 85, 0, 0.4);
+        }
+
+        .reset-btn {
+            background: rgba(50, 50, 70, .6);
+            color: white;
+            border: 1px solid rgba(255, 69, 0, .2);
+        }
+
+        .reset-btn:hover {
+            background: rgba(70, 70, 90, .8);
+            transform: translateY(-3px);
+        }
+
+        .export-btn {
+            background: linear-gradient(90deg, #ff8000, #ffaa00);
+            color: white;
+            border: 1px solid rgba(255, 170, 0, .3);
+        }
+
+        .export-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(255, 170, 0, 0.4);
+        }
+
+        .canvas-container {
+            margin-top: 30px;
+            text-align: center;
+            background: rgba(30, 30, 50, .4);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid rgba(255, 69, 0, .1);
+        }
+
+        #imageCanvas {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 6px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .instructions {
+            background: rgba(50, 50, 70, .3);
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 30px;
+            border: 1px solid rgba(255, 69, 0, .1);
+        }
+
+        .instructions h3 {
+            margin-bottom: 15px;
+            color: #ff8000;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+            line-height: 1.8;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+            color: #ccccdd;
+        }
+
+        .instructions code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #ffaa66;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 69, 0, .1);
+            color: #aaaacc;
+            font-size: 0.9rem;
+        }
+
+        .color-history {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .color-chip {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .color-chip:hover {
+            transform: scale(1.1);
+            border-color: white;
+        }
+
+        .color-chip.active {
+            border-color: white;
+            box-shadow: 0 0 8px rgba(255, 128, 0, 0.8);
+        }
+
+        .artwork {
+            background: rgba(50, 50, 70, .3);
+            padding: 12px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid rgba(255, 69, 0, .1);
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Tools
+        </a>
+        <span style="font-size: 1.5rem; font-weight: bold; color: #ffaa66;">
+            <i class="fas fa-fill-drip"></i> Image Color Remover
+        </span>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-palette"></i> Image Color Remover Tool</h1>
+            <p class="subtitle">Import PNG, JPG, or JPEG images, pick colors to remove using the color picker or hex code, and export the result as PNG.</p>
+        </header>
+
+        <div class="app-container">
+            <div class="upload-section">
+                <h2 class="section-title"><i class="fas fa-cloud-upload-alt"></i> Upload Image</h2>
+                
+                <div class="file-upload-area" id="dropArea">
+                    <i class="fas fa-file-image"></i>
+                    <p>Drag & Drop your image here</p>
+                    <span>or</span>
+                    <button class="action-button" id="browseBtn" style="max-width: 200px; margin: 15px auto 0; background: rgba(255, 128, 0, .2); border: 1px solid rgba(255, 128, 0, .5);">
+                        <i class="fas fa-folder-open"></i> Browse Files
+                    </button>
+                    <p style="margin-top: 15px; font-size: 0.9rem;">Supports: PNG, JPG, JPEG</p>
+                    <input type="file" id="fileInput" accept=".png,.jpg,.jpeg">
+                </div>
+                
+                <div class="canvas-container">
+                    <canvas id="imageCanvas"></canvas>
+                    <p id="canvasMessage" style="margin-top: 15px; color: #aaaacc;">No image loaded yet</p>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h2 class="section-title"><i class="fas fa-sliders-h"></i> Controls</h2>
+                
+                <div class="color-picker-container">
+                    <label class="color-picker-label">Color to Remove</label>
+                    <div class="color-picker-row">
+                        <input type="color" id="colorPicker" value="#ff0000">
+                        <div class="color-hex-input">
+                            <label for="colorHex">Hex Color Code</label>
+                            <input type="text" id="colorHex" value="#ff0000" maxlength="7">
+                        </div>
+                    </div>
+                    
+                    <div class="color-history">
+                        <p style="width: 100%; margin-top: 10px; margin-bottom: 5px; color: #ffaa66;">Recently used colors:</p>
+                        <!-- Color chips will be added here by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="tolerance-container">
+                    <div class="tolerance-label">
+                        <span style="color: #ffaa66;">Tolerance</span>
+                        <span class="tolerance-value" id="toleranceValue">30%</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="30" class="tolerance-slider" id="toleranceSlider">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 5px; color: #aaaacc;">
+                        <span>Low</span>
+                        <span>High</span>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="action-button remove-color-btn" id="removeColorBtn">
+                        <i class="fas fa-eraser"></i> Remove Color
+                    </button>
+                    <button class="action-button reset-btn" id="resetBtn">
+                        <i class="fas fa-redo"></i> Reset Image
+                    </button>
+                    <button class="action-button export-btn" id="exportBtn">
+                        <i class="fas fa-download"></i> Export PNG
+                    </button>
+                </div>
+                
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> How to Use</h3>
+                    <ol>
+                        <li>Upload an image using the upload area or drag & drop</li>
+                        <li>Pick a color to remove using the color picker or by entering a hex code</li>
+                        <li>Adjust tolerance to control how similar colors are removed</li>
+                        <li>Click "Remove Color" to apply the color removal</li>
+                        <li>Export the result as PNG using the "Export PNG" button</li>
+                    </ol>
+                </div>
+                
+                <div class="artwork" style="margin-top: 25px;">
+                    <strong style="color: #ff8000;">Pro Tip:</strong> Use lower tolerance values for precise color removal, or higher values to remove similar shades
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Image Color Remover Tool &copy; 2023 | Made with <i class="fas fa-heart" style="color: #ff5500;"></i></p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM elements
+        const fileInput = document.getElementById('fileInput');
+        const browseBtn = document.getElementById('browseBtn');
+        const dropArea = document.getElementById('dropArea');
+        const canvas = document.getElementById('imageCanvas');
+        const canvasMessage = document.getElementById('canvasMessage');
+        const colorPicker = document.getElementById('colorPicker');
+        const colorHex = document.getElementById('colorHex');
+        const toleranceSlider = document.getElementById('toleranceSlider');
+        const toleranceValue = document.getElementById('toleranceValue');
+        const removeColorBtn = document.getElementById('removeColorBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const colorHistory = document.querySelector('.color-history');
+        
+        // Canvas context
+        const ctx = canvas.getContext('2d');
+        
+        // State variables
+        let originalImageData = null;
+        let currentImageData = null;
+        let imageLoaded = false;
+        let colorHistoryList = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+        
+        // Initialize color history chips
+        function initializeColorHistory() {
+            colorHistory.innerHTML = '<p style="width: 100%; margin-top: 10px; margin-bottom: 5px; color: #ffaa66;">Recently used colors:</p>';
+            
+            colorHistoryList.forEach(color => {
+                const colorChip = document.createElement('div');
+                colorChip.className = 'color-chip';
+                colorChip.style.backgroundColor = color;
+                colorChip.dataset.color = color;
+                colorChip.addEventListener('click', () => {
+                    setColorFromHistory(color);
+                });
+                colorHistory.appendChild(colorChip);
+            });
+        }
+        
+        // Set color from history
+        function setColorFromHistory(color) {
+            colorPicker.value = color;
+            colorHex.value = color;
+            
+            // Highlight the selected chip
+            document.querySelectorAll('.color-chip').forEach(chip => {
+                chip.classList.remove('active');
+                if (chip.dataset.color === color) {
+                    chip.classList.add('active');
+                }
+            });
+        }
+        
+        // Add color to history if not already there
+        function addToHistory(color) {
+            if (!colorHistoryList.includes(color)) {
+                colorHistoryList.unshift(color);
+                if (colorHistoryList.length > 6) {
+                    colorHistoryList.pop();
+                }
+                initializeColorHistory();
+            }
+            setColorFromHistory(color);
+        }
+        
+        // Initialize
+        initializeColorHistory();
+        setColorFromHistory('#ff0000');
+        
+        // Event Listeners
+        browseBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        // Drag and drop functionality
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.style.background = 'rgba(255, 128, 0, 0.15)';
+            dropArea.style.borderColor = '#ff8000';
+        });
+        
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.style.background = 'rgba(50, 50, 70, .3)';
+            dropArea.style.borderColor = 'rgba(255, 69, 0, .5)';
+        });
+        
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.style.background = 'rgba(50, 50, 70, .3)';
+            dropArea.style.borderColor = 'rgba(255, 69, 0, .5)';
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect();
+            }
+        });
+        
+        // Color picker and hex input synchronization
+        colorPicker.addEventListener('input', () => {
+            colorHex.value = colorPicker.value;
+        });
+        
+        colorHex.addEventListener('input', () => {
+            let value = colorHex.value;
+            // Ensure it starts with #
+            if (!value.startsWith('#')) {
+                value = '#' + value;
+            }
+            
+            // Validate hex color
+            const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+            if (hexRegex.test(value)) {
+                colorPicker.value = value.length === 7 ? value : 
+                    '#' + value[1] + value[1] + value[2] + value[2] + value[3] + value[3];
+                colorHex.value = colorPicker.value;
+            }
+        });
+        
+        // Tolerance slider
+        toleranceSlider.addEventListener('input', () => {
+            toleranceValue.textContent = `${toleranceSlider.value}%`;
+        });
+        
+        // Remove color button
+        removeColorBtn.addEventListener('click', removeSelectedColor);
+        
+        // Reset button
+        resetBtn.addEventListener('click', resetImage);
+        
+        // Export button
+        exportBtn.addEventListener('click', exportAsPNG);
+        
+        // Handle file selection
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (!file) return;
+            
+            // Check if file is an image
+            if (!file.type.match('image.*')) {
+                alert('Please select an image file (PNG, JPG, JPEG)');
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // Set canvas dimensions to match image
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    
+                    // Draw image on canvas
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // Store original image data
+                    originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    currentImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    
+                    // Update UI
+                    canvasMessage.textContent = `Image loaded: ${img.width} × ${img.height} pixels`;
+                    imageLoaded = true;
+                    
+                    // Adjust canvas display size for large images
+                    if (img.width > 800 || img.height > 500) {
+                        const scale = Math.min(800 / img.width, 500 / img.height);
+                        canvas.style.width = `${img.width * scale}px`;
+                        canvas.style.height = `${img.height * scale}px`;
+                    } else {
+                        canvas.style.width = `${img.width}px`;
+                        canvas.style.height = `${img.height}px`;
+                    }
+                };
+                img.src = e.target.result;
+            };
+            
+            reader.readAsDataURL(file);
+        }
+        
+        // Remove selected color from image
+        function removeSelectedColor() {
+            if (!imageLoaded) {
+                alert('Please load an image first');
+                return;
+            }
+            
+            // Add current color to history
+            addToHistory(colorPicker.value);
+            
+            // Get color to remove
+            const hexColor = colorPicker.value;
+            const tolerance = parseInt(toleranceSlider.value) / 100 * 255; // Convert to 0-255 range
+            
+            // Convert hex to RGB
+            const r = parseInt(hexColor.slice(1, 3), 16);
+            const g = parseInt(hexColor.slice(3, 5), 16);
+            const b = parseInt(hexColor.slice(5, 7), 16);
+            
+            // Get image data
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            // Remove color
+            for (let i = 0; i < data.length; i += 4) {
+                const pixelR = data[i];
+                const pixelG = data[i + 1];
+                const pixelB = data[i + 2];
+                
+                // Calculate color distance (simple Euclidean distance in RGB space)
+                const distance = Math.sqrt(
+                    Math.pow(pixelR - r, 2) + 
+                    Math.pow(pixelG - g, 2) + 
+                    Math.pow(pixelB - b, 2)
+                );
+                
+                // If color is within tolerance, make it transparent
+                if (distance <= tolerance) {
+                    data[i + 3] = 0; // Set alpha to 0 (transparent)
+                }
+            }
+            
+            // Put modified image data back to canvas
+            ctx.putImageData(imageData, 0, 0);
+            currentImageData = imageData;
+        }
+        
+        // Reset image to original
+        function resetImage() {
+            if (!imageLoaded) {
+                alert('Please load an image first');
+                return;
+            }
+            
+            ctx.putImageData(originalImageData, 0, 0);
+            currentImageData = originalImageData;
+        }
+        
+        // Export canvas as PNG
+        function exportAsPNG() {
+            if (!imageLoaded) {
+                alert('Please load an image first');
+                return;
+            }
+            
+            // Create a temporary link element
+            const link = document.createElement('a');
+            link.download = 'color-removed-image.png';
+            link.href = canvas.toDataURL('image/png');
+            
+            // Trigger download
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Load a sample image for demo purposes
+        window.addEventListener('load', function() {
+            // Create a sample image for demonstration
+            const sampleImg = new Image();
+            sampleImg.crossOrigin = "anonymous";
+            sampleImg.onload = function() {
+                canvas.width = sampleImg.width;
+                canvas.height = sampleImg.height;
+                ctx.drawImage(sampleImg, 0, 0);
+                
+                // Store original image data
+                originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                currentImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                
+                // Update UI
+                canvasMessage.textContent = `Sample image loaded: ${sampleImg.width} × ${sampleImg.height} pixels`;
+                imageLoaded = true;
+                
+                // Adjust canvas display size
+                const scale = Math.min(800 / sampleImg.width, 500 / sampleImg.height);
+                canvas.style.width = `${sampleImg.width * scale}px`;
+                canvas.style.height = `${sampleImg.height * scale}px`;
+            };
+            
+            // Use a sample image with multiple colors for demonstration
+            sampleImg.src = 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80';
+        });
+    </script>
+</body>
+</html>

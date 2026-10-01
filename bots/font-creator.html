@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Font Creator</title>
+    <!-- Font Awesome for back arrow -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Opentype.js for TTF/OTF generation -->
+    <script src="https://cdn.jsdelivr.net/npm/opentype.js@latest/dist/opentype.min.js"></script>
+    <!-- imagetracerjs for vectorization (svg path from bitmap) -->
+    <script src="https://cdn.jsdelivr.net/npm/imagetracerjs@1.2.6/imagetracer.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 24px 32px;
+        }
+        
+        /* back button – exactly as specified */
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: 0.15s;
+        }
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ffaa33;
+            color: #ffaa33;
+        }
+        
+        .navbar {
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* main layout */
+        .creator-panel {
+            display: flex;
+            gap: 28px;
+            flex-wrap: wrap;
+            background: rgba(10, 8, 20, 0.6);
+            backdrop-filter: blur(4px);
+            border-radius: 32px;
+            padding: 28px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+        
+        /* left side: character grid */
+        .char-grid-section {
+            flex: 1 1 280px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 24px;
+            padding: 20px 16px;
+            border: 1px solid #3a2a1a;
+        }
+        .char-grid-section h2 {
+            font-size: 1.5rem;
+            font-weight: 400;
+            letter-spacing: 1px;
+            border-left: 4px solid #ff8000;
+            padding-left: 16px;
+            margin-bottom: 20px;
+            color: #ffd8b0;
+        }
+        .character-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 4px 2px;
+        }
+        .char-card {
+            width: 50px;
+            height: 50px;
+            background: #1e1628;
+            border: 1px solid #4a3a55;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 500;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: 0 2px 6px black;
+            user-select: none;
+        }
+        .char-card.selected {
+            background: #ff8000;
+            border-color: #ffc285;
+            color: #0a0a1a;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #ff8000;
+        }
+        .char-card.has-glyph {
+            border-color: #00cc88;
+            box-shadow: 0 0 8px #00cc88;
+        }
+        
+        /* right side: image import & crop studio */
+        .crown-workspace {
+            flex: 2 1 500px;
+            background: rgba(12, 8, 24, 0.7);
+            border-radius: 28px;
+            padding: 24px;
+            border: 1px solid rgba(255,128,0,0.3);
+        }
+        .workspace-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .selected-char-indicator {
+            background: #2f1e3a;
+            padding: 8px 20px;
+            border-radius: 60px;
+            border: 1px solid #ff8000;
+            font-size: 1.4rem;
+        }
+        .selected-char-indicator span {
+            color: #ff8000;
+            font-weight: 600;
+            margin-left: 12px;
+            background: #0e0b16;
+            padding: 5px 16px;
+            border-radius: 40px;
+        }
+        
+        /* drop zone & crop canvas */
+        .upload-area {
+            border: 2px dashed rgba(255,128,0,0.5);
+            border-radius: 40px;
+            padding: 40px;
+            text-align: center;
+            background: #110c1c;
+            transition: 0.2s;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        .upload-area:hover {
+            border-color: #ff8000;
+            background: #1a1126;
+        }
+        .upload-area i {
+            font-size: 3rem;
+            color: #ff8000;
+            opacity: 0.8;
+        }
+        .upload-area p {
+            margin-top: 12px;
+            color: #bbb;
+        }
+        
+        /* crop canvas & controls */
+        .crop-container {
+            background: #0d0a16;
+            border-radius: 32px;
+            padding: 22px;
+            margin-top: 16px;
+            border: 1px solid #4a2e1e;
+        }
+        .crop-canvas-wrapper {
+            display: flex;
+            justify-content: center;
+            background: #050308;
+            border-radius: 28px;
+            padding: 20px;
+        }
+        #cropCanvas {
+            width: 240px;
+            height: 240px;
+            border-radius: 24px;
+            box-shadow: 0 0 0 2px #ff8000, 0 10px 25px black;
+            background: #1e1a2a;
+            cursor: grab;
+        }
+        #cropCanvas:active { cursor: grabbing; }
+        
+        .slider-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px;
+            margin: 22px 0 16px;
+            align-items: center;
+        }
+        .slider-item {
+            flex: 1 1 180px;
+        }
+        .slider-item label {
+            display: block;
+            color: #ffcba1;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+        input[type=range] {
+            width: 100%;
+            background: #332842;
+            height: 6px;
+            border-radius: 10px;
+            accent-color: #ff8000;
+        }
+        .threshold-input {
+            background: #1e1326;
+            border: 1px solid #ff8000;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 40px;
+            width: 100px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+        .btn {
+            background: transparent;
+            border: 1px solid #ff8000;
+            color: #ff8000;
+            padding: 10px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .btn-primary {
+            background: #ff8000;
+            color: #0a0a1a;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: #ffaa33;
+            box-shadow: 0 0 20px #ff8000;
+        }
+        .btn:hover {
+            background: rgba(255,128,0,0.2);
+        }
+        
+        /* preview and export row */
+        .glyph-preview {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-top: 28px;
+            padding: 16px;
+            background: #0b0712;
+            border-radius: 40px;
+        }
+        .preview-svg {
+            background: #191129;
+            border-radius: 28px;
+            padding: 16px;
+            text-align: center;
+        }
+        .preview-svg svg {
+            max-width: 100px;
+            max-height: 100px;
+            filter: drop-shadow(0 0 6px orange);
+        }
+        #exportBtn {
+            font-size: 1.2rem;
+            padding: 14px 38px;
+            margin-left: auto;
+        }
+        .footer-info {
+            margin-top: 16px;
+            color: #aaa;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <div class="creator-panel">
+        <!-- LEFT: character bank -->
+        <div class="char-grid-section">
+            <h2>⍟ glyph cells</h2>
+            <div class="character-grid" id="characterGrid"></div>
+            <div style="margin-top: 16px; color: #ccb; font-size: 0.9rem;">
+                <i class="fas fa-info-circle" style="color:#ff8000;"></i> Click any cell, then import image
+            </div>
+        </div>
+
+        <!-- RIGHT: import / crop / export -->
+        <div class="crown-workspace">
+            <div class="workspace-header">
+                <div class="selected-char-indicator">
+                    active: <span id="activeCharDisplay">A</span>
+                </div>
+                <button class="btn" id="clearGlyphBtn"><i class="fas fa-trash-alt"></i> clear current</button>
+            </div>
+
+            <!-- image input & crop zone -->
+            <div class="upload-area" id="uploadArea">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>drag or click to import image (PNG, JPEG, WEBP, etc.)</p>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            </div>
+
+            <!-- crop tool (initially hidden) -->
+            <div class="crop-container" id="cropContainer" style="display: none;">
+                <div class="crop-canvas-wrapper">
+                    <canvas id="cropCanvas" width="240" height="240"></canvas>
+                </div>
+                <div class="slider-panel">
+                    <div class="slider-item">
+                        <label><i class="fas fa-search-plus"></i> scale</label>
+                        <input type="range" id="scaleSlider" min="0.5" max="4.0" value="1.0" step="0.01">
+                    </div>
+                    <div class="slider-item">
+                        <label><i class="fas fa-palette"></i> threshold</label>
+                        <input type="range" id="thresholdSlider" min="0" max="255" value="120" class="threshold-input" style="width:100%;">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; color: #ccc; font-size: 0.9rem; justify-content: center;">
+                    <span><i class="fas fa-arrows-alt"></i> drag inside canvas to pan</span>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn" id="cancelCropBtn">cancel</button>
+                    <button class="btn btn-primary" id="applyCropBtn">✔ vectorize & assign</button>
+                </div>
+            </div>
+
+            <!-- preview area after vectorization -->
+            <div class="glyph-preview" id="previewArea" style="display: none;">
+                <div class="preview-svg" id="svgPreview"></div>
+                <div>
+                    <div style="color:#ff8000;">glyph ready</div>
+                    <div style="font-size:0.9rem;" id="charStatus"></div>
+                </div>
+                <button class="btn" id="exportBtn"><i class="fas fa-download"></i> export .ttf / .otf</button>
+            </div>
+            <div class="footer-info">
+                * supported formats: png, jpeg, jpg, webp, bmp · all images get traced to crisp outlines
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function(){
+            // ---------- CONSTANTS & STATE ----------
+            const characterSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!?-+*/=()[]{}'.split('');
+            // mapping char -> { svgPath: string, advanceWidth: number, bbox: etc }
+            const glyphStore = new Map(); 
+            let selectedChar = 'A';        // default
+            let currentImage = null;        // HTMLImageElement
+            let imgOffsetX = 0, imgOffsetY = 0, imgScale = 1.0;
+            let isDragging = false;
+            let lastMouseX, lastMouseY;
+            let cropCanvas, ctx;
+            let threshold = 120;
+
+            // DOM elements
+            const gridEl = document.getElementById('characterGrid');
+            const activeCharSpan = document.getElementById('activeCharDisplay');
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const cropContainer = document.getElementById('cropContainer');
+            const cropCanvasEl = document.getElementById('cropCanvas');
+            const scaleSlider = document.getElementById('scaleSlider');
+            const thresholdSlider = document.getElementById('thresholdSlider');
+            const cancelCropBtn = document.getElementById('cancelCropBtn');
+            const applyCropBtn = document.getElementById('applyCropBtn');
+            const previewArea = document.getElementById('previewArea');
+            const svgPreview = document.getElementById('svgPreview');
+            const charStatus = document.getElementById('charStatus');
+            const clearGlyphBtn = document.getElementById('clearGlyphBtn');
+            const exportBtn = document.getElementById('exportBtn');
+
+            ctx = cropCanvasEl.getContext('2d');
+
+            // ---------- BUILD GRID ----------
+            function renderGrid() {
+                gridEl.innerHTML = '';
+                characterSet.forEach(ch => {
+                    const card = document.createElement('div');
+                    card.className = 'char-card';
+                    if (glyphStore.has(ch)) card.classList.add('has-glyph');
+                    if (ch === selectedChar) card.classList.add('selected');
+                    card.textContent = ch;
+                    card.dataset.char = ch;
+                    card.addEventListener('click', () => {
+                        selectedChar = ch;
+                        updateActiveDisplay();
+                        renderGrid();
+                        // if there's an ongoing crop, better to hide? we reset crop view
+                        cropContainer.style.display = 'none';
+                        // show preview if glyph exists
+                        if (glyphStore.has(selectedChar)) {
+                            showPreviewForChar(selectedChar);
+                        } else {
+                            previewArea.style.display = 'none';
+                        }
+                    });
+                    gridEl.appendChild(card);
+                });
+            }
+
+            function updateActiveDisplay() {
+                activeCharSpan.textContent = selectedChar;
+            }
+
+            // show preview of stored glyph (svg path)
+            function showPreviewForChar(ch) {
+                const data = glyphStore.get(ch);
+                if (!data) return;
+                const pathData = data.svgPath;
+                // create inline svg
+                const svgNS = "http://www.w3.org/2000/svg";
+                const svg = document.createElementNS(svgNS, "svg");
+                svg.setAttribute("width", "100");
+                svg.setAttribute("height", "100");
+                svg.setAttribute("viewBox", "0 0 1000 1000");
+                const path = document.createElementNS(svgNS, "path");
+                path.setAttribute("d", pathData);
+                path.setAttribute("fill", "#ff8000");
+                path.setAttribute("stroke", "#ffb05c");
+                path.setAttribute("stroke-width", "8");
+                svg.appendChild(path);
+                svgPreview.innerHTML = '';
+                svgPreview.appendChild(svg);
+                charStatus.innerText = `glyph for “${ch}” · ${Math.round(data.advanceWidth)} units`;
+                previewArea.style.display = 'flex';
+            }
+
+            // ---------- IMAGE UPLOAD ----------
+            uploadArea.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileSelect);
+            uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.style.background = '#251d32'; });
+            uploadArea.addEventListener('dragleave', () => uploadArea.style.background = '#110c1c');
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.background = '#110c1c';
+                if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+            });
+
+            function handleFileSelect(e) {
+                if (e.target.files.length) handleFile(e.target.files[0]);
+            }
+
+            function handleFile(file) {
+                if (!file.type.startsWith('image/')) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        currentImage = img;
+                        // reset transform
+                        imgOffsetX = 0;
+                        imgOffsetY = 0;
+                        imgScale = 1.0;
+                        // fit to canvas (cover roughly)
+                        const scaleX = cropCanvasEl.width / img.width;
+                        const scaleY = cropCanvasEl.height / img.height;
+                        imgScale = Math.max(scaleX, scaleY) * 1.0; // fill at least
+                        imgOffsetX = (cropCanvasEl.width - img.width * imgScale) / 2;
+                        imgOffsetY = (cropCanvasEl.height - img.height * imgScale) / 2;
+                        scaleSlider.value = imgScale;
+                        // show crop container
+                        cropContainer.style.display = 'block';
+                        previewArea.style.display = 'none';
+                        drawCropCanvas();
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            // drawing on crop canvas with current offset & scale
+            function drawCropCanvas() {
+                if (!currentImage) return;
+                ctx.clearRect(0, 0, 240, 240);
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(currentImage, imgOffsetX, imgOffsetY, currentImage.width * imgScale, currentImage.height * imgScale);
+                // draw subtle crosshair
+                ctx.strokeStyle = '#ff8000';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(120, 0); ctx.lineTo(120, 240);
+                ctx.moveTo(0,120); ctx.lineTo(240,120);
+                ctx.stroke();
+            }
+
+            // pan & zoom
+            cropCanvasEl.addEventListener('mousedown', (e) => {
+                if (!currentImage) return;
+                isDragging = true;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+                cropCanvasEl.style.cursor = 'grabbing';
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging || !currentImage) return;
+                const dx = e.clientX - lastMouseX;
+                const dy = e.clientY - lastMouseY;
+                imgOffsetX += dx;
+                imgOffsetY += dy;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+                drawCropCanvas();
+            });
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+                cropCanvasEl.style.cursor = 'grab';
+            });
+
+            scaleSlider.addEventListener('input', (e) => {
+                if (!currentImage) return;
+                const oldScale = imgScale;
+                imgScale = parseFloat(e.target.value);
+                // adjust offset to keep center (optional)
+                const centerX = 120, centerY = 120;
+                const imgX = (centerX - imgOffsetX) / oldScale;
+                const imgY = (centerY - imgOffsetY) / oldScale;
+                imgOffsetX = centerX - imgX * imgScale;
+                imgOffsetY = centerY - imgY * imgScale;
+                drawCropCanvas();
+            });
+
+            thresholdSlider.addEventListener('input', (e) => {
+                threshold = parseInt(e.target.value);
+            });
+
+            // cancel crop
+            cancelCropBtn.addEventListener('click', () => {
+                cropContainer.style.display = 'none';
+                currentImage = null;
+            });
+
+            // ---------- VECTORIZE & ASSIGN ----------
+            applyCropBtn.addEventListener('click', () => {
+                if (!currentImage) return;
+                // extract imagedata from canvas (cropped square)
+                const imageData = ctx.getImageData(0, 0, 240, 240);
+                // use imagetracer to get SVG path (simple grayscale threshold)
+                const options = {
+                    ltres: 0.5,
+                    qtres: 0.5,
+                    scale: 1,
+                    threshold: threshold,
+                    colorsampling: 0,
+                    colorquantcycles: 1,
+                    layering: 0,
+                    pathomit: 4,
+                };
+                // imagetracer returns a string with svg content
+                const svgString = ImageTracer.imagedataToSVG(imageData, options);
+                // parse the first <path> d attribute (naive but works for simple output)
+                const pathRegex = /d="([^"]*)"/;
+                const match = svgString.match(pathRegex);
+                if (!match) {
+                    alert('vectorization failed – try different image/threshold');
+                    return;
+                }
+                let pathData = match[1];
+                // Optional: simplify path? we keep it.
+                
+                // create an opentype path from svg string (simple parser needed)
+                // but we will store pathData for later font assembly.
+                // For preview we show svg. For opentype we need to convert to opentype.Path
+                // we build a dummy opentype font at export time, so we store the path string.
+                // also compute bounding box via opentype.Path (we can create temporary)
+                const tempPath = new opentype.Path();
+                try {
+                    simpleSvgPathToOpentype(pathData, tempPath);
+                } catch (e) {
+                    console.warn('path parse error, fallback', e);
+                }
+                const bbox = tempPath.getBoundingBox();
+                const advance = bbox ? (bbox.x2 - bbox.x1 + 200) : 1000; // width + side bearings
+
+                glyphStore.set(selectedChar, { svgPath: pathData, advanceWidth: advance, bbox });
+                // update grid style
+                renderGrid();
+                showPreviewForChar(selectedChar);
+                cropContainer.style.display = 'none';
+                currentImage = null;
+            });
+
+            // extremely simplified SVG path -> opentype.Path (supports M, L, C, Z)
+            function simpleSvgPathToOpentype(d, opentypePath) {
+                const commands = d.match(/[MLCZ][^MLCZ]*/gi) || [];
+                let firstX = 0, firstY = 0, prevX = 0, prevY = 0;
+                for (let cmd of commands) {
+                    const type = cmd[0];
+                    const nums = cmd.slice(1).trim().split(/[\s,]+/).filter(s=>s!=='').map(Number);
+                    if (type === 'M' && nums.length >= 2) {
+                        prevX = nums[0]; prevY = nums[1];
+                        firstX = prevX; firstY = prevY;
+                        opentypePath.moveTo(prevX, prevY);
+                    } else if (type === 'L' && nums.length >= 2) {
+                        prevX = nums[0]; prevY = nums[1];
+                        opentypePath.lineTo(prevX, prevY);
+                    } else if (type === 'C' && nums.length >= 6) {
+                        const cp1x = nums[0], cp1y = nums[1], cp2x = nums[2], cp2y = nums[3], x = nums[4], y = nums[5];
+                        opentypePath.curveTo(cp1x, cp1y, cp2x, cp2y, x, y);
+                        prevX = x; prevY = y;
+                    } else if (type === 'Z') {
+                        opentypePath.close();
+                        prevX = firstX; prevY = firstY;
+                    }
+                }
+            }
+
+            // clear glyph
+            clearGlyphBtn.addEventListener('click', () => {
+                glyphStore.delete(selectedChar);
+                renderGrid();
+                previewArea.style.display = 'none';
+            });
+
+            // ---------- EXPORT FONT ----------
+            exportBtn.addEventListener('click', () => {
+                if (glyphStore.size === 0) {
+                    alert('No glyphs defined. Add at least one.');
+                    return;
+                }
+
+                // create a new font
+                const notdefGlyph = new opentype.Glyph({
+                    name: '.notdef',
+                    advanceWidth: 650,
+                    path: new opentype.Path()
+                });
+
+                const glyphs = [notdefGlyph];
+                const mapping = {};
+
+                // build glyphs for each stored character
+                for (let [char, data] of glyphStore.entries()) {
+                    const path = new opentype.Path();
+                    simpleSvgPathToOpentype(data.svgPath, path);
+                    const glyph = new opentype.Glyph({
+                        name: `glyph_${char.charCodeAt(0)}`,
+                        unicode: char.charCodeAt(0),
+                        advanceWidth: data.advanceWidth || 900,
+                        path: path
+                    });
+                    glyphs.push(glyph);
+                    mapping[char] = glyph;
+                }
+
+                const font = new opentype.Font({
+                    familyName: 'ImageCraft Font',
+                    styleName: 'Regular',
+                    unitsPerEm: 1000,
+                    ascender: 800,
+                    descender: -200,
+                    glyphs: glyphs
+                });
+
+                // download as TTF and OTF (opentype.js generates TTF by default)
+                const ttfBuffer = font.toArrayBuffer();
+                const blob = new Blob([ttfBuffer], { type: 'font/ttf' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'custom-font.ttf';
+                a.click();
+                URL.revokeObjectURL(url);
+
+                // also generate OTF (same buffer? opentype.js defaults to TTF, but we can rename)
+                // for variety, we also provide OTF download using same buffer? but spec is diff.
+                // for simplicity we also offer an .otf with same data (many apps accept)
+                setTimeout(() => {
+                    const blobOtf = new Blob([ttfBuffer], { type: 'font/otf' });
+                    const urlOtf = URL.createObjectURL(blobOtf);
+                    const a2 = document.createElement('a');
+                    a2.href = urlOtf;
+                    a2.download = 'custom-font.otf';
+                    a2.click();
+                    URL.revokeObjectURL(urlOtf);
+                }, 300);
+            });
+
+            // initial render
+            renderGrid();
+            updateActiveDisplay();
+
+            // threshold update display (no extra)
+        })();
+    </script>
+</body>
+</html>

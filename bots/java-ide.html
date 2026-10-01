@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Java IDE · online compiler (scratch)</title>
+    <!-- Font Awesome for back arrow (same as template) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #f0f0f0;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        /* back button exactly from template */
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff9900;
+        }
+
+        .navbar {
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* IDE main panel */
+        .ide-panel {
+            background: rgba(10, 10, 26, 0.7);
+            backdrop-filter: blur(4px);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,128,0,0.2);
+            border: 1px solid rgba(255,128,0,0.15);
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .editor-header h2 {
+            font-weight: 400;
+            font-size: 1.5rem;
+            color: #ffaa55;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 8px rgba(255,128,0,0.4);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid #ff8000;
+            color: #ff8000;
+            padding: 10px 26px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+            letter-spacing: 0.5px;
+            background: rgba(255,128,0,0.05);
+        }
+
+        .btn:hover {
+            background: #ff8000;
+            color: #0a0a1a;
+            box-shadow: 0 0 18px #ff8000;
+            border-color: #ffaa33;
+        }
+
+        .btn-clear {
+            border-color: #ffaa33;
+            color: #ffaa33;
+            background: rgba(255,170,51,0.05);
+        }
+
+        .btn-clear:hover {
+            background: #ffaa33;
+            color: #0a0a1a;
+            box-shadow: 0 0 14px #ffaa33;
+        }
+
+        /* code textarea */
+        .code-area {
+            width: 100%;
+            height: 280px;
+            background: #0c0c1f;
+            border: 1px solid #3a2a40;
+            border-radius: 16px;
+            color: #f8f0e0;
+            font-family: 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
+            font-size: 15px;
+            line-height: 1.6;
+            padding: 20px;
+            resize: vertical;
+            outline: none;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,128,0,0.3);
+            caret-color: #ffaa33;
+        }
+
+        .code-area:focus {
+            border-color: #ff8000;
+            box-shadow: inset 0 0 15px #000, 0 0 12px rgba(255,128,0,0.4);
+        }
+
+        /* output console */
+        .output-container {
+            margin-top: 28px;
+            background: #050510;
+            border-radius: 16px;
+            border: 1px solid #3a2840;
+            padding: 18px 22px;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.7);
+        }
+
+        .output-header {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 14px;
+            color: #ffaa66;
+            border-bottom: 1px dashed #ff8000;
+            padding-bottom: 8px;
+        }
+
+        .output-header i {
+            color: #ff8000;
+            font-size: 1.2rem;
+        }
+
+        #output {
+            min-height: 150px;
+            max-height: 280px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            color: #c0e0d0;
+            background: #0a0a18;
+            padding: 16px;
+            border-radius: 12px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            border: 1px solid #2a1e30;
+        }
+
+        .info-note {
+            margin-top: 16px;
+            color: #bbaa99;
+            font-size: 0.9rem;
+            border-left: 3px solid #ff8000;
+            padding-left: 16px;
+            background: rgba(255,128,0,0.05);
+            border-radius: 0 10px 10px 0;
+        }
+
+        .info-note i {
+            color: #ffaa33;
+            margin-right: 6px;
+        }
+
+        /* scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a1025;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ff8000;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- navbar with back button exactly as template + arrow (fontawesome) -->
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <!-- main IDE card -->
+    <div class="ide-panel">
+        <div class="editor-header">
+            <h2><i class="fas fa-coffee" style="color:#ff8000; margin-right: 10px;"></i>scratch Java compiler (no API)</h2>
+            <div class="btn-group">
+                <button class="btn" id="runBtn"><i class="fas fa-play" style="margin-right: 6px;"></i>Run</button>
+                <button class="btn btn-clear" id="clearBtn"><i class="fas fa-eraser"></i> Clear</button>
+            </div>
+        </div>
+
+        <!-- code editor -->
+        <textarea id="javaCode" class="code-area" spellcheck="false" placeholder="// write your Java code here (simple subset)&#10;public class Main {&#10;    public static void main(String[] args) {&#10;        System.out.println(&quot;Hello, Java in browser!&quot;);&#10;        int x = 42;&#10;        System.out.println(&quot;Meaning of life: &quot; + x);&#10;    }&#10;}">public class Main {
+    public static void main(String[] args) {
+        // supports: int, String, boolean, double, if, for, while, println/print
+        String name = "visitor";
+        int a = 7;
+        int b = 3;
+        System.out.println("Hello " + name);
+        System.out.println("sum = " + (a + b));
+
+        for(int i=0; i<3; i++) {
+            System.out.println("loop: " + i);
+        }
+    }
+}</textarea>
+
+        <!-- output console -->
+        <div class="output-container">
+            <div class="output-header">
+                <i class="fas fa-terminal"></i>
+                <span>OUTPUT / CONSOLE</span>
+            </div>
+            <div id="output">
+                <span style="color:#6a5a7a;">// click Run to compile & execute</span>
+            </div>
+            <div class="info-note">
+                <i class="fas fa-flask"></i> simple Java subset: variables, loops, if, print. No objects/arrays. Uses built-in Java→JS converter.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const codeArea = document.getElementById('javaCode');
+            const outputDiv = document.getElementById('output');
+            const runBtn = document.getElementById('runBtn');
+            const clearBtn = document.getElementById('clearBtn');
+
+            // ----- helper: extract main method body using brace matching (simple but robust for nested) -----
+            function extractMainBody(javaCode) {
+                // find 'main' token and then the opening brace of its body
+                const mainIdx = javaCode.indexOf('main');
+                if (mainIdx === -1) return null;
+
+                // find the first '{' after 'main'
+                let startBrace = -1;
+                for (let i = mainIdx; i < javaCode.length; i++) {
+                    if (javaCode[i] === '{') {
+                        startBrace = i;
+                        break;
+                    }
+                }
+                if (startBrace === -1) return null;
+
+                // brace matching from startBrace
+                let braceCount = 1;
+                let endBrace = -1;
+                for (let i = startBrace + 1; i < javaCode.length; i++) {
+                    if (javaCode[i] === '{') braceCount++;
+                    else if (javaCode[i] === '}') {
+                        braceCount--;
+                        if (braceCount === 0) {
+                            endBrace = i;
+                            break;
+                        }
+                    }
+                }
+                if (endBrace === -1) return null;
+
+                // extract content between { ... } (excluding the outer braces)
+                return javaCode.substring(startBrace + 1, endBrace).trim();
+            }
+
+            // ----- transformation: java subset -> javascript -----
+            function javaToJavaScript(mainBody) {
+                if (!mainBody) return '';
+
+                // 1. remove 'public' 'static' 'void' noise? already inside main, but maybe leftover signature.
+                // we already have main body clean, but sometimes people write 'public static void main' inside? not.
+                // however some may include 'String[] args' inside. We'll remove that line if present.
+                let lines = mainBody.split('\n');
+                // filter out lines that only contain signature remnants? we'll handle later.
+
+                // 2. replace System.out.println / System.out.print with console.log
+                let jsCode = mainBody
+                    .replace(/System\.out\.println\s*\(/g, 'console.log(')
+                    .replace(/System\.out\.print\s*\(/g, 'console.log(');   // treat print same as println for simplicity
+
+                // 3. replace primitive type declarations with let (int, String, boolean, double, float, char)
+                // careful: must not replace inside words, and handle possible arrays? ignore arrays.
+                jsCode = jsCode.replace(/\b(int|String|boolean|double|float|char)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(=.*?)?;/g, (match, type, varName, rest) => {
+                    // rest includes = value ;  (rest might be undefined)
+                    if (rest) {
+                        // ensure we don't duplicate semicolon
+                        let assignPart = rest.trim().replace(/;$/, '');
+                        return `let ${varName} ${assignPart};`;
+                    } else {
+                        return `let ${varName};`;
+                    }
+                });
+
+                // 4. fix for loop initial declarations: for(int i=0; ... -> for(let i=0;
+                jsCode = jsCode.replace(/for\s*\(\s*(int|String|boolean|double|float|char)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=/g, 'for(let $2 =');
+
+                // 5. handle standalone String[] args inside method? if exists, just comment it out or remove
+                jsCode = jsCode.replace(/String\s*\[\s*\]\s*\w+\s*;?/g, ''); // remove any String[] args line
+
+                // 6. remove any remaining access modifiers? (public/private/static) — they break JS
+                jsCode = jsCode.replace(/\bpublic\s+|\bprivate\s+|\bprotected\s+|\bstatic\s+|\bfinal\s+|\bsynchronized\s+/g, '');
+
+                // 7. fix common: remove `void` if appears standalone? but not needed
+                return jsCode;
+            }
+
+            // ----- run the converted javascript and capture console.log -----
+            function runJava() {
+                const originalCode = codeArea.value;
+                outputDiv.innerHTML = ''; // clear previous
+
+                // extract main body
+                const mainBody = extractMainBody(originalCode);
+                if (!mainBody) {
+                    outputDiv.innerHTML = '<span style="color:#ff7777;">⚠️ Error: Could not find main method body. Make sure code has public static void main(...) { ... }</span>';
+                    return;
+                }
+
+                // convert to JS
+                let jsCode;
+                try {
+                    jsCode = javaToJavaScript(mainBody);
+                } catch (e) {
+                    outputDiv.innerHTML = `<span style="color:#ff7777;">❌ Transformation error: ${e.message}</span>`;
+                    return;
+                }
+
+                // prepare output capture
+                let logs = [];
+                const originalConsoleLog = console.log;
+
+                // override console.log
+                console.log = function(...args) {
+                    const line = args.map(arg => {
+                        if (typeof arg === 'object') {
+                            try { return JSON.stringify(arg); } catch { return String(arg); }
+                        }
+                        return String(arg);
+                    }).join(' ');
+                    logs.push(line);
+                    originalConsoleLog.apply(console, args); // also keep real console for debugging
+                };
+
+                // add a small helper to simulate println (we already replaced with console.log)
+                // wrap JS code in a try-catch and run
+                try {
+                    // we need to wrap the body inside a function to run it (to avoid polluting global scope too much)
+                    // but also allow variable declarations to be 'let' inside block. we'll just eval directly.
+                    // use a new `Function` for slightly better scoping
+                    const runFn = new Function(`
+                        try {
+                            ${jsCode}
+                        } catch (e) {
+                            console.log('!!! Java runtime error: ' + e.message);
+                        }
+                    `);
+                    runFn();
+                } catch (e) {
+                    logs.push(`!!! Compilation/error: ${e.message}`);
+                } finally {
+                    // restore console.log
+                    console.log = originalConsoleLog;
+                }
+
+                // display output
+                if (logs.length === 0) {
+                    outputDiv.innerHTML = '<span style="color:#88cc88;">✔ Program executed (no console output)</span>';
+                } else {
+                    let html = '';
+                    logs.forEach(line => {
+                        html += `<span style="color:#b0e0c0;">> ${escapeHtml(line)}</span><br>`;
+                    });
+                    outputDiv.innerHTML = html;
+                }
+
+                // also show the generated JS for transparency? maybe show in small? we can add hidden.
+                // but we'll keep it simple.
+            }
+
+            // simple escape for html
+            function escapeHtml(unsafe) {
+                return unsafe.replace(/[&<>"]/g, function(m) {
+                    if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; if (m === '"') return '&quot;';
+                    return m;
+                });
+            }
+
+            // clear output
+            function clearOutput() {
+                outputDiv.innerHTML = '<span style="color:#6a5a7a;">// output cleared</span>';
+            }
+
+            // event listeners
+            runBtn.addEventListener('click', runJava);
+            clearBtn.addEventListener('click', clearOutput);
+
+            // initial run (optional) – show something nice
+            // but we keep static example
+        })();
+    </script>
+
+    <!-- ensure that the back button behaves (if relative path fails, at least it's there) -->
+    <!-- optional small style for output scroll -->
+</body>
+</html>

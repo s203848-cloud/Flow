@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geometry Visualizer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.9);
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #ff7e00, #ff4500);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .tabs {
+            display: flex;
+            background: rgba(20, 20, 35, 0.7);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: rgba(30, 30, 50, 0.5);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .tab:hover {
+            background: rgba(50, 50, 80, 0.5);
+        }
+        
+        .tab.active {
+            background: rgba(40, 40, 60, 0.9);
+            border-bottom: 3px solid #ff8000;
+        }
+        
+        .tab i {
+            margin-right: 8px;
+        }
+        
+        .section {
+            background: rgba(20, 20, 35, 0.7);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .controls-panel {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .visualization-panel {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .canvas-container {
+            background: rgba(10, 10, 20, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+        
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .input-group.active {
+            display: block;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffaa80;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(50, 50, 70, 0.5);
+            border: 1px solid rgba(255, 128, 0, 0.4);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            transition: border 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border: 1px solid #ff8000;
+            box-shadow: 0 0 8px rgba(255, 128, 0, 0.3);
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .slider-container input[type="range"] {
+            flex-grow: 1;
+        }
+        
+        .slider-value {
+            min-width: 40px;
+            text-align: center;
+            color: #ffaa80;
+            font-weight: bold;
+        }
+        
+        .btn {
+            padding: 14px 25px;
+            background: linear-gradient(to right, #ff7e00, #ff4500);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .btn.active {
+            display: block;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 69, 0, 0.4);
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .results {
+            background: rgba(50, 50, 70, 0.5);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 25px;
+            display: none;
+        }
+        
+        .results.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .result-item {
+            background: rgba(30, 30, 50, 0.6);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ff8000;
+        }
+        
+        .result-label {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+        
+        .result-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ffaa80;
+        }
+        
+        .shape-info {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .shape-info h3 {
+            margin-bottom: 15px;
+            color: #ffaa80;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Tools
+        </a>
+        <span class="title">Geometry Visualizer</span>
+        <div></div> <!-- Empty div for spacing -->
+    </div>
+    
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" data-tab="circle">
+                <i class="fas fa-circle"></i> Circle/Sphere
+            </div>
+            <div class="tab" data-tab="triangle">
+                <i class="fas fa-play"></i> Triangle
+            </div>
+            <div class="tab" data-tab="square">
+                <i class="fas fa-square"></i> Square/Rectangle
+            </div>
+            <div class="tab" data-tab="polygon">
+                <i class="fas fa-draw-polygon"></i> Polygon
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="controls-panel section">
+                <!-- Circle/Sphere Tab -->
+                <div id="circle-tab">
+                    <h2><i class="fas fa-circle"></i> Circle & Sphere Calculator</h2>
+                    <div class="input-group active" data-tab="circle">
+                        <label for="radius">Radius (r)</label>
+                        <div class="slider-container">
+                            <input type="range" id="radius-slider" min="1" max="100" value="30" class="slider">
+                            <span class="slider-value" id="radius-value">30</span>
+                        </div>
+                        <input type="number" id="radius" placeholder="Enter radius" value="30" step="any">
+                    </div>
+                    
+                    <div class="input-group active" data-tab="circle">
+                        <label for="calculation-type">Calculate Based On</label>
+                        <select id="calculation-type">
+                            <option value="radius">Radius</option>
+                            <option value="diameter">Diameter</option>
+                            <option value="circumference">Circumference</option>
+                            <option value="area">Area</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn active" id="calculate-circle" data-tab="circle">
+                        <i class="fas fa-calculator"></i> Calculate Circle & Sphere Properties
+                    </button>
+                </div>
+                
+                <!-- Triangle Tab -->
+                <div id="triangle-tab" style="display: none;">
+                    <h2><i class="fas fa-play"></i> Triangle Calculator</h2>
+                    <div class="input-group" data-tab="triangle">
+                        <label for="triangle-type">Triangle Type</label>
+                        <select id="triangle-type">
+                            <option value="equilateral">Equilateral</option>
+                            <option value="isosceles">Isosceles</option>
+                            <option value="scalene">Scalene</option>
+                            <option value="right">Right Triangle</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group" data-tab="triangle">
+                        <label for="side-a">Side A</label>
+                        <div class="slider-container">
+                            <input type="range" id="side-a-slider" min="5" max="100" value="40" class="slider">
+                            <span class="slider-value" id="side-a-value">40</span>
+                        </div>
+                        <input type="number" id="side-a" placeholder="Enter side A" value="40" step="any">
+                    </div>
+                    
+                    <div class="input-group" data-tab="triangle">
+                        <label for="side-b">Side B</label>
+                        <div class="slider-container">
+                            <input type="range" id="side-b-slider" min="5" max="100" value="50" class="slider">
+                            <span class="slider-value" id="side-b-value">50</span>
+                        </div>
+                        <input type="number" id="side-b" placeholder="Enter side B" value="50" step="any">
+                    </div>
+                    
+                    <div class="input-group" data-tab="triangle">
+                        <label for="side-c">Side C</label>
+                        <div class="slider-container">
+                            <input type="range" id="side-c-slider" min="5" max="100" value="60" class="slider">
+                            <span class="slider-value" id="side-c-value">60</span>
+                        </div>
+                        <input type="number" id="side-c" placeholder="Enter side C" value="60" step="any">
+                    </div>
+                    
+                    <button class="btn" id="calculate-triangle" data-tab="triangle">
+                        <i class="fas fa-calculator"></i> Calculate Triangle Properties
+                    </button>
+                </div>
+                
+                <!-- Square/Rectangle Tab -->
+                <div id="square-tab" style="display: none;">
+                    <h2><i class="fas fa-square"></i> Square & Rectangle Calculator</h2>
+                    <div class="input-group" data-tab="square">
+                        <label for="shape-type">Shape Type</label>
+                        <select id="shape-type">
+                            <option value="square">Square</option>
+                            <option value="rectangle">Rectangle</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group" data-tab="square">
+                        <label for="length">Length</label>
+                        <div class="slider-container">
+                            <input type="range" id="length-slider" min="5" max="100" value="40" class="slider">
+                            <span class="slider-value" id="length-value">40</span>
+                        </div>
+                        <input type="number" id="length" placeholder="Enter length" value="40" step="any">
+                    </div>
+                    
+                    <div class="input-group" id="width-group" data-tab="square">
+                        <label for="width">Width</label>
+                        <div class="slider-container">
+                            <input type="range" id="width-slider" min="5" max="100" value="30" class="slider">
+                            <span class="slider-value" id="width-value">30</span>
+                        </div>
+                        <input type="number" id="width" placeholder="Enter width" value="30" step="any">
+                    </div>
+                    
+                    <div class="input-group" data-tab="square">
+                        <label for="calculate-based">Calculate Based On</label>
+                        <select id="calculate-based">
+                            <option value="sides">Side Lengths</option>
+                            <option value="perimeter">Perimeter</option>
+                            <option value="area">Area</option>
+                            <option value="diagonal">Diagonal</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn" id="calculate-square" data-tab="square">
+                        <i class="fas fa-calculator"></i> Calculate Square/Rectangle Properties
+                    </button>
+                </div>
+                
+                <!-- Polygon Tab -->
+                <div id="polygon-tab" style="display: none;">
+                    <h2><i class="fas fa-draw-polygon"></i> Polygon Calculator</h2>
+                    <div class="input-group" data-tab="polygon">
+                        <label for="polygon-sides">Number of Sides (3-12)</label>
+                        <div class="slider-container">
+                            <input type="range" id="sides-slider" min="3" max="12" value="6" class="slider">
+                            <span class="slider-value" id="sides-value">6</span>
+                        </div>
+                        <input type="number" id="polygon-sides" placeholder="Enter number of sides" value="6" min="3" max="20">
+                    </div>
+                    
+                    <div class="input-group" data-tab="polygon">
+                        <label for="side-length">Side Length</label>
+                        <div class="slider-container">
+                            <input type="range" id="side-length-slider" min="5" max="100" value="30" class="slider">
+                            <span class="slider-value" id="side-length-value">30</span>
+                        </div>
+                        <input type="number" id="side-length" placeholder="Enter side length" value="30" step="any">
+                    </div>
+                    
+                    <button class="btn" id="calculate-polygon" data-tab="polygon">
+                        <i class="fas fa-calculator"></i> Calculate Polygon Properties
+                    </button>
+                </div>
+                
+                <!-- Results Section -->
+                <div class="results" id="results">
+                    <h3><i class="fas fa-chart-bar"></i> Calculation Results</h3>
+                    <div class="result-grid" id="result-grid">
+                        <!-- Results will be populated here -->
+                    </div>
+                    
+                    <div class="shape-info" id="shape-info">
+                        <!-- Additional shape information will be populated here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="visualization-panel section">
+                <h2><i class="fas fa-eye"></i> Shape Visualization</h2>
+                <div class="canvas-container">
+                    <canvas id="shapeCanvas" width="500" height="400"></canvas>
+                </div>
+                <div class="shape-info">
+                    <h3><i class="fas fa-info-circle"></i> Shape Details</h3>
+                    <p id="shape-details">Select a shape and adjust the parameters to see visualization and calculations.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Geometry Visualizer &copy; 2023 | Interactive tool for calculating and visualizing geometric shapes</p>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const tabs = document.querySelectorAll('.tab');
+        const inputGroups = document.querySelectorAll('.input-group');
+        const calculateButtons = document.querySelectorAll('.btn');
+        const shapeCanvas = document.getElementById('shapeCanvas');
+        const ctx = shapeCanvas.getContext('2d');
+        const resultsDiv = document.getElementById('results');
+        const resultGrid = document.getElementById('result-grid');
+        const shapeDetails = document.getElementById('shape-details');
+        const shapeInfoDiv = document.getElementById('shape-info');
+        
+        // Tab content divs
+        const circleTab = document.getElementById('circle-tab');
+        const triangleTab = document.getElementById('triangle-tab');
+        const squareTab = document.getElementById('square-tab');
+        const polygonTab = document.getElementById('polygon-tab');
+        
+        // Set canvas size based on container
+        function resizeCanvas() {
+            const container = document.querySelector('.canvas-container');
+            shapeCanvas.width = container.clientWidth - 30;
+            shapeCanvas.height = container.clientHeight - 30;
+            drawCurrentShape();
+        }
+        
+        // Tab switching functionality
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                // Update tabs
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Show/hide tab content
+                circleTab.style.display = tabId === 'circle' ? 'block' : 'none';
+                triangleTab.style.display = tabId === 'triangle' ? 'block' : 'none';
+                squareTab.style.display = tabId === 'square' ? 'block' : 'none';
+                polygonTab.style.display = tabId === 'polygon' ? 'block' : 'none';
+                
+                // Show/hide input groups for current tab
+                inputGroups.forEach(group => {
+                    if (group.getAttribute('data-tab') === tabId) {
+                        group.classList.add('active');
+                    } else {
+                        group.classList.remove('active');
+                    }
+                });
+                
+                // Show/hide calculate button for current tab
+                calculateButtons.forEach(button => {
+                    if (button.getAttribute('data-tab') === tabId) {
+                        button.classList.add('active');
+                    } else {
+                        button.classList.remove('active');
+                    }
+                });
+                
+                // Update visualization
+                drawCurrentShape();
+                
+                // Clear previous results
+                resultsDiv.classList.remove('show');
+            });
+        });
+        
+        // Initialize sliders and input synchronization
+        function initSlider(sliderId, inputId, valueId) {
+            const slider = document.getElementById(sliderId);
+            const input = document.getElementById(inputId);
+            const valueSpan = document.getElementById(valueId);
+            
+            slider.addEventListener('input', () => {
+                input.value = slider.value;
+                valueSpan.textContent = slider.value;
+                drawCurrentShape();
+            });
+            
+            input.addEventListener('input', () => {
+                slider.value = input.value;
+                valueSpan.textContent = input.value;
+                drawCurrentShape();
+            });
+        }
+        
+        // Initialize all sliders
+        initSlider('radius-slider', 'radius', 'radius-value');
+        initSlider('side-a-slider', 'side-a', 'side-a-value');
+        initSlider('side-b-slider', 'side-b', 'side-b-value');
+        initSlider('side-c-slider', 'side-c', 'side-c-value');
+        initSlider('length-slider', 'length', 'length-value');
+        initSlider('width-slider', 'width', 'width-value');
+        initSlider('sides-slider', 'polygon-sides', 'sides-value');
+        initSlider('side-length-slider', 'side-length', 'side-length-value');
+        
+        // Shape type change for square/rectangle
+        const shapeTypeSelect = document.getElementById('shape-type');
+        const widthGroup = document.getElementById('width-group');
+        
+        shapeTypeSelect.addEventListener('change', function() {
+            if (this.value === 'square') {
+                widthGroup.style.display = 'none';
+                document.getElementById('width').value = document.getElementById('length').value;
+                document.getElementById('width-slider').value = document.getElementById('length-slider').value;
+                document.getElementById('width-value').textContent = document.getElementById('length').value;
+            } else {
+                widthGroup.style.display = 'block';
+            }
+            drawCurrentShape();
+        });
+        
+        // Draw functions for each shape
+        function drawCircle() {
+            const radius = parseFloat(document.getElementById('radius').value);
+            const centerX = shapeCanvas.width / 2;
+            const centerY = shapeCanvas.height / 2;
+            const scale = Math.min(shapeCanvas.width, shapeCanvas.height) / 2.5;
+            const drawRadius = Math.min(radius, scale);
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+            
+            // Draw circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, drawRadius, 0, Math.PI * 2);
+            ctx.strokeStyle = '#ff8000';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // Draw radius line
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX + drawRadius, centerY);
+            ctx.strokeStyle = '#00aaff';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Label radius
+            ctx.fillStyle = '#00aaff';
+            ctx.font = '16px Arial';
+            ctx.fillText(`r = ${radius}`, centerX + drawRadius/2, centerY - 10);
+            
+            // Draw center point
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 5, 0, Math.PI * 2);
+            ctx.fillStyle = '#ff8000';
+            ctx.fill();
+            
+            shapeDetails.innerHTML = `Circle with radius ${radius}. The diameter is ${2*radius}.`;
+        }
+        
+        function drawTriangle() {
+            const sideA = parseFloat(document.getElementById('side-a').value);
+            const sideB = parseFloat(document.getElementById('side-b').value);
+            const sideC = parseFloat(document.getElementById('side-c').value);
+            const triangleType = document.getElementById('triangle-type').value;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+            
+            // Calculate triangle vertices based on type
+            let vertices;
+            const centerX = shapeCanvas.width / 2;
+            const centerY = shapeCanvas.height / 2;
+            const scale = Math.min(shapeCanvas.width, shapeCanvas.height) / 3;
+            
+            if (triangleType === 'equilateral') {
+                // Equilateral triangle
+                const height = (Math.sqrt(3) / 2) * sideA;
+                vertices = [
+                    {x: centerX, y: centerY - height/2},
+                    {x: centerX - sideA/2, y: centerY + height/2},
+                    {x: centerX + sideA/2, y: centerY + height/2}
+                ];
+            } else if (triangleType === 'right') {
+                // Right triangle
+                vertices = [
+                    {x: centerX - sideA/2, y: centerY + sideB/2},
+                    {x: centerX - sideA/2, y: centerY - sideB/2},
+                    {x: centerX + sideA/2, y: centerY + sideB/2}
+                ];
+            } else {
+                // General triangle (scalene/isosceles)
+                vertices = [
+                    {x: centerX - sideA/2, y: centerY + sideC/3},
+                    {x: centerX, y: centerY - sideB/2},
+                    {x: centerX + sideA/2, y: centerY + sideC/3}
+                ];
+            }
+            
+            // Draw triangle
+            ctx.beginPath();
+            ctx.moveTo(vertices[0].x, vertices[0].y);
+            ctx.lineTo(vertices[1].x, vertices[1].y);
+            ctx.lineTo(vertices[2].x, vertices[2].y);
+            ctx.closePath();
+            ctx.strokeStyle = '#ff8000';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // Draw vertices
+            vertices.forEach((vertex, index) => {
+                ctx.beginPath();
+                ctx.arc(vertex.x, vertex.y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#00aaff';
+                ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.font = '14px Arial';
+                ctx.fillText(`V${index+1}`, vertex.x + 8, vertex.y + 5);
+            });
+            
+            // Draw side labels
+            ctx.fillStyle = '#ffaa80';
+            ctx.font = '14px Arial';
+            ctx.fillText(`a = ${sideA}`, (vertices[0].x + vertices[1].x)/2, (vertices[0].y + vertices[1].y)/2 - 10);
+            ctx.fillText(`b = ${sideB}`, (vertices[1].x + vertices[2].x)/2, (vertices[1].y + vertices[2].y)/2 - 10);
+            ctx.fillText(`c = ${sideC}`, (vertices[0].x + vertices[2].x)/2, (vertices[0].y + vertices[2].y)/2 + 15);
+            
+            shapeDetails.innerHTML = `${triangleType.charAt(0).toUpperCase() + triangleType.slice(1)} triangle with sides: a=${sideA}, b=${sideB}, c=${sideC}.`;
+        }
+        
+        function drawSquare() {
+            const length = parseFloat(document.getElementById('length').value);
+            const shapeType = document.getElementById('shape-type').value;
+            const width = shapeType === 'square' ? length : parseFloat(document.getElementById('width').value);
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+            
+            // Calculate position
+            const centerX = shapeCanvas.width / 2;
+            const centerY = shapeCanvas.height / 2;
+            const drawWidth = Math.min(length, shapeCanvas.width * 0.8);
+            const drawHeight = Math.min(width, shapeCanvas.height * 0.8);
+            
+            // Draw rectangle/square
+            ctx.beginPath();
+            ctx.rect(centerX - drawWidth/2, centerY - drawHeight/2, drawWidth, drawHeight);
+            ctx.strokeStyle = '#ff8000';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // Draw vertices
+            const vertices = [
+                {x: centerX - drawWidth/2, y: centerY - drawHeight/2},
+                {x: centerX + drawWidth/2, y: centerY - drawHeight/2},
+                {x: centerX + drawWidth/2, y: centerY + drawHeight/2},
+                {x: centerX - drawWidth/2, y: centerY + drawHeight/2}
+            ];
+            
+            vertices.forEach((vertex, index) => {
+                ctx.beginPath();
+                ctx.arc(vertex.x, vertex.y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#00aaff';
+                ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.font = '14px Arial';
+                ctx.fillText(`V${index+1}`, vertex.x + 8, vertex.y + 5);
+            });
+            
+            // Draw side labels
+            ctx.fillStyle = '#ffaa80';
+            ctx.font = '14px Arial';
+            ctx.fillText(`L = ${length}`, centerX, centerY - drawHeight/2 - 10);
+            if (shapeType === 'rectangle') {
+                ctx.fillText(`W = ${width}`, centerX + drawWidth/2 + 10, centerY);
+            }
+            
+            // Draw diagonal for rectangles
+            if (shapeType === 'rectangle') {
+                ctx.beginPath();
+                ctx.moveTo(vertices[0].x, vertices[0].y);
+                ctx.lineTo(vertices[2].x, vertices[2].y);
+                ctx.strokeStyle = '#00aaff';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                // Label diagonal
+                const diagonal = Math.sqrt(length*length + width*width);
+                ctx.fillText(`d = ${diagonal.toFixed(2)}`, centerX - 20, centerY + 5);
+            }
+            
+            const shapeName = shapeType === 'square' ? 'Square' : 'Rectangle';
+            shapeDetails.innerHTML = `${shapeName} with ${shapeType === 'square' ? `side = ${length}` : `length = ${length}, width = ${width}`}.`;
+        }
+        
+        function drawPolygon() {
+            const sides = parseInt(document.getElementById('polygon-sides').value);
+            const sideLength = parseFloat(document.getElementById('side-length').value);
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height);
+            
+            // Calculate polygon vertices
+            const centerX = shapeCanvas.width / 2;
+            const centerY = shapeCanvas.height / 2;
+            const radius = Math.min(sideLength * sides / (2 * Math.PI), Math.min(shapeCanvas.width, shapeCanvas.height) / 2.5);
+            const vertices = [];
+            
+            for (let i = 0; i < sides; i++) {
+                const angle = (i * 2 * Math.PI / sides) - Math.PI / 2;
+                const x = centerX + radius * Math.cos(angle);
+                const y = centerY + radius * Math.sin(angle);
+                vertices.push({x, y});
+            }
+            
+            // Draw polygon
+            ctx.beginPath();
+            ctx.moveTo(vertices[0].x, vertices[0].y);
+            for (let i = 1; i < vertices.length; i++) {
+                ctx.lineTo(vertices[i].x, vertices[i].y);
+            }
+            ctx.closePath();
+            ctx.strokeStyle = '#ff8000';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // Draw vertices
+            vertices.forEach((vertex, index) => {
+                ctx.beginPath();
+                ctx.arc(vertex.x, vertex.y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#00aaff';
+                ctx.fill();
+            });
+            
+            // Draw circumscribed circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(0, 170, 255, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            shapeDetails.innerHTML = `Regular polygon with ${sides} sides, each of length ${sideLength}.`;
+        }
+        
+        // Determine current shape and draw it
+        function drawCurrentShape() {
+            const activeTab = document.querySelector('.tab.active').getAttribute('data-tab');
+            
+            switch(activeTab) {
+                case 'circle':
+                    drawCircle();
+                    break;
+                case 'triangle':
+                    drawTriangle();
+                    break;
+                case 'square':
+                    drawSquare();
+                    break;
+                case 'polygon':
+                    drawPolygon();
+                    break;
+            }
+        }
+        
+        // Calculation functions
+        function calculateCircle() {
+            const radius = parseFloat(document.getElementById('radius').value);
+            const calculationType = document.getElementById('calculation-type').value;
+            
+            let r = radius;
+            
+            // Adjust radius based on calculation type
+            if (calculationType === 'diameter') {
+                r = radius / 2;
+            } else if (calculationType === 'circumference') {
+                r = radius / (2 * Math.PI);
+            } else if (calculationType === 'area') {
+                r = Math.sqrt(radius / Math.PI);
+            }
+            
+            // Circle calculations
+            const diameter = 2 * r;
+            const circumference = 2 * Math.PI * r;
+            const area = Math.PI * r * r;
+            
+            // Sphere calculations
+            const sphereSurfaceArea = 4 * Math.PI * r * r;
+            const sphereVolume = (4/3) * Math.PI * r * r * r;
+            
+            // Update results
+            resultGrid.innerHTML = `
+                <div class="result-item">
+                    <div class="result-label">Radius</div>
+                    <div class="result-value">${r.toFixed(2)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Diameter</div>
+                    <div class="result-value">${diameter.toFixed(2)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Circumference</div>
+                    <div class="result-value">${circumference.toFixed(2)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Circle Area</div>
+                    <div class="result-value">${area.toFixed(2)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Sphere Surface Area</div>
+                    <div class="result-value">${sphereSurfaceArea.toFixed(2)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Sphere Volume</div>
+                    <div class="result-value">${sphereVolume.toFixed(2)}</div>
+                </div>
+            `;
+            
+            shapeInfoDiv.innerHTML = `
+                <h3><i class="fas fa-info-circle"></i> Circle & Sphere Information</h3>
+                <p>A circle is a shape consisting of all points in a plane that are a given distance (radius) from a given point (center).</p>
+                <p>A sphere is the three-dimensional analogue of a circle, with all points at a given distance from the center.</p>
+            `;
+            
+            resultsDiv.classList.add('show');
+        }
+        
+        function calculateTriangle() {
+            const sideA = parseFloat(document.getElementById('side-a').value);
+            const sideB = parseFloat(document.getElementById('side-b').value);
+            const sideC = parseFloat(document.getElementById('side-c').value);
+            const triangleType = document.getElementById('triangle-type').value;
+            
+            // Calculate perimeter
+            const perimeter = sideA + sideB + sideC;
+            const semiperimeter = perimeter / 2;
+            
+            // Calculate area using Heron's formula
+            const area = Math.sqrt(semiperimeter * (semiperimeter - sideA) * (semiperimeter - sideB) * (semiperimeter - sideC));
+            
+            // Calculate angles using law of cosines
+            const angleA = Math.acos((sideB*sideB + sideC*sideC - sideA*sideA) / (2*sideB*sideC)) * (180/Math.PI);
+            const angleB = Math.acos((sideA*sideA + sideC*sideC - sideB*sideB) / (2*sideA*sideC)) * (180/Math.PI);
+            const angleC = 180 - angleA - angleB;
+            
+            // Calculate height (assuming side A as base)
+            const height = (2 * area) / sideA;
+            
+            // Update results
+            resultGrid.innerHTML = `
+                <div class="result-item">
+                    <div class="result-label">Side A</div>
+                    <div class="result-value">${sideA.toFixed(2)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Side B</div>
+                    <div class="result-value">${sideB.toFixed(2)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Side C</div>
+                    <div class="result-value">${sideC.toFixed(2)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Perimeter</div>
+                    <div class="result-value">${perimeter.toFixed(2)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Area</div>
+                    <div class="result-value">${area.toFixed(2)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Angle A</div>
+                    <div class="result-value">${angleA.toFixed(2)}°</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Angle B</div>
+                    <div class="result-value">${angleB.toFixed(2)}°</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Angle C</div>
+                    <div class="result-value">${angleC.toFixed(2)}°</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Height (to side A)</div>
+                    <div class="result-value">${height.toFixed(2)}</div>
+                </div>
+            `;
+            
+            shapeInfoDiv.innerHTML = `
+                <h3><i class="fas fa-info-circle"></i> Triangle Information</h3>
+                <p>${triangleType.charAt(0).toUpperCase() + triangleType.slice(1)} triangle with sides: ${sideA}, ${sideB}, ${sideC}.</p>
+                <p>The sum of all angles in a triangle is always 180°.</p>
+            `;
+            
+            resultsDiv.classList.add('show');
+        }
+        
+        function calculateSquare() {
+            const length = parseFloat(document.getElementById('length').value);
+            const shapeType = document.getElementById('shape-type').value;
+            const width = shapeType === 'square' ? length : parseFloat(document.getElementById('width').value);
+            const calculationBased = document.getElementById('calculate-based').value;
+            
+            let l = length;
+            let w = width;
+            
+            // Adjust dimensions based on calculation type
+            if (calculationBased === 'perimeter') {
+                const perimeter = length;
+                if (shapeType === 'square') {
+                    l = w = perimeter / 4;
+                } else {
+                    // For rectangle, we need both length and width to calculate
+                    l = perimeter / 3; // Simplified assumption
+                    w = perimeter / 6; // Simplified assumption
+                }
+            } else if (calculationBased === 'area') {
+                const area = length;
+                if (shapeType === 'square') {
+                    l = w = Math.sqrt(area);
+                } else {
+                    // For rectangle, we need both length and width
+                    l = Math.sqrt(area * 1.5); // Simplified assumption
+                    w = area / l;
+                }
+            } else if (calculationBased === 'diagonal') {
+                const diagonal = length;
+                if (shapeType === 'square') {
+                    l = w = diagonal / Math.sqrt(2);
+                } else {
+                    // For rectangle, we need both diagonal and aspect ratio
+                    l = diagonal * 0.8; // Simplified assumption
+                    w = Math.sqrt(diagonal*diagonal - l*l);
+                }
+            }
+            
+            // Square/rectangle calculations
+            const perimeter = 2 * (l + w);
+            const area = l * w;
+            const diagonal = Math.sqrt(l*l + w*w);
+            
+            // Update results
+            resultGrid.innerHTML = `
+                <div class="result-item">
+                    <div class="result-label">${shapeType === 'square' ? 'Side' : 'Length'}</div>
+                    <div class="result-value">${l.toFixed(2)}</div>
+                </div>
+                ${shapeType === 'rectangle' ? `
+                <div class="result-item">
+                    <div class="result-label">Width</div>
+                    <div class="result-value">${w.toFixed(2)}</div>
+                </div>
+                ` : ''}
+                <div class="result-item">
+                    <div class="result-label">Perimeter</div>
+                    <div class="result-value">${perimeter.toFixed(2)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Area</div>
+                    <div class="result-value">${area.toFixed(2)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Diagonal</div>
+                    <div class="result-value">${diagonal.toFixed(2)}</div>
+                </div>
+                ${shapeType === 'square' ? `
+                <div class="result-item">
+                    <div class="result-label">Incircle Radius</div>
+                    <div class="result-value">${(l/2).toFixed(2)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Circumcircle Radius</div>
+                    <div class="result-value">${(diagonal/2).toFixed(2)}</div>
+                </div>
+                ` : ''}
+            `;
+            
+            const shapeName = shapeType === 'square' ? 'Square' : 'Rectangle';
+            shapeInfoDiv.innerHTML = `
+                <h3><i class="fas fa-info-circle"></i> ${shapeName} Information</h3>
+                <p>A ${shapeName.toLowerCase()} is a quadrilateral with ${shapeType === 'square' ? 'four equal sides and four right angles' : 'opposite sides equal and four right angles'}.</p>
+                ${shapeType === 'square' ? `<p>All squares are rectangles but not all rectangles are squares.</p>` : ''}
+            `;
+            
+            resultsDiv.classList.add('show');
+        }
+        
+        function calculatePolygon() {
+            const sides = parseInt(document.getElementById('polygon-sides').value);
+            const sideLength = parseFloat(document.getElementById('side-length').value);
+            
+            // Polygon calculations
+            const perimeter = sides * sideLength;
+            const apothem = sideLength / (2 * Math.tan(Math.PI / sides));
+            const area = (perimeter * apothem) / 2;
+            const radius = sideLength / (2 * Math.sin(Math.PI / sides));
+            const interiorAngle = ((sides - 2) * 180) / sides;
+            const exteriorAngle = 360 / sides;
+            
+            // Update results
+            resultGrid.innerHTML = `
+                <div class="result-item">
+                    <div class="result-label">Number of Sides</div>
+                    <div class="result-value">${sides}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Side Length</div>
+                    <div class="result-value">${sideLength.toFixed(2)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Perimeter</div>
+                    <div class="result-value">${perimeter.toFixed(2)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Area</div>
+                    <div class="result-value">${area.toFixed(2)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Apothem</div>
+                    <div class="result-value">${apothem.toFixed(2)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Circumradius</div>
+                    <div class="result-value">${radius.toFixed(2)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Interior Angle</div>
+                    <div class="result-value">${interiorAngle.toFixed(2)}°</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Exterior Angle</div>
+                    <div class="result-value">${exteriorAngle.toFixed(2)}°</div>
+                </div>
+            `;
+            
+            // Get polygon name based on number of sides
+            const polygonNames = {
+                3: 'Triangle',
+                4: 'Quadrilateral',
+                5: 'Pentagon',
+                6: 'Hexagon',
+                7: 'Heptagon',
+                8: 'Octagon',
+                9: 'Nonagon',
+                10: 'Decagon',
+                11: 'Hendecagon',
+                12: 'Dodecagon'
+            };
+            
+            const polygonName = polygonNames[sides] || `${sides}-gon`;
+            
+            shapeInfoDiv.innerHTML = `
+                <h3><i class="fas fa-info-circle"></i> Polygon Information</h3>
+                <p>A regular ${polygonName.toLowerCase()} with ${sides} equal sides of length ${sideLength}.</p>
+                <p>The sum of interior angles is ${(sides-2)*180}°.</p>
+            `;
+            
+            resultsDiv.classList.add('show');
+        }
+        
+        // Event listeners for calculate buttons
+        document.getElementById('calculate-circle').addEventListener('click', calculateCircle);
+        document.getElementById('calculate-triangle').addEventListener('click', calculateTriangle);
+        document.getElementById('calculate-square').addEventListener('click', calculateSquare);
+        document.getElementById('calculate-polygon').addEventListener('click', calculatePolygon);
+        
+        // Initialize the visualization
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            drawCurrentShape();
+            
+            // Set square width to match length initially
+            if (shapeTypeSelect.value === 'square') {
+                widthGroup.style.display = 'none';
+            }
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', resizeCanvas);
+    </script>
+</body>
+</html>

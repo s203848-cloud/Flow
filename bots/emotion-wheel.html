@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Emotions Chart</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            margin-bottom: 30px;
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 8px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #ff8000, #ff0080);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #a0a0c0;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .emotion-wheel-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .wheel-wrapper {
+            position: relative;
+            width: 500px;
+            height: 500px;
+        }
+        
+        .emotion-wheel {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(255, 128, 0, 0.2);
+            transition: transform 0.5s ease;
+        }
+        
+        .wheel-segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .wheel-segment:hover {
+            filter: brightness(1.2);
+            transform: scale(1.05);
+        }
+        
+        .segment-content {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            transform-origin: 0% 0%;
+            display: flex;
+            align-items: center;
+            padding-left: 40px;
+        }
+        
+        .core-emotion {
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+        
+        .inner-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 150px;
+            background: rgba(20, 20, 40, 0.9);
+            border-radius: 50%;
+            border: 3px solid #ff8000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 10;
+            box-shadow: 0 0 30px rgba(255, 128, 0, 0.3);
+        }
+        
+        .inner-ring h3 {
+            color: #ff8000;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .selected-emotion {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            min-height: 40px;
+            padding: 0 10px;
+        }
+        
+        .detailed-view {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(30, 30, 50, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            display: none;
+        }
+        
+        .detailed-view.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .detailed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .emotion-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .nuance-emotions {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .nuance-emotion {
+            background: rgba(40, 40, 60, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        
+        .nuance-emotion:hover {
+            transform: translateY(-5px);
+            border-color: #ff8000;
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.2);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .control-btn {
+            padding: 12px 25px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 8px;
+            color: #ff8000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .instructions {
+            text-align: center;
+            margin-top: 30px;
+            color: #a0a0c0;
+            font-style: italic;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .wheel-wrapper {
+                width: 350px;
+                height: 350px;
+            }
+            
+            .core-emotion {
+                font-size: 1rem;
+            }
+            
+            .inner-ring {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .inner-ring h3 {
+                font-size: 1rem;
+            }
+            
+            .selected-emotion {
+                font-size: 1.2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .wheel-wrapper {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .core-emotion {
+                font-size: 0.9rem;
+            }
+            
+            .segment-content {
+                padding-left: 30px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        </div>
+        
+        <div class="header">
+            <h1>Emotions Chart</h1>
+            <p>An interactive emotion wheel to help you identify and name your feelings. Click on a core emotion to explore more specific nuances.</p>
+        </div>
+        
+        <div class="emotion-wheel-container">
+            <div class="wheel-wrapper">
+                <div class="emotion-wheel" id="emotionWheel">
+                    <!-- Emotion segments will be generated by JavaScript -->
+                </div>
+                <div class="inner-ring">
+                    <h3>Selected Emotion</h3>
+                    <div class="selected-emotion" id="selectedEmotion">Click a segment</div>
+                </div>
+            </div>
+            
+            <div class="detailed-view" id="detailedView">
+                <div class="detailed-header">
+                    <div>
+                        <h2 id="detailTitle" style="display: flex; align-items: center;">
+                            <span class="emotion-color" id="detailColor"></span>
+                            <span id="detailName">Select an Emotion</span>
+                        </h2>
+                        <p id="detailDescription" style="color: #a0a0c0; margin-top: 5px;">Click on a core emotion to see detailed information</p>
+                    </div>
+                </div>
+                
+                <div id="nuanceContainer">
+                    <!-- Nuance emotions will be displayed here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="control-btn" onclick="resetWheel()">
+                <i class="fas fa-redo"></i> Reset Wheel
+            </button>
+            <button class="control-btn" onclick="rotateWheel()">
+                <i class="fas fa-sync-alt"></i> Rotate Wheel
+            </button>
+        </div>
+        
+        <div class="instructions">
+            <p><i class="fas fa-lightbulb"></i> Start by identifying your broad feeling, then explore the nuanced emotions to better understand and articulate your emotional state.</p>
+        </div>
+    </div>
+
+    <script>
+        // Emotion data structure
+        const emotions = [
+            {
+                name: "Joy",
+                color: "#FFD700",
+                description: "A feeling of great pleasure and happiness",
+                nuances: ["Content", "Proud", "Excited", "Optimistic", "Peaceful", "Cheerful", "Grateful", "Playful", "Hopeful", "Amused"]
+            },
+            {
+                name: "Sadness",
+                color: "#4169E1",
+                description: "Emotional pain associated with loss, disappointment, or helplessness",
+                nuances: ["Lonely", "Gloomy", "Disappointed", "Miserable", "Hopeless", "Neglected", "Despair", "Melancholy", "Sorrowful", "Depressed"]
+            },
+            {
+                name: "Anger",
+                color: "#FF4500",
+                description: "A strong feeling of annoyance, displeasure, or hostility",
+                nuances: ["Irritated", "Frustrated", "Hostile", "Resentful", "Furious", "Annoyed", "Agitated", "Outraged", "Bitter", "Jealous"]
+            },
+            {
+                name: "Fear",
+                color: "#32CD32",
+                description: "An unpleasant emotion caused by the threat of danger, pain, or harm",
+                nuances: ["Anxious", "Insecure", "Terrified", "Scared", "Worried", "Nervous", "Panicked", "Helpless", "Overwhelmed", "Stressed"]
+            },
+            {
+                name: "Surprise",
+                color: "#FF69B4",
+                description: "A brief emotional state experienced as the result of an unexpected event",
+                nuances: ["Amazed", "Astonished", "Shocked", "Startled", "Disbelieving", "Awe", "Speechless", "Stunned", "Confused", "Perplexed"]
+            },
+            {
+                name: "Disgust",
+                color: "#8A2BE2",
+                description: "A feeling of revulsion or profound disapproval aroused by something unpleasant",
+                nuances: ["Revulsion", "Contempt", "Dislike", "Distaste", "Repulsion", "Nauseated", "Appalled", "Horrified", "Offended", "Uncomfortable"]
+            },
+            {
+                name: "Love",
+                color: "#FF1493",
+                description: "A complex set of emotions, behaviors, and beliefs associated with strong affection",
+                nuances: ["Affectionate", "Compassionate", "Devoted", "Passionate", "Fond", "Caring", "Tender", "Warm", "Attached", "Infatuated"]
+            },
+            {
+                name: "Anticipation",
+                color: "#FFA500",
+                description: "The act of looking forward to something with excitement or anxiety",
+                nuances: ["Eager", "Vigilant", "Hopeful", "Expectant", "Enthusiastic", "Curious", "Prepared", "Watchful", "Intent", "Focused"]
+            }
+        ];
+
+        // Initialize the emotion wheel
+        function initEmotionWheel() {
+            const wheel = document.getElementById('emotionWheel');
+            const totalEmotions = emotions.length;
+            const angle = 360 / totalEmotions;
+            
+            emotions.forEach((emotion, index) => {
+                const segment = document.createElement('div');
+                segment.className = 'wheel-segment';
+                segment.style.transform = `rotate(${index * angle}deg)`;
+                segment.style.background = `linear-gradient(135deg, ${emotion.color}66, ${emotion.color}cc)`;
+                segment.setAttribute('data-emotion', emotion.name);
+                
+                const content = document.createElement('div');
+                content.className = 'segment-content';
+                content.style.transform = `rotate(${angle/2}deg)`;
+                
+                const emotionName = document.createElement('div');
+                emotionName.className = 'core-emotion';
+                emotionName.textContent = emotion.name;
+                emotionName.style.color = emotion.color;
+                
+                content.appendChild(emotionName);
+                segment.appendChild(content);
+                wheel.appendChild(segment);
+                
+                // Add click event
+                segment.addEventListener('click', () => selectEmotion(emotion));
+            });
+        }
+
+        // Select an emotion
+        function selectEmotion(emotion) {
+            // Update selected emotion display
+            document.getElementById('selectedEmotion').textContent = emotion.name;
+            document.getElementById('selectedEmotion').style.color = emotion.color;
+            
+            // Update detailed view
+            document.getElementById('detailedView').classList.add('active');
+            document.getElementById('detailName').textContent = emotion.name;
+            document.getElementById('detailColor').style.backgroundColor = emotion.color;
+            document.getElementById('detailDescription').textContent = emotion.description;
+            
+            // Display nuance emotions
+            const nuanceContainer = document.getElementById('nuanceContainer');
+            nuanceContainer.innerHTML = `
+                <h3 style="margin-bottom: 15px; color: #ff8000;">Nuanced Emotions:</h3>
+                <div class="nuance-emotions">
+                    ${emotion.nuances.map(nuance => `
+                        <div class="nuance-emotion" onclick="selectNuance('${nuance}', '${emotion.color}')">
+                            <div style="font-size: 1.1rem; margin-bottom: 5px;">${nuance}</div>
+                            <div style="font-size: 0.9rem; color: #a0a0c0;">A nuanced form of ${emotion.name}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            // Highlight the selected segment
+            const segments = document.querySelectorAll('.wheel-segment');
+            segments.forEach(seg => {
+                seg.style.opacity = seg.getAttribute('data-emotion') === emotion.name ? '1' : '0.7';
+                seg.style.transform = seg.getAttribute('data-emotion') === emotion.name ? 
+                    seg.style.transform.replace(')', ') scale(1.02)') : 
+                    seg.style.transform;
+            });
+        }
+
+        // Select a nuanced emotion
+        function selectNuance(nuance, color) {
+            document.getElementById('selectedEmotion').textContent = nuance;
+            document.getElementById('selectedEmotion').style.color = color;
+            
+            // Show a brief message
+            const detailDesc = document.getElementById('detailDescription');
+            detailDesc.textContent = `"${nuance}" - A more specific emotional state`;
+            detailDesc.style.color = color;
+            
+            // Pulse animation for selected nuance
+            const nuanceElements = document.querySelectorAll('.nuance-emotion');
+            nuanceElements.forEach(el => {
+                if (el.querySelector('div').textContent === nuance) {
+                    el.style.borderColor = color;
+                    el.style.boxShadow = `0 5px 20px ${color}80`;
+                    el.style.transform = 'translateY(-5px)';
+                }
+            });
+        }
+
+        // Reset the wheel
+        function resetWheel() {
+            document.getElementById('selectedEmotion').textContent = 'Click a segment';
+            document.getElementById('selectedEmotion').style.color = '#fff';
+            document.getElementById('detailedView').classList.remove('active');
+            
+            const segments = document.querySelectorAll('.wheel-segment');
+            segments.forEach(seg => {
+                seg.style.opacity = '1';
+                seg.style.transform = seg.style.transform.replace(' scale(1.02)', '');
+            });
+            
+            const wheel = document.getElementById('emotionWheel');
+            wheel.style.transform = 'rotate(0deg)';
+        }
+
+        // Rotate the wheel
+        function rotateWheel() {
+            const wheel = document.getElementById('emotionWheel');
+            const currentRotation = parseInt(wheel.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
+            const newRotation = currentRotation + 45;
+            wheel.style.transform = `rotate(${newRotation}deg)`;
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initEmotionWheel();
+            
+            // Add some interactive hover effects
+            const wheel = document.getElementById('emotionWheel');
+            wheel.addEventListener('mouseenter', () => {
+                wheel.style.transform = 'scale(1.02)';
+            });
+            
+            wheel.addEventListener('mouseleave', () => {
+                wheel.style.transform = 'scale(1)';
+            });
+            
+            // Pre-select the first emotion
+            setTimeout(() => {
+                // Uncomment to auto-select first emotion on load:
+                // selectEmotion(emotions[0]);
+            }, 500);
+        });
+    </script>
+</body>
+</html>

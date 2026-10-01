@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Scientific Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.95);
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+            z-index: 100;
+        }
+
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+
+        .help-btn {
+            padding: 8px 15px;
+            background: rgba(0, 150, 255, 0.2);
+            border: 1px solid #0096ff;
+            border-radius: 5px;
+            color: #0096ff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .help-btn:hover {
+            background: rgba(0, 150, 255, 0.3);
+        }
+
+        .calculator {
+            background: linear-gradient(135deg, rgba(50, 30, 70, 0.85), rgba(30, 50, 80, 0.85));
+            border: 1px solid rgba(255, 69, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            width: 100%;
+            max-width: 500px;
+            margin-top: 80px;
+            box-shadow: 0 10px 40px rgba(255, 69, 0, 0.3);
+        }
+
+        .display-container {
+            position: relative;
+        }
+
+        .display {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 128, 0, 0.5);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+            text-align: right;
+            word-wrap: break-word;
+            word-break: break-all;
+            min-height: 80px;
+            color: #ff8000;
+            font-weight: bold;
+        }
+
+        .memory-display {
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            font-size: 0.8rem;
+            color: #00ff88;
+            opacity: 0.8;
+        }
+
+        .angle-mode {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 0.8rem;
+            color: #0096ff;
+            background: rgba(0, 150, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .button-grid::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .button-grid::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .button-grid::-webkit-scrollbar-thumb {
+            background: rgba(255, 128, 0, 0.5);
+            border-radius: 10px;
+        }
+
+        button {
+            padding: 12px 5px;
+            background: linear-gradient(to bottom, #444, #333);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 50px;
+        }
+
+        button:hover {
+            background: linear-gradient(to bottom, #555, #444);
+            border-color: #ff8000;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .equals {
+            background: linear-gradient(to right, #ff7e00, #ff4500);
+            grid-column: span 2;
+        }
+
+        .clear {
+            background: linear-gradient(to right, #ff5500, #ff3300);
+        }
+
+        .memory-btn {
+            background: linear-gradient(to bottom, #335, #223);
+            color: #00ff88;
+        }
+
+        .function-btn {
+            background: linear-gradient(to bottom, #334, #223);
+            color: #0096ff;
+        }
+
+        .constant-btn {
+            background: linear-gradient(to bottom, #433, #322);
+            color: #ffcc00;
+        }
+
+        .operator {
+            color: #ff8000;
+        }
+
+        .number-btn {
+            color: #ffffff;
+        }
+
+        /* Help Modal */
+        .help-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .help-content {
+            background: linear-gradient(135deg, #1a0a2e, #0a0a1a);
+            border: 2px solid #0096ff;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .help-content h2 {
+            color: #0096ff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .function-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .category {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+
+        .category h3 {
+            color: #ff8000;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+
+        .function-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 5px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ff4500;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 600px) {
+            .calculator {
+                max-width: 95%;
+                padding: 15px;
+            }
+            
+            .button-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .display {
+                font-size: 1.5rem;
+                min-height: 60px;
+                padding: 15px;
+            }
+            
+            button {
+                padding: 10px 3px;
+                font-size: 0.75rem;
+                min-height: 45px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .button-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold;">Advanced Calculator</span>
+        <button class="help-btn" id="helpBtn"><i class="fas fa-bars"></i> Help</button>
+    </div>
+
+    <div class="calculator">
+        <div class="display-container">
+            <div class="memory-display" id="memoryDisplay">MEM: 0</div>
+            <div class="angle-mode" id="angleMode">DEG</div>
+            <div class="display" id="display">0</div>
+        </div>
+        
+        <div class="button-grid">
+            <!-- Memory Functions -->
+            <button class="memory-btn" onclick="memoryClear()">MC</button>
+            <button class="memory-btn" onclick="memoryRecall()">MR</button>
+            <button class="memory-btn" onclick="memoryAdd()">M+</button>
+            <button class="memory-btn" onclick="memorySubtract()">M-</button>
+            <button class="memory-btn" onclick="memoryStore()">MS</button>
+            
+            <!-- Clear Functions -->
+            <button class="clear" onclick="clearDisplay()">C</button>
+            <button class="clear" onclick="clearEntry()">CE</button>
+            <button onclick="backspace()">⌫</button>
+            <button class="operator" onclick="appendOperator('/')">÷</button>
+            <button class="operator" onclick="appendOperator('*')">×</button>
+            
+            <!-- Numbers and Basic Operations -->
+            <button class="number-btn" onclick="appendNumber('7')">7</button>
+            <button class="number-btn" onclick="appendNumber('8')">8</button>
+            <button class="number-btn" onclick="appendNumber('9')">9</button>
+            <button class="operator" onclick="appendOperator('-')">-</button>
+            <button class="function-btn" onclick="calculatePercentage()">%</button>
+            
+            <button class="number-btn" onclick="appendNumber('4')">4</button>
+            <button class="number-btn" onclick="appendNumber('5')">5</button>
+            <button class="number-btn" onclick="appendNumber('6')">6</button>
+            <button class="operator" onclick="appendOperator('+')">+</button>
+            <button class="function-btn" onclick="toggleSign()">±</button>
+            
+            <button class="number-btn" onclick="appendNumber('1')">1</button>
+            <button class="number-btn" onclick="appendNumber('2')">2</button>
+            <button class="number-btn" onclick="appendNumber('3')">3</button>
+            <button class="function-btn" onclick="appendFunction('reciprocal')">1/x</button>
+            <button class="function-btn" onclick="appendFunction('factorial')">x!</button>
+            
+            <button class="number-btn" onclick="appendNumber('0')">0</button>
+            <button class="number-btn" onclick="appendNumber('.')">.</button>
+            <button class="equals" onclick="calculate()">=</button>
+            <button class="function-btn" onclick="appendFunction('modulus')">mod</button>
+            <button class="function-btn" onclick="appendFunction('absolute')">|x|</button>
+            
+            <!-- Basic Functions -->
+            <button class="function-btn" onclick="appendFunction('sqrt')">√</button>
+            <button class="function-btn" onclick="appendFunction('pow2')">x²</button>
+            <button class="function-btn" onclick="appendFunction('pow3')">x³</button>
+            <button class="function-btn" onclick="appendFunction('powY')">x^y</button>
+            <button class="function-btn" onclick="appendFunction('rootY')">y√x</button>
+            
+            <!-- Trigonometric Functions -->
+            <button class="function-btn" onclick="appendFunction('sin')">sin</button>
+            <button class="function-btn" onclick="appendFunction('cos')">cos</button>
+            <button class="function-btn" onclick="appendFunction('tan')">tan</button>
+            <button class="function-btn" onclick="appendFunction('asin')">sin⁻¹</button>
+            <button class="function-btn" onclick="appendFunction('acos')">cos⁻¹</button>
+            
+            <!-- More Trigonometric -->
+            <button class="function-btn" onclick="appendFunction('atan')">tan⁻¹</button>
+            <button class="function-btn" onclick="appendFunction('sinh')">sinh</button>
+            <button class="function-btn" onclick="appendFunction('cosh')">cosh</button>
+            <button class="function-btn" onclick="appendFunction('tanh')">tanh</button>
+            <button class="function-btn" onclick="appendFunction('asinh')">sinh⁻¹</button>
+            
+            <!-- Logarithmic Functions -->
+            <button class="function-btn" onclick="appendFunction('log')">log₁₀</button>
+            <button class="function-btn" onclick="appendFunction('ln')">ln</button>
+            <button class="function-btn" onclick="appendFunction('log2')">log₂</button>
+            <button class="function-btn" onclick="appendFunction('exp')">e^x</button>
+            <button class="function-btn" onclick="appendFunction('exp10')">10^x</button>
+            
+            <!-- Constants -->
+            <button class="constant-btn" onclick="appendConstant('pi')">π</button>
+            <button class="constant-btn" onclick="appendConstant('e')">e</button>
+            <button class="constant-btn" onclick="appendConstant('phi')">φ</button>
+            <button class="function-btn" onclick="generateRandom()">Rand</button>
+            <button class="function-btn" onclick="toggleAngleMode()">DEG/RAD</button>
+            
+            <!-- Advanced Functions -->
+            <button class="function-btn" onclick="appendFunction('floor')">floor</button>
+            <button class="function-btn" onclick="appendFunction('ceil')">ceil</button>
+            <button class="function-btn" onclick="appendFunction('round')">round</button>
+            <button class="function-btn" onclick="appendFunction('cubeRoot')">³√x</button>
+            <button class="function-btn" onclick="appendFunction('nthRoot')">ⁿ√x</button>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="help-modal" id="helpModal">
+        <div class="help-content">
+            <button class="close-btn" onclick="closeHelp()">×</button>
+            <h2>Calculator Functions Guide</h2>
+            <div class="function-categories">
+                <div class="category">
+                    <h3>Basic Operations</h3>
+                    <div class="function-item"><span>÷ × + -</span><span>Arithmetic operations</span></div>
+                    <div class="function-item"><span>C</span><span>Clear all</span></div>
+                    <div class="function-item"><span>CE</span><span>Clear entry</span></div>
+                    <div class="function-item"><span>⌫</span><span>Backspace</span></div>
+                    <div class="function-item"><span>%</span><span>Percentage</span></div>
+                    <div class="function-item"><span>±</span><span>Change sign</span></div>
+                </div>
+                
+                <div class="category">
+                    <h3>Memory Functions</h3>
+                    <div class="function-item"><span>MC</span><span>Memory Clear</span></div>
+                    <div class="function-item"><span>MR</span><span>Memory Recall</span></div>
+                    <div class="function-item"><span>M+</span><span>Memory Add</span></div>
+                    <div class="function-item"><span>M-</span><span>Memory Subtract</span></div>
+                    <div class="function-item"><span>MS</span><span>Memory Store</span></div>
+                </div>
+                
+                <div class="category">
+                    <h3>Trigonometric</h3>
+                    <div class="function-item"><span>sin/cos/tan</span><span>Basic trig functions</span></div>
+                    <div class="function-item"><span>sin⁻¹/cos⁻¹/tan⁻¹</span><span>Inverse trig functions</span></div>
+                    <div class="function-item"><span>sinh/cosh/tanh</span><span>Hyperbolic functions</span></div>
+                    <div class="function-item"><span>sinh⁻¹</span><span>Inverse hyperbolic sine</span></div>
+                    <div class="function-item"><span>DEG/RAD</span><span>Toggle angle mode</span></div>
+                </div>
+                
+                <div class="category">
+                    <h3>Exponents & Roots</h3>
+                    <div class="function-item"><span>x²</span><span>Square</span></div>
+                    <div class="function-item"><span>x³</span><span>Cube</span></div>
+                    <div class="function-item"><span>x^y</span><span>Power</span></div>
+                    <div class="function-item"><span>√</span><span>Square root</span></div>
+                    <div class="function-item"><span>³√x</span><span>Cube root</span></div>
+                    <div class="function-item"><span>y√x</span><span>Yth root</span></div>
+                </div>
+                
+                <div class="category">
+                    <h3>Logarithmic</h3>
+                    <div class="function-item"><span>log₁₀</span><span>Base 10 logarithm</span></div>
+                    <div class="function-item"><span>ln</span><span>Natural logarithm</span></div>
+                    <div class="function-item"><span>log₂</span><span>Base 2 logarithm</span></div>
+                    <div class="function-item"><span>e^x</span><span>Exponential function</span></div>
+                    <div class="function-item"><span>10^x</span><span>10 to the power x</span></div>
+                </div>
+                
+                <div class="category">
+                    <h3>Advanced Math</h3>
+                    <div class="function-item"><span>x!</span><span>Factorial</span></div>
+                    <div class="function-item"><span>mod</span><span>Modulus/Remainder</span></div>
+                    <div class="function-item"><span>|x|</span><span>Absolute value</span></div>
+                    <div class="function-item"><span>1/x</span><span>Reciprocal</span></div>
+                    <div class="function-item"><span>floor/ceil/round</span><span>Rounding functions</span></div>
+                    <div class="function-item"><span>Rand</span><span>Random number 0-1</span></div>
+                </div>
+                
+                <div class="category">
+                    <h3>Constants</h3>
+                    <div class="function-item"><span>π</span><span>Pi (3.14159)</span></div>
+                    <div class="function-item"><span>e</span><span>Euler's number (2.71828)</span></div>
+                    <div class="function-item"><span>φ</span><span>Golden ratio (1.61803)</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let display = document.getElementById('display');
+        let angleMode = document.getElementById('angleMode');
+        let memoryDisplay = document.getElementById('memoryDisplay');
+        let helpModal = document.getElementById('helpModal');
+        let currentValue = '0';
+        let previousValue = '';
+        let operator = null;
+        let memory = 0;
+        let isRadians = false;
+
+        // Initialize
+        updateDisplay();
+        updateMemoryDisplay();
+
+        // Display functions
+        function updateDisplay() {
+            display.textContent = currentValue;
+        }
+
+        function updateMemoryDisplay() {
+            memoryDisplay.textContent = `MEM: ${memory}`;
+        }
+
+        // Help modal functions
+        function openHelp() {
+            helpModal.style.display = 'flex';
+        }
+
+        function closeHelp() {
+            helpModal.style.display = 'none';
+        }
+
+        // Event listeners for help button
+        document.getElementById('helpBtn').addEventListener('click', openHelp);
+        helpModal.addEventListener('click', function(e) {
+            if (e.target === helpModal) closeHelp();
+        });
+
+        // Basic calculator functions
+        function appendNumber(num) {
+            if (currentValue === '0' && num !== '.') {
+                currentValue = num;
+            } else if (num === '.' && currentValue.includes('.')) {
+                return;
+            } else {
+                currentValue += num;
+            }
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            if (operator && currentValue) {
+                calculate();
+            }
+            previousValue = currentValue;
+            operator = op;
+            currentValue = '';
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            currentValue = '0';
+            previousValue = '';
+            operator = null;
+            updateDisplay();
+        }
+
+        function clearEntry() {
+            currentValue = '0';
+            updateDisplay();
+        }
+
+        function backspace() {
+            if (currentValue.length > 1) {
+                currentValue = currentValue.slice(0, -1);
+            } else {
+                currentValue = '0';
+            }
+            updateDisplay();
+        }
+
+        function toggleSign() {
+            if (currentValue !== '0') {
+                currentValue = (parseFloat(currentValue) * -1).toString();
+                updateDisplay();
+            }
+        }
+
+        // Memory functions
+        function memoryClear() {
+            memory = 0;
+            updateMemoryDisplay();
+        }
+
+        function memoryRecall() {
+            currentValue = memory.toString();
+            updateDisplay();
+        }
+
+        function memoryAdd() {
+            memory += parseFloat(currentValue) || 0;
+            updateMemoryDisplay();
+        }
+
+        function memorySubtract() {
+            memory -= parseFloat(currentValue) || 0;
+            updateMemoryDisplay();
+        }
+
+        function memoryStore() {
+            memory = parseFloat(currentValue) || 0;
+            updateMemoryDisplay();
+        }
+
+        // Angle mode toggle
+        function toggleAngleMode() {
+            isRadians = !isRadians;
+            angleMode.textContent = isRadians ? 'RAD' : 'DEG';
+        }
+
+        // Percentage calculation
+        function calculatePercentage() {
+            if (previousValue && operator) {
+                const percent = (parseFloat(previousValue) * parseFloat(currentValue)) / 100;
+                currentValue = percent.toString();
+                updateDisplay();
+            }
+        }
+
+        // Random number generator
+        function generateRandom() {
+            currentValue = Math.random().toFixed(6);
+            updateDisplay();
+        }
+
+        // Append constants
+        function appendConstant(constant) {
+            let value;
+            switch(constant) {
+                case 'pi': value = Math.PI; break;
+                case 'e': value = Math.E; break;
+                case 'phi': value = 1.618033988749895; break;
+                default: return;
+            }
+            currentValue = value.toFixed(6);
+            updateDisplay();
+        }
+
+        // Main calculation function
+        function calculate() {
+            if (!operator || !previousValue || !currentValue) return;
+            
+            let result;
+            const prev = parseFloat(previousValue);
+            const current = parseFloat(currentValue);
+
+            try {
+                switch(operator) {
+                    case '+': result = prev + current; break;
+                    case '-': result = prev - current; break;
+                    case '*': result = prev * current; break;
+                    case '/': 
+                        if (current === 0) throw new Error("Division by zero");
+                        result = prev / current; 
+                        break;
+                    default: return;
+                }
+
+                // Handle floating point precision
+                if (Math.abs(result - Math.round(result)) < 1e-10) {
+                    result = Math.round(result);
+                }
+                
+                currentValue = result.toString();
+                operator = null;
+                previousValue = '';
+                updateDisplay();
+            } catch (error) {
+                currentValue = 'Error';
+                operator = null;
+                previousValue = '';
+                updateDisplay();
+                setTimeout(() => {
+                    currentValue = '0';
+                    updateDisplay();
+                }, 1500);
+            }
+        }
+
+        // Function operations
+        function appendFunction(func) {
+            const val = parseFloat(currentValue) || 0;
+            let result;
+            let angle = isRadians ? val : val * Math.PI / 180;
+
+            try {
+                switch(func) {
+                    case 'sqrt': 
+                        if (val < 0) throw new Error("Invalid input");
+                        result = Math.sqrt(val); 
+                        break;
+                    case 'pow2': result = Math.pow(val, 2); break;
+                    case 'pow3': result = Math.pow(val, 3); break;
+                    case 'powY': 
+                        if (previousValue) {
+                            result = Math.pow(parseFloat(previousValue), val);
+                            previousValue = '';
+                        } else {
+                            return; // Wait for second operand
+                        }
+                        break;
+                    case 'rootY':
+                        if (previousValue) {
+                            result = Math.pow(parseFloat(previousValue), 1/val);
+                            previousValue = '';
+                        } else {
+                            return;
+                        }
+                        break;
+                    case 'cubeRoot': result = Math.cbrt(val); break;
+                    case 'nthRoot':
+                        if (previousValue) {
+                            result = Math.pow(val, 1/parseFloat(previousValue));
+                            previousValue = '';
+                        } else {
+                            return;
+                        }
+                        break;
+                    case 'sin': result = Math.sin(angle); break;
+                    case 'cos': result = Math.cos(angle); break;
+                    case 'tan': 
+                        if (Math.abs(Math.cos(angle)) < 1e-10) throw new Error("Invalid input");
+                        result = Math.tan(angle); 
+                        break;
+                    case 'asin': 
+                        if (val < -1 || val > 1) throw new Error("Invalid input");
+                        result = Math.asin(val); 
+                        if (!isRadians) result *= 180 / Math.PI;
+                        break;
+                    case 'acos': 
+                        if (val < -1 || val > 1) throw new Error("Invalid input");
+                        result = Math.acos(val); 
+                        if (!isRadians) result *= 180 / Math.PI;
+                        break;
+                    case 'atan': 
+                        result = Math.atan(val); 
+                        if (!isRadians) result *= 180 / Math.PI;
+                        break;
+                    case 'sinh': result = Math.sinh(angle); break;
+                    case 'cosh': result = Math.cosh(angle); break;
+                    case 'tanh': result = Math.tanh(angle); break;
+                    case 'asinh': result = Math.asinh(val); break;
+                    case 'log': 
+                        if (val <= 0) throw new Error("Invalid input");
+                        result = Math.log10(val); 
+                        break;
+                    case 'ln': 
+                        if (val <= 0) throw new Error("Invalid input");
+                        result = Math.log(val); 
+                        break;
+                    case 'log2': 
+                        if (val <= 0) throw new Error("Invalid input");
+                        result = Math.log2(val); 
+                        break;
+                    case 'exp': result = Math.exp(val); break;
+                    case 'exp10': result = Math.pow(10, val); break;
+                    case 'factorial': 
+                        if (val < 0 || !Number.isInteger(val)) throw new Error("Invalid input");
+                        result = factorial(val); 
+                        break;
+                    case 'modulus':
+                        if (previousValue) {
+                            result = parseFloat(previousValue) % val;
+                            previousValue = '';
+                        } else {
+                            return;
+                        }
+                        break;
+                    case 'absolute': result = Math.abs(val); break;
+                    case 'reciprocal': 
+                        if (val === 0) throw new Error("Division by zero");
+                        result = 1 / val; 
+                        break;
+                    case 'floor': result = Math.floor(val); break;
+                    case 'ceil': result = Math.ceil(val); break;
+                    case 'round': result = Math.round(val); break;
+                    default: return;
+                }
+
+                // Handle special values
+                if (Math.abs(result) === Infinity) {
+                    currentValue = result > 0 ? '∞' : '-∞';
+                } else if (isNaN(result)) {
+                    currentValue = 'Error';
+                } else {
+                    // Format result to avoid scientific notation for small numbers
+                    if (Math.abs(result) < 1e-6 && result !== 0) {
+                        currentValue = result.toExponential(6);
+                    } else if (Math.abs(result) > 1e10) {
+                        currentValue = result.toExponential(6);
+                    } else {
+                        // Remove trailing zeros
+                        currentValue = result.toFixed(10).replace(/\.?0+$/, '');
+                    }
+                }
+                
+                updateDisplay();
+            } catch (error) {
+                currentValue = 'Error';
+                updateDisplay();
+                setTimeout(() => {
+                    currentValue = '0';
+                    updateDisplay();
+                }, 1500);
+            }
+        }
+
+        // Factorial function
+        function factorial(n) {
+            if (n === 0 || n === 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+            }
+            return result;
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', function(e) {
+            const key = e.key;
+            
+            if (key >= '0' && key <= '9') {
+                appendNumber(key);
+            } else if (key === '.') {
+                appendNumber('.');
+            } else if (key === '+') {
+                appendOperator('+');
+            } else if (key === '-') {
+                appendOperator('-');
+            } else if (key === '*') {
+                appendOperator('*');
+            } else if (key === '/') {
+                e.preventDefault();
+                appendOperator('/');
+            } else if (key === 'Enter' || key === '=') {
+                calculate();
+            } else if (key === 'Escape') {
+                clearDisplay();
+            } else if (key === 'Backspace') {
+                backspace();
+            } else if (key === '%') {
+                calculatePercentage();
+            }
+        });
+    </script>
+</body>
+</html>

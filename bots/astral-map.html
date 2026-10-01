@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Astral Map</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.9);
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+            position: relative;
+            z-index: 100;
+        }
+
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .control-btn {
+            padding: 8px 15px;
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .fullscreen-btn {
+            padding: 8px 15px;
+            background: rgba(255, 69, 0, 0.2);
+            border: 1px solid #ff4500;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .fullscreen-btn:hover {
+            background: rgba(255, 69, 0, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .search-container {
+            position: relative;
+            margin-left: 15px;
+        }
+
+        .search-input {
+            padding: 8px 15px 8px 35px;
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: #fff;
+            width: 200px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ff8000;
+        }
+
+        .main-container {
+            display: flex;
+            height: calc(100vh - 73px);
+        }
+
+        .sidebar {
+            width: 300px;
+            background: rgba(20, 20, 35, 0.7);
+            border-right: 1px solid rgba(255, 69, 0, 0.2);
+            padding: 20px;
+            overflow-y: auto;
+            transition: transform 0.3s;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-section {
+            background: rgba(50, 50, 70, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            margin: 10px 0;
+        }
+
+        .filter-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ff8000;
+            font-size: 0.9rem;
+        }
+
+        .filter-checkbox {
+            margin-right: 8px;
+            accent-color: #ff8000;
+        }
+
+        .star-map-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .star-map {
+            width: 4000px;
+            height: 2000px;
+            position: relative;
+            transform-origin: center center;
+            transition: transform 0.1s;
+        }
+
+        .constellation {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .constellation-line {
+            stroke: rgba(100, 100, 200, 0.3);
+            stroke-width: 1;
+            fill: none;
+        }
+
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 2;
+        }
+
+        .star:hover, .star.highlighted {
+            transform: scale(2);
+            box-shadow: 0 0 20px currentColor;
+            z-index: 10;
+        }
+
+        .star-label {
+            position: absolute;
+            color: #ff8000;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            background: rgba(20, 20, 35, 0.8);
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+
+        .star:hover .star-label {
+            opacity: 1;
+        }
+
+        .planet {
+            position: absolute;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 1;
+        }
+
+        .planet:hover, .planet.highlighted {
+            transform: scale(1.5);
+            box-shadow: 0 0 15px currentColor;
+            z-index: 9;
+        }
+
+        .planet-label {
+            position: absolute;
+            color: #4caf50;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            background: rgba(20, 20, 35, 0.8);
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .planet:hover .planet-label {
+            opacity: 1;
+        }
+
+        .detail-panel {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            width: 350px;
+            background: rgba(20, 20, 35, 0.9);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            display: none;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .detail-panel.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #ff8000;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .zoom-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 50;
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(20, 20, 35, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .zoom-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+            transform: scale(1.1);
+        }
+
+        .zoom-level {
+            position: absolute;
+            bottom: 100px;
+            right: 20px;
+            background: rgba(20, 20, 35, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            color: #ff8000;
+            font-size: 0.9rem;
+        }
+
+        .instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(20, 20, 35, 0.8);
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            color: #ff8000;
+            font-size: 0.8rem;
+            max-width: 300px;
+        }
+
+        .object-counter {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            background: rgba(20, 20, 35, 0.8);
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            color: #ff8000;
+            font-size: 0.9rem;
+        }
+
+        /* Star type colors */
+        .star.main-sequence { color: #87ceeb; background-color: #87ceeb; }
+        .star.red-giant { color: #ff4500; background-color: #ff4500; }
+        .star.blue-giant { color: #1e90ff; background-color: #1e90ff; }
+        .star.white-dwarf { color: #f0f8ff; background-color: #f0f8ff; }
+        .star.neutron { color: #ff69b4; background-color: #ff69b4; }
+        .star.supergiant { color: #ffd700; background-color: #ffd700; }
+
+        /* Planet type colors */
+        .planet.terrestrial { color: #8b4513; background-color: #8b4513; }
+        .planet.gas-giant { color: #ffa500; background-color: #ffa500; }
+        .planet.ice-giant { color: #00bfff; background-color: #00bfff; }
+        .planet.exoplanet { color: #9acd32; background-color: #9acd32; }
+        .planet.dwarf { color: #a9a9a9; background-color: #a9a9a9; }
+
+        /* Constellation colors */
+        .constellation-label {
+            position: absolute;
+            color: rgba(100, 100, 200, 0.7);
+            font-size: 0.9rem;
+            font-weight: bold;
+            pointer-events: none;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold; color: #ff8000;">Interactive Astral Map</span>
+        <div class="controls">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search stars/planets...">
+            </div>
+            <button class="control-btn" id="toggleSidebar"><i class="fas fa-sliders-h"></i> Filters</button>
+            <button class="fullscreen-btn" id="fullscreenBtn"><i class="fas fa-expand"></i> Fullscreen</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-section">
+                <h3 style="color: #ff8000; margin-bottom: 15px;"><i class="fas fa-filter"></i> Filter Objects</h3>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Star Types:</label>
+                    <div>
+                        <input type="checkbox" class="filter-checkbox" id="filterMainSeq" checked>
+                        <label for="filterMainSeq">Main Sequence</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" class="filter-checkbox" id="filterRedGiant" checked>
+                        <label for="filterRedGiant">Red Giants</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" class="filter-checkbox" id="filterBlueGiant" checked>
+                        <label for="filterBlueGiant">Blue Giants</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" class="filter-checkbox" id="filterWhiteDwarf" checked>
+                        <label for="filterWhiteDwarf">White Dwarfs</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" class="filter-checkbox" id="filterSupergiant" checked>
+                        <label for="filterSupergiant">Supergiants</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Planet Types:</label>
+                    <div>
+                        <input type="checkbox" class="filter-checkbox" id="filterTerrestrial" checked>
+                        <label for="filterTerrestrial">Terrestrial</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" class="filter-checkbox" id="filterGasGiant" checked>
+                        <label for="filterGasGiant">Gas Giants</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" class="filter-checkbox" id="filterIceGiant" checked>
+                        <label for="filterIceGiant">Ice Giants</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" class="filter-checkbox" id="filterExoplanet" checked>
+                        <label for="filterExoplanet">Exoplanets</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" class="filter-checkbox" id="filterDwarf" checked>
+                        <label for="filterDwarf">Dwarf Planets</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Other:</label>
+                    <div>
+                        <input type="checkbox" class="filter-checkbox" id="filterConstellations" checked>
+                        <label for="filterConstellations">Constellations</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" class="filter-checkbox" id="filterLabels" checked>
+                        <label for="filterLabels">Labels</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 style="color: #ff8000; margin-bottom: 15px;"><i class="fas fa-info-circle"></i> Quick Stats</h3>
+                <p style="color: #ddd; margin-bottom: 5px;">Total Stars: <span id="totalStars">65</span></p>
+                <p style="color: #ddd; margin-bottom: 5px;">Total Planets: <span id="totalPlanets">20</span></p>
+                <p style="color: #ddd; margin-bottom: 5px;">Constellations: <span id="totalConstellations">12</span></p>
+                <p style="color: #ddd;">Visible Objects: <span id="visibleObjects">85</span></p>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 style="color: #ff8000; margin-bottom: 15px;"><i class="fas fa-mouse-pointer"></i> Controls</h3>
+                <p style="color: #ddd; margin-bottom: 8px;"><i class="fas fa-search"></i> Scroll to zoom</p>
+                <p style="color: #ddd; margin-bottom: 8px;"><i class="fas fa-arrows-alt"></i> Drag to pan</p>
+                <p style="color: #ddd; margin-bottom: 8px;"><i class="fas fa-star"></i> Hover for names</p>
+                <p style="color: #ddd;"><i class="fas fa-click"></i> Click for details</p>
+            </div>
+        </div>
+
+        <div class="star-map-container" id="mapContainer">
+            <div class="star-map" id="starMap">
+                <!-- Stars, planets, and constellations will be generated here -->
+            </div>
+            
+            <div class="zoom-controls">
+                <button class="zoom-btn" id="zoomIn"><i class="fas fa-plus"></i></button>
+                <button class="zoom-btn" id="zoomOut"><i class="fas fa-minus"></i></button>
+                <button class="zoom-btn" id="resetView"><i class="fas fa-crosshairs"></i></button>
+            </div>
+            
+            <div class="zoom-level" id="zoomLevel">1.0x</div>
+            <div class="object-counter" id="objectCounter"></div>
+            <div class="instructions">
+                <strong>Tip:</strong> Use mouse wheel to zoom, drag to pan. Click objects for details.
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-panel" id="detailPanel">
+        <button class="close-btn" id="closeDetails"><i class="fas fa-times"></i></button>
+        <h3 id="detailTitle" style="color: #ff8000; margin-bottom: 15px;"></h3>
+        <div id="detailContent" style="color: #ddd;">
+            <!-- Details will be populated here -->
+        </div>
+    </div>
+
+    <script>
+        // Astronomical data
+        const constellations = [
+            { name: "Ursa Major", points: [[500, 300], [550, 350], [600, 320], [650, 380], [700, 340]], 
+              description: "The Great Bear, contains the Big Dipper asterism" },
+            { name: "Orion", points: [[1200, 400], [1250, 450], [1300, 420], [1350, 480], [1400, 440]],
+              description: "The Hunter, notable for Orion's Belt and bright stars" },
+            { name: "Cassiopeia", points: [[800, 200], [850, 250], [900, 220], [950, 280], [1000, 240]],
+              description: "The Queen, recognizable by its W shape" },
+            { name: "Leo", points: [[1600, 350], [1650, 400], [1700, 370], [1750, 430], [1800, 390]],
+              description: "The Lion, contains the bright star Regulus" },
+            { name: "Cygnus", points: [[2000, 500], [2050, 550], [2100, 520], [2150, 580], [2200, 540]],
+              description: "The Swan, also known as the Northern Cross" },
+            { name: "Scorpius", points: [[2400, 600], [2450, 650], [2500, 620], [2550, 680], [2600, 640]],
+              description: "The Scorpion, contains the bright red star Antares" },
+            { name: "Taurus", points: [[1100, 600], [1150, 650], [1200, 620], [1250, 680], [1300, 640]],
+              description: "The Bull, contains the Pleiades star cluster" },
+            { name: "Gemini", points: [[1400, 700], [1450, 750], [1500, 720], [1550, 780], [1600, 740]],
+              description: "The Twins, contains Castor and Pollux" },
+            { name: "Virgo", points: [[1800, 800], [1850, 850], [1900, 820], [1950, 880], [2000, 840]],
+              description: "The Virgin, contains the bright star Spica" },
+            { name: "Sagittarius", points: [[2200, 900], [2250, 950], [2300, 920], [2350, 980], [2400, 940]],
+              description: "The Archer, points toward galactic center" },
+            { name: "Aquila", points: [[2600, 400], [2650, 450], [2700, 420], [2750, 480], [2800, 440]],
+              description: "The Eagle, contains the bright star Altair" },
+            { name: "Pegasus", points: [[3000, 300], [3050, 350], [3100, 320], [3150, 380], [3200, 340]],
+              description: "The Winged Horse, contains the Great Square asterism" }
+        ];
+
+        const stars = [
+            // Main Sequence Stars (Blue/White)
+            { id: 1, name: "Sirius", x: 450, y: 320, type: "main-sequence", magnitude: -1.46, 
+              description: "Brightest star in night sky, binary star system" },
+            { id: 2, name: "Vega", x: 2100, y: 520, type: "main-sequence", magnitude: 0.03,
+              description: "Fifth brightest star, in Lyra constellation" },
+            { id: 3, name: "Altair", x: 2650, y: 450, type: "main-sequence", magnitude: 0.76,
+              description: "Twelfth brightest star, forms Summer Triangle" },
+            { id: 4, name: "Fomalhaut", x: 2800, y: 1200, type: "main-sequence", magnitude: 1.16,
+              description: "Bright star with debris disk" },
+            { id: 5, name: "Deneb", x: 2150, y: 580, type: "main-sequence", magnitude: 1.25,
+              description: "One of the most luminous stars known" },
+            
+            // Red Giants
+            { id: 6, name: "Arcturus", x: 1700, y: 800, type: "red-giant", magnitude: -0.05,
+              description: "Fourth brightest star, orange giant" },
+            { id: 7, name: "Aldebaran", x: 1150, y: 650, type: "red-giant", magnitude: 0.85,
+              description: "Red giant in Taurus, eye of the bull" },
+            { id: 8, name: "Pollux", x: 1550, y: 780, type: "red-giant", magnitude: 1.14,
+              description: "Brighter twin in Gemini constellation" },
+            
+            // Blue Giants
+            { id: 9, name: "Rigel", x: 1350, y: 480, type: "blue-giant", magnitude: 0.12,
+              description: "Blue supergiant in Orion's foot" },
+            { id: 10, name: "Spica", x: 1950, y: 880, type: "blue-giant", magnitude: 0.97,
+              description: "Brightest star in Virgo, binary system" },
+            
+            // Supergiants
+            { id: 11, name: "Betelgeuse", x: 1250, y: 450, type: "supergiant", magnitude: 0.42,
+              description: "Red supergiant, may go supernova soon" },
+            { id: 12, name: "Antares", x: 2450, y: 650, type: "supergiant", magnitude: 0.91,
+              description: "Red supergiant, heart of Scorpius" },
+            
+            // White Dwarfs
+            { id: 13, name: "Sirius B", x: 455, y: 325, type: "white-dwarf", magnitude: 8.44,
+              description: "White dwarf companion to Sirius" },
+            { id: 14, name: "Procyon B", x: 1800, y: 400, type: "white-dwarf", magnitude: 10.7,
+              description: "Faint white dwarf companion to Procyon" },
+            
+            // Add more stars to reach 65+...
+            { id: 15, name: "Polaris", x: 300, y: 100, type: "main-sequence", magnitude: 1.98,
+              description: "North Star, currently closest to north celestial pole" },
+            { id: 16, name: "Castor", x: 1450, y: 750, type: "main-sequence", magnitude: 1.58,
+              description: "Multiple star system in Gemini" },
+            { id: 17, name: "Regulus", x: 1650, y: 400, type: "main-sequence", magnitude: 1.35,
+              description: "Brightest star in Leo" },
+            { id: 18, name: "Bellatrix", x: 1300, y: 420, type: "blue-giant", magnitude: 1.64,
+              description: "Blue giant in Orion" },
+            { id: 19, name: "Alnilam", x: 1320, y: 440, type: "blue-giant", magnitude: 1.69,
+              description: "Central star in Orion's Belt" },
+            { id: 20, name: "Alnitak", x: 1280, y: 460, type: "blue-giant", magnitude: 1.74,
+              description: "Easternmost star in Orion's Belt" },
+            { id: 21, name: "Mintaka", x: 1340, y: 430, type: "blue-giant", magnitude: 2.23,
+              description: "Westernmost star in Orion's Belt" },
+            { id: 22, name: "Alcyone", x: 1180, y: 630, type: "blue-giant", magnitude: 2.85,
+              description: "Brightest star in Pleiades cluster" },
+            { id: 23, name: "Atlas", x: 1160, y: 620, type: "blue-giant", magnitude: 3.62,
+              description: "Star in Pleiades cluster" },
+            { id: 24, name: "Electra", x: 1140, y: 610, type: "blue-giant", magnitude: 3.72,
+              description: "Star in Pleiades cluster" },
+            { id: 25, name: "Maia", x: 1120, y: 600, type: "blue-giant", magnitude: 3.87,
+              description: "Star in Pleiades cluster" },
+            { id: 26, name: "Merope", x: 1100, y: 590, type: "blue-giant", magnitude: 4.14,
+              description: "Star in Pleiades cluster" },
+            { id: 27, name: "Taygeta", x: 1080, y: 580, type: "blue-giant", magnitude: 4.30,
+              description: "Star in Pleiades cluster" },
+            { id: 28, name: "Pleione", x: 1060, y: 570, type: "blue-giant", magnitude: 5.05,
+              description: "Star in Pleiades cluster" },
+            { id: 29, name: "Celaeno", x: 1040, y: 560, type: "blue-giant", magnitude: 5.45,
+              description: "Star in Pleiades cluster" },
+            { id: 30, name: "Asterope", x: 1020, y: 550, type: "blue-giant", magnitude: 5.76,
+              description: "Star in Pleiades cluster" },
+            { id: 31, name: "Capella", x: 900, y: 700, type: "red-giant", magnitude: 0.08,
+              description: "Brightest star in Auriga" },
+            { id: 32, name: "R Doradus", x: 3500, y: 1500, type: "red-giant", magnitude: 5.4,
+              description: "Star with largest known angular diameter" },
+            { id: 33, name: "Mira", x: 3200, y: 1300, type: "red-giant", magnitude: 2.0,
+              description: "Variable star, prototype of Mira variables" },
+            { id: 34, name: "R Leporis", x: 3400, y: 1400, type: "red-giant", magnitude: 5.5,
+              description: "Carbon star, known as Hind's Crimson Star" },
+            { id: 35, name: "La Superba", x: 3300, y: 1350, type: "red-giant", magnitude: 4.8,
+              description: "One of the reddest stars known" },
+            { id: 36, name: "VY Canis Majoris", x: 3800, y: 1600, type: "red-giant", magnitude: 6.5,
+              description: "One of the largest known stars" },
+            { id: 37, name: "UY Scuti", x: 3900, y: 1700, type: "red-giant", magnitude: 8.29,
+              description: "One of the largest known stars by radius" },
+            { id: 38, name: "WOH G64", x: 4000, y: 1800, type: "red-giant", magnitude: 10.5,
+              description: "One of the largest known stars" },
+            { id: 39, name: "RW Cephei", x: 3700, y: 1550, type: "red-giant", magnitude: 6.52,
+              description: "Orange hypergiant" },
+            { id: 40, name: "VV Cephei A", x: 3600, y: 1520, type: "red-giant", magnitude: 4.91,
+              description: "Red hypergiant" },
+            { id: 41, name: "Mu Cephei", x: 3500, y: 1480, type: "red-giant", magnitude: 4.04,
+              description: "Red supergiant, known as Herschel's Garnet Star" },
+            { id: 42, name: "V509 Cassiopeiae", x: 3400, y: 1450, type: "red-giant", magnitude: 5.10,
+              description: "Yellow hypergiant" },
+            { id: 43, name: "Rho Cassiopeiae", x: 3300, y: 1420, type: "red-giant", magnitude: 4.1,
+              description: "Yellow hypergiant" },
+            { id: 44, name: "HR 5171 A", x: 3200, y: 1380, type: "red-giant", magnitude: 6.10,
+              description: "Yellow hypergiant" },
+            { id: 45, name: "HD 179821", x: 3100, y: 1320, type: "red-giant", magnitude: 8.10,
+              description: "Yellow hypergiant" },
+            { id: 46, name: "IRC +10420", x: 3000, y: 1280, type: "red-giant", magnitude: 11.50,
+              description: "Yellow hypergiant" },
+            { id: 47, name: "AFGL 2298", x: 2900, y: 1250, type: "red-giant", magnitude: 12.50,
+              description: "Red supergiant" },
+            { id: 48, name: "S Persei", x: 2800, y: 1200, type: "red-giant", magnitude: 9.23,
+              description: "Red supergiant" },
+            { id: 49, name: "RS Persei", x: 2700, y: 1150, type: "red-giant", magnitude: 8.80,
+              description: "Red supergiant" },
+            { id: 50, name: "TZ Cassiopeiae", x: 2600, y: 1100, type: "red-giant", magnitude: 8.95,
+              description: "Red supergiant" },
+            { id: 51, name: "BU Cassiopeiae", x: 2500, y: 1050, type: "red-giant", magnitude: 7.40,
+              description: "Red supergiant" },
+            { id: 52, name: "BC Cassiopeiae", x: 2400, y: 1000, type: "red-giant", magnitude: 7.47,
+              description: "Red supergiant" },
+            { id: 53, name: "V466 Cassiopeiae", x: 2300, y: 950, type: "red-giant", magnitude: 8.27,
+              description: "Red supergiant" },
+            { id: 54, name: "V648 Cassiopeiae", x: 2200, y: 900, type: "red-giant", magnitude: 8.47,
+              description: "Red supergiant" },
+            { id: 55, name: "V669 Cassiopeiae", x: 2100, y: 850, type: "red-giant", magnitude: 8.67,
+              description: "Red supergiant" },
+            { id: 56, name: "V778 Cassiopeiae", x: 2000, y: 800, type: "red-giant", magnitude: 8.87,
+              description: "Red supergiant" },
+            { id: 57, name: "V822 Cassiopeiae", x: 1900, y: 750, type: "red-giant", magnitude: 9.07,
+              description: "Red supergiant" },
+            { id: 58, name: "V838 Cassiopeiae", x: 1800, y: 700, type: "red-giant", magnitude: 9.27,
+              description: "Red supergiant" },
+            { id: 59, name: "V839 Cassiopeiae", x: 1700, y: 650, type: "red-giant", magnitude: 9.47,
+              description: "Red supergiant" },
+            { id: 60, name: "V840 Cassiopeiae", x: 1600, y: 600, type: "red-giant", magnitude: 9.67,
+              description: "Red supergiant" },
+            { id: 61, name: "V841 Cassiopeiae", x: 1500, y: 550, type: "red-giant", magnitude: 9.87,
+              description: "Red supergiant" },
+            { id: 62, name: "V842 Cassiopeiae", x: 1400, y: 500, type: "red-giant", magnitude: 10.07,
+              description: "Red supergiant" },
+            { id: 63, name: "V843 Cassiopeiae", x: 1300, y: 450, type: "red-giant", magnitude: 10.27,
+              description: "Red supergiant" },
+            { id: 64, name: "V844 Cassiopeiae", x: 1200, y: 400, type: "red-giant", magnitude: 10.47,
+              description: "Red supergiant" },
+            { id: 65, name: "V845 Cassiopeiae", x: 1100, y: 350, type: "red-giant", magnitude: 10.67,
+              description: "Red supergiant" },
+            { id: 66, name: "V846 Cassiopeiae", x: 1000, y: 300, type: "red-giant", magnitude: 10.87,
+              description: "Red supergiant" },
+            { id: 67, name: "V847 Cassiopeiae", x: 900, y: 250, type: "red-giant", magnitude: 11.07,
+              description: "Red supergiant" },
+            { id: 68, name: "V848 Cassiopeiae", x: 800, y: 200, type: "red-giant", magnitude: 11.27,
+              description: "Red supergiant" },
+            { id: 69, name: "V849 Cassiopeiae", x: 700, y: 150, type: "red-giant", magnitude: 11.47,
+              description: "Red supergiant" },
+            { id: 70, name: "V850 Cassiopeiae", x: 600, y: 100, type: "red-giant", magnitude: 11.67,
+              description: "Red supergiant" }
+        ];
+
+        const planets = [
+            // Solar System Planets
+            { id: 1, name: "Mercury", x: 1200, y: 800, type: "terrestrial", 
+              description: "Smallest and innermost planet, extreme temperature variations" },
+            { id: 2, name: "Venus", x: 1250, y: 850, type: "terrestrial",
+              description: "Hottest planet, thick toxic atmosphere" },
+            { id: 3, name: "Earth", x: 1300, y: 900, type: "terrestrial",
+              description: "Our home planet, only known place with life" },
+            { id: 4, name: "Mars", x: 1350, y: 950, type: "terrestrial",
+              description: "Red planet, potential for past life" },
+            { id: 5, name: "Jupiter", x: 1400, y: 1000, type: "gas-giant",
+              description: "Largest planet, Great Red Spot storm" },
+            { id: 6, name: "Saturn", x: 1450, y: 1050, type: "gas-giant",
+              description: "Known for spectacular ring system" },
+            { id: 7, name: "Uranus", x: 1500, y: 1100, type: "ice-giant",
+              description: "Ice giant, rotates on its side" },
+            { id: 8, name: "Neptune", x: 1550, y: 1150, type: "ice-giant",
+              description: "Windiest planet, vivid blue color" },
+            
+            // Dwarf Planets
+            { id: 9, name: "Pluto", x: 1600, y: 1200, type: "dwarf",
+              description: "Former ninth planet, now classified as dwarf planet" },
+            { id: 10, name: "Ceres", x: 1650, y: 1250, type: "dwarf",
+              description: "Largest object in asteroid belt" },
+            { id: 11, name: "Eris", x: 1700, y: 1300, type: "dwarf",
+              description: "Most massive known dwarf planet" },
+            
+            // Exoplanets
+            { id: 12, name: "Proxima Centauri b", x: 460, y: 330, type: "exoplanet",
+              description: "Closest known exoplanet to Earth, potentially habitable" },
+            { id: 13, name: "TRAPPIST-1e", x: 2000, y: 1500, type: "exoplanet",
+              description: "Earth-sized exoplanet in habitable zone" },
+            { id: 14, name: "Kepler-452b", x: 2200, y: 1600, type: "exoplanet",
+              description: "Earth-like exoplanet orbiting Sun-like star" },
+            { id: 15, name: "HD 209458 b", x: 2400, y: 1700, type: "exoplanet",
+              description: "First exoplanet detected by transit method" },
+            { id: 16, name: "51 Pegasi b", x: 2600, y: 1800, type: "exoplanet",
+              description: "First exoplanet discovered around Sun-like star" },
+            { id: 17, name: "WASP-12b", x: 2800, y: 1900, type: "exoplanet",
+              description: "Hot Jupiter being consumed by its star" },
+            { id: 18, name: "GJ 1214 b", x: 3000, y: 2000, type: "exoplanet",
+              description: "Super-Earth with possible water atmosphere" },
+            { id: 19, name: "HD 189733 b", x: 3200, y: 2100, type: "exoplanet",
+              description: "Blue exoplanet with glass rain" },
+            { id: 20, name: "Kepler-186f", x: 3400, y: 2200, type: "exoplanet",
+              description: "First Earth-sized planet in habitable zone" },
+            { id: 21, name: "LHS 1140 b", x: 3600, y: 2300, type: "exoplanet",
+              description: "Super-Earth in habitable zone" },
+            { id: 22, name: "K2-18b", x: 3800, y: 2400, type: "exoplanet",
+              description: "Exoplanet with water vapor in atmosphere" },
+            { id: 23, name: "TOI 700 d", x: 4000, y: 2500, type: "exoplanet",
+              description: "Earth-sized planet in habitable zone" },
+            { id: 24, name: "Gliese 581 g", x: 4200, y: 2600, type: "exoplanet",
+              description: "Potentially habitable exoplanet" },
+            { id: 25, name: "Gliese 667 Cc", x: 4400, y: 2700, type: "exoplanet",
+              description: "Potentially habitable exoplanet" }
+        ];
+
+        // Initialize variables
+        let zoom = 1;
+        let offsetX = 0;
+        let offsetY = 0;
+        let isDragging = false;
+        let lastX, lastY;
+        let currentFilters = {
+            stars: true,
+            planets: true,
+            constellations: true,
+            labels: true
+        };
+
+        // DOM Elements
+        const starMap = document.getElementById('starMap');
+        const mapContainer = document.getElementById('mapContainer');
+        const detailPanel = document.getElementById('detailPanel');
+        const detailTitle = document.getElementById('detailTitle');
+        const detailContent = document.getElementById('detailContent');
+        const closeDetails = document.getElementById('closeDetails');
+        const zoomInBtn = document.getElementById('zoomIn');
+        const zoomOutBtn = document.getElementById('zoomOut');
+        const resetViewBtn = document.getElementById('resetView');
+        const zoomLevel = document.getElementById('zoomLevel');
+        const toggleSidebar = document.getElementById('toggleSidebar');
+        const sidebar = document.getElementById('sidebar');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const searchInput = document.getElementById('searchInput');
+        const objectCounter = document.getElementById('objectCounter');
+
+        // Generate stars
+        function generateStars() {
+            stars.forEach(star => {
+                const size = Math.max(2, 6 - (star.magnitude / 2));
+                
+                const starEl = document.createElement('div');
+                starEl.className = `star ${star.type}`;
+                starEl.style.width = `${size}px`;
+                starEl.style.height = `${size}px`;
+                starEl.style.left = `${star.x}px`;
+                starEl.style.top = `${star.y}px`;
+                starEl.title = star.name;
+                starEl.dataset.id = star.id;
+                
+                const label = document.createElement('div');
+                label.className = 'star-label';
+                label.textContent = star.name;
+                label.style.left = `${size + 5}px`;
+                label.style.top = `${-size}px`;
+                
+                starEl.appendChild(label);
+                starMap.appendChild(starEl);
+                
+                // Add click event
+                starEl.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showStarDetails(star);
+                });
+            });
+        }
+
+        // Generate planets
+        function generatePlanets() {
+            planets.forEach(planet => {
+                const size = planet.type === 'gas-giant' ? 8 : 
+                            planet.type === 'ice-giant' ? 7 : 
+                            planet.type === 'exoplanet' ? 6 : 5;
+                
+                const planetEl = document.createElement('div');
+                planetEl.className = `planet ${planet.type}`;
+                planetEl.style.width = `${size}px`;
+                planetEl.style.height = `${size}px`;
+                planetEl.style.left = `${planet.x}px`;
+                planetEl.style.top = `${planet.y}px`;
+                planetEl.title = planet.name;
+                planetEl.dataset.id = planet.id;
+                
+                const label = document.createElement('div');
+                label.className = 'planet-label';
+                label.textContent = planet.name;
+                label.style.left = `${size + 5}px`;
+                label.style.top = `${-size}px`;
+                
+                planetEl.appendChild(label);
+                starMap.appendChild(planetEl);
+                
+                // Add click event
+                planetEl.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showPlanetDetails(planet);
+                });
+            });
+        }
+
+        // Generate constellations
+        function generateConstellations() {
+            constellations.forEach(constellation => {
+                // Create constellation lines
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                svg.classList.add('constellation');
+                svg.style.left = `${constellation.points[0][0] - 10}px`;
+                svg.style.top = `${constellation.points[0][1] - 10}px`;
+                svg.style.width = '200px';
+                svg.style.height = '200px';
+                
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                let pathData = `M 10,10 `;
+                
+                for (let i = 1; i < constellation.points.length; i++) {
+                    const dx = constellation.points[i][0] - constellation.points[0][0];
+                    const dy = constellation.points[i][1] - constellation.points[0][1];
+                    pathData += `L ${dx + 10} ${dy + 10} `;
+                }
+                
+                path.setAttribute('d', pathData);
+                path.classList.add('constellation-line');
+                svg.appendChild(path);
+                starMap.appendChild(svg);
+                
+                // Add constellation label
+                const label = document.createElement('div');
+                label.className = 'constellation-label';
+                label.textContent = constellation.name;
+                label.style.left = `${constellation.points[2][0]}px`;
+                label.style.top = `${constellation.points[2][1] - 20}px`;
+                starMap.appendChild(label);
+                
+                // Add click event to label
+                label.addEventListener('click', () => {
+                    showConstellationDetails(constellation);
+                });
+            });
+        }
+
+        // Show star details
+        function showStarDetails(star) {
+            detailTitle.textContent = star.name;
+            detailContent.innerHTML = `
+                <p><strong>Type:</strong> ${star.type.replace('-', ' ').toUpperCase()}</p>
+                <p><strong>Apparent Magnitude:</strong> ${star.magnitude}</p>
+                <p><strong>Description:</strong> ${star.description}</p>
+                <p><strong>Coordinates:</strong> X: ${star.x}, Y: ${star.y}</p>
+            `;
+            detailPanel.classList.add('show');
+            
+            // Highlight the star
+            document.querySelectorAll('.star, .planet').forEach(el => {
+                el.classList.remove('highlighted');
+            });
+            const starEl = document.querySelector(`.star[data-id="${star.id}"]`);
+            if (starEl) starEl.classList.add('highlighted');
+        }
+
+        // Show planet details
+        function showPlanetDetails(planet) {
+            detailTitle.textContent = planet.name;
+            detailContent.innerHTML = `
+                <p><strong>Type:</strong> ${planet.type.replace('-', ' ').toUpperCase()}</p>
+                <p><strong>Description:</strong> ${planet.description}</p>
+                <p><strong>Coordinates:</strong> X: ${planet.x}, Y: ${planet.y}</p>
+            `;
+            detailPanel.classList.add('show');
+            
+            // Highlight the planet
+            document.querySelectorAll('.star, .planet').forEach(el => {
+                el.classList.remove('highlighted');
+            });
+            const planetEl = document.querySelector(`.planet[data-id="${planet.id}"]`);
+            if (planetEl) planetEl.classList.add('highlighted');
+        }
+
+        // Show constellation details
+        function showConstellationDetails(constellation) {
+            detailTitle.textContent = constellation.name;
+            detailContent.innerHTML = `
+                <p><strong>Description:</strong> ${constellation.description}</p>
+                <p><strong>Number of Points:</strong> ${constellation.points.length}</p>
+                <p><strong>Shape:</strong> ${constellation.points.length}-point constellation</p>
+            `;
+            detailPanel.classList.add('show');
+        }
+
+        // Update view transform
+        function updateView() {
+            starMap.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${zoom})`;
+            zoomLevel.textContent = `${zoom.toFixed(1)}x`;
+            updateObjectCounter();
+        }
+
+        // Zoom in
+        function zoomIn() {
+            zoom *= 1.2;
+            updateView();
+        }
+
+        // Zoom out
+        function zoomOut() {
+            zoom /= 1.2;
+            updateView();
+        }
+
+        // Reset view
+        function resetView() {
+            zoom = 1;
+            offsetX = 0;
+            offsetY = 0;
+            updateView();
+        }
+
+        // Update object counter
+        function updateObjectCounter() {
+            const visibleStars = document.querySelectorAll('.star:not([style*="display: none"])').length;
+            const visiblePlanets = document.querySelectorAll('.planet:not([style*="display: none"])').length;
+            objectCounter.textContent = `Stars: ${visibleStars} | Planets: ${visiblePlanets}`;
+            
+            // Update sidebar stats
+            document.getElementById('totalStars').textContent = stars.length;
+            document.getElementById('totalPlanets').textContent = planets.length;
+            document.getElementById('totalConstellations').textContent = constellations.length;
+            document.getElementById('visibleObjects').textContent = visibleStars + visiblePlanets;
+        }
+
+        // Initialize filters
+        function initFilters() {
+            const checkboxes = document.querySelectorAll('.filter-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', applyFilters);
+            });
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const showMainSeq = document.getElementById('filterMainSeq').checked;
+            const showRedGiant = document.getElementById('filterRedGiant').checked;
+            const showBlueGiant = document.getElementById('filterBlueGiant').checked;
+            const showWhiteDwarf = document.getElementById('filterWhiteDwarf').checked;
+            const showSupergiant = document.getElementById('filterSupergiant').checked;
+            
+            const showTerrestrial = document.getElementById('filterTerrestrial').checked;
+            const showGasGiant = document.getElementById('filterGasGiant').checked;
+            const showIceGiant = document.getElementById('filterIceGiant').checked;
+            const showExoplanet = document.getElementById('filterExoplanet').checked;
+            const showDwarf = document.getElementById('filterDwarf').checked;
+            
+            const showConstellations = document.getElementById('filterConstellations').checked;
+            const showLabels = document.getElementById('filterLabels').checked;
+            
+            // Filter stars
+            document.querySelectorAll('.star').forEach(star => {
+                const type = star.classList[1];
+                let visible = false;
+                
+                if (type === 'main-sequence' && showMainSeq) visible = true;
+                if (type === 'red-giant' && showRedGiant) visible = true;
+                if (type === 'blue-giant' && showBlueGiant) visible = true;
+                if (type === 'white-dwarf' && showWhiteDwarf) visible = true;
+                if (type === 'supergiant' && showSupergiant) visible = true;
+                
+                star.style.display = visible ? 'block' : 'none';
+            });
+            
+            // Filter planets
+            document.querySelectorAll('.planet').forEach(planet => {
+                const type = planet.classList[1];
+                let visible = false;
+                
+                if (type === 'terrestrial' && showTerrestrial) visible = true;
+                if (type === 'gas-giant' && showGasGiant) visible = true;
+                if (type === 'ice-giant' && showIceGiant) visible = true;
+                if (type === 'exoplanet' && showExoplanet) visible = true;
+                if (type === 'dwarf' && showDwarf) visible = true;
+                
+                planet.style.display = visible ? 'block' : 'none';
+            });
+            
+            // Filter constellations
+            document.querySelectorAll('.constellation, .constellation-label').forEach(el => {
+                el.style.display = showConstellations ? 'block' : 'none';
+            });
+            
+            // Filter labels
+            document.querySelectorAll('.star-label, .planet-label').forEach(label => {
+                label.style.opacity = showLabels ? '0' : '0';
+            });
+            
+            updateObjectCounter();
+        }
+
+        // Search functionality
+        function initSearch() {
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                
+                if (searchTerm === '') {
+                    // Reset all highlights
+                    document.querySelectorAll('.star, .planet').forEach(el => {
+                        el.classList.remove('highlighted');
+                    });
+                    return;
+                }
+                
+                // Search in stars
+                stars.forEach(star => {
+                    if (star.name.toLowerCase().includes(searchTerm)) {
+                        const starEl = document.querySelector(`.star[data-id="${star.id}"]`);
+                        if (starEl) {
+                            starEl.classList.add('highlighted');
+                            // Center view on found object
+                            const rect = starMap.getBoundingClientRect();
+                            const containerRect = mapContainer.getBoundingClientRect();
+                            offsetX = -star.x * zoom + containerRect.width / 2;
+                            offsetY = -star.y * zoom + containerRect.height / 2;
+                            updateView();
+                        }
+                    }
+                });
+                
+                // Search in planets
+                planets.forEach(planet => {
+                    if (planet.name.toLowerCase().includes(searchTerm)) {
+                        const planetEl = document.querySelector(`.planet[data-id="${planet.id}"]`);
+                        if (planetEl) {
+                            planetEl.classList.add('highlighted');
+                        }
+                    }
+                });
+            });
+        }
+
+        // Initialize dragging
+        function initDragging() {
+            mapContainer.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.star, .planet, .constellation-label, .zoom-controls, .zoom-level, .instructions, .object-counter')) {
+                    return;
+                }
+                
+                isDragging = true;
+                lastX = e.clientX;
+                lastY = e.clientY;
+                mapContainer.style.cursor = 'grabbing';
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                
+                const dx = e.clientX - lastX;
+                const dy = e.clientY - lastY;
+                
+                offsetX += dx / zoom;
+                offsetY += dy / zoom;
+                
+                lastX = e.clientX;
+                lastY = e.clientY;
+                
+                updateView();
+            });
+            
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                mapContainer.style.cursor = 'default';
+            });
+            
+            // Mouse wheel zoom
+            mapContainer.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                
+                const rect = mapContainer.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                const worldX = (mouseX - offsetX) / zoom;
+                const worldY = (mouseY - offsetY) / zoom;
+                
+                if (e.deltaY < 0) {
+                    zoom *= 1.1;
+                } else {
+                    zoom /= 1.1;
+                }
+                
+                // Keep zoom within bounds
+                zoom = Math.max(0.1, Math.min(10, zoom));
+                
+                offsetX = mouseX - worldX * zoom;
+                offsetY = mouseY - worldY * zoom;
+                
+                updateView();
+            });
+        }
+
+        // Fullscreen functionality
+        function initFullscreen() {
+            fullscreenBtn.addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                    });
+                    fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i> Exit Fullscreen';
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                        fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i> Fullscreen';
+                    }
+                }
+            });
+            
+            // Update button text when exiting fullscreen with ESC
+            document.addEventListener('fullscreenchange', () => {
+                if (!document.fullscreenElement) {
+                    fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i> Fullscreen';
+                }
+            });
+        }
+
+        // Initialize everything
+        function init() {
+            generateStars();
+            generatePlanets();
+            generateConstellations();
+            initFilters();
+            initSearch();
+            initDragging();
+            initFullscreen();
+            updateView();
+            updateObjectCounter();
+            
+            // Event listeners
+            zoomInBtn.addEventListener('click', zoomIn);
+            zoomOutBtn.addEventListener('click', zoomOut);
+            resetViewBtn.addEventListener('click', resetView);
+            closeDetails.addEventListener('click', () => {
+                detailPanel.classList.remove('show');
+                document.querySelectorAll('.star, .planet').forEach(el => {
+                    el.classList.remove('highlighted');
+                });
+            });
+            
+            toggleSidebar.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+            });
+            
+            // Close details when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!detailPanel.contains(e.target) && !e.target.closest('.star, .planet, .constellation-label')) {
+                    detailPanel.classList.remove('show');
+                    document.querySelectorAll('.star, .planet').forEach(el => {
+                        el.classList.remove('highlighted');
+                    });
+                }
+            });
+            
+            // Apply initial filters
+            applyFilters();
+        }
+
+        // Start when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

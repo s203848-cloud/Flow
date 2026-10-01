@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Economics Tools | Supply & Demand</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.8);
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 10px 20px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 8px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .section {
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .section:hover {
+            transform: translateY(-5px);
+        }
+        
+        .input-section {
+            grid-column: 1;
+        }
+        
+        .chart-section {
+            grid-column: 2;
+            grid-row: span 2;
+        }
+        
+        .results-section {
+            grid-column: 1;
+        }
+        
+        h2 {
+            margin-bottom: 20px;
+            color: #ff8000;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #ccc;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 8px rgba(255, 128, 0, 0.4);
+        }
+        
+        .btn {
+            padding: 15px 25px;
+            background: linear-gradient(to right, #ff7e00, #ff4500);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(to right, #ff8c1a, #ff5500);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 69, 0, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 350px;
+            margin-top: 10px;
+            position: relative;
+        }
+        
+        .results-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .result-box {
+            background: rgba(30, 30, 50, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border-left: 4px solid #ff8000;
+        }
+        
+        .result-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ff8000;
+            margin: 10px 0;
+        }
+        
+        .result-label {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        .analysis-box {
+            background: rgba(30, 30, 50, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-top: 2px solid rgba(255, 69, 0, 0.5);
+        }
+        
+        .analysis-box h3 {
+            color: #ff8000;
+            margin-bottom: 15px;
+        }
+        
+        .analysis-box p {
+            line-height: 1.6;
+            color: #ddd;
+        }
+        
+        .info-text {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .price-levels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 69, 0, 0.2);
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-section, .chart-section, .results-section {
+                grid-column: 1;
+            }
+            
+            .chart-section {
+                grid-row: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        <span style="font-size: 1.5rem; font-weight: bold; color: #ff8000;">
+            <i class="fas fa-chart-line"></i> Economics: Supply & Demand
+        </span>
+    </div>
+    
+    <div class="container">
+        <!-- Input Section -->
+        <div class="section input-section">
+            <h2><i class="fas fa-edit"></i> Input Parameters</h2>
+            
+            <div class="input-group">
+                <label for="price"><i class="fas fa-tag"></i> Current Price ($)</label>
+                <input type="number" id="price" placeholder="Enter current price" value="50" min="1" step="0.5">
+                <div class="info-text">The current market price of the product</div>
+            </div>
+            
+            <div class="input-group">
+                <label for="supply"><i class="fas fa-arrow-up"></i> Quantity Supplied</label>
+                <input type="number" id="supply" placeholder="Enter quantity supplied" value="200" min="0" step="10">
+                <div class="info-text">Number of units producers are willing to supply at current price</div>
+            </div>
+            
+            <div class="input-group">
+                <label for="demand"><i class="fas fa-arrow-down"></i> Quantity Demanded</label>
+                <input type="number" id="demand" placeholder="Enter quantity demanded" value="180" min="0" step="10">
+                <div class="info-text">Number of units consumers are willing to buy at current price</div>
+            </div>
+            
+            <div class="input-group">
+                <label for="elasticity"><i class="fas fa-expand-arrows-alt"></i> Price Elasticity</label>
+                <select id="elasticity">
+                    <option value="1.2">Elastic (1.2)</option>
+                    <option value="1.0" selected>Unit Elastic (1.0)</option>
+                    <option value="0.8">Inelastic (0.8)</option>
+                </select>
+                <div class="info-text">How responsive quantity is to price changes</div>
+            </div>
+            
+            <button class="btn" id="analyzeBtn">
+                <i class="fas fa-chart-bar"></i> Analyze Supply & Demand
+            </button>
+        </div>
+        
+        <!-- Chart Section -->
+        <div class="section chart-section">
+            <h2><i class="fas fa-chart-line"></i> Supply & Demand Chart</h2>
+            <div class="chart-container">
+                <canvas id="economicsChart"></canvas>
+            </div>
+            <div class="price-levels">
+                <span>Low Price</span>
+                <span>Market Price</span>
+                <span>High Price</span>
+            </div>
+        </div>
+        
+        <!-- Results Section -->
+        <div class="section results-section">
+            <h2><i class="fas fa-poll"></i> Market Analysis</h2>
+            
+            <div class="results-container">
+                <div class="result-box">
+                    <div class="result-label">Market Status</div>
+                    <div class="result-value" id="marketStatus">Surplus</div>
+                    <div class="info-text">Based on current supply & demand</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-label">Equilibrium Price</div>
+                    <div class="result-value" id="eqPrice">$45.00</div>
+                    <div class="info-text">Price where Qs = Qd</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-label">Price Change Needed</div>
+                    <div class="result-value" id="priceChange">-10%</div>
+                    <div class="info-text">To reach equilibrium</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-label">Surplus/Shortage</div>
+                    <div class="result-value" id="surplusShortage">20 units</div>
+                    <div class="info-text">Current market imbalance</div>
+                </div>
+            </div>
+            
+            <div class="analysis-box">
+                <h3><i class="fas fa-lightbulb"></i> Market Analysis</h3>
+                <p id="analysisText">The market is currently experiencing a surplus of 20 units. This means at the current price of $50, suppliers are offering more products than consumers are willing to buy. To reach equilibrium, the price should decrease by approximately 10% to $45, where quantity supplied equals quantity demanded.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>Economics Supply & Demand Tool | Created for educational purposes</p>
+        <p>This tool demonstrates basic supply and demand principles in economics</p>
+    </div>
+
+    <script>
+        // Initialize Chart
+        const ctx = document.getElementById('economicsChart').getContext('2d');
+        let economicsChart = null;
+        
+        // DOM Elements
+        const priceInput = document.getElementById('price');
+        const supplyInput = document.getElementById('supply');
+        const demandInput = document.getElementById('demand');
+        const elasticitySelect = document.getElementById('elasticity');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        
+        // Results Elements
+        const marketStatusEl = document.getElementById('marketStatus');
+        const eqPriceEl = document.getElementById('eqPrice');
+        const priceChangeEl = document.getElementById('priceChange');
+        const surplusShortageEl = document.getElementById('surplusShortage');
+        const analysisTextEl = document.getElementById('analysisText');
+        
+        // Initialize chart on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            createChart();
+            analyzeMarket();
+        });
+        
+        // Analyze button click event
+        analyzeBtn.addEventListener('click', analyzeMarket);
+        
+        // Function to analyze the market
+        function analyzeMarket() {
+            // Get input values
+            const price = parseFloat(priceInput.value);
+            const supply = parseFloat(supplyInput.value);
+            const demand = parseFloat(demandInput.value);
+            const elasticity = parseFloat(elasticitySelect.value);
+            
+            // Validate inputs
+            if (isNaN(price) || isNaN(supply) || isNaN(demand) || price <= 0) {
+                alert("Please enter valid positive numbers for all fields");
+                return;
+            }
+            
+            // Calculate market metrics
+            const surplusShortage = supply - demand;
+            const equilibriumPrice = calculateEquilibriumPrice(price, supply, demand, elasticity);
+            const priceChangePercent = ((equilibriumPrice - price) / price * 100).toFixed(1);
+            
+            // Update UI with results
+            updateResults(price, supply, demand, surplusShortage, equilibriumPrice, priceChangePercent);
+            
+            // Update the chart
+            updateChart(price, supply, demand, equilibriumPrice, elasticity);
+            
+            // Update analysis text
+            updateAnalysisText(price, supply, demand, surplusShortage, equilibriumPrice, priceChangePercent);
+        }
+        
+        // Function to calculate equilibrium price
+        function calculateEquilibriumPrice(price, supply, demand, elasticity) {
+            // Simple equilibrium calculation based on elasticity and current imbalance
+            const imbalance = supply - demand;
+            
+            if (imbalance === 0) {
+                return price; // Already at equilibrium
+            }
+            
+            // Adjust price based on elasticity and imbalance
+            const adjustmentFactor = imbalance / (supply + demand) * (1 / elasticity);
+            const equilibriumPrice = price * (1 - adjustmentFactor);
+            
+            // Ensure equilibrium price is reasonable
+            return Math.max(equilibriumPrice, price * 0.5, 1);
+        }
+        
+        // Function to update results in UI
+        function updateResults(price, supply, demand, surplusShortage, equilibriumPrice, priceChangePercent) {
+            // Determine market status
+            let marketStatus = "Equilibrium";
+            let statusColor = "#4CAF50";
+            
+            if (surplusShortage > 0) {
+                marketStatus = "Surplus";
+                statusColor = "#FF5722";
+            } else if (surplusShortage < 0) {
+                marketStatus = "Shortage";
+                statusColor = "#2196F3";
+            }
+            
+            // Update market status
+            marketStatusEl.textContent = marketStatus;
+            marketStatusEl.style.color = statusColor;
+            
+            // Update equilibrium price
+            eqPriceEl.textContent = "$" + equilibriumPrice.toFixed(2);
+            
+            // Update price change
+            priceChangeEl.textContent = priceChangePercent + "%";
+            priceChangeEl.style.color = priceChangePercent >= 0 ? "#4CAF50" : "#FF5722";
+            
+            // Update surplus/shortage
+            const absoluteImbalance = Math.abs(surplusShortage);
+            surplusShortageEl.textContent = absoluteImbalance + " units";
+            surplusShortageEl.style.color = surplusShortage > 0 ? "#FF5722" : "#2196F3";
+        }
+        
+        // Function to update analysis text
+        function updateAnalysisText(price, supply, demand, surplusShortage, equilibriumPrice, priceChangePercent) {
+            let analysis = "";
+            
+            if (surplusShortage > 0) {
+                analysis = `The market is currently experiencing a <strong>surplus of ${Math.abs(surplusShortage)} units</strong>. This means at the current price of $${price.toFixed(2)}, suppliers are offering more products than consumers are willing to buy. To reach equilibrium, the price should <strong>decrease by approximately ${Math.abs(priceChangePercent)}% to $${equilibriumPrice.toFixed(2)}</strong>, where quantity supplied equals quantity demanded.`;
+            } else if (surplusShortage < 0) {
+                analysis = `The market is currently experiencing a <strong>shortage of ${Math.abs(surplusShortage)} units</strong>. This means at the current price of $${price.toFixed(2)}, consumers want to buy more products than suppliers are offering. To reach equilibrium, the price should <strong>increase by approximately ${Math.abs(priceChangePercent)}% to $${equilibriumPrice.toFixed(2)}</strong>, where quantity supplied equals quantity demanded.`;
+            } else {
+                analysis = `The market is currently in <strong>equilibrium</strong>. At the price of $${price.toFixed(2)}, the quantity supplied (${supply} units) exactly matches the quantity demanded (${demand} units). This is the most efficient market state where there is no surplus or shortage.`;
+            }
+            
+            analysisTextEl.innerHTML = analysis;
+        }
+        
+        // Function to create the chart
+        function createChart() {
+            if (economicsChart) {
+                economicsChart.destroy();
+            }
+            
+            const price = parseFloat(priceInput.value);
+            const supply = parseFloat(supplyInput.value);
+            const demand = parseFloat(demandInput.value);
+            const elasticity = parseFloat(elasticitySelect.value);
+            const equilibriumPrice = calculateEquilibriumPrice(price, supply, demand, elasticity);
+            
+            // Generate data points for the chart
+            const prices = [];
+            const supplies = [];
+            const demands = [];
+            
+            const minPrice = Math.min(price * 0.5, equilibriumPrice * 0.8);
+            const maxPrice = Math.max(price * 1.5, equilibriumPrice * 1.2);
+            
+            for (let p = minPrice; p <= maxPrice; p += (maxPrice - minPrice) / 10) {
+                prices.push(p);
+                
+                // Calculate supply and demand at this price
+                // Supply increases with price
+                const supplyAtPrice = supply * (1 + elasticity * (p - price) / price);
+                supplies.push(Math.max(supplyAtPrice, 0));
+                
+                // Demand decreases with price
+                const demandAtPrice = demand * (1 - elasticity * (p - price) / price);
+                demands.push(Math.max(demandAtPrice, 0));
+            }
+            
+            // Create the chart
+            economicsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: prices.map(p => "$" + p.toFixed(0)),
+                    datasets: [
+                        {
+                            label: 'Supply',
+                            data: supplies,
+                            borderColor: '#FF5722',
+                            backgroundColor: 'rgba(255, 87, 34, 0.1)',
+                            borderWidth: 3,
+                            fill: false,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Demand',
+                            data: demands,
+                            borderColor: '#2196F3',
+                            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                            borderWidth: 3,
+                            fill: false,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Current Price',
+                            data: Array(prices.length).fill(null),
+                            pointBackgroundColor: '#FFC107',
+                            pointBorderColor: '#FFC107',
+                            pointRadius: 8,
+                            pointHoverRadius: 10,
+                            showLine: false,
+                            type: 'scatter',
+                            pointStyle: 'rectRot'
+                        },
+                        {
+                            label: 'Equilibrium',
+                            data: Array(prices.length).fill(null),
+                            pointBackgroundColor: '#4CAF50',
+                            pointBorderColor: '#4CAF50',
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            showLine: false,
+                            type: 'scatter'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#fff',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(20, 20, 35, 0.9)',
+                            titleColor: '#ff8000',
+                            bodyColor: '#fff',
+                            borderColor: '#ff8000',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Price ($)',
+                                color: '#ccc'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#ccc'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Quantity',
+                                color: '#ccc'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#ccc'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            updateChart(price, supply, demand, equilibriumPrice, elasticity);
+        }
+        
+        // Function to update the chart with current data
+        function updateChart(price, supply, demand, equilibriumPrice, elasticity) {
+            if (!economicsChart) return;
+            
+            // Update datasets with current price and equilibrium markers
+            const priceIndex = economicsChart.data.labels.findIndex(label => {
+                const labelPrice = parseFloat(label.replace('$', ''));
+                return Math.abs(labelPrice - price) < (price * 0.1);
+            });
+            
+            const eqIndex = economicsChart.data.labels.findIndex(label => {
+                const labelPrice = parseFloat(label.replace('$', ''));
+                return Math.abs(labelPrice - equilibriumPrice) < (equilibriumPrice * 0.1);
+            });
+            
+            // Update current price marker
+            const currentPriceData = Array(economicsChart.data.labels.length).fill(null);
+            if (priceIndex >= 0) {
+                const supplyAtPrice = supply * (1 + elasticity * (price - price) / price);
+                const demandAtPrice = demand * (1 - elasticity * (price - price) / price);
+                currentPriceData[priceIndex] = (supplyAtPrice + demandAtPrice) / 2;
+            }
+            
+            // Update equilibrium price marker
+            const equilibriumData = Array(economicsChart.data.labels.length).fill(null);
+            if (eqIndex >= 0) {
+                const supplyAtEq = supply * (1 + elasticity * (equilibriumPrice - price) / price);
+                const demandAtEq = demand * (1 - elasticity * (equilibriumPrice - price) / price);
+                equilibriumData[eqIndex] = (supplyAtEq + demandAtEq) / 2;
+            }
+            
+            economicsChart.data.datasets[2].data = currentPriceData;
+            economicsChart.data.datasets[3].data = equilibriumData;
+            
+            economicsChart.update();
+        }
+    </script>
+</body>
+</html>

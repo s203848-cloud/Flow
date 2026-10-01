@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Simple web title based on the requirement -->
+    <title>IP Address Info · current & search</title>
+    <!-- Font Awesome 6 (free) for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* === base & given color scheme === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* top navigation bar – exactly as provided with back button */
+        .navbar {
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 40px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: background 0.2s, transform 0.1s;
+            backdrop-filter: blur(4px);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: scale(1.02);
+        }
+
+        .back-btn i {
+            font-size: 0.9rem;
+        }
+
+        /* main card – glassy, modern container */
+        .ip-card {
+            background: rgba(20, 15, 35, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 128, 0, 0.25);
+            border-radius: 36px;
+            padding: 30px 28px;
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 0 25px 40px -10px rgba(0,0,0,0.6);
+            transition: 0.2s;
+        }
+
+        .ip-card h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ip-card h1 i {
+            color: #ff8000;
+            font-size: 2rem;
+        }
+
+        .subhead {
+            color: #bbb;
+            margin-bottom: 24px;
+            border-left: 4px solid #ff8000;
+            padding-left: 18px;
+            font-weight: 300;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* tab navigation */
+        .tab-bar {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+        .tab {
+            padding: 6px 16px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 40px;
+            color: #ffb070;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            backdrop-filter: blur(4px);
+        }
+        .tab i {
+            margin-right: 6px;
+        }
+        .tab:hover {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+            color: #ffc285;
+        }
+        .tab.active {
+            background: #ff8000;
+            border-color: #ff8000;
+            color: #0a0a1a;
+        }
+
+        /* search input area */
+        .search-panel {
+            margin: 20px 0 25px;
+        }
+        .search-box {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            border-radius: 60px;
+            padding: 4px 4px 4px 20px;
+            border: 1px solid rgba(255,128,0,0.3);
+        }
+        .search-box i {
+            color: #ff8000;
+            font-size: 1rem;
+        }
+        .search-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 14px 0;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+        .search-box input::placeholder {
+            color: #aaa;
+            font-weight: 300;
+        }
+        .search-box button {
+            background: rgba(255,128,0,0.2);
+            border: 1px solid #ff8000;
+            border-radius: 60px;
+            padding: 10px 24px;
+            color: #ff8000;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .search-box button:hover {
+            background: rgba(255,128,0,0.3);
+            transform: scale(1.02);
+        }
+
+        /* info grid (shared) */
+        .info-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            margin: 20px 0 20px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 20px;
+            border: 1px solid rgba(255,128,0,0.15);
+        }
+
+        .info-label {
+            width: 110px;
+            font-weight: 500;
+            color: #ffaa55;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            flex: 1;
+            font-weight: 500;
+            font-size: 1.25rem;
+            word-break: break-word;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .info-value small {
+            font-size: 0.85rem;
+            color: #aaa;
+            font-weight: 400;
+        }
+
+        .flag-badge {
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 40px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #ffc285;
+            display: inline-block;
+            margin-left: 8px;
+            text-transform: uppercase;
+        }
+
+        .map-link {
+            color: #ff8000;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 12px;
+            border-bottom: 1px dashed #ff8000;
+        }
+        .map-link:hover {
+            color: #ffb055;
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 25px;
+            border-top: 1px solid rgba(255,128,0,0.2);
+            padding-top: 25px;
+        }
+
+        .refresh-btn {
+            background: transparent;
+            border: 1px solid #ff8000;
+            color: #ff8000;
+            padding: 12px 26px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.2s;
+            backdrop-filter: blur(4px);
+        }
+
+        .refresh-btn:hover {
+            background: rgba(255, 128, 0, 0.15);
+            transform: scale(1.02);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,128,0,0.3);
+            border-radius: 50%;
+            border-top-color: #ff8000;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .error-message {
+            color: #ff7b7b;
+            background: rgba(180, 0, 0, 0.2);
+            border: 1px solid #ff5e5e;
+            border-radius: 24px;
+            padding: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .empty-message {
+            color: #aaa;
+            background: rgba(255,128,0,0.05);
+            border-radius: 24px;
+            padding: 40px 20px;
+            text-align: center;
+            font-size: 1.1rem;
+            border: 1px dashed rgba(255,128,0,0.3);
+        }
+
+        .footer-note {
+            margin-top: 30px;
+            font-size: 0.75rem;
+            color: #666;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <div class="ip-card">
+        <h1>
+            <i class="fas fa-network-wired"></i> IP Address Info
+        </h1>
+        <div class="subhead">
+            <span><i class="fas fa-map-pin" style="color:#ff8000; margin-right:6px;"></i> public IP & geolocation</span>
+            <!-- tabs added here -->
+            <div class="tab-bar" id="tabBar">
+                <div class="tab active" id="tabCurrent"><i class="fas fa-eye"></i> Current</div>
+                <div class="tab" id="tabSearch"><i class="fas fa-search"></i> Search</div>
+            </div>
+        </div>
+
+        <!-- ========== CURRENT TAB CONTENT ========== -->
+        <div id="currentPanel">
+            <!-- dynamic content for current IP (loading, info, error) -->
+            <div id="currentLoading" style="display: flex; justify-content: center; padding: 40px 0;">
+                <div class="loading"></div>
+                <span style="margin-left: 15px; color: #ccc;">Locating your IP ...</span>
+            </div>
+            <div id="currentInfoContainer" style="display: none;"></div>
+            <div id="currentErrorContainer" style="display: none;"></div>
+        </div>
+
+        <!-- ========== SEARCH TAB CONTENT ========== (hidden by default) -->
+        <div id="searchPanel" class="hidden">
+            <div class="search-panel">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="IP address or domain (e.g., 8.8.8.8 or example.com)">
+                    <button id="searchBtn"><i class="fas fa-arrow-right"></i> Lookup</button>
+                </div>
+            </div>
+            <!-- search results area -->
+            <div id="searchLoading" style="display: none; justify-content: center; padding: 30px 0;">
+                <div class="loading"></div>
+                <span style="margin-left: 15px; color: #ccc;">Searching ...</span>
+            </div>
+            <div id="searchInfoContainer" style="display: none;"></div>
+            <div id="searchErrorContainer" style="display: none;"></div>
+            <div id="searchEmptyContainer" class="empty-message">
+                <i class="fas fa-globe" style="color:#ff8000;"></i> Enter an IP or domain to look up
+            </div>
+        </div>
+
+        <!-- refresh button (only relevant for current tab, but we can keep it universal) -->
+        <div class="action-bar">
+            <button class="refresh-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh current</button>
+        </div>
+        <div class="footer-note">
+            <i class="fas fa-shield-alt" style="color:#ff8000;"></i> data by ip-api.com (free, 45 req/min)
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ----- DOM elements -----
+            const tabCurrent = document.getElementById('tabCurrent');
+            const tabSearch = document.getElementById('tabSearch');
+            const currentPanel = document.getElementById('currentPanel');
+            const searchPanel = document.getElementById('searchPanel');
+
+            // Current tab sub-elements
+            const currentLoading = document.getElementById('currentLoading');
+            const currentInfoContainer = document.getElementById('currentInfoContainer');
+            const currentErrorContainer = document.getElementById('currentErrorContainer');
+
+            // Search tab sub-elements
+            const searchLoading = document.getElementById('searchLoading');
+            const searchInfoContainer = document.getElementById('searchInfoContainer');
+            const searchErrorContainer = document.getElementById('searchErrorContainer');
+            const searchEmptyContainer = document.getElementById('searchEmptyContainer');
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+
+            const refreshBtn = document.getElementById('refreshBtn');
+
+            // ----- helper functions for UI -----
+            function setActiveTab(tab) {
+                tabCurrent.classList.remove('active');
+                tabSearch.classList.remove('active');
+                if (tab === 'current') {
+                    tabCurrent.classList.add('active');
+                    currentPanel.classList.remove('hidden');
+                    searchPanel.classList.add('hidden');
+                } else {
+                    tabSearch.classList.add('active');
+                    currentPanel.classList.add('hidden');
+                    searchPanel.classList.remove('hidden');
+                }
+            }
+
+            // Current IP display helpers
+            function showCurrentLoading(visible) {
+                currentLoading.style.display = visible ? 'flex' : 'none';
+            }
+            function showCurrentInfo(data) {
+                currentInfoContainer.style.display = 'block';
+                currentErrorContainer.style.display = 'none';
+                renderInfo(data, currentInfoContainer);
+            }
+            function showCurrentError(message) {
+                currentInfoContainer.style.display = 'none';
+                currentErrorContainer.style.display = 'block';
+                currentErrorContainer.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle" style="margin-right:8px;"></i>${message}</div>`;
+            }
+
+            // Search display helpers
+            function showSearchLoading(visible) {
+                searchLoading.style.display = visible ? 'flex' : 'none';
+                if (visible) {
+                    searchInfoContainer.style.display = 'none';
+                    searchErrorContainer.style.display = 'none';
+                    searchEmptyContainer.style.display = 'none';
+                }
+            }
+            function showSearchInfo(data) {
+                searchLoading.style.display = 'none';
+                searchInfoContainer.style.display = 'block';
+                searchErrorContainer.style.display = 'none';
+                searchEmptyContainer.style.display = 'none';
+                renderInfo(data, searchInfoContainer);
+            }
+            function showSearchError(message) {
+                searchLoading.style.display = 'none';
+                searchInfoContainer.style.display = 'none';
+                searchErrorContainer.style.display = 'block';
+                searchEmptyContainer.style.display = 'none';
+                searchErrorContainer.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle" style="margin-right:8px;"></i>${message}</div>`;
+            }
+            function showSearchEmpty() {
+                searchLoading.style.display = 'none';
+                searchInfoContainer.style.display = 'none';
+                searchErrorContainer.style.display = 'none';
+                searchEmptyContainer.style.display = 'block';
+            }
+
+            // Common render function for IP data (places into given container)
+            function renderInfo(d, container) {
+                const ip = d.query || 'N/A';
+                const country = d.country || 'N/A';
+                const region = d.regionName || '';
+                const city = d.city || '';
+                const lat = d.lat;
+                const lon = d.lon;
+                const isp = d.isp || 'N/A';
+                const org = d.org || 'N/A';
+                const as = d.as || '';
+                const mobile = d.mobile ? '<span class="flag-badge"><i class="fas fa-mobile-alt"></i> mobile</span>' : '';
+                const proxy = d.proxy ? '<span class="flag-badge"><i class="fas fa-user-secret"></i> proxy/vpn</span>' : '';
+                const hosting = d.hosting ? '<span class="flag-badge"><i class="fas fa-cloud"></i> hosting</span>' : '';
+
+                let mapLink = '';
+                if (lat && lon && lat !== 'N/A' && lon !== 'N/A') {
+                    mapLink = `<a class="map-link" target="_blank" href="https://www.google.com/maps?q=${lat},${lon}"><i class="fas fa-map-marked-alt"></i> view on map</a>`;
+                }
+
+                const locationString = [city, region, country].filter(Boolean).join(', ') || 'Unknown location';
+
+                container.innerHTML = `
+                    <div class="info-grid">
+                        <div class="info-row">
+                            <span class="info-label"><i class="fas fa-ip"></i> IP address</span>
+                            <span class="info-value">${ip} ${mobile}${proxy}${hosting}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label"><i class="fas fa-location-dot"></i> location</span>
+                            <span class="info-value">${locationString} ${mapLink}</span>
+                        </div>
+                        ${ (lat && lon && lat !== 'N/A' && lon !== 'N/A') ? `
+                        <div class="info-row">
+                            <span class="info-label"><i class="fas fa-globe"></i> coordinates</span>
+                            <span class="info-value">${lat}, ${lon} <small>(lat, lon)</small></span>
+                        </div>` : '' }
+                        <div class="info-row">
+                            <span class="info-label"><i class="fas fa-building"></i> ISP</span>
+                            <span class="info-value">${isp}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label"><i class="fas fa-diagram-project"></i> organization</span>
+                            <span class="info-value">${org} ${as ? '<small>'+as+'</small>' : ''}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // ----- API call for current IP -----
+            async function fetchCurrentIP() {
+                showCurrentLoading(true);
+                currentInfoContainer.style.display = 'none';
+                currentErrorContainer.style.display = 'none';
+
+                try {
+                    const response = await fetch('http://ip-api.com/json/?fields=status,message,country,regionName,city,lat,lon,isp,org,as,mobile,proxy,hosting,query');
+                    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+                    const data = await response.json();
+                    if (data.status === 'fail') throw new Error(data.message || 'Unable to retrieve location');
+                    showCurrentInfo(data);
+                } catch (err) {
+                    console.warn('Current IP fetch error:', err);
+                    showCurrentError(`Could not fetch IP information. ${err.message || 'Please try again later.'}`);
+                } finally {
+                    showCurrentLoading(false);
+                }
+            }
+
+            // ----- API call for search query (IP or domain) -----
+            async function fetchIPForQuery(query) {
+                if (!query.trim()) {
+                    showSearchError('Please enter an IP address or domain.');
+                    return;
+                }
+
+                showSearchLoading(true);
+                // encode query component for URL
+                const encoded = encodeURIComponent(query.trim());
+                try {
+                    const response = await fetch(`http://ip-api.com/json/${encoded}?fields=status,message,country,regionName,city,lat,lon,isp,org,as,mobile,proxy,hosting,query`);
+                    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+                    const data = await response.json();
+                    if (data.status === 'fail') throw new Error(data.message || 'Invalid IP or domain, or rate limit.');
+                    showSearchInfo(data);
+                } catch (err) {
+                    console.warn('Search fetch error:', err);
+                    showSearchError(`Lookup failed: ${err.message}`);
+                } finally {
+                    showSearchLoading(false);
+                }
+            }
+
+            // ----- Event listeners -----
+            tabCurrent.addEventListener('click', () => {
+                setActiveTab('current');
+            });
+
+            tabSearch.addEventListener('click', () => {
+                setActiveTab('search');
+                // if no previous search, show empty
+                if (searchInfoContainer.style.display !== 'block' && searchErrorContainer.style.display !== 'block') {
+                    showSearchEmpty();
+                }
+            });
+
+            refreshBtn.addEventListener('click', () => {
+                // if current tab is active, refresh current; otherwise switch to current and refresh
+                if (searchPanel.classList.contains('hidden')) {
+                    fetchCurrentIP();
+                } else {
+                    setActiveTab('current');
+                    fetchCurrentIP();
+                }
+            });
+
+            searchBtn.addEventListener('click', () => {
+                fetchIPForQuery(searchInput.value);
+            });
+
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    fetchIPForQuery(searchInput.value);
+                }
+            });
+
+            // initial load: fetch current IP
+            fetchCurrentIP();
+
+            // optional: if user clicks search tab before any search, show empty state
+            // already handled in tab click
+        })();
+    </script>
+</body>
+</html>

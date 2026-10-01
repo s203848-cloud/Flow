@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Board</title>
+    <!-- Font Awesome 6 (free) for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #f0f0f0;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* top navigation bar – exactly as provided */
+        .navbar {
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: background 0.2s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+
+        .back-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* main board toolbar */
+        .board-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(10, 10, 26, 0.6);
+            backdrop-filter: blur(4px);
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            align-items: center;
+        }
+
+        .tool-btn {
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid #ff8000;
+            color: #ff8000;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .tool-btn:hover {
+            background: rgba(255, 128, 0, 0.25);
+            box-shadow: 0 0 8px rgba(255, 128, 0, 0.4);
+        }
+
+        .tool-btn i {
+            font-size: 1rem;
+        }
+
+        .tool-btn.danger {
+            border-color: #ff4d4d;
+            color: #ff8080;
+            background: rgba(255, 77, 77, 0.1);
+        }
+
+        .tool-btn.danger:hover {
+            background: rgba(255, 77, 77, 0.2);
+        }
+
+        .spacer {
+            flex: 1;
+        }
+
+        .info-badge {
+            color: #ff8000;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            border-left: 1px solid #ff8000;
+            padding-left: 15px;
+            margin-left: 5px;
+        }
+
+        /* board container – scrollable canvas */
+        .board-wrapper {
+            flex: 1;
+            min-height: 0;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            overflow: auto;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        #board {
+            position: relative;
+            width: 2000px;           /* large canvas for free movement */
+            height: 1500px;
+            background-image: radial-gradient(circle at 20px 20px, rgba(255,128,0,0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-color: rgba(0,0,0,0.2);
+            margin: 0;
+        }
+
+        /* note card styling */
+        .note {
+            position: absolute;
+            width: 240px;
+            background: #25253a;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,128,0,0.3);
+            backdrop-filter: blur(2px);
+            transition: box-shadow 0.1s;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+            z-index: 1;
+        }
+
+        .note.dragging {
+            box-shadow: 0 15px 30px rgba(255,128,0,0.4), 0 0 0 2px #ff8000;
+            opacity: 0.95;
+            cursor: grabbing;
+        }
+
+        .note-header {
+            padding: 8px 12px;
+            background: #1e1e30;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #ff8000;
+            cursor: grab;
+            color: #ff8000;
+        }
+
+        .note-header:active {
+            cursor: grabbing;
+        }
+
+        .drag-icon {
+            font-size: 1rem;
+            opacity: 0.8;
+            display: flex;
+            gap: 4px;
+        }
+
+        .delete-note {
+            color: #ff8080;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .delete-note:hover {
+            background: rgba(255, 77, 77, 0.3);
+            color: #fff;
+        }
+
+        .note-content {
+            padding: 12px;
+        }
+
+        .note-content textarea {
+            width: 100%;
+            min-height: 100px;
+            background: #1a1a2c;
+            border: 1px solid #3a3a5a;
+            border-radius: 8px;
+            color: #fff;
+            padding: 8px;
+            font-size: 0.95rem;
+            resize: vertical;
+            outline: none;
+            transition: border 0.2s;
+            font-family: inherit;
+        }
+
+        .note-content textarea:focus {
+            border-color: #ff8000;
+            box-shadow: 0 0 0 2px rgba(255,128,0,0.3);
+        }
+
+        /* placeholder when no notes */
+        .empty-board-msg {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.5);
+            padding: 20px 30px;
+            border-radius: 40px;
+            border: 1px dashed #ff8000;
+            color: #ff8000;
+            font-size: 1.2rem;
+            text-align: center;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        /* responsive tweaks */
+        @media (max-width: 600px) {
+            body { padding: 12px; }
+            .board-toolbar { flex-direction: column; align-items: stretch; }
+            .info-badge { border-left: none; padding-left: 0; margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- top navigation with back button (exact from request) -->
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <!-- toolbar for board actions -->
+    <div class="board-toolbar">
+        <button class="tool-btn" id="addNoteBtn"><i class="fas fa-plus"></i> New note</button>
+        <button class="tool-btn" id="clearAllBtn" class="danger"><i class="fas fa-trash-alt"></i> Clear board</button>
+        <button class="tool-btn" id="resetDemoBtn"><i class="fas fa-undo-alt"></i> Reset demo</button>
+        <span class="spacer"></span>
+        <span class="info-badge"><i class="fas fa-arrows-alt"></i> Drag by header • double‑click text to edit</span>
+    </div>
+
+    <!-- scrollable board wrapper -->
+    <div class="board-wrapper">
+        <div id="board">
+            <!-- notes will be injected dynamically -->
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            "use strict";
+
+            // ----- DOM elements -----
+            const boardEl = document.getElementById('board');
+            const addBtn = document.getElementById('addNoteBtn');
+            const clearBtn = document.getElementById('clearAllBtn');
+            const resetBtn = document.getElementById('resetDemoBtn');
+
+            // ----- data structures -----
+            let notesArray = [];               // array of { id, text, x, y }
+            const noteElements = new Map();     // id -> DOM element (for quick updates)
+            let zIndexCounter = 10;              // start value, will increase on drag
+
+            // ----- drag state -----
+            const dragState = {
+                active: false,
+                noteId: null,
+                element: null,
+                startMouseX: 0,
+                startMouseY: 0,
+                startLeft: 0,
+                startTop: 0,
+                startScrollLeft: 0,
+                startScrollTop: 0,
+                container: boardEl.parentElement // board-wrapper (scrollable)
+            };
+
+            // ----- helper: generate unique id (timestamp + random) -----
+            function generateId() {
+                return Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            }
+
+            // ----- save to localStorage -----
+            function saveToLocalStorage() {
+                try {
+                    localStorage.setItem('digitalBoardNotes', JSON.stringify(notesArray));
+                } catch (e) {
+                    console.warn('Failed to save notes', e);
+                }
+            }
+
+            // ----- load from localStorage -----
+            function loadFromLocalStorage() {
+                try {
+                    const stored = localStorage.getItem('digitalBoardNotes');
+                    if (stored) {
+                        notesArray = JSON.parse(stored);
+                        // validate & sanitize (ensure each note has required fields)
+                        notesArray = notesArray.filter(n => n && typeof n.id === 'string' && typeof n.text === 'string' && typeof n.x === 'number' && typeof n.y === 'number');
+                    } else {
+                        // fallback demo notes
+                        notesArray = [
+                            { id: generateId(), text: '📝 Brainstorm ideas\n- Milanote style\n- Drag me around', x: 150, y: 130 },
+                            { id: generateId(), text: '✅ To-do\n- Plan project\n- Create wireframes', x: 480, y: 220 },
+                            { id: generateId(), text: '🔗 Inspiration\nColor schemes, typography', x: 320, y: 450 },
+                        ];
+                    }
+                } catch (e) {
+                    console.error('Error loading notes', e);
+                    notesArray = [];
+                }
+            }
+
+            // ----- create a note DOM element from note object -----
+            function createNoteElement(note) {
+                const noteDiv = document.createElement('div');
+                noteDiv.className = 'note';
+                noteDiv.id = `note-${note.id}`;
+                noteDiv.style.left = note.x + 'px';
+                noteDiv.style.top = note.y + 'px';
+                noteDiv.style.zIndex = 1; // base z-index
+
+                // header (drag handle)
+                const header = document.createElement('div');
+                header.className = 'note-header';
+                header.setAttribute('data-note-id', note.id);
+
+                const dragIcon = document.createElement('span');
+                dragIcon.className = 'drag-icon';
+                dragIcon.innerHTML = '<i class="fas fa-grip-vertical"></i> <i class="fas fa-grip-vertical"></i>';
+
+                const deleteBtn = document.createElement('span');
+                deleteBtn.className = 'delete-note';
+                deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+                deleteBtn.setAttribute('aria-label', 'Delete note');
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteNoteById(note.id);
+                });
+
+                header.appendChild(dragIcon);
+                header.appendChild(deleteBtn);
+
+                // content area with textarea
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'note-content';
+
+                const textarea = document.createElement('textarea');
+                textarea.value = note.text || '';
+                textarea.placeholder = 'Write your idea...';
+                // update note on input
+                textarea.addEventListener('input', (e) => {
+                    note.text = e.target.value;
+                    saveToLocalStorage(); // auto-save on edit
+                });
+
+                contentDiv.appendChild(textarea);
+                noteDiv.appendChild(header);
+                noteDiv.appendChild(contentDiv);
+
+                // store element in map
+                noteElements.set(note.id, noteDiv);
+
+                // attach drag listeners to header
+                header.addEventListener('mousedown', onDragStart);
+                header.addEventListener('touchstart', onDragStart, { passive: false });
+
+                return noteDiv;
+            }
+
+            // ----- render all notes (clear board and draw from notesArray) -----
+            function renderBoard() {
+                boardEl.innerHTML = ''; // clear
+                noteElements.clear();
+
+                if (notesArray.length === 0) {
+                    // show empty board hint
+                    const emptyMsg = document.createElement('div');
+                    emptyMsg.className = 'empty-board-msg';
+                    emptyMsg.innerHTML = '<i class="fas fa-sticky-note"></i> Board is empty — click "New note"';
+                    boardEl.appendChild(emptyMsg);
+                    return;
+                }
+
+                notesArray.forEach(note => {
+                    const noteEl = createNoteElement(note);
+                    boardEl.appendChild(noteEl);
+                });
+            }
+
+            // ----- delete note by id -----
+            function deleteNoteById(id) {
+                // remove from array
+                notesArray = notesArray.filter(n => n.id !== id);
+                // remove from DOM
+                const el = noteElements.get(id);
+                if (el && el.parentNode) el.parentNode.removeChild(el);
+                noteElements.delete(id);
+                saveToLocalStorage();
+
+                // if board becomes empty, show placeholder (renderBoard will handle it)
+                if (notesArray.length === 0) renderBoard(); // this will show empty message
+            }
+
+            // ----- add a new note at a semi-random position (cascade) -----
+            function addNewNote() {
+                // determine base offset: find a free spot near a cascade
+                let baseX = 50, baseY = 50;
+                if (notesArray.length > 0) {
+                    // offset from last note to avoid complete overlap
+                    const lastNote = notesArray[notesArray.length - 1];
+                    baseX = lastNote.x + 30;
+                    baseY = lastNote.y + 30;
+                    // keep within canvas bounds (2000x1500)
+                    if (baseX > 1700) baseX = 100;
+                    if (baseY > 1300) baseY = 100;
+                }
+
+                const newNote = {
+                    id: generateId(),
+                    text: '✏️ New idea\nDouble‑click to edit',
+                    x: baseX,
+                    y: baseY
+                };
+                notesArray.push(newNote);
+                const noteEl = createNoteElement(newNote);
+                boardEl.appendChild(noteEl);
+                saveToLocalStorage();
+
+                // remove empty message if present
+                if (boardEl.children.length === 1 && boardEl.querySelector('.empty-board-msg')) {
+                    renderBoard(); // quick rerender to remove placeholder
+                }
+            }
+
+            // ----- clear all notes (with confirmation) -----
+            function clearAllNotes() {
+                if (notesArray.length === 0) return;
+                if (confirm('Remove all notes? This cannot be undone.')) {
+                    notesArray = [];
+                    renderBoard();
+                    saveToLocalStorage();
+                }
+            }
+
+            // ----- reset to demo notes (overwrites) -----
+            function resetDemoNotes() {
+                notesArray = [
+                    { id: generateId(), text: '📌 Welcome to Digital Board\n\n• Drag by the header\n• Edit text freely\n• Notes are auto‑saved', x: 200, y: 150 },
+                    { id: generateId(), text: '🎨 Milanote‑like board\n\nOrganize thoughts visually', x: 550, y: 280 },
+                    { id: generateId(), text: '💡 Pro tip: use the "Clear board" to start fresh', x: 350, y: 520 },
+                ];
+                renderBoard();
+                saveToLocalStorage();
+            }
+
+            // ----- drag implementation (mouse & touch) -----
+            function onDragStart(e) {
+                // only handle header drag (the listener is attached to header)
+                const header = e.currentTarget;
+                const noteDiv = header.closest('.note');
+                if (!noteDiv) return;
+
+                // prevent default to avoid text selection / page scroll
+                if (e.type === 'mousedown') {
+                    e.preventDefault();
+                }
+
+                // get note id
+                const noteId = noteDiv.id.replace('note-', '');
+                const note = notesArray.find(n => n.id === noteId);
+                if (!note) return;
+
+                // stop if already dragging
+                if (dragState.active) return;
+
+                // record initial positions
+                const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+
+                // container (board-wrapper) scroll
+                const container = dragState.container;
+                const startScrollLeft = container.scrollLeft;
+                const startScrollTop = container.scrollTop;
+
+                // note's current left/top (from style, as float)
+                const left = parseFloat(noteDiv.style.left) || note.x;
+                const top = parseFloat(noteDiv.style.top) || note.y;
+
+                // set dragging flag and style
+                dragState.active = true;
+                dragState.noteId = note.id;
+                dragState.element = noteDiv;
+                dragState.startMouseX = clientX;
+                dragState.startMouseY = clientY;
+                dragState.startLeft = left;
+                dragState.startTop = top;
+                dragState.startScrollLeft = startScrollLeft;
+                dragState.startScrollTop = startScrollTop;
+
+                // increase z-index and add class
+                zIndexCounter++;
+                noteDiv.style.zIndex = zIndexCounter;
+                noteDiv.classList.add('dragging');
+
+                // attach global listeners
+                window.addEventListener('mousemove', onDragMove);
+                window.addEventListener('mouseup', onDragEnd);
+                window.addEventListener('touchmove', onDragMove, { passive: false });
+                window.addEventListener('touchend', onDragEnd);
+                window.addEventListener('touchcancel', onDragCancel);
+            }
+
+            function onDragMove(e) {
+                if (!dragState.active) return;
+
+                // prevent touch scrolling while dragging
+                if (e.type === 'touchmove') {
+                    e.preventDefault();
+                }
+
+                const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+                const container = dragState.container;
+
+                // delta movement (mouse) + scroll delta
+                const deltaX = clientX - dragState.startMouseX;
+                const deltaY = clientY - dragState.startMouseY;
+
+                const scrollDeltaX = container.scrollLeft - dragState.startScrollLeft;
+                const scrollDeltaY = container.scrollTop - dragState.startScrollTop;
+
+                let newLeft = dragState.startLeft + deltaX + scrollDeltaX;
+                let newTop = dragState.startTop + deltaY + scrollDeltaY;
+
+                // optional: keep inside canvas (2000 - note width approx 240, 1500 - note height)
+                newLeft = Math.max(0, Math.min(1760, newLeft));   // 2000-240 = 1760
+                newTop = Math.max(0, Math.min(1360, newTop));     // 1500-140 approx
+
+                // apply new position
+                dragState.element.style.left = newLeft + 'px';
+                dragState.element.style.top = newTop + 'px';
+            }
+
+            function onDragEnd(e) {
+                if (!dragState.active) return;
+
+                // finalize: update note in array with final position
+                const noteId = dragState.noteId;
+                const element = dragState.element;
+                if (noteId && element) {
+                    const left = parseFloat(element.style.left);
+                    const top = parseFloat(element.style.top);
+                    const note = notesArray.find(n => n.id === noteId);
+                    if (note) {
+                        note.x = left;
+                        note.y = top;
+                        saveToLocalStorage();
+                    }
+                    element.classList.remove('dragging');
+                }
+
+                // clean up global listeners
+                window.removeEventListener('mousemove', onDragMove);
+                window.removeEventListener('mouseup', onDragEnd);
+                window.removeEventListener('touchmove', onDragMove);
+                window.removeEventListener('touchend', onDragEnd);
+                window.removeEventListener('touchcancel', onDragCancel);
+
+                dragState.active = false;
+                dragState.noteId = null;
+                dragState.element = null;
+            }
+
+            function onDragCancel(e) {
+                // touch cancellation (like gesture)
+                onDragEnd(e);
+            }
+
+            // ----- initialization -----
+            function initBoard() {
+                loadFromLocalStorage();
+                renderBoard();
+                // ensure container reference
+                dragState.container = document.querySelector('.board-wrapper');
+            }
+
+            // ----- attach toolbar handlers -----
+            addBtn.addEventListener('click', addNewNote);
+            clearBtn.addEventListener('click', clearAllNotes);
+            resetBtn.addEventListener('click', resetDemoNotes);
+
+            // start everything
+            initBoard();
+
+            // optional: save before unload (not strictly needed, but safe)
+            window.addEventListener('beforeunload', function() {
+                saveToLocalStorage();
+            });
+
+        })();
+    </script>
+</body>
+</html>

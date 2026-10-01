@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Name Generator · Arcane API</title>
+    <!-- Font Awesome for icons (same as back button) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* main container for consistent width */
+        .generator-container {
+            max-width: 1280px;
+            width: 100%;
+        }
+
+        /* navbar / top bar */
+        .navbar {
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: rgba(255, 128, 0, 0.08);
+            border: 1px solid rgba(255, 128, 0, 0.5);
+            border-radius: 40px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+            transform: translateX(-2px);
+            box-shadow: 0 4px 12px rgba(255, 128, 0, 0.2);
+        }
+
+        .back-btn i {
+            font-size: 0.9rem;
+        }
+
+        /* header */
+        .page-header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 3.2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ffb347, #ff8000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 20px rgba(255, 128, 0, 0.3);
+            margin-bottom: 8px;
+        }
+
+        .page-header .sub {
+            color: #b0a0c0;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .page-header .sub i {
+            color: #ff8000;
+            font-size: 1rem;
+        }
+
+        /* control panel */
+        .control-panel {
+            background: rgba(10, 10, 26, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 128, 0, 0.25);
+            border-radius: 32px;
+            padding: 28px 32px;
+            margin-bottom: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 24px 32px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .control-item {
+            flex: 1 1 160px;
+            min-width: 140px;
+        }
+
+        .control-item label {
+            display: block;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #ffb070;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .control-item select,
+        .control-item input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #3a2a4a;
+            border-radius: 16px;
+            padding: 12px 18px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ff8000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 18px center;
+            background-size: 16px;
+        }
+
+        .control-item select:hover,
+        .control-item input:hover {
+            border-color: #ff8000;
+            background-color: rgba(20, 10, 30, 0.8);
+        }
+
+        .control-item select:focus,
+        .control-item input:focus {
+            border-color: #ff8000;
+            box-shadow: 0 0 0 3px rgba(255, 128, 0, 0.3);
+        }
+
+        .control-item input[type="number"] {
+            background-image: none;
+            -moz-appearance: textfield;
+            -webkit-appearance: textfield;
+            appearance: textfield;
+        }
+        .control-item input[type="number"]::-webkit-inner-spin-button {
+            opacity: 0.5;
+        }
+
+        .generate-btn {
+            background: #ff8000;
+            border: none;
+            border-radius: 40px;
+            padding: 12px 36px;
+            color: #0a0a1a;
+            font-weight: 700;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 20px rgba(255, 128, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.5px;
+            margin-left: auto;
+        }
+
+        .generate-btn i {
+            font-size: 1.1rem;
+        }
+
+        .generate-btn:hover {
+            background: #ff9933;
+            transform: scale(1.03);
+            box-shadow: 0 12px 28px rgba(255, 128, 0, 0.7);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(0.6);
+        }
+
+        /* results grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+            margin-top: 16px;
+            transition: 0.2s;
+        }
+
+        .name-card {
+            background: rgba(20, 12, 36, 0.7);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 24px;
+            padding: 20px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+        }
+
+        .name-card:hover {
+            border-color: #ff8000;
+            transform: translateY(-4px);
+            background: rgba(40, 20, 60, 0.8);
+            box-shadow: 0 16px 24px rgba(255, 128, 0, 0.25);
+        }
+
+        .name-card .name {
+            font-size: 1.35rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            word-break: break-word;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .copy-btn {
+            background: transparent;
+            border: none;
+            color: #ffb070;
+            font-size: 1.3rem;
+            cursor: pointer;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 128, 0, 0.25);
+            color: #ff8000;
+            border-color: #ff8000;
+            transform: scale(1.1);
+        }
+
+        .copy-btn.copied {
+            background: #ff8000;
+            color: #0a0a1a;
+            border-color: #ff8000;
+        }
+
+        /* empty & error states */
+        .placeholder-message {
+            grid-column: 1 / -1;
+            background: rgba(255, 128, 0, 0.08);
+            border: 1px dashed #ff8000;
+            border-radius: 60px;
+            padding: 48px 24px;
+            text-align: center;
+            color: #d0c0e0;
+            font-size: 1.3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: center;
+        }
+        .placeholder-message i {
+            font-size: 3rem;
+            color: #ff8000;
+            opacity: 0.7;
+        }
+
+        /* loading spinner */
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255,128,0,0.2);
+            border-top: 4px solid #ff8000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 40px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* toast notification */
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: #1f1a2e;
+            border-left: 5px solid #ff8000;
+            border-radius: 20px;
+            padding: 14px 28px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: 0.3s ease;
+            z-index: 999;
+            border: 1px solid rgba(255,128,0,0.4);
+            backdrop-filter: blur(8px);
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .toast i {
+            color: #ff8000;
+            font-size: 1.3rem;
+        }
+
+        /* footer / api credit */
+        .footer-note {
+            margin-top: 60px;
+            color: #6a5a7a;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-top: 1px solid rgba(255,128,0,0.2);
+            padding-top: 20px;
+            width: 100%;
+        }
+        .footer-note a {
+            color: #ffb070;
+            text-decoration: none;
+            border-bottom: 1px dotted;
+        }
+    </style>
+</head>
+<body>
+    <div class="generator-container">
+        <!-- navigation with back button (exact style from reference) -->
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        </div>
+
+        <!-- header -->
+        <div class="page-header">
+            <h1>✦ nameweaver ✦</h1>
+            <div class="sub">
+                <i class="fas fa-dice-d20"></i>
+                <span>real‑time character identities from randomuser.me</span>
+                <i class="fas fa-dice-d20"></i>
+            </div>
+        </div>
+
+        <!-- controls -->
+        <div class="control-panel">
+            <div class="control-item">
+                <label><i class="fas fa-venus-mars" style="margin-right: 6px;"></i> gender</label>
+                <select id="genderSelect">
+                    <option value="any">⚡ any</option>
+                    <option value="male">♂ male</option>
+                    <option value="female">♀ female</option>
+                </select>
+            </div>
+            <div class="control-item">
+                <label><i class="fas fa-globe"></i> nationality</label>
+                <select id="natSelect">
+                    <option value="any">🌍 any</option>
+                    <option value="US">🇺🇸 american</option>
+                    <option value="GB">🇬🇧 british</option>
+                    <option value="FR">🇫🇷 french</option>
+                    <option value="DE">🇩🇪 german</option>
+                    <option value="ES">🇪🇸 spanish</option>
+                    <option value="IT">🇮🇹 italian</option>
+                    <option value="NL">🇳🇱 dutch</option>
+                    <option value="DK">🇩🇰 danish</option>
+                    <option value="NO">🇳🇴 norwegian</option>
+                    <option value="BR">🇧🇷 brazilian</option>
+                </select>
+            </div>
+            <div class="control-item">
+                <label><i class="fas fa-hashtag"></i> count (1‑20)</label>
+                <input type="number" id="countInput" min="1" max="20" value="8" step="1">
+            </div>
+            <button class="generate-btn" id="generateBtn">
+                <i class="fas fa-wand-magic"></i> generate
+            </button>
+        </div>
+
+        <!-- results area -->
+        <div id="resultsContainer" class="results-grid">
+            <!-- populated by javascript -->
+            <div class="placeholder-message">
+                <i class="fas fa-mask"></i>
+                <span>click generate to summon names</span>
+            </div>
+        </div>
+
+        <!-- subtle footer -->
+        <div class="footer-note">
+            <i class="fas fa-crown" style="color: #ff8000;"></i>
+            <span>powered by <a href="https://randomuser.me/" target="_blank">Random User API</a> · names are real‑world inspired</span>
+        </div>
+    </div>
+
+    <!-- toast for copy feedback -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">name copied</span>
+    </div>
+
+    <script>
+        (function() {
+            // DOM elements
+            const genderSelect = document.getElementById('genderSelect');
+            const natSelect = document.getElementById('natSelect');
+            const countInput = document.getElementById('countInput');
+            const generateBtn = document.getElementById('generateBtn');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const toastEl = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMessage');
+
+            // state
+            let loading = false;
+
+            // --- toast helper ---
+            function showToast(text, icon = '📋', duration = 2000) {
+                toastMsg.innerText = text;
+                toastEl.classList.add('show');
+                setTimeout(() => {
+                    toastEl.classList.remove('show');
+                }, duration);
+            }
+
+            // --- copy to clipboard ---
+            async function copyName(name, element) {
+                try {
+                    await navigator.clipboard.writeText(name);
+                    // visual feedback on button
+                    const originalHtml = element.innerHTML;
+                    element.innerHTML = '<i class="fas fa-check"></i>';
+                    element.classList.add('copied');
+                    showToast(`"${name}" copied`);
+                    setTimeout(() => {
+                        element.innerHTML = originalHtml;
+                        element.classList.remove('copied');
+                    }, 800);
+                } catch (err) {
+                    showToast('copy failed', '⚠️');
+                }
+            }
+
+            // --- fetch names from API ---
+            async function fetchNames(gender, nationality, count) {
+                // build URL parameters
+                const params = new URLSearchParams();
+                params.append('results', count);
+                if (gender && gender !== 'any') params.append('gender', gender);
+                if (nationality && nationality !== 'any') params.append('nat', nationality);
+                
+                // add a seed to avoid cache? not needed, but we can add a timestamp to prevent browser caching
+                params.append('noinfo', ''); // reduces payload
+                const url = `https://randomuser.me/api/?${params.toString()}`;
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error(`API error: ${response.status}`);
+                    const data = await response.json();
+                    if (!data.results || data.results.length === 0) throw new Error('no names returned');
+                    return data.results;
+                } catch (error) {
+                    console.error(error);
+                    throw error;
+                }
+            }
+
+            // --- render name cards ---
+            function renderNames(users) {
+                if (!users || users.length === 0) {
+                    resultsContainer.innerHTML = `<div class="placeholder-message"><i class="fas fa-skull"></i><span>no names — try different filters</span></div>`;
+                    return;
+                }
+
+                let html = '';
+                users.forEach(user => {
+                    const nameObj = user.name;
+                    // construct full name with title, first, last
+                    const fullName = `${nameObj.title || ''} ${nameObj.first || ''} ${nameObj.last || ''}`.replace(/\s+/g, ' ').trim();
+                    html += `
+                        <div class="name-card" data-name="${fullName.replace(/"/g, '&quot;')}">
+                            <span class="name">${fullName}</span>
+                            <button class="copy-btn" title="copy to clipboard"><i class="far fa-clipboard"></i></button>
+                        </div>
+                    `;
+                });
+
+                resultsContainer.innerHTML = html;
+
+                // attach copy events
+                document.querySelectorAll('.name-card').forEach(card => {
+                    const name = card.dataset.name;
+                    const copyBtn = card.querySelector('.copy-btn');
+                    copyBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        copyName(name, copyBtn);
+                    });
+                });
+            }
+
+            // --- show loading state ---
+            function setLoading(state) {
+                loading = state;
+                if (state) {
+                    generateBtn.disabled = true;
+                    resultsContainer.innerHTML = '<div class="loader" style="grid-column:1/-1;"></div>';
+                } else {
+                    generateBtn.disabled = false;
+                }
+            }
+
+            // --- main action: fetch & render ---
+            async function generateNames() {
+                if (loading) return;
+
+                const gender = genderSelect.value;
+                const nat = natSelect.value;
+                let count = parseInt(countInput.value, 10);
+
+                // validation
+                if (isNaN(count) || count < 1) count = 1;
+                if (count > 20) count = 20;
+                countInput.value = count; // correct if out of range
+
+                setLoading(true);
+                try {
+                    const userResults = await fetchNames(gender, nat, count);
+                    renderNames(userResults);
+                } catch (error) {
+                    resultsContainer.innerHTML = `
+                        <div class="placeholder-message">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>failed to fetch names: ${error.message}</span>
+                        </div>`;
+                } finally {
+                    setLoading(false);
+                }
+            }
+
+            // --- initial load (auto generate with defaults) ---
+            window.addEventListener('load', () => {
+                generateNames();
+            });
+
+            // button click
+            generateBtn.addEventListener('click', generateNames);
+
+            // optional: press enter on count field triggers generate
+            countInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') generateNames();
+            });
+
+            // minor: smooth number input
+            countInput.addEventListener('input', function() {
+                let val = parseInt(this.value, 10);
+                if (val > 20) this.value = 20;
+                if (val < 1) this.value = 1;
+            });
+        })();
+    </script>
+
+    <!-- tiny extra style for the active copy button -->
+    <style>
+        .copy-btn i { pointer-events: none; }
+        .fa-check { color: #0a0a1a; }
+        .name-card .copy-btn.copied { background: #ff8000; color: #0a0a1a; border-color: #ff8000; }
+    </style>
+</body>
+</html>

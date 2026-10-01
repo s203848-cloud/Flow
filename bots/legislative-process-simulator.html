@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legislative Process Simulator · From Bill to Law</title>
+    <!-- Font Awesome 6 (free) for the back arrow & optional icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ---------- base & template styles ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 24px 20px;
+        }
+
+        .navbar {
+            margin-bottom: 32px;
+        }
+
+        .back-btn {
+            padding: 8px 18px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 40px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ffaa33;
+            color: #ffaa33;
+        }
+
+        /* ---------- simulator specific styles ---------- */
+        .simulator-header {
+            text-align: center;
+            margin: 30px 0 16px 0;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            background: linear-gradient(to right, #fff, #ffcba4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .subhead {
+            color: #b0b0d0;
+            font-size: 1.2rem;
+            border-bottom: 1px dashed #ff8000;
+            display: inline-block;
+            padding-bottom: 6px;
+            margin-top: 4px;
+        }
+
+        /* main card */
+        .simulator-card {
+            background: rgba(10, 10, 26, 0.7);
+            backdrop-filter: blur(6px);
+            border-radius: 32px;
+            padding: 30px 28px;
+            max-width: 900px;
+            margin: 0 auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,128,0,0.2);
+            border: 1px solid rgba(255,128,0,0.15);
+        }
+
+        /* current step spotlight */
+        .current-step-card {
+            background: rgba(255,128,0,0.08);
+            border-radius: 28px;
+            padding: 28px 25px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: flex-start;
+            gap: 22px;
+            border: 1px solid rgba(255,128,0,0.3);
+            box-shadow: 0 8px 0 rgba(0,0,0,0.3);
+        }
+
+        .step-icon {
+            background: #ff8000;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0a0a1a;
+            box-shadow: 0 0 20px #ff8000;
+            flex-shrink: 0;
+        }
+
+        .step-content h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #ff8000;
+            margin-bottom: 8px;
+        }
+
+        .step-content p {
+            font-size: 1.15rem;
+            line-height: 1.5;
+            color: #ddd;
+            max-width: 600px;
+        }
+
+        /* control buttons */
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 30px 0 40px 0;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            background: transparent;
+            border: 1.5px solid #ff8000;
+            border-radius: 60px;
+            color: #ff8000;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(255,128,0,0.1);
+            letter-spacing: 0.3px;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: rgba(255,128,0,0.2);
+            border-color: #ffaa33;
+            color: #ffaa33;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(255,128,0,0.25);
+        }
+
+        .btn:disabled {
+            opacity: 0.3;
+            border-color: #555;
+            color: #aaa;
+            cursor: not-allowed;
+            box-shadow: none;
+            pointer-events: none;
+        }
+
+        #resetBtn {
+            background: rgba(255,128,0,0.1);
+            border-color: #ff8000;
+        }
+
+        /* timeline / step list */
+        .timeline-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 18px;
+            color: #ffc299;
+            border-left: 4px solid #ff8000;
+            padding-left: 20px;
+        }
+
+        .steps-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .timeline-step {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.03);
+            padding: 14px 22px;
+            border-radius: 60px;
+            border: 1px solid rgba(255,128,0,0.1);
+            transition: all 0.2s;
+            backdrop-filter: blur(2px);
+        }
+
+        .timeline-step.current {
+            border-left: 6px solid #ff8000;
+            background: rgba(255,128,0,0.12);
+            border-radius: 60px 60px 60px 60px;
+            box-shadow: 0 0 0 1px #ff8000 inset;
+        }
+
+        .timeline-step.completed {
+            opacity: 0.9;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .step-marker {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #2a2a4a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-right: 20px;
+            color: #eee;
+            border: 1px solid #ff8000;
+            flex-shrink: 0;
+        }
+
+        .timeline-step.completed .step-marker {
+            background: #ff8000;
+            color: #0a0a1a;
+            border-color: #ffaa33;
+        }
+
+        .timeline-step.current .step-marker {
+            background: #ff8000;
+            color: #0a0a1a;
+            box-shadow: 0 0 12px #ff8000;
+            border-color: #fff;
+        }
+
+        .step-label {
+            flex: 1;
+            font-size: 1.15rem;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .step-label strong {
+            color: white;
+        }
+
+        .step-label small {
+            color: #aaa;
+            font-size: 0.9rem;
+            font-weight: 400;
+            background: rgba(0,0,0,0.3);
+            padding: 4px 12px;
+            border-radius: 40px;
+        }
+
+        .timeline-step.completed .step-label small {
+            background: rgba(255,128,0,0.25);
+            color: #ffc299;
+        }
+
+        .timeline-step.current .step-label small {
+            background: #ff8000;
+            color: #0a0a1a;
+            font-weight: 600;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 32px;
+            color: #6a6a8b;
+            font-size: 0.9rem;
+            border-top: 1px dashed #ff8000;
+            padding-top: 18px;
+        }
+
+        /* responsive */
+        @media (max-width: 650px) {
+            .current-step-card {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .step-label {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            h1 { font-size: 1.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- navbar with back button exactly as provided -->
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <!-- main simulator content -->
+    <div class="simulator-header">
+        <h1>⚖️ Legislative Process Simulator</h1>
+        <div class="subhead">see how a bill becomes a law — step by step</div>
+    </div>
+
+    <div class="simulator-card">
+        <!-- current stage spotlight -->
+        <div class="current-step-card" id="currentStepCard">
+            <div class="step-icon" id="stepIcon">1</div>
+            <div class="step-content">
+                <h2 id="current-step-name">Introduction</h2>
+                <p id="current-step-description">A bill is introduced by a member of Congress and assigned to a committee.</p>
+            </div>
+        </div>
+
+        <!-- navigation buttons -->
+        <div class="action-buttons">
+            <button class="btn" id="prevBtn" disabled><i class="fas fa-arrow-left"></i> Previous</button>
+            <button class="btn" id="nextBtn">Next Step <i class="fas fa-arrow-right"></i></button>
+            <button class="btn" id="resetBtn"><i class="fas fa-undo-alt"></i> Restart</button>
+        </div>
+
+        <!-- timeline of all steps -->
+        <div class="timeline-title"><i class="fas fa-stream" style="margin-right: 10px; color: #ff8000;"></i> Full process timeline</div>
+        <div class="steps-timeline" id="stepsTimeline">
+            <!-- dynamically filled by js -->
+        </div>
+
+        <div class="footer-note">
+            <i class="fas fa-gavel" style="color: #ff8000;"></i> Each step represents a key stage. Use the buttons to move the bill forward.
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ----- define the steps (name & description) -----
+            const steps = [
+                {
+                    name: "Introduction",
+                    desc: "A bill is introduced by a member of Congress (House or Senate). It is given a number, printed, and referred to the appropriate committee."
+                },
+                {
+                    name: "Committee review",
+                    desc: "The committee holds hearings, debates amendments ('markup'), and votes. If approved, the bill goes to the full chamber."
+                },
+                {
+                    name: "Floor debate & vote",
+                    desc: "The chamber debates, may offer further amendments, and finally votes. A simple majority passes the bill."
+                },
+                {
+                    name: "Other chamber",
+                    desc: "The bill now goes to the other chamber (Senate or House), where it goes through committee, debate, and vote again."
+                },
+                {
+                    name: "Conference committee",
+                    desc: "If the two chambers pass different versions, a conference committee (members from both) reconciles differences. A compromise bill is produced."
+                },
+                {
+                    name: "Final vote",
+                    desc: "Both chambers vote on the conference report. If it passes in both, the bill is sent to the President."
+                },
+                {
+                    name: "Presidential action",
+                    desc: "The President can sign the bill → becomes law. Or veto → returns to Congress with objections. (If signed, skip to 'Law'.)"
+                },
+                {
+                    name: "Override vote",
+                    desc: "If vetoed, Congress may override with a 2/3 supermajority in both chambers. If successful, the bill becomes law without the President's signature."
+                },
+                {
+                    name: "Law ⚖️",
+                    desc: "The bill is now enacted as a law, published in the U.S. Statutes at Large, and has the force of the land."
+                }
+            ];
+
+            // ----- state -----
+            let currentStepIndex = 0;          // 0-based
+
+            // ----- DOM elements -----
+            const stepNameEl = document.getElementById('current-step-name');
+            const stepDescEl = document.getElementById('current-step-description');
+            const stepIconEl = document.getElementById('stepIcon');
+            const timelineEl = document.getElementById('stepsTimeline');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const resetBtn = document.getElementById('resetBtn');
+
+            // ----- helper: render the timeline list based on current index -----
+            function renderTimeline() {
+                let html = '';
+                steps.forEach((step, idx) => {
+                    let stepClass = 'timeline-step';
+                    if (idx === currentStepIndex) stepClass += ' current';
+                    if (idx < currentStepIndex) stepClass += ' completed';
+
+                    let statusText = '';
+                    if (idx < currentStepIndex) statusText = '✓ Completed';
+                    else if (idx === currentStepIndex) statusText = 'In progress';
+                    else statusText = 'Upcoming';
+
+                    html += `
+                        <div class="${stepClass}">
+                            <div class="step-marker">${idx + 1}</div>
+                            <div class="step-label">
+                                <strong>${step.name}</strong>
+                                <small>${statusText}</small>
+                            </div>
+                        </div>
+                    `;
+                });
+                timelineEl.innerHTML = html;
+            }
+
+            // ----- update the big current-step card and button states -----
+            function updateCurrentStepDisplay() {
+                const step = steps[currentStepIndex];
+                stepNameEl.textContent = step.name;
+                stepDescEl.textContent = step.desc;
+                stepIconEl.textContent = currentStepIndex + 1;   // show step number in icon
+
+                // enable/disable navigation
+                prevBtn.disabled = (currentStepIndex === 0);
+                nextBtn.disabled = (currentStepIndex === steps.length - 1);
+
+                // re-render timeline to reflect new current/completed
+                renderTimeline();
+            }
+
+            // ----- event listeners -----
+            prevBtn.addEventListener('click', () => {
+                if (currentStepIndex > 0) {
+                    currentStepIndex--;
+                    updateCurrentStepDisplay();
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (currentStepIndex < steps.length - 1) {
+                    currentStepIndex++;
+                    updateCurrentStepDisplay();
+                }
+            });
+
+            resetBtn.addEventListener('click', () => {
+                currentStepIndex = 0;
+                updateCurrentStepDisplay();
+            });
+
+            // ----- initial render -----
+            updateCurrentStepDisplay();
+
+            // (Optional) tiny extra: clicking on a timeline step jumps to it? 
+            // Not required, but adds a bit of interactivity. We'll add delegate.
+            timelineEl.addEventListener('click', (e) => {
+                // find if click happened inside a timeline-step
+                const stepDiv = e.target.closest('.timeline-step');
+                if (!stepDiv) return;
+
+                // get index from the marker text? could use data attribute, but we can find by marker number.
+                const marker = stepDiv.querySelector('.step-marker');
+                if (!marker) return;
+                const stepNumber = parseInt(marker.textContent, 10);
+                if (!isNaN(stepNumber) && stepNumber >= 1 && stepNumber <= steps.length) {
+                    const newIndex = stepNumber - 1;
+                    if (newIndex !== currentStepIndex) {
+                        currentStepIndex = newIndex;
+                        updateCurrentStepDisplay();
+                    }
+                }
+            });
+        })();
+    </script>
+
+    <!-- small style to make the timeline clickable feel (hand cursor) -->
+    <style>
+        .timeline-step {
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .timeline-step:hover {
+            background: rgba(255,128,0,0.1);
+            border-color: #ff8000;
+        }
+        .timeline-step.current:hover {
+            background: rgba(255,128,0,0.2);
+        }
+    </style>
+</body>
+</html>

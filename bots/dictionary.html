@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dictionary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 30px;
+    background: rgba(20, 20, 35, 0.9);
+    border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+    z-index: 100;
+}
+
+.back-btn {
+    padding: 8px 15px;
+    background: rgba(255, 128, 0, 0.2);
+    border: 1px solid #ff8000;
+    border-radius: 5px;
+    color: #ff8000;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.back-btn:hover {
+    background: rgba(255, 128, 0, 0.3);
+}
+
+.dictionary {
+    background: linear-gradient(135deg, rgba(50, 30, 70, 0.8), rgba(30, 50, 80, 0.8));
+    border: 1px solid rgba(255, 69, 0, 0.3);
+    border-radius: 15px;
+    padding: 30px;
+    width: 100%;
+    max-width: 800px;
+    margin-top: 80px;
+    box-shadow: 0 10px 40px rgba(255, 69, 0, 0.3);
+}
+
+.search-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 128, 0, 0.5);
+    border-radius: 8px;
+    color: #ff8000;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.search-input::placeholder {
+    color: rgba(255, 128, 0, 0.5);
+}
+
+.search-btn {
+    padding: 0 25px;
+    background: linear-gradient(to right, #ff7e00, #ff4500);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 69, 0, 0.4);
+}
+
+.search-btn:active {
+    transform: translateY(0);
+}
+
+.result-container {
+    display: none;
+}
+
+.word-header {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(255, 128, 0, 0.3);
+}
+
+.word {
+    font-size: 2.5rem;
+    color: #ff8000;
+    margin-bottom: 5px;
+}
+
+.phonetic {
+    color: rgba(255, 255, 255, 0.7);
+    font-style: italic;
+    font-size: 1.2rem;
+}
+
+.meaning-section {
+    margin-bottom: 25px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 4px solid #ff8000;
+}
+
+.part-of-speech {
+    color: #ff8000;
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.definition-list {
+    margin-left: 20px;
+}
+
+.definition-item {
+    margin-bottom: 12px;
+    padding: 10px;
+    background: rgba(255, 128, 0, 0.1);
+    border-radius: 5px;
+}
+
+.definition {
+    margin-bottom: 5px;
+}
+
+.example {
+    color: rgba(255, 255, 255, 0.7);
+    font-style: italic;
+    margin-top: 5px;
+    padding-left: 15px;
+    border-left: 2px solid rgba(255, 128, 0, 0.5);
+}
+
+.synonyms {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.synonyms span {
+    color: #ff8000;
+    font-weight: bold;
+}
+
+.error-message {
+    color: #ff4500;
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 20px;
+    display: none;
+}
+
+.loading {
+    text-align: center;
+    padding: 30px;
+    display: none;
+}
+
+.loading-spinner {
+    color: #ff8000;
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.recent-searches {
+    margin-top: 25px;
+}
+
+.recent-title {
+    color: #ff8000;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.recent-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.recent-word {
+    padding: 8px 15px;
+    background: rgba(255, 128, 0, 0.2);
+    border: 1px solid rgba(255, 128, 0, 0.5);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.recent-word:hover {
+    background: rgba(255, 128, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+.audio-btn {
+    background: none;
+    border: none;
+    color: #ff8000;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: transform 0.3s;
+}
+
+.audio-btn:hover {
+    transform: scale(1.2);
+}
+
+@media (max-width: 850px) {
+    .dictionary {
+        max-width: 100%;
+        margin: 80px 10px 20px;
+    }
+    
+    .search-container {
+        flex-direction: column;
+    }
+    
+    .search-btn {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 500px) {
+    .word {
+        font-size: 2rem;
+    }
+    
+    .navbar span {
+        font-size: 1.2rem;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold;">Dictionary</span>
+        <div style="width: 60px;"></div>
+    </div>
+
+    <div class="dictionary">
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" 
+                   placeholder="Enter a word..." 
+                   onkeypress="if(event.key === 'Enter') searchWord()">
+            <button class="search-btn" onclick="searchWord()">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <div>Searching dictionary...</div>
+        </div>
+        
+        <div class="error-message" id="errorMessage">
+            Word not found. Please try another word.
+        </div>
+        
+        <div class="result-container" id="resultContainer">
+            <!-- Results will be inserted here -->
+        </div>
+        
+        <div class="recent-searches" id="recentSearches">
+            <div class="recent-title">Recent Searches:</div>
+            <div class="recent-list" id="recentList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const searchInput = document.getElementById('searchInput');
+        const resultContainer = document.getElementById('resultContainer');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('errorMessage');
+        const recentList = document.getElementById('recentList');
+        const recentSearches = document.getElementById('recentSearches');
+
+        // Load recent searches from localStorage
+        let recentWords = JSON.parse(localStorage.getItem('recentDictionarySearches')) || [];
+        updateRecentSearches();
+
+        // Focus on input on page load
+        searchInput.focus();
+
+        function searchWord() {
+            const word = searchInput.value.trim().toLowerCase();
+            if (!word) return;
+            
+            // Show loading, hide other elements
+            loading.style.display = 'block';
+            resultContainer.style.display = 'none';
+            errorMessage.style.display = 'none';
+            
+            // API endpoint (Free Dictionary API)
+            const apiUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`;
+            
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Word not found');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayResults(data);
+                    addToRecentSearches(word);
+                })
+                .catch(error => {
+                    showError();
+                })
+                .finally(() => {
+                    loading.style.display = 'none';
+                });
+        }
+
+        function displayResults(data) {
+            const wordData = data[0];
+            
+            let html = `
+                <div class="word-header">
+                    <div class="word">${wordData.word}</div>
+                    ${wordData.phonetic ? `<div class="phonetic">${wordData.phonetic}</div>` : ''}
+                    ${getAudioButton(wordData)}
+                </div>
+            `;
+            
+            // Display meanings
+            wordData.meanings.forEach(meaning => {
+                html += `
+                    <div class="meaning-section">
+                        <div class="part-of-speech">
+                            <i class="fas fa-tag"></i> ${meaning.partOfSpeech}
+                        </div>
+                        <div class="definition-list">
+                `;
+                
+                meaning.definitions.slice(0, 3).forEach((def, index) => {
+                    html += `
+                        <div class="definition-item">
+                            <div class="definition">
+                                <strong>${index + 1}.</strong> ${def.definition}
+                            </div>
+                            ${def.example ? `<div class="example">"${def.example}"</div>` : ''}
+                        </div>
+                    `;
+                });
+                
+                // Display synonyms if available
+                if (meaning.synonyms && meaning.synonyms.length > 0) {
+                    html += `
+                        <div class="synonyms">
+                            <span>Synonyms:</span> ${meaning.synonyms.slice(0, 5).join(', ')}
+                        </div>
+                    `;
+                }
+                
+                html += `</div></div>`;
+            });
+            
+            // Display phonetics if available
+            if (wordData.phonetics && wordData.phonetics.length > 0) {
+                const phonetics = wordData.phonetics.filter(p => p.text).map(p => p.text);
+                if (phonetics.length > 0) {
+                    html += `
+                        <div class="meaning-section">
+                            <div class="part-of-speech">
+                                <i class="fas fa-volume-up"></i> Pronunciations
+                            </div>
+                            <div class="definition">
+                                ${phonetics.join(', ')}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            resultContainer.innerHTML = html;
+            resultContainer.style.display = 'block';
+            errorMessage.style.display = 'none';
+            
+            // Scroll to results
+            resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function getAudioButton(wordData) {
+            // Find first audio source
+            if (wordData.phonetics) {
+                const phoneticWithAudio = wordData.phonetics.find(p => p.audio);
+                if (phoneticWithAudio && phoneticWithAudio.audio) {
+                    return `
+                        <button class="audio-btn" onclick="playAudio('${phoneticWithAudio.audio}')">
+                            <i class="fas fa-volume-up"></i> Listen
+                        </button>
+                    `;
+                }
+            }
+            
+            // Try meanings for audio
+            for (let meaning of wordData.meanings) {
+                if (meaning.definitions[0] && meaning.definitions[0].audio) {
+                    return `
+                        <button class="audio-btn" onclick="playAudio('${meaning.definitions[0].audio}')">
+                            <i class="fas fa-volume-up"></i> Listen
+                        </button>
+                    `;
+                }
+            }
+            
+            return '';
+        }
+
+        function playAudio(audioUrl) {
+            // Fix incomplete URLs
+            if (audioUrl && !audioUrl.startsWith('http')) {
+                audioUrl = 'https:' + audioUrl;
+            }
+            
+            if (audioUrl) {
+                const audio = new Audio(audioUrl);
+                audio.play().catch(e => console.log('Audio playback failed:', e));
+            }
+        }
+
+        function showError() {
+            resultContainer.style.display = 'none';
+            errorMessage.style.display = 'block';
+            errorMessage.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i><br>
+                Word not found. Please check the spelling or try another word.
+            `;
+        }
+
+        function addToRecentSearches(word) {
+            // Remove if already exists
+            recentWords = recentWords.filter(w => w !== word);
+            
+            // Add to beginning
+            recentWords.unshift(word);
+            
+            // Keep only last 5 searches
+            if (recentWords.length > 5) {
+                recentWords = recentWords.slice(0, 5);
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('recentDictionarySearches', JSON.stringify(recentWords));
+            
+            // Update display
+            updateRecentSearches();
+        }
+
+        function updateRecentSearches() {
+            if (recentWords.length === 0) {
+                recentSearches.style.display = 'none';
+                return;
+            }
+            
+            recentSearches.style.display = 'block';
+            recentList.innerHTML = '';
+            
+            recentWords.forEach(word => {
+                const wordElement = document.createElement('div');
+                wordElement.className = 'recent-word';
+                wordElement.textContent = word;
+                wordElement.onclick = () => {
+                    searchInput.value = word;
+                    searchWord();
+                };
+                recentList.appendChild(wordElement);
+            });
+        }
+
+        // Allow pressing Enter to search
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchWord();
+            }
+        });
+
+        // Search for a sample word on load
+        window.addEventListener('load', function() {
+            // You can pre-load a word if desired
+            // searchInput.value = 'example';
+            // searchWord();
+        });
+    </script>
+</body>
+</html>

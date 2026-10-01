@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Constitution Annotator · line by line</title>
+  <!-- Font Awesome 6 (free) for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+      color: #f0f0f0;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* navigation bar (exactly as provided, extended) */
+    .navbar {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .back-btn {
+      padding: 8px 15px;
+      background: rgba(255, 128, 0, 0.2);
+      border: 1px solid #ff8000;
+      border-radius: 5px;
+      color: #ff8000;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 500;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 128, 0, 0.3);
+      border-color: #ffa64d;
+      color: #ffa64d;
+    }
+
+    .navbar h1 {
+      font-size: 1.7rem;
+      font-weight: 300;
+      background: linear-gradient(to right, #ffb366, #ff8000);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 0.5px;
+    }
+
+    /* main layout: two panel columns */
+    .annotator-panels {
+      display: flex;
+      gap: 24px;
+      flex: 1;
+      min-height: 70vh;
+      border-top: 1px solid rgba(255, 128, 0, 0.2);
+      padding-top: 20px;
+    }
+
+    /* left panel — constitution text */
+    .text-panel {
+      flex: 1.2;
+      background: rgba(10, 10, 26, 0.7);
+      backdrop-filter: blur(4px);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 128, 0, 0.25);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #ff8000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0,0,0,0.3);
+    }
+
+    .panel-header h2 {
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: #ffb366;
+    }
+
+    .panel-header i {
+      color: #ff8000;
+    }
+
+    .lines-container {
+      padding: 16px 8px 16px 16px;
+      overflow-y: auto;
+      flex: 1;
+      scroll-behavior: smooth;
+    }
+
+    /* individual line item */
+    .line {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 12px;
+      margin-bottom: 4px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.02);
+      border-left: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .line:hover {
+      background: rgba(255, 128, 0, 0.08);
+      border-left-color: #ff8000;
+    }
+
+    .line.selected {
+      background: rgba(255, 128, 0, 0.15);
+      border-left-color: #ff8000;
+      box-shadow: 0 2px 8px rgba(255,128,0,0.2);
+    }
+
+    .line-number {
+      color: #ff8000;
+      font-weight: 500;
+      font-size: 0.9rem;
+      min-width: 2.2rem;
+      text-align: right;
+      font-feature-settings: "tnum";
+      opacity: 0.9;
+    }
+
+    .line-text {
+      flex: 1;
+      color: #e0e0e0;
+    }
+
+    .annotation-badge {
+      background: #ff8000;
+      color: #0a0a1a;
+      font-size: 0.7rem;
+      font-weight: bold;
+      border-radius: 30px;
+      padding: 2px 8px;
+      margin-left: 6px;
+      display: inline-block;
+      line-height: 1.4;
+    }
+
+    /* right panel — annotation workspace */
+    .annotation-panel {
+      flex: 0.8;
+      background: rgba(10, 10, 26, 0.7);
+      backdrop-filter: blur(4px);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 128, 0, 0.25);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .selected-line-info {
+      background: #1f1f3a;
+      padding: 18px;
+      border-bottom: 1px solid #ff8000;
+    }
+
+    .selected-line-info .line-label {
+      color: #ffb366;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .selected-line-text {
+      margin-top: 6px;
+      font-style: italic;
+      color: #ddd;
+      font-size: 0.95rem;
+      padding-right: 8px;
+      max-height: 80px;
+      overflow-y: auto;
+      border-left: 2px solid #ff8000;
+      padding-left: 12px;
+    }
+
+    .annotations-area {
+      padding: 18px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .add-note-card {
+      background: rgba(255,128,0,0.08);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 24px;
+      border: 1px dashed #ff8000;
+    }
+
+    .add-note-card h4 {
+      color: #ffb366;
+      font-weight: 400;
+      margin-bottom: 12px;
+      font-size: 1rem;
+    }
+
+    .note-input {
+      width: 100%;
+      background: #0f0f23;
+      border: 1px solid #333370;
+      border-radius: 10px;
+      padding: 12px;
+      color: white;
+      font-size: 0.9rem;
+      resize: vertical;
+      margin-bottom: 12px;
+    }
+
+    .note-input:focus {
+      outline: none;
+      border-color: #ff8000;
+    }
+
+    .color-picker {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .color-option {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+
+    .color-option.selected-color {
+      border-color: white;
+      box-shadow: 0 0 0 2px #ff8000;
+    }
+
+    .color-option.orange { background: #ff8000; }
+    .color-option.blue { background: #3b82f6; }
+    .color-option.green { background: #10b981; }
+    .color-option.yellow { background: #fbbf24; }
+
+    .btn {
+      background: transparent;
+      border: 1px solid #ff8000;
+      color: #ff8000;
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: #ff8000;
+      color: #0a0a1a;
+    }
+
+    .btn.solid {
+      background: #ff8000;
+      color: #0a0a1a;
+    }
+
+    .btn.solid:hover {
+      background: #ffa64d;
+      border-color: #ffa64d;
+    }
+
+    .notes-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .note-item {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 12px 14px;
+      border-left: 5px solid;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      transition: 0.1s;
+    }
+
+    .note-content {
+      flex: 1;
+    }
+
+    .note-text {
+      color: white;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+
+    .note-meta {
+      font-size: 0.7rem;
+      color: #aaa;
+      display: flex;
+      gap: 12px;
+    }
+
+    .delete-note {
+      color: #ff8080;
+      background: rgba(255,0,0,0.1);
+      border: none;
+      border-radius: 30px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .delete-note:hover {
+      background: rgba(255,80,80,0.3);
+      color: #ffb3b3;
+    }
+
+    .utility-bar {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      padding: 12px 20px;
+      border-top: 1px solid rgba(255,128,0,0.3);
+    }
+
+    .empty-state {
+      color: #777;
+      text-align: center;
+      padding: 30px 0;
+      font-style: italic;
+    }
+
+    /* scrollbar styling */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0a0a1a; }
+    ::-webkit-scrollbar-thumb { background: #ff8000; border-radius: 10px; }
+
+    /* responsive */
+    @media (max-width: 800px) {
+      .annotator-panels { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <a href="../tools-list.html" class="back-btn" onclick="window.history.back(); return false;"><i class="fas fa-arrow-left"></i> Back</a>
+    <h1><i class="fas fa-gavel" style="color:#ff8000; margin-right: 10px;"></i>Constitution Annotator — line by line</h1>
+  </div>
+
+  <div class="annotator-panels">
+    <!-- LEFT PANEL: Constitution text -->
+    <div class="text-panel">
+      <div class="panel-header">
+        <h2><i class="fas fa-scroll" style="margin-right: 8px;"></i>U.S. Constitution</h2>
+        <span style="color:#ffb366; font-size:0.85rem;"><i class="fas fa-lightbulb"></i> click any line to annotate</span>
+      </div>
+      <div id="linesContainer" class="lines-container"></div>
+    </div>
+
+    <!-- RIGHT PANEL: Annotation area -->
+    <div class="annotation-panel">
+      <div class="selected-line-info" id="selectedLineInfo">
+        <div class="line-label"><i class="fas fa-pen"></i> current line</div>
+        <div id="selectedLineText" class="selected-line-text">—</div>
+      </div>
+
+      <div class="annotations-area" id="annotationsArea">
+        <!-- dynamic form + notes list -->
+      </div>
+
+      <div class="utility-bar">
+        <button class="btn" id="clearAllNotes" title="Remove all annotations"><i class="fas fa-trash-alt"></i> clear all</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // --------------------------------------------------------------
+      // CONSTITUTION LINES (curated, representative, line‑by‑line)
+      // --------------------------------------------------------------
+      const constitutionLines = [
+        "Preamble: We the People of the United States, in Order to form a more perfect Union, establish Justice, insure domestic Tranquility, provide for the common defence, promote the general Welfare, and secure the Blessings of Liberty to ourselves and our Posterity, do ordain and establish this Constitution for the United States of America.",
+        "Article I, Section 1: All legislative Powers herein granted shall be vested in a Congress of the United States, which shall consist of a Senate and House of Representatives.",
+        "Section 2, Clause 1: The House of Representatives shall be composed of Members chosen every second Year by the People of the several States, and the Electors in each State shall have the Qualifications requisite for Electors of the most numerous Branch of the State Legislature.",
+        "Section 2, Clause 2: No Person shall be a Representative who shall not have attained to the Age of twenty five Years, and been seven Years a Citizen of the United States, and who shall not, when elected, be an Inhabitant of that State in which he shall be chosen.",
+        "Section 2, Clause 3: Representatives and direct Taxes shall be apportioned among the several States which may be included within this Union, according to their respective Numbers... (three-fifths clause omitted for space)",
+        "Section 3, Clause 1: The Senate of the United States shall be composed of two Senators from each State, chosen by the Legislature thereof, for six Years; and each Senator shall have one Vote.",
+        "Section 3, Clause 2: Immediately after they shall be assembled in Consequence of the first Election, they shall be divided as equally as may be into three Classes.",
+        "Section 4: The Times, Places and Manner of holding Elections for Senators and Representatives, shall be prescribed in each State by the Legislature thereof; but the Congress may at any time by Law make or alter such Regulations.",
+        "Section 5: Each House shall be the Judge of the Elections, Returns and Qualifications of its own Members, and a Majority of each shall constitute a Quorum to do Business.",
+        "Section 6: The Senators and Representatives shall receive a Compensation for their Services, to be ascertained by Law, and paid out of the Treasury of the United States.",
+        "Section 7: All Bills for raising Revenue shall originate in the House of Representatives; but the Senate may propose or concur with Amendments as on other Bills.",
+        "Section 8, Clause 1: The Congress shall have Power To lay and collect Taxes, Duties, Imposts and Excises, to pay the Debts and provide for the common Defence and general Welfare of the United States.",
+        "Section 8, Clause 2: To borrow Money on the credit of the United States.",
+        "Section 8, Clause 3: To regulate Commerce with foreign Nations, and among the several States, and with the Indian Tribes.",
+        "Section 9, Clause 1: The Migration or Importation of such Persons as any of the States now existing shall think proper to admit, shall not be prohibited by the Congress prior to the Year one thousand eight hundred and eight.",
+        "Section 10: No State shall enter into any Treaty, Alliance, or Confederation; grant Letters of Marque and Reprisal; coin Money; emit Bills of Credit; ...",
+        "Article II, Section 1: The executive Power shall be vested in a President of the United States of America. He shall hold his Office during the Term of four Years...",
+        "Article II, Section 2: The President shall be Commander in Chief of the Army and Navy of the United States...",
+        "Article III, Section 1: The judicial Power of the United States, shall be vested in one supreme Court, and in such inferior Courts as the Congress may from time to time ordain and establish.",
+        "Article III, Section 2: The judicial Power shall extend to all Cases, in Law and Equity, arising under this Constitution, the Laws of the United States, and Treaties...",
+        "Article IV, Section 1: Full Faith and Credit shall be given in each State to the public Acts, Records, and judicial Proceedings of every other State.",
+        "Article V: The Congress, whenever two thirds of both Houses shall deem it necessary, shall propose Amendments to this Constitution...",
+        "Article VI: This Constitution, and the Laws of the United States which shall be made in Pursuance thereof; and all Treaties made, or which shall be made, under the Authority of the United States, shall be the supreme Law of the Land.",
+        "Amendment I: Congress shall make no law respecting an establishment of religion, or prohibiting the free exercise thereof; or abridging the freedom of speech, or of the press; or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances.",
+        "Amendment II: A well regulated Militia, being necessary to the security of a free State, the right of the people to keep and bear Arms, shall not be infringed.",
+        "Amendment III: No Soldier shall, in time of peace be quartered in any house, without the consent of the Owner...",
+        "Amendment IV: The right of the people to be secure in their persons, houses, papers, and effects, against unreasonable searches and seizures, shall not be violated...",
+        "Amendment V: No person shall be held to answer for a capital, or otherwise infamous crime, unless on a presentment or indictment of a Grand Jury...",
+        "Amendment VI: In all criminal prosecutions, the accused shall enjoy the right to a speedy and public trial...",
+        "Amendment VII: In Suits at common law, where the value in controversy shall exceed twenty dollars, the right of trial by jury shall be preserved...",
+        "Amendment VIII: Excessive bail shall not be required, nor excessive fines imposed, nor cruel and unusual punishments inflicted.",
+        "Amendment IX: The enumeration in the Constitution, of certain rights, shall not be construed to deny or disparage others retained by the people.",
+        "Amendment X: The powers not delegated to the United States by the Constitution, nor prohibited by it to the States, are reserved to the States respectively, or to the people.",
+        "Amendment XIII, Section 1: Neither slavery nor involuntary servitude, except as a punishment for crime whereof the party shall have been duly convicted, shall exist within the United States...",
+        "Amendment XIV, Section 1: All persons born or naturalized in the United States, and subject to the jurisdiction thereof, are citizens of the United States...",
+        "Amendment XV, Section 1: The right of citizens of the United States to vote shall not be denied or abridged by the United States or by any State on account of race, color, or previous condition of servitude.",
+        "Amendment XIX: The right of citizens of the United States to vote shall not be denied or abridged by the United States or by any State on account of sex."
+      ];
+
+      // ---------- state ----------
+      let annotations = JSON.parse(localStorage.getItem('constitutionAnnotations')) || {};  // lineId -> array of notes
+      let selectedLineId = 0;      // default to first line
+      let currentNoteColor = '#ff8000';  // default orange
+
+      // ---------- helpers ----------
+      function saveToLocal() {
+        localStorage.setItem('constitutionAnnotations', JSON.stringify(annotations));
+      }
+
+      // render left panel lines
+      function renderLines() {
+        const container = document.getElementById('linesContainer');
+        if (!container) return;
+        let html = '';
+        constitutionLines.forEach((lineText, idx) => {
+          const noteCount = annotations[idx] ? annotations[idx].length : 0;
+          const selectedClass = (idx === selectedLineId) ? 'selected' : '';
+          html += `
+            <div class="line ${selectedClass}" data-line-id="${idx}">
+              <span class="line-number">${idx+1}.</span>
+              <span class="line-text">${escapeHtml(lineText)}</span>
+              ${noteCount > 0 ? `<span class="annotation-badge">${noteCount}</span>` : ''}
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+
+        // attach click listeners
+        document.querySelectorAll('.line').forEach(lineDiv => {
+          lineDiv.addEventListener('click', (e) => {
+            const id = parseInt(lineDiv.dataset.lineId, 10);
+            selectLine(id);
+          });
+        });
+      }
+
+      // simple escape for XSS
+      function escapeHtml(unsafe) {
+        return unsafe.replace(/[&<>"']/g, function(m) {
+          if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;';
+          if(m === '"') return '&quot;'; return '&#039;';
+        });
+      }
+
+      // update selected line, re-render panels
+      function selectLine(lineId) {
+        if (lineId === selectedLineId) return;
+        selectedLineId = lineId;
+        renderLines();
+        renderAnnotationPanel();
+      }
+
+      // right panel: annotation form + notes
+      function renderAnnotationPanel() {
+        const area = document.getElementById('annotationsArea');
+        const infoDiv = document.getElementById('selectedLineInfo');
+        const selectedTextSpan = document.getElementById('selectedLineText');
+
+        // update header
+        const lineContent = constitutionLines[selectedLineId] || '';
+        selectedTextSpan.textContent = lineContent.length > 120 ? lineContent.substring(0,120)+'…' : lineContent;
+
+        // get existing notes for this line
+        const lineNotes = annotations[selectedLineId] || [];
+
+        // build html
+        let html = `
+          <div class="add-note-card">
+            <h4><i class="fas fa-plus-circle"></i> add annotation</h4>
+            <textarea id="noteInput" class="note-input" rows="2" placeholder="Write your annotation..."></textarea>
+            <div class="color-picker">
+              <span style="color:#ccc; margin-right:6px;">color:</span>
+              <div class="color-option orange ${currentNoteColor === '#ff8000' ? 'selected-color' : ''}" data-color="#ff8000"></div>
+              <div class="color-option blue ${currentNoteColor === '#3b82f6' ? 'selected-color' : ''}" data-color="#3b82f6"></div>
+              <div class="color-option green ${currentNoteColor === '#10b981' ? 'selected-color' : ''}" data-color="#10b981"></div>
+              <div class="color-option yellow ${currentNoteColor === '#fbbf24' ? 'selected-color' : ''}" data-color="#fbbf24"></div>
+            </div>
+            <button class="btn solid" id="addNoteBtn"><i class="fas fa-save"></i> save note</button>
+          </div>
+          <div class="notes-list" id="notesList">
+        `;
+
+        if (lineNotes.length === 0) {
+          html += `<div class="empty-state"><i class="fas fa-regular fa-note-sticky"></i> no annotations yet</div>`;
+        } else {
+          lineNotes.forEach((note, index) => {
+            const date = new Date(note.timestamp).toLocaleString(undefined, {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+            html += `
+              <div class="note-item" style="border-left-color: ${note.color || '#ff8000'};">
+                <div class="note-content">
+                  <div class="note-text">${escapeHtml(note.text)}</div>
+                  <div class="note-meta">${date}</div>
+                </div>
+                <button class="delete-note" data-note-id="${note.id}" data-line="${selectedLineId}" title="delete note"><i class="fas fa-times"></i></button>
+              </div>
+            `;
+          });
+        }
+        html += `</div>`; // close notes-list
+        area.innerHTML = html;
+
+        // color picker click
+        document.querySelectorAll('.color-option').forEach(opt => {
+          opt.addEventListener('click', (e) => {
+            const color = opt.dataset.color;
+            if (color) {
+              currentNoteColor = color;
+              // update selected UI
+              document.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected-color'));
+              opt.classList.add('selected-color');
+            }
+          });
+        });
+
+        // add note button
+        document.getElementById('addNoteBtn')?.addEventListener('click', () => {
+          const input = document.getElementById('noteInput');
+          const text = input.value.trim();
+          if (!text) return;
+
+          if (!annotations[selectedLineId]) annotations[selectedLineId] = [];
+          const newNote = {
+            id: Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+            text: text,
+            color: currentNoteColor,
+            timestamp: Date.now()
+          };
+          annotations[selectedLineId].push(newNote);
+          saveToLocal();
+          input.value = ''; // clear
+          renderLines();    // update badge
+          renderAnnotationPanel();  // refresh right panel
+        });
+
+        // delete note
+        document.querySelectorAll('.delete-note').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const noteId = btn.dataset.noteId;
+            const lineId = parseInt(btn.dataset.line, 10);
+            if (!isNaN(lineId) && noteId && annotations[lineId]) {
+              annotations[lineId] = annotations[lineId].filter(n => n.id !== noteId);
+              // if empty array, delete key (optional)
+              if (annotations[lineId].length === 0) delete annotations[lineId];
+              saveToLocal();
+              renderLines();
+              renderAnnotationPanel(); // stay on same line
+            }
+          });
+        });
+      }
+
+      // clear all annotations everywhere
+      function clearAllAnnotations() {
+        if (confirm('Delete ALL annotations from every line?')) {
+          annotations = {};
+          saveToLocal();
+          renderLines();
+          renderAnnotationPanel();
+        }
+      }
+
+      // initialise
+      function init() {
+        // ensure selectedLineId exists in array
+        if (selectedLineId >= constitutionLines.length) selectedLineId = 0;
+        renderLines();
+        renderAnnotationPanel();
+
+        // clear all button
+        document.getElementById('clearAllNotes').addEventListener('click', clearAllAnnotations);
+
+        // optional: sync if localStorage changes elsewhere (not critical)
+      }
+
+      window.addEventListener('load', init);
+    })();
+  </script>
+</body>
+</html>

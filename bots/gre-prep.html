@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRE Prep - Interactive Study Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a1a0a, #1a2e1a);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 35, 20, 0.85);
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4CAF50;
+            border-radius: 5px;
+            color: #4CAF50;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(76, 175, 80, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        
+        .section {
+            background: rgba(20, 35, 25, 0.6);
+            border: 1px solid rgba(76, 175, 80, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+        }
+        
+        .section:hover {
+            transform: translateY(-5px);
+        }
+        
+        .topic {
+            background: rgba(40, 70, 40, 0.4);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 12px 0;
+            border-left: 3px solid #4CAF50;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .topic:hover {
+            background: rgba(40, 70, 40, 0.7);
+            transform: translateX(5px);
+        }
+        
+        h2 {
+            margin-bottom: 20px;
+            color: #4CAF50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        h3 {
+            margin: 15px 0 10px;
+            color: #81C784;
+        }
+        
+        /* Practice Section */
+        .practice-section {
+            grid-column: span 2;
+        }
+        
+        .question-container {
+            background: rgba(25, 45, 30, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .question {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .option {
+            padding: 12px;
+            background: rgba(35, 60, 40, 0.8);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        
+        .option:hover {
+            background: rgba(45, 80, 50, 0.9);
+            border-color: #4CAF50;
+        }
+        
+        .option.selected {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: #4CAF50;
+        }
+        
+        .option.correct {
+            background: rgba(0, 200, 0, 0.2);
+            border-color: #00cc00;
+        }
+        
+        .option.incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border-color: #ff3333;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background: #66BB6A;
+            transform: translateY(-2px);
+        }
+        
+        button.secondary {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4CAF50;
+        }
+        
+        button.secondary:hover {
+            background: rgba(76, 175, 80, 0.4);
+        }
+        
+        /* Progress Tracker */
+        .progress-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: rgba(40, 70, 40, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #81C784);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .stat-box {
+            text-align: center;
+            background: rgba(25, 45, 30, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            flex: 1;
+            margin: 0 5px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        /* Timer Section */
+        .timer-container {
+            text-align: center;
+            padding: 15px;
+            background: rgba(25, 45, 30, 0.7);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        #timer {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 10px 0;
+        }
+        
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        /* Tips Section */
+        .tips-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .tip-card {
+            background: rgba(25, 45, 30, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            border-top: 3px solid #4CAF50;
+        }
+        
+        /* Section-specific colors */
+        .verbal-color {
+            border-left-color: #2196F3;
+        }
+        
+        .quant-color {
+            border-left-color: #FF9800;
+        }
+        
+        .writing-color {
+            border-left-color: #9C27B0;
+        }
+        
+        .verbal-bg {
+            background: rgba(33, 150, 243, 0.1);
+        }
+        
+        .quant-bg {
+            background: rgba(255, 152, 0, 0.1);
+        }
+        
+        .writing-bg {
+            background: rgba(156, 39, 176, 0.1);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .practice-section {
+                grid-column: span 1;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .result {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .result.correct {
+            background: rgba(0, 200, 0, 0.2);
+            border: 1px solid #00cc00;
+        }
+        
+        .result.incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff3333;
+        }
+        
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(25, 45, 30, 0.9);
+            border-radius: 8px;
+            border-left: 3px solid #81C784;
+        }
+        
+        .section-info {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        
+        .question-counter {
+            background: rgba(76, 175, 80, 0.2);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+        
+        .easy {
+            background: rgba(0, 200, 0, 0.2);
+            color: #00cc00;
+        }
+        
+        .medium {
+            background: rgba(255, 200, 0, 0.2);
+            color: #ffcc00;
+        }
+        
+        .hard {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff6666;
+        }
+        
+        /* GRE Specific */
+        .vocab-card {
+            background: rgba(30, 50, 35, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #2196F3;
+        }
+        
+        .vocab-word {
+            font-weight: bold;
+            color: #2196F3;
+            font-size: 1.2rem;
+        }
+        
+        .vocab-definition {
+            margin-top: 5px;
+        }
+        
+        .math-formula {
+            background: rgba(30, 50, 35, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #FF9800;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .writing-prompt {
+            background: rgba(30, 50, 35, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #9C27B0;
+            font-style: italic;
+        }
+        
+        .score-scale {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .score-point {
+            flex: 1;
+            padding: 10px;
+            background: rgba(25, 45, 30, 0.7);
+            margin: 0 5px;
+            border-radius: 5px;
+        }
+        
+        .score-point.active {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        <span style="font-size: 1.5rem; font-weight: bold; color: #4CAF50;">GRE Prep Interactive</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-user-graduate"></i>
+            <span>Graduate Study Mode</span>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Study Topics Section -->
+        <div class="section">
+            <h2><i class="fas fa-book-reader"></i> GRE Topics</h2>
+            <div class="topic verbal-color" onclick="loadPracticeQuestions('verbal')">
+                <div>
+                    <strong><i class="fas fa-comment-dots"></i> Verbal Reasoning:</strong> Vocabulary, reading comprehension, text completion
+                    <div class="section-info">2 sections • 30 min each • 130-170 score scale</div>
+                </div>
+                <div class="question-counter">0/5 practiced</div>
+            </div>
+            <div class="topic quant-color" onclick="loadPracticeQuestions('quant')">
+                <div>
+                    <strong><i class="fas fa-calculator"></i> Quantitative Reasoning:</strong> Math problems, data interpretation
+                    <div class="section-info">2 sections • 35 min each • 130-170 score scale</div>
+                </div>
+                <div class="question-counter">0/5 practiced</div>
+            </div>
+            <div class="topic writing-color" onclick="loadPracticeQuestions('writing')">
+                <div>
+                    <strong><i class="fas fa-edit"></i> Analytical Writing:</strong> Issue and argument essays
+                    <div class="section-info">2 essays • 30 min each • 0-6 score scale</div>
+                </div>
+                <div class="question-counter">0/3 practiced</div>
+            </div>
+        </div>
+        
+        <!-- Progress Tracker -->
+        <div class="section">
+            <h2><i class="fas fa-chart-line"></i> Your GRE Progress</h2>
+            <div class="progress-container">
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>Overall Progress</span>
+                        <span id="progress-percent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-number" id="questions-answered">0</div>
+                        <div>Questions Answered</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="correct-answers">0</div>
+                        <div>Correct Answers</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="score-estimate">130</div>
+                        <div>Estimated Score</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <h3>Section Performance</h3>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <div style="flex: 1; text-align: center; padding: 10px; border-radius: 5px;" class="verbal-bg">
+                            <div style="font-weight: bold; color: #2196F3;">Verbal</div>
+                            <div id="verbal-score">0%</div>
+                        </div>
+                        <div style="flex: 1; text-align: center; padding: 10px; border-radius: 5px;" class="quant-bg">
+                            <div style="font-weight: bold; color: #FF9800;">Quant</div>
+                            <div id="quant-score">0%</div>
+                        </div>
+                        <div style="flex: 1; text-align: center; padding: 10px; border-radius: 5px;" class="writing-bg">
+                            <div style="font-weight: bold; color: #9C27B0;">Writing</div>
+                            <div id="writing-score">0%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <h3>GRE Score Scale</h3>
+                    <div class="score-scale">
+                        <div class="score-point" id="score-130">130</div>
+                        <div class="score-point" id="score-140">140</div>
+                        <div class="score-point" id="score-150">150</div>
+                        <div class="score-point" id="score-160">160</div>
+                        <div class="score-point" id="score-170">170</div>
+                    </div>
+                    <div style="text-align: center; margin-top: 10px; font-size: 0.9rem; color: #aaa;">
+                        Your estimated score: <span id="current-score-display">130</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Practice Section -->
+        <div class="section practice-section">
+            <h2><i class="fas fa-brain"></i> GRE Practice Questions</h2>
+            
+            <!-- Timer Section -->
+            <div class="timer-container">
+                <h3>GRE Section Timer</h3>
+                <div id="timer">30:00</div>
+                <div class="timer-controls">
+                    <button onclick="startTimer()"><i class="fas fa-play"></i> Start</button>
+                    <button onclick="pauseTimer()" class="secondary"><i class="fas fa-pause"></i> Pause</button>
+                    <button onclick="resetTimer()" class="secondary"><i class="fas fa-redo"></i> Reset</button>
+                </div>
+                <div style="margin-top: 10px;">
+                    <button onclick="setTimerForSection('verbal')" class="secondary" style="padding: 5px 10px;">Verbal (30m)</button>
+                    <button onclick="setTimerForSection('quant')" class="secondary" style="padding: 5px 10px;">Quantitative (35m)</button>
+                    <button onclick="setTimerForSection('writing')" class="secondary" style="padding: 5px 10px;">Writing (30m)</button>
+                </div>
+            </div>
+            
+            <!-- Question Display -->
+            <div id="question-display">
+                <div class="question-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h3 id="section-title">Click on a section to start practicing!</h3>
+                        <div id="difficulty-tag"></div>
+                    </div>
+                    <div class="question" id="question-text">Select a GRE section above to begin your practice session. Each section has timed practice questions similar to the actual GRE test.</div>
+                    <div class="options" id="options-container">
+                        <!-- Options will be populated by JavaScript -->
+                    </div>
+                    
+                    <!-- Vocabulary Card (for verbal section) -->
+                    <div id="vocab-card-container" class="hidden">
+                        <div class="vocab-card">
+                            <div class="vocab-word" id="vocab-word">Word of the Day</div>
+                            <div class="vocab-definition" id="vocab-definition">Definition will appear here</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Math Formula (for quant section) -->
+                    <div id="formula-container" class="hidden">
+                        <div class="math-formula">
+                            <strong>Useful Formula:</strong> <span id="formula-text">Formula will appear here</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Writing Prompt (for writing section) -->
+                    <div id="prompt-container" class="hidden">
+                        <div class="writing-prompt">
+                            <strong>Writing Prompt:</strong> <span id="prompt-text">Prompt will appear here</span>
+                        </div>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button onclick="submitAnswer()" id="submit-btn" disabled>Submit Answer</button>
+                        <button onclick="nextQuestion()" class="secondary" id="next-btn" disabled>Next Question</button>
+                        <button onclick="showExplanation()" class="secondary" id="explain-btn" disabled>Show Explanation</button>
+                        <button onclick="showTips()" class="secondary" id="tips-btn"><i class="fas fa-lightbulb"></i> Section Tips</button>
+                    </div>
+                    <div id="result-container"></div>
+                </div>
+            </div>
+            
+            <!-- Tips Display -->
+            <div id="tips-display" class="hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3><i class="fas fa-lightbulb"></i> GRE Success Tips</h3>
+                    <button onclick="hideTips()" class="secondary" style="padding: 5px 10px;">Back to Questions</button>
+                </div>
+                <div class="tips-container">
+                    <div class="tip-card">
+                        <h4><i class="fas fa-comment-dots"></i> Verbal Reasoning</h4>
+                        <p>Learn root words and prefixes. For reading comprehension, read questions first, then the passage. Eliminate obviously wrong answers.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4><i class="fas fa-calculator"></i> Quantitative Reasoning</h4>
+                        <p>Memorize key formulas (geometry, algebra). Use estimation when exact calculation is time-consuming. Check units and conversions.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4><i class="fas fa-edit"></i> Analytical Writing</h4>
+                        <p>Spend 5 minutes planning your essay structure. Use specific examples. Vary sentence structure and vocabulary.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4><i class="fas fa-clock"></i> Time Management</h4>
+                        <p>Skip difficult questions and return later. Use the "mark" feature to flag questions. Pace yourself to finish with time to review.</p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="loadPracticeQuestions(currentTopic)"><i class="fas fa-question-circle"></i> Practice This Section</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // GRE Practice Questions Database
+        const questionBank = {
+            verbal: [
+                {
+                    question: "The scientist's findings were so ______ that even her most skeptical colleagues had to acknowledge their validity.",
+                    options: [
+                        "equivocal",
+                        "irrefutable", 
+                        "spurious",
+                        "tenuous"
+                    ],
+                    correct: 1,
+                    explanation: "'Irrefutable' means impossible to deny or disprove, which fits the context of findings so convincing that even skeptics acknowledge them.",
+                    difficulty: "medium",
+                    type: "text-completion"
+                },
+                {
+                    question: "The author's prose, while sometimes convoluted, is never truly (i)______; even her most complex passages can be understood with (ii)______ reading.",
+                    options: [
+                        "A. obscure  B. cursory",
+                        "A. lucid    B. diligent",
+                        "A. cryptic  B. careful",
+                        "A. abstruse B. perfunctory"
+                    ],
+                    correct: 2,
+                    explanation: "'Cryptic' (meaning mysterious or difficult to understand) contrasts with 'can be understood', and 'careful' reading would help understand difficult passages.",
+                    difficulty: "hard",
+                    type: "sentence-equivalence"
+                }
+            ],
+            quant: [
+                {
+                    question: "If x and y are positive integers and x² - y² = 24, what is the value of x?",
+                    options: ["5", "6", "7", "8"],
+                    correct: 2,
+                    explanation: "x² - y² = (x+y)(x-y) = 24. Since x and y are positive integers, possible factor pairs of 24: (6,4), (8,3), (12,2), (24,1). With (6,4): x+y=6, x-y=4 → solving gives x=5, y=1. With (8,3): x+y=8, x-y=3 → x=5.5 (not integer). So x=5, but 5 is not an option. Wait, check (12,2): x+y=12, x-y=2 → x=7, y=5. So x=7.",
+                    difficulty: "medium",
+                    type: "quantitative-comparison"
+                },
+                {
+                    question: "The average of five numbers is 20. If one number is removed, the average of the remaining numbers is 18. What is the value of the removed number?",
+                    options: ["22", "24", "26", "28"],
+                    correct: 3,
+                    explanation: "Sum of five numbers = 5 × 20 = 100. After removing one number, sum of four numbers = 4 × 18 = 72. The removed number = 100 - 72 = 28.",
+                    difficulty: "easy",
+                    type: "problem-solving"
+                }
+            ],
+            writing: [
+                {
+                    question: "Which of the following would be the MOST effective thesis statement for an 'Issue' essay on technology's impact on education?",
+                    options: [
+                        "Technology has changed education in many ways.",
+                        "While technology offers unprecedented access to information, its integration in education must be balanced with traditional teaching methods to develop critical thinking skills.",
+                        "Technology is good for education because it helps students learn.",
+                        "Some people think technology helps education, while others think it doesn't."
+                    ],
+                    correct: 1,
+                    explanation: "A strong GRE essay thesis presents a nuanced position and outlines the direction of the argument, as option 1 does by acknowledging both benefits and the need for balance.",
+                    difficulty: "medium",
+                    type: "issue-essay"
+                },
+                {
+                    question: "In the 'Argument' essay task, you should primarily:",
+                    options: [
+                        "Agree with the argument and provide additional supporting evidence",
+                        "Summarize the argument in your own words",
+                        "Evaluate the logical soundness of the argument's reasoning and evidence",
+                        "Present your own argument on the same topic"
+                    ],
+                    correct: 2,
+                    explanation: "The 'Argument' task specifically asks you to critique the logical reasoning and evidence of the given argument, not to present your own views on the topic.",
+                    difficulty: "medium",
+                    type: "argument-essay"
+                }
+            ]
+        };
+
+        // GRE Vocabulary Words
+        const vocabularyList = [
+            { word: "Abstruse", definition: "Difficult to understand; obscure" },
+            { word: "Capricious", definition: "Given to sudden and unaccountable changes of mood or behavior" },
+            { word: "Esoteric", definition: "Intended for or likely to be understood by only a small number of people with specialized knowledge" },
+            { word: "Garrulous", definition: "Excessively talkative, especially on trivial matters" },
+            { word: "Laconic", definition: "Using very few words" },
+            { word: "Meticulous", definition: "Showing great attention to detail; very careful and precise" },
+            { word: "Prosaic", definition: "Having the style or diction of prose; lacking poetic beauty; commonplace" },
+            { word: "Quixotic", definition: "Exceedingly idealistic; unrealistic and impractical" }
+        ];
+
+        // GRE Math Formulas
+        const mathFormulas = [
+            "Area of circle = πr²",
+            "Pythagorean theorem: a² + b² = c²",
+            "Quadratic formula: x = [-b ± √(b² - 4ac)] / 2a",
+            "Slope formula: m = (y₂ - y₁) / (x₂ - x₁)",
+            "Distance formula: d = √[(x₂ - x₁)² + (y₂ - y₁)²]",
+            "Volume of cylinder = πr²h",
+            "Probability = favorable outcomes / total outcomes",
+            "Combinations: nCr = n! / [r!(n-r)!]"
+        ];
+
+        // GRE Writing Prompts
+        const writingPrompts = [
+            "To understand the most important characteristics of a society, one must study its major cities.",
+            "The best way to teach is to praise positive actions and ignore negative ones.",
+            "In any field of inquiry, the beginner is more likely than the expert to make important discoveries.",
+            "Educational institutions have a responsibility to dissuade students from pursuing fields of study in which they are unlikely to succeed."
+        ];
+
+        // User progress tracking
+        let userProgress = {
+            questionsAnswered: 0,
+            correctAnswers: 0,
+            verbal: { answered: 0, correct: 0 },
+            quant: { answered: 0, correct: 0 },
+            writing: { answered: 0, correct: 0 },
+            lastStudyDate: null,
+            estimatedVerbalScore: 130,
+            estimatedQuantScore: 130,
+            estimatedWritingScore: 0
+        };
+
+        // Current question state
+        let currentTopic = '';
+        let currentQuestionIndex = 0;
+        let selectedOption = null;
+        let timerInterval = null;
+        let timerSeconds = 30 * 60; // 30 minutes for Verbal section by default
+        let isTimerRunning = false;
+
+        // DOM elements
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const submitBtn = document.getElementById('submit-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const explainBtn = document.getElementById('explain-btn');
+        const resultContainer = document.getElementById('result-container');
+        const progressFill = document.getElementById('progress-fill');
+        const progressPercent = document.getElementById('progress-percent');
+        const questionsAnswered = document.getElementById('questions-answered');
+        const correctAnswers = document.getElementById('correct-answers');
+        const scoreEstimate = document.getElementById('score-estimate');
+        const timerDisplay = document.getElementById('timer');
+        const questionDisplay = document.getElementById('question-display');
+        const tipsDisplay = document.getElementById('tips-display');
+        const sectionTitle = document.getElementById('section-title');
+        const difficultyTag = document.getElementById('difficulty-tag');
+        
+        // Special containers
+        const vocabCardContainer = document.getElementById('vocab-card-container');
+        const vocabWord = document.getElementById('vocab-word');
+        const vocabDefinition = document.getElementById('vocab-definition');
+        const formulaContainer = document.getElementById('formula-container');
+        const formulaText = document.getElementById('formula-text');
+        const promptContainer = document.getElementById('prompt-container');
+        const promptText = document.getElementById('prompt-text');
+        
+        // Section score displays
+        const verbalScore = document.getElementById('verbal-score');
+        const quantScore = document.getElementById('quant-score');
+        const writingScore = document.getElementById('writing-score');
+        
+        // Score scale elements
+        const currentScoreDisplay = document.getElementById('current-score-display');
+
+        // Initialize progress from localStorage
+        function loadProgress() {
+            const savedProgress = localStorage.getItem('grePrepProgress');
+            if (savedProgress) {
+                userProgress = JSON.parse(savedProgress);
+            }
+            updateProgressDisplay();
+            updateSectionCounters();
+            updateScoreScale();
+        }
+
+        // Save progress to localStorage
+        function saveProgress() {
+            localStorage.setItem('grePrepProgress', JSON.stringify(userProgress));
+        }
+
+        // Update progress display
+        function updateProgressDisplay() {
+            // Calculate progress percentage
+            const totalQuestions = 20; // Target goal
+            const progress = Math.min((userProgress.questionsAnswered / totalQuestions) * 100, 100);
+            
+            progressFill.style.width = `${progress}%`;
+            progressPercent.textContent = `${Math.round(progress)}%`;
+            
+            questionsAnswered.textContent = userProgress.questionsAnswered;
+            correctAnswers.textContent = userProgress.correctAnswers;
+            
+            // Calculate estimated GRE scores
+            updateEstimatedScores();
+            
+            // Calculate overall estimated score (average of verbal and quant)
+            let overallScore = 130;
+            if (userProgress.verbal.answered > 0 || userProgress.quant.answered > 0) {
+                const verbalEst = userProgress.estimatedVerbalScore;
+                const quantEst = userProgress.estimatedQuantScore;
+                overallScore = Math.round((verbalEst + quantEst) / 2);
+            }
+            scoreEstimate.textContent = overallScore;
+            
+            // Update section scores
+            updateSectionScores();
+            
+            // Update current score display
+            currentScoreDisplay.textContent = overallScore;
+            
+            saveProgress();
+        }
+
+        // Update estimated scores for each section
+        function updateEstimatedScores() {
+            // Verbal score (130-170 scale)
+            if (userProgress.verbal.answered > 0) {
+                const accuracy = userProgress.verbal.correct / userProgress.verbal.answered;
+                userProgress.estimatedVerbalScore = 130 + Math.round(accuracy * 40);
+            }
+            
+            // Quantitative score (130-170 scale)
+            if (userProgress.quant.answered > 0) {
+                const accuracy = userProgress.quant.correct / userProgress.quant.answered;
+                userProgress.estimatedQuantScore = 130 + Math.round(accuracy * 40);
+            }
+            
+            // Writing score (0-6 scale)
+            if (userProgress.writing.answered > 0) {
+                const accuracy = userProgress.writing.correct / userProgress.writing.answered;
+                userProgress.estimatedWritingScore = Math.round(accuracy * 6 * 10) / 10; // One decimal place
+            }
+        }
+
+        // Update section scores
+        function updateSectionScores() {
+            // Verbal score
+            let verbalDisplay = "0%";
+            if (userProgress.verbal.answered > 0) {
+                const percentage = Math.round((userProgress.verbal.correct / userProgress.verbal.answered) * 100);
+                verbalDisplay = `${percentage}%`;
+            }
+            verbalScore.textContent = verbalDisplay;
+            
+            // Quant score
+            let quantDisplay = "0%";
+            if (userProgress.quant.answered > 0) {
+                const percentage = Math.round((userProgress.quant.correct / userProgress.quant.answered) * 100);
+                quantDisplay = `${percentage}%`;
+            }
+            quantScore.textContent = quantDisplay;
+            
+            // Writing score
+            let writingDisplay = "0%";
+            if (userProgress.writing.answered > 0) {
+                const percentage = Math.round((userProgress.writing.correct / userProgress.writing.answered) * 100);
+                writingDisplay = `${percentage}%`;
+            }
+            writingScore.textContent = writingDisplay;
+        }
+
+        // Update score scale visualization
+        function updateScoreScale() {
+            const overallScore = parseInt(scoreEstimate.textContent);
+            const scorePoints = [130, 140, 150, 160, 170];
+            
+            scorePoints.forEach(score => {
+                const element = document.getElementById(`score-${score}`);
+                if (element) {
+                    element.classList.remove('active');
+                    // Highlight the score point closest to the user's score
+                    if (overallScore >= score && overallScore < score + 10) {
+                        element.classList.add('active');
+                    }
+                }
+            });
+        }
+
+        // Update section question counters
+        function updateSectionCounters() {
+            const topics = document.querySelectorAll('.topic');
+            topics.forEach(topic => {
+                const topicText = topic.querySelector('strong').textContent.toLowerCase();
+                let section = '';
+                
+                if (topicText.includes('verbal')) section = 'verbal';
+                else if (topicText.includes('quant')) section = 'quant';
+                else if (topicText.includes('writing')) section = 'writing';
+                
+                if (section && userProgress[section]) {
+                    const counter = topic.querySelector('.question-counter');
+                    if (counter) {
+                        const maxQuestions = section === 'writing' ? 3 : 5;
+                        counter.textContent = `${userProgress[section].answered}/${maxQuestions} practiced`;
+                    }
+                }
+            });
+        }
+
+        // Load practice questions for a specific topic
+        function loadPracticeQuestions(topic) {
+            currentTopic = topic;
+            currentQuestionIndex = 0;
+            selectedOption = null;
+            
+            // Hide tips and show questions
+            tipsDisplay.classList.add('hidden');
+            questionDisplay.classList.remove('hidden');
+            
+            // Set appropriate timer for section
+            setTimerForSection(topic);
+            
+            // Update section title
+            const sectionNames = {
+                verbal: "Verbal Reasoning",
+                quant: "Quantitative Reasoning",
+                writing: "Analytical Writing"
+            };
+            sectionTitle.textContent = sectionNames[topic] || "GRE Practice";
+            
+            // Show/hide special containers based on section
+            vocabCardContainer.classList.add('hidden');
+            formulaContainer.classList.add('hidden');
+            promptContainer.classList.add('hidden');
+            
+            if (topic === 'verbal') {
+                vocabCardContainer.classList.remove('hidden');
+                showRandomVocabulary();
+            } else if (topic === 'quant') {
+                formulaContainer.classList.remove('hidden');
+                showRandomFormula();
+            } else if (topic === 'writing') {
+                promptContainer.classList.remove('hidden');
+                showRandomPrompt();
+            }
+            
+            // Update question display
+            displayQuestion();
+            
+            // Reset buttons
+            submitBtn.disabled = true;
+            nextBtn.disabled = true;
+            explainBtn.disabled = true;
+            resultContainer.innerHTML = '';
+            
+            // Update last study date
+            userProgress.lastStudyDate = new Date().toDateString();
+            updateProgressDisplay();
+            updateScoreScale();
+        }
+
+        // Display current question
+        function displayQuestion() {
+            const questions = questionBank[currentTopic];
+            if (!questions || questions.length === 0) {
+                questionText.textContent = "No questions available for this topic yet. Try another topic!";
+                optionsContainer.innerHTML = "";
+                return;
+            }
+            
+            const question = questions[currentQuestionIndex];
+            questionText.textContent = question.question;
+            
+            // Clear previous options
+            optionsContainer.innerHTML = "";
+            
+            // Create new options
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = `${String.fromCharCode(65 + index)}. ${option}`;
+                optionElement.onclick = () => selectOption(index, optionElement);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Update difficulty tag
+            if (question.difficulty) {
+                difficultyTag.innerHTML = `<span class="difficulty ${question.difficulty}">${question.difficulty.toUpperCase()}</span>`;
+            } else {
+                difficultyTag.innerHTML = '';
+            }
+            
+            // Reset selection
+            selectedOption = null;
+        }
+
+        // Show random vocabulary word
+        function showRandomVocabulary() {
+            const randomIndex = Math.floor(Math.random() * vocabularyList.length);
+            const vocab = vocabularyList[randomIndex];
+            vocabWord.textContent = vocab.word;
+            vocabDefinition.textContent = vocab.definition;
+        }
+
+        // Show random math formula
+        function showRandomFormula() {
+            const randomIndex = Math.floor(Math.random() * mathFormulas.length);
+            formulaText.textContent = mathFormulas[randomIndex];
+        }
+
+        // Show random writing prompt
+        function showRandomPrompt() {
+            const randomIndex = Math.floor(Math.random() * writingPrompts.length);
+            promptText.textContent = writingPrompts[randomIndex];
+        }
+
+        // Select an option
+        function selectOption(index, element) {
+            // Remove selected class from all options
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            element.classList.add('selected');
+            selectedOption = index;
+            
+            // Enable submit button
+            submitBtn.disabled = false;
+        }
+
+        // Submit answer
+        function submitAnswer() {
+            if (selectedOption === null) return;
+            
+            const questions = questionBank[currentTopic];
+            const question = questions[currentQuestionIndex];
+            const isCorrect = selectedOption === question.correct;
+            
+            // Update user progress
+            userProgress.questionsAnswered++;
+            userProgress[currentTopic].answered++;
+            
+            if (isCorrect) {
+                userProgress.correctAnswers++;
+                userProgress[currentTopic].correct++;
+            }
+            
+            updateProgressDisplay();
+            updateSectionCounters();
+            updateScoreScale();
+            
+            // Show result
+            resultContainer.innerHTML = '';
+            const resultElement = document.createElement('div');
+            resultElement.className = `result ${isCorrect ? 'correct' : 'incorrect'}`;
+            resultElement.innerHTML = `
+                <i class="fas fa-${isCorrect ? 'check-circle' : 'times-circle'}"></i>
+                ${isCorrect ? 'Correct!' : 'Incorrect!'}
+            `;
+            resultContainer.appendChild(resultElement);
+            
+            // Show correct answer
+            document.querySelectorAll('.option').forEach((opt, index) => {
+                if (index === question.correct) {
+                    opt.classList.add('correct');
+                } else if (index === selectedOption && !isCorrect) {
+                    opt.classList.add('incorrect');
+                }
+            });
+            
+            // Enable next and explain buttons
+            nextBtn.disabled = false;
+            explainBtn.disabled = false;
+            submitBtn.disabled = true;
+        }
+
+        // Show explanation
+        function showExplanation() {
+            const questions = questionBank[currentTopic];
+            const question = questions[currentQuestionIndex];
+            
+            // Remove any existing explanation
+            const existingExplanation = document.querySelector('.explanation');
+            if (existingExplanation) {
+                existingExplanation.remove();
+            }
+            
+            // Create and append explanation
+            const explanationElement = document.createElement('div');
+            explanationElement.className = 'explanation';
+            explanationElement.innerHTML = `
+                <h4><i class="fas fa-lightbulb"></i> Explanation:</h4>
+                <p>${question.explanation}</p>
+            `;
+            resultContainer.appendChild(explanationElement);
+        }
+
+        // Move to next question
+        function nextQuestion() {
+            const questions = questionBank[currentTopic];
+            currentQuestionIndex++;
+            
+            // If we've reached the end, loop back to start
+            if (currentQuestionIndex >= questions.length) {
+                currentQuestionIndex = 0;
+            }
+            
+            // Reset for next question
+            displayQuestion();
+            resultContainer.innerHTML = '';
+            nextBtn.disabled = true;
+            explainBtn.disabled = true;
+        }
+
+        // Show tips section
+        function showTips() {
+            questionDisplay.classList.add('hidden');
+            tipsDisplay.classList.remove('hidden');
+        }
+        
+        // Hide tips section
+        function hideTips() {
+            tipsDisplay.classList.add('hidden');
+            questionDisplay.classList.remove('hidden');
+        }
+
+        // Timer functions
+        function startTimer() {
+            if (isTimerRunning) return;
+            
+            isTimerRunning = true;
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                updateTimerDisplay();
+                
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    isTimerRunning = false;
+                    timerDisplay.innerHTML = "<span style='color:#ff3333'>Time's Up!</span>";
+                    
+                    // Show completion message
+                    const resultElement = document.createElement('div');
+                    resultElement.className = 'result incorrect';
+                    resultElement.innerHTML = `
+                        <i class="fas fa-clock"></i>
+                        Time's up! Section complete.
+                    `;
+                    resultContainer.appendChild(resultElement);
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isTimerRunning = false;
+            clearInterval(timerInterval);
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            setTimerForSection(currentTopic || 'verbal');
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timerSeconds / 60);
+            const seconds = timerSeconds % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Set timer for specific GRE section
+        function setTimerForSection(section) {
+            pauseTimer();
+            
+            const sectionTimes = {
+                verbal: 30 * 60,  // 30 minutes
+                quant: 35 * 60,   // 35 minutes
+                writing: 30 * 60  // 30 minutes
+            };
+            
+            timerSeconds = sectionTimes[section] || 30 * 60;
+            updateTimerDisplay();
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            loadProgress();
+            updateTimerDisplay();
+            
+            // Set up topic click events
+            document.querySelectorAll('.topic').forEach(topic => {
+                topic.style.cursor = 'pointer';
+            });
+            
+            // Initialize with verbal questions
+            loadPracticeQuestions('verbal');
+        };
+    </script>
+</body>
+</html>

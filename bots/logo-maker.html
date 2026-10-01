@@ -1,0 +1,2671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logo Maker Pro - Advanced</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-3px);
+        }
+        
+        .logo-maker-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .app-title {
+            text-align: center;
+            color: #ff8000;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 8px rgba(255, 128, 0, 0.3);
+        }
+        
+        .app-subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .left-panel {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .controls-panel {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .right-panel {
+            flex: 1.5;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .preview-panel {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .panel-title {
+            color: #ff8000;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .control-group {
+            margin-bottom: 25px;
+        }
+        
+        .control-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ddd;
+            font-size: 1rem;
+        }
+        
+        .text-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(10, 10, 20, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        .text-input:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.2);
+        }
+        
+        .color-picker-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .color-option {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 2px solid transparent;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-option.active {
+            border-color: #fff;
+            transform: scale(1.1);
+        }
+        
+        .range-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(10, 10, 20, 0.8);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff8000;
+            cursor: pointer;
+        }
+        
+        .range-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff8000;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .font-select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(10, 10, 20, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        
+        .logo-canvas-container {
+            width: 100%;
+            height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10, 10, 20, 0.8);
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        #logoCanvas {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        .export-options {
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .export-title {
+            color: #ff8000;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .export-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .export-btn {
+            padding: 12px 15px;
+            background: rgba(255, 128, 0, 0.15);
+            border: 1px solid #ff8000;
+            border-radius: 8px;
+            color: #ff8000;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .export-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-3px);
+        }
+        
+        .shape-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .shape-btn {
+            padding: 8px 12px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .shape-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        .shape-btn.active {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff8000;
+            color: #ff8000;
+        }
+        
+        .presets-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .preset-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ddd;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        
+        .preset-btn:hover {
+            transform: scale(1.05);
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        .watermark {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .download-link {
+            display: none;
+        }
+        
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 1rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn:hover {
+            color: #ff8000;
+        }
+        
+        .tab-btn.active {
+            color: #ff8000;
+        }
+        
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #ff8000;
+            border-radius: 3px 3px 0 0;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        
+        .icon-option {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+            color: #ddd;
+        }
+        
+        .icon-option:hover {
+            background: rgba(255, 128, 0, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .icon-option.active {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff8000;
+            color: #ff8000;
+        }
+        
+        .gradient-preview {
+            width: 100%;
+            height: 40px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+        }
+        
+        .pattern-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .pattern-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .pattern-option:hover {
+            transform: scale(1.05);
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        .pattern-option.active {
+            border-color: #ff8000;
+        }
+        
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .advanced-controls {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .advanced-controls::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .advanced-controls::-webkit-scrollbar-track {
+            background: rgba(10, 10, 20, 0.5);
+            border-radius: 4px;
+        }
+        
+        .advanced-controls::-webkit-scrollbar-thumb {
+            background: rgba(255, 128, 0, 0.5);
+            border-radius: 4px;
+        }
+        
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .template-option {
+            height: 80px;
+            border-radius: 8px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #ddd;
+        }
+        
+        .template-option:hover {
+            transform: scale(1.05);
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        .history-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .history-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        
+        .history-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        .history-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .preview-options {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .preview-option {
+            padding: 10px 15px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .preview-option:hover {
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        .preview-option.active {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff8000;
+            color: #ff8000;
+        }
+        
+        .sizing-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .size-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .size-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        .size-btn.active {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff8000;
+            color: #ff8000;
+        }
+        
+        /* New styles for Amazon logo features */
+        .amazon-features {
+            background: rgba(30, 60, 90, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid #ff9900;
+        }
+        
+        .amazon-feature-title {
+            color: #ff9900;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .amazon-smile-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .smile-preview {
+            width: 60px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #ff9900;
+            border-top: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .smile-controls {
+            flex: 1;
+        }
+        
+        .color-gradient-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .gradient-direction {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .direction-btn {
+            padding: 8px 12px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 6px;
+            color: #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .direction-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        .direction-btn.active {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff8000;
+            color: #ff8000;
+        }
+        
+        .letter-spacing-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .text-transform-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .transform-btn {
+            padding: 8px 12px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 6px;
+            color: #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .transform-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        .transform-btn.active {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff8000;
+            color: #ff8000;
+        }
+        
+        .famous-brands-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .brand-btn {
+            padding: 10px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .brand-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .brand-icon {
+            font-size: 1.2rem;
+        }
+        
+        @media (max-width: 1200px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .left-panel, .right-panel {
+                min-width: 100%;
+            }
+            
+            .icon-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+            
+            .template-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            
+            .icon-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .template-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .export-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .tab-container {
+                overflow-x: auto;
+            }
+            
+            .famous-brands-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Tools
+        </a>
+        <div class="nav-title">Logo Maker Pro - Advanced</div>
+    </div>
+    
+    <div class="logo-maker-container">
+        <h1 class="app-title">Advanced Logo Maker</h1>
+        <p class="app-subtitle">Create professional logos with icons, gradients, patterns, and more</p>
+        
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="controls-panel">
+                    <div class="tab-container">
+                        <button class="tab-btn active" data-tab="basic">Basic</button>
+                        <button class="tab-btn" data-tab="advanced">Advanced</button>
+                        <button class="tab-btn" data-tab="amazon">Amazon Style</button>
+                        <button class="tab-btn" data-tab="templates">Templates</button>
+                        <button class="tab-btn" data-tab="export">Export</button>
+                    </div>
+                    
+                    <div id="basic-tab" class="tab-content active">
+                        <div class="control-group">
+                            <label class="control-label">Logo Text</label>
+                            <input type="text" id="logoText" class="text-input" value="BRAND LOGO" maxlength="20">
+                        </div>
+                        
+                        <div class="control-group">
+                            <label class="control-label">Slogan / Subtext</label>
+                            <input type="text" id="sloganText" class="text-input" value="Professional Quality" maxlength="30">
+                        </div>
+                        
+                        <div class="control-group">
+                            <label class="control-label">Text Color</label>
+                            <div class="color-picker-container">
+                                <div class="color-option active" style="background-color: #ff8000;" data-color="#ff8000"></div>
+                                <div class="color-option" style="background-color: #ffffff;" data-color="#ffffff"></div>
+                                <div class="color-option" style="background-color: #00a8ff;" data-color="#00a8ff"></div>
+                                <div class="color-option" style="background-color: #00ff88;" data-color="#00ff88"></div>
+                                <div class="color-option" style="background-color: #ff4081;" data-color="#ff4081"></div>
+                                <div class="color-option" style="background-color: #7c4dff;" data-color="#7c4dff"></div>
+                            </div>
+                            <input type="color" id="customColorPicker" class="text-input" style="margin-top: 10px; height: 40px; padding: 5px;" value="#ff8000">
+                        </div>
+                        
+                        <div class="control-group">
+                            <label class="control-label">Background Type</label>
+                            <div class="shape-options">
+                                <button class="shape-btn active" data-bgtype="solid">Solid</button>
+                                <button class="shape-btn" data-bgtype="gradient">Gradient</button>
+                                <button class="shape-btn" data-bgtype="pattern">Pattern</button>
+                                <button class="shape-btn" data-bgtype="transparent">Transparent</button>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label class="control-label">Background Color</label>
+                            <div class="color-picker-container">
+                                <div class="color-option active" style="background-color: #0a0a1a;" data-bgcolor="#0a0a1a"></div>
+                                <div class="color-option" style="background-color: #1a0a2e;" data-bgcolor="#1a0a2e"></div>
+                                <div class="color-option" style="background-color: #001122;" data-bgcolor="#001122"></div>
+                                <div class="color-option" style="background-color: #1a1a2e;" data-bgcolor="#1a1a2e"></div>
+                                <div class="color-option" style="background-color: #ffffff;" data-bgcolor="#ffffff"></div>
+                                <div class="color-option" style="background-color: #000000;" data-bgcolor="#000000"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label class="control-label">Font Size: <span id="fontSizeValue">48</span>px</label>
+                            <input type="range" id="fontSize" class="range-slider" min="20" max="100" value="48">
+                        </div>
+                        
+                        <div class="control-group">
+                            <label class="control-label">Font Family</label>
+                            <select id="fontFamily" class="font-select">
+                                <option value="Arial, sans-serif">Arial</option>
+                                <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                                <option value="'Montserrat', sans-serif">Montserrat</option>
+                                <option value="'Roboto', sans-serif">Roboto</option>
+                                <option value="'Open Sans', sans-serif">Open Sans</option>
+                                <option value="'Playfair Display', serif">Playfair Display</option>
+                                <option value="'Poppins', sans-serif">Poppins</option>
+                                <option value="'Lato', sans-serif">Lato</option>
+                                <option value="'Amazon Ember', Arial, sans-serif">Amazon Ember</option>
+                                <option value="'Officina Sans', sans-serif">Officina Sans</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="advanced-tab" class="tab-content">
+                        <div class="advanced-controls">
+                            <div class="control-group">
+                                <label class="control-label">Icon Selection</label>
+                                <div class="icon-grid">
+                                    <div class="icon-option active" data-icon=""><i class="fas fa-times"></i></div>
+                                    <div class="icon-option" data-icon="crown"><i class="fas fa-crown"></i></div>
+                                    <div class="icon-option" data-icon="star"><i class="fas fa-star"></i></div>
+                                    <div class="icon-option" data-icon="rocket"><i class="fas fa-rocket"></i></div>
+                                    <div class="icon-option" data-icon="gem"><i class="fas fa-gem"></i></div>
+                                    <div class="icon-option" data-icon="lightbulb"><i class="fas fa-lightbulb"></i></div>
+                                    <div class="icon-option" data-icon="shield"><i class="fas fa-shield-alt"></i></div>
+                                    <div class="icon-option" data-icon="leaf"><i class="fas fa-leaf"></i></div>
+                                    <div class="icon-option" data-icon="fire"><i class="fas fa-fire"></i></div>
+                                    <div class="icon-option" data-icon="bolt"><i class="fas fa-bolt"></i></div>
+                                    <div class="icon-option" data-icon="heart"><i class="fas fa-heart"></i></div>
+                                    <div class="icon-option" data-icon="globe"><i class="fas fa-globe"></i></div>
+                                </div>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label class="control-label">Icon Size: <span id="iconSizeValue">40</span>px</label>
+                                <input type="range" id="iconSize" class="range-slider" min="20" max="100" value="40">
+                            </div>
+                            
+                            <div class="control-group">
+                                <label class="control-label">Logo Shape</label>
+                                <div class="shape-options">
+                                    <button class="shape-btn active" data-shape="none">None</button>
+                                    <button class="shape-btn" data-shape="circle">Circle</button>
+                                    <button class="shape-btn" data-shape="square">Square</button>
+                                    <button class="shape-btn" data-shape="rounded">Rounded</button>
+                                    <button class="shape-btn" data-shape="diamond">Diamond</button>
+                                    <button class="shape-btn" data-shape="hexagon">Hexagon</button>
+                                </div>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label class="control-label">Text Effects</label>
+                                <div class="two-column">
+                                    <div>
+                                        <label class="control-label">Shadow</label>
+                                        <div class="shape-options">
+                                            <button class="shape-btn active" data-shadow="none">None</button>
+                                            <button class="shape-btn" data-shadow="soft">Soft</button>
+                                            <button class="shape-btn" data-shadow="hard">Hard</button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="control-label">Outline</label>
+                                        <div class="shape-options">
+                                            <button class="shape-btn" data-outline="none">None</button>
+                                            <button class="shape-btn active" data-outline="thin">Thin</button>
+                                            <button class="shape-btn" data-outline="thick">Thick</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label class="control-label">Pattern (if selected)</label>
+                                <div class="pattern-grid">
+                                    <div class="pattern-option active" data-pattern="none" style="background: rgba(20, 20, 40, 0.7);"></div>
+                                    <div class="pattern-option" data-pattern="dots" style="background-image: radial-gradient(#ff8000 2px, transparent 2px); background-size: 20px 20px;"></div>
+                                    <div class="pattern-option" data-pattern="lines" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, #ff8000 10px, #ff8000 20px);"></div>
+                                    <div class="pattern-option" data-pattern="grid" style="background-image: linear-gradient(#ff8000 1px, transparent 1px), linear-gradient(90deg, #ff8000 1px, transparent 1px); background-size: 20px 20px;"></div>
+                                    <div class="pattern-option" data-pattern="zigzag" style="background-image: linear-gradient(45deg, #ff8000 25%, transparent 25%), linear-gradient(-45deg, #ff8000 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ff8000 75%), linear-gradient(-45deg, transparent 75%, #ff8000 75%); background-size: 20px 20px;"></div>
+                                    <div class="pattern-option" data-pattern="noise" style="background: repeating-radial-gradient(circle at 50% 50%, rgba(255,128,0,0.2) 0px, rgba(255,128,0,0.2) 2px, transparent 2px, transparent 8px);"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label class="control-label">Gradient (if selected)</label>
+                                <div id="gradientPreview" class="gradient-preview" style="background: linear-gradient(90deg, #ff8000, #ff4081);"></div>
+                                <div class="two-column" style="margin-top: 10px;">
+                                    <input type="color" id="gradientColor1" class="text-input" value="#ff8000" style="height: 40px; padding: 5px;">
+                                    <input type="color" id="gradientColor2" class="text-input" value="#ff4081" style="height: 40px; padding: 5px;">
+                                </div>
+                                <div class="gradient-direction">
+                                    <button class="direction-btn active" data-direction="90">→</button>
+                                    <button class="direction-btn" data-direction="180">↓</button>
+                                    <button class="direction-btn" data-direction="45">↘</button>
+                                    <button class="direction-btn" data-direction="135">↙</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- NEW AMAZON STYLE TAB -->
+                    <div id="amazon-tab" class="tab-content">
+                        <div class="amazon-features">
+                            <div class="amazon-feature-title">
+                                <i class="fab fa-amazon"></i> Amazon Logo Style
+                            </div>
+                            <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 15px;">Create logos with Amazon-style features including smile arrows, gradient text, and curved text.</p>
+                            
+                            <div class="control-group">
+                                <label class="control-label">Amazon Smile Arrow</label>
+                                <div class="amazon-smile-container">
+                                    <div class="smile-preview" id="smilePreview"></div>
+                                    <div class="smile-controls">
+                                        <label class="control-label">Arrow Size: <span id="smileSizeValue">30</span>px</label>
+                                        <input type="range" id="smileSize" class="range-slider" min="10" max="60" value="30">
+                                    </div>
+                                </div>
+                                <div style="margin-top: 10px;">
+                                    <button id="toggleSmile" class="shape-btn" style="width: 100%;">Enable Smile Arrow</button>
+                                </div>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label class="control-label">Text Gradient (Amazon Style)</label>
+                                <div class="color-gradient-controls">
+                                    <input type="color" id="textGradient1" class="text-input" value="#ff9900" style="height: 40px; padding: 5px; flex: 1;">
+                                    <input type="color" id="textGradient2" class="text-input" value="#ff5500" style="height: 40px; padding: 5px; flex: 1;">
+                                </div>
+                                <div style="margin-top: 10px;">
+                                    <button id="toggleTextGradient" class="shape-btn" style="width: 100%;">Enable Text Gradient</button>
+                                </div>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label class="control-label">Text Transformation</label>
+                                <div class="text-transform-options">
+                                    <button class="transform-btn active" data-transform="none">Normal</button>
+                                    <button class="transform-btn" data-transform="uppercase">UPPER</button>
+                                    <button class="transform-btn" data-transform="lowercase">lower</button>
+                                    <button class="transform-btn" data-transform="capitalize">Capitalize</button>
+                                </div>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label class="control-label">Letter Spacing (Amazon Style)</label>
+                                <div class="letter-spacing-controls">
+                                    <div>
+                                        <label class="control-label">Letter Spacing: <span id="letterSpacingValue">2</span>px</label>
+                                        <input type="range" id="letterSpacing" class="range-slider" min="-5" max="20" value="2">
+                                    </div>
+                                    <div>
+                                        <label class="control-label">Word Spacing: <span id="wordSpacingValue">5</span>px</label>
+                                        <input type="range" id="wordSpacing" class="range-slider" min="0" max="30" value="5">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label class="control-label">Famous Brand Styles</label>
+                                <div class="famous-brands-grid">
+                                    <button class="brand-btn" data-brand="amazon">
+                                        <span class="brand-icon"><i class="fab fa-amazon"></i></span>
+                                        <span>Amazon Style</span>
+                                    </button>
+                                    <button class="brand-btn" data-brand="google">
+                                        <span class="brand-icon"><i class="fab fa-google"></i></span>
+                                        <span>Google Style</span>
+                                    </button>
+                                    <button class="brand-btn" data-brand="apple">
+                                        <span class="brand-icon"><i class="fab fa-apple"></i></span>
+                                        <span>Apple Style</span>
+                                    </button>
+                                    <button class="brand-btn" data-brand="microsoft">
+                                        <span class="brand-icon"><i class="fab fa-microsoft"></i></span>
+                                        <span>Microsoft Style</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="templates-tab" class="tab-content">
+                        <div class="control-group">
+                            <label class="control-label">Quick Templates</label>
+                            <div class="template-grid">
+                                <div class="template-option" data-template="modern">Modern</div>
+                                <div class="template-option" data-template="vintage">Vintage</div>
+                                <div class="template-option" data-template="tech">Tech</div>
+                                <div class="template-option" data-template="elegant">Elegant</div>
+                                <div class="template-option" data-template="minimal">Minimal</div>
+                                <div class="template-option" data-template="bold">Bold</div>
+                                <div class="template-option" data-template="amazon">Amazon</div>
+                                <div class="template-option" data-template="google">Google</div>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label class="control-label">Design History</label>
+                            <div class="history-controls">
+                                <button id="undoBtn" class="history-btn" disabled><i class="fas fa-undo"></i> Undo</button>
+                                <button id="redoBtn" class="history-btn" disabled><i class="fas fa-redo"></i> Redo</button>
+                                <button id="saveDesignBtn" class="history-btn"><i class="fas fa-save"></i> Save</button>
+                                <button id="loadDesignBtn" class="history-btn"><i class="fas fa-folder-open"></i> Load</button>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label class="control-label">Quick Presets</label>
+                            <div class="presets-container">
+                                <div class="preset-btn" data-preset="corporate">C</div>
+                                <div class="preset-btn" data-preset="creative">CR</div>
+                                <div class="preset-btn" data-preset="luxury">L</div>
+                                <div class="preset-btn" data-preset="nature">N</div>
+                                <div class="preset-btn" data-preset="sports">S</div>
+                                <div class="preset-btn" data-preset="food">F</div>
+                                <div class="preset-btn" data-preset="amazon">A</div>
+                                <div class="preset-btn" data-preset="tech">T</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="export-tab" class="tab-content">
+                        <div class="control-group">
+                            <label class="control-label">Export Settings</label>
+                            <div class="sizing-options">
+                                <button class="size-btn active" data-size="500x300">500x300</button>
+                                <button class="size-btn" data-size="800x600">800x600</button>
+                                <button class="size-btn" data-size="1024x768">1024x768</button>
+                                <button class="size-btn" data-size="1920x1080">1920x1080</button>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label class="control-label">Export Format</label>
+                            <div class="export-buttons">
+                                <button class="export-btn" data-format="png">
+                                    <i class="fas fa-file-image"></i> PNG
+                                </button>
+                                <button class="export-btn" data-format="jpeg">
+                                    <i class="fas fa-file-image"></i> JPEG
+                                </button>
+                                <button class="export-btn" data-format="svg">
+                                    <i class="fas fa-file-code"></i> SVG
+                                </button>
+                                <button class="export-btn" data-format="pdf">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button class="export-btn" data-format="webp">
+                                    <i class="fas fa-file-image"></i> WebP
+                                </button>
+                                <button class="export-btn" data-format="ico">
+                                    <i class="fas fa-file-image"></i> ICO
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label class="control-label">Export Quality</label>
+                            <input type="range" id="exportQuality" class="range-slider" min="1" max="10" value="8">
+                            <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                                <span style="color: #aaa; font-size: 0.9rem;">Low</span>
+                                <span id="qualityValue" style="color: #ff8000;">High</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="right-panel">
+                <div class="preview-panel">
+                    <h2 class="panel-title"><i class="fas fa-eye"></i> Logo Preview</h2>
+                    
+                    <div class="preview-options">
+                        <div class="preview-option active" data-preview="plain">Plain</div>
+                        <div class="preview-option" data-preview="card">Business Card</div>
+                        <div class="preview-option" data-preview="website">Website Header</div>
+                        <div class="preview-option" data-preview="app">App Icon</div>
+                    </div>
+                    
+                    <div class="logo-canvas-container">
+                        <canvas id="logoCanvas" width="500" height="300"></canvas>
+                    </div>
+                    
+                    <div class="export-options">
+                        <h3 class="export-title"><i class="fas fa-download"></i> Export Logo</h3>
+                        <p style="color: #aaa; margin-bottom: 15px; font-size: 0.95rem;">Configure export settings in the Export tab, then click download</p>
+                        
+                        <button id="downloadBtn" class="export-btn" style="width: 100%; font-size: 1.1rem; padding: 15px;">
+                            <i class="fas fa-download"></i> Download Logo
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="controls-panel">
+                    <h2 class="panel-title"><i class="fas fa-sliders-h"></i> Additional Options</h2>
+                    
+                    <div class="control-group">
+                        <label class="control-label">Text Alignment</label>
+                        <div class="shape-options">
+                            <button class="shape-btn active" data-align="center">Center</button>
+                            <button class="shape-btn" data-align="left">Left</button>
+                            <button class="shape-btn" data-align="right">Right</button>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">Logo Opacity: <span id="opacityValue">100</span>%</label>
+                        <input type="range" id="logoOpacity" class="range-slider" min="10" max="100" value="100">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">Border Options</label>
+                        <div class="two-column">
+                            <div>
+                                <label class="control-label">Width</label>
+                                <input type="range" id="borderWidth" class="range-slider" min="0" max="10" value="0">
+                            </div>
+                            <div>
+                                <label class="control-label">Color</label>
+                                <input type="color" id="borderColor" class="text-input" value="#ff8000" style="height: 40px; padding: 5px;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">Rotation: <span id="rotationValue">0</span>°</label>
+                        <input type="range" id="logoRotation" class="range-slider" min="0" max="360" value="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="watermark">
+            <p>Advanced Logo Maker Pro v3.0 | Includes Amazon-style features & brand templates</p>
+        </div>
+        
+        <a id="downloadLink" class="download-link" download="logo.png"></a>
+    </div>
+
+    <script>
+        // Canvas and context
+        const canvas = document.getElementById('logoCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Logo state with enhanced properties
+        const logoState = {
+            text: 'BRAND LOGO',
+            slogan: 'Professional Quality',
+            color: '#ff8000',
+            bgColor: '#0a0a1a',
+            bgType: 'solid',
+            fontSize: 48,
+            fontFamily: 'Arial, sans-serif',
+            shape: 'none',
+            icon: '',
+            iconSize: 40,
+            shadow: 'none',
+            outline: 'thin',
+            gradientColor1: '#ff8000',
+            gradientColor2: '#ff4081',
+            gradientDirection: 90,
+            pattern: 'none',
+            letterSpacing: 2,
+            wordSpacing: 5,
+            opacity: 1.0,
+            borderWidth: 0,
+            borderColor: '#ff8000',
+            rotation: 0,
+            exportSize: {width: 500, height: 300},
+            // Amazon-style features
+            amazonSmile: false,
+            smileSize: 30,
+            textGradient: false,
+            textGradient1: '#ff9900',
+            textGradient2: '#ff5500',
+            textTransform: 'none',
+            textAlign: 'center'
+        };
+        
+        // Design history for undo/redo
+        const designHistory = [];
+        let currentHistoryIndex = -1;
+        
+        // Initialize the canvas
+        function initCanvas() {
+            // Save initial state
+            saveToHistory();
+            drawLogo();
+            
+            // Setup tab functionality
+            document.querySelectorAll('.tab-btn').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    document.getElementById(`${this.dataset.tab}-tab`).classList.add('active');
+                });
+            });
+            
+            // Event listeners for controls
+            document.getElementById('logoText').addEventListener('input', function() {
+                logoState.text = this.value;
+                saveToHistory();
+                drawLogo();
+            });
+            
+            document.getElementById('sloganText').addEventListener('input', function() {
+                logoState.slogan = this.value;
+                saveToHistory();
+                drawLogo();
+            });
+            
+            // Color options
+            document.querySelectorAll('.color-option[data-color]').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.color-option[data-color]').forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    logoState.color = this.getAttribute('data-color');
+                    saveToHistory();
+                    drawLogo();
+                });
+            });
+            
+            // Background color options
+            document.querySelectorAll('.color-option[data-bgcolor]').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.color-option[data-bgcolor]').forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    logoState.bgColor = this.getAttribute('data-bgcolor');
+                    saveToHistory();
+                    drawLogo();
+                });
+            });
+            
+            // Custom color picker
+            document.getElementById('customColorPicker').addEventListener('input', function() {
+                logoState.color = this.value;
+                saveToHistory();
+                drawLogo();
+            });
+            
+            // Background type
+            document.querySelectorAll('.shape-btn[data-bgtype]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.shape-btn[data-bgtype]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    logoState.bgType = this.getAttribute('data-bgtype');
+                    saveToHistory();
+                    drawLogo();
+                });
+            });
+            
+            // Font size slider
+            const fontSizeSlider = document.getElementById('fontSize');
+            const fontSizeValue = document.getElementById('fontSizeValue');
+            
+            fontSizeSlider.addEventListener('input', function() {
+                logoState.fontSize = parseInt(this.value);
+                fontSizeValue.textContent = this.value;
+                saveToHistory();
+                drawLogo();
+            });
+            
+            // Font family select
+            document.getElementById('fontFamily').addEventListener('change', function() {
+                logoState.fontFamily = this.value;
+                saveToHistory();
+                drawLogo();
+            });
+            
+            // Icon selection
+            document.querySelectorAll('.icon-option').forEach(icon => {
+                icon.addEventListener('click', function() {
+                    document.querySelectorAll('.icon-option').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    logoState.icon = this.getAttribute('data-icon');
+                    saveToHistory();
+                    drawLogo();
+                });
+            });
+            
+            // Icon size
+            const iconSizeSlider = document.getElementById('iconSize');
+            const iconSizeValue = document.getElementById('iconSizeValue');
+            
+            iconSizeSlider.addEventListener('input', function() {
+                logoState.iconSize = parseInt(this.value);
+                iconSizeValue.textContent = this.value;
+                saveToHistory();
+                drawLogo();
+            });
+            
+            // Shape buttons
+            document.querySelectorAll('.shape-btn[data-shape]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.shape-btn[data-shape]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    logoState.shape = this.getAttribute('data-shape');
+                    saveToHistory();
+                    drawLogo();
+                });
+            });
+            
+            // Shadow buttons
+            document.querySelectorAll('.shape-btn[data-shadow]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.shape-btn[data-shadow]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    logoState.shadow = this.getAttribute('data-shadow');
+                    saveToHistory();
+                    drawLogo();
+                });
+            });
+            
+            // Outline buttons
+            document.querySelectorAll('.shape-btn[data-outline]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.shape-btn[data-outline]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    logoState.outline = this.getAttribute('data-outline');
+                    saveToHistory();
+                    drawLogo();
+                });
+            });
+            
+            // Pattern selection
+            document.querySelectorAll('.pattern-option').forEach(pattern => {
+                pattern.addEventListener('click', function() {
+                    document.querySelectorAll('.pattern-option').forEach(p => p.classList.remove('active'));
+                    this.classList.add('active');
+                    logoState.pattern = this.getAttribute('data-pattern');
+                    saveToHistory();
+                    drawLogo();
+                });
+            });
+            
+            // Gradient colors
+            document.getElementById('gradientColor1').addEventListener('input', function() {
+                logoState.gradientColor1 = this.value;
+                updateGradientPreview();
+                saveToHistory();
+                drawLogo();
+            });
+            
+            document.getElementById('gradientColor2').addEventListener('input', function() {
+                logoState.gradientColor2 = this.value;
+                updateGradientPreview();
+                saveToHistory();
+                drawLogo();
+            });
+            
+            // Gradient direction
+            document.querySelectorAll('.direction-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.direction-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    logoState.gradientDirection = parseInt(this.getAttribute('data-direction'));
+                    saveToHistory();
+                    drawLogo();
+                });
+            });
+            
+            // Letter spacing
+            const letterSpacingSlider = document.getElementById('letterSpacing');
+            const letterSpacingValue = document.getElementById('letterSpacingValue');
+            
+            letterSpacingSlider.addEventListener('input', function() {
+                logoState.letterSpacing = parseInt(this.value);
+                letterSpacingValue.textContent = this.value;
+                saveToHistory();
+                drawLogo();
+            });
+            
+            // Word spacing
+            const wordSpacingSlider = document.getElementById('wordSpacing');
+            const wordSpacingValue = document.getElementById('wordSpacingValue');
+            
+            wordSpacingSlider.addEventListener('input', function() {
+                logoState.wordSpacing = parseInt(this.value);
+                wordSpacingValue.textContent = this.value;
+                saveToHistory();
+                drawLogo();
+            });
+            
+            // Opacity
+            const opacitySlider = document.getElementById('logoOpacity');
+            const opacityValue = document.getElementById('opacityValue');
+            
+            opacitySlider.addEventListener('input', function() {
+                logoState.opacity = parseInt(this.value) / 100;
+                opacityValue.textContent = this.value;
+                saveToHistory();
+                drawLogo();
+            });
+            
+            // Border width
+            const borderWidthSlider = document.getElementById('borderWidth');
+            
+            borderWidthSlider.addEventListener('input', function() {
+                logoState.borderWidth = parseInt(this.value);
+                saveToHistory();
+                drawLogo();
+            });
+            
+            // Border color
+            document.getElementById('borderColor').addEventListener('input', function() {
+                logoState.borderColor = this.value;
+                saveToHistory();
+                drawLogo();
+            });
+            
+            // Rotation
+            const rotationSlider = document.getElementById('logoRotation');
+            const rotationValue = document.getElementById('rotationValue');
+            
+            rotationSlider.addEventListener('input', function() {
+                logoState.rotation = parseInt(this.value);
+                rotationValue.textContent = this.value;
+                saveToHistory();
+                drawLogo();
+            });
+            
+            // Text alignment
+            document.querySelectorAll('.shape-btn[data-align]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.shape-btn[data-align]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    logoState.textAlign = this.getAttribute('data-align');
+                    saveToHistory();
+                    drawLogo();
+                });
+            });
+            
+            // Amazon smile arrow
+            const smileSlider = document.getElementById('smileSize');
+            const smileSizeValue = document.getElementById('smileSizeValue');
+            
+            smileSlider.addEventListener('input', function() {
+                logoState.smileSize = parseInt(this.value);
+                smileSizeValue.textContent = this.value;
+                saveToHistory();
+                drawLogo();
+            });
+            
+            document.getElementById('toggleSmile').addEventListener('click', function() {
+                logoState.amazonSmile = !logoState.amazonSmile;
+                this.textContent = logoState.amazonSmile ? 'Disable Smile Arrow' : 'Enable Smile Arrow';
+                this.style.backgroundColor = logoState.amazonSmile ? 'rgba(255, 153, 0, 0.3)' : 'rgba(255, 128, 0, 0.1)';
+                this.style.borderColor = logoState.amazonSmile ? '#ff9900' : 'rgba(255, 128, 0, 0.3)';
+                saveToHistory();
+                drawLogo();
+            });
+            
+            // Text gradient
+            document.getElementById('textGradient1').addEventListener('input', function() {
+                logoState.textGradient1 = this.value;
+                saveToHistory();
+                drawLogo();
+            });
+            
+            document.getElementById('textGradient2').addEventListener('input', function() {
+                logoState.textGradient2 = this.value;
+                saveToHistory();
+                drawLogo();
+            });
+            
+            document.getElementById('toggleTextGradient').addEventListener('click', function() {
+                logoState.textGradient = !logoState.textGradient;
+                this.textContent = logoState.textGradient ? 'Disable Text Gradient' : 'Enable Text Gradient';
+                this.style.backgroundColor = logoState.textGradient ? 'rgba(255, 153, 0, 0.3)' : 'rgba(255, 128, 0, 0.1)';
+                this.style.borderColor = logoState.textGradient ? '#ff9900' : 'rgba(255, 128, 0, 0.3)';
+                saveToHistory();
+                drawLogo();
+            });
+            
+            // Text transformation
+            document.querySelectorAll('.transform-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.transform-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    logoState.textTransform = this.getAttribute('data-transform');
+                    saveToHistory();
+                    drawLogo();
+                });
+            });
+            
+            // Brand buttons
+            document.querySelectorAll('.brand-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    applyBrandStyle(this.getAttribute('data-brand'));
+                });
+            });
+            
+            // Template selection
+            document.querySelectorAll('.template-option').forEach(template => {
+                template.addEventListener('click', function() {
+                    applyTemplate(this.getAttribute('data-template'));
+                });
+            });
+            
+            // Preset buttons
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    applyPreset(this.getAttribute('data-preset'));
+                });
+            });
+            
+            // History controls
+            document.getElementById('undoBtn').addEventListener('click', undo);
+            document.getElementById('redoBtn').addEventListener('click', redo);
+            document.getElementById('saveDesignBtn').addEventListener('click', saveDesign);
+            document.getElementById('loadDesignBtn').addEventListener('click', loadDesign);
+            
+            // Preview options
+            document.querySelectorAll('.preview-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.preview-option').forEach(o => o.classList.remove('active'));
+                    this.classList.add('active');
+                    // In a real app, this would change the preview context
+                });
+            });
+            
+            // Size options
+            document.querySelectorAll('.size-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const size = this.getAttribute('data-size').split('x');
+                    logoState.exportSize = {width: parseInt(size[0]), height: parseInt(size[1])};
+                    drawLogo();
+                });
+            });
+            
+            // Export quality
+            const qualitySlider = document.getElementById('exportQuality');
+            const qualityValue = document.getElementById('qualityValue');
+            
+            qualitySlider.addEventListener('input', function() {
+                const val = parseInt(this.value);
+                qualityValue.textContent = val >= 8 ? 'High' : val >= 5 ? 'Medium' : 'Low';
+            });
+            
+            // Download button
+            document.getElementById('downloadBtn').addEventListener('click', function() {
+                exportLogo('png'); // Default to PNG
+            });
+            
+            // Export format buttons
+            document.querySelectorAll('.export-btn[data-format]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    exportLogo(this.getAttribute('data-format'));
+                });
+            });
+        }
+        
+        // Update gradient preview
+        function updateGradientPreview() {
+            const preview = document.getElementById('gradientPreview');
+            preview.style.background = `linear-gradient(${logoState.gradientDirection}deg, ${logoState.gradientColor1}, ${logoState.gradientColor2})`;
+        }
+        
+        // Draw the logo on canvas with all enhancements
+        function drawLogo() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Set global alpha for opacity
+            ctx.globalAlpha = logoState.opacity;
+            
+            // Save context for rotation
+            ctx.save();
+            
+            // Apply rotation
+            if (logoState.rotation !== 0) {
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.rotate(logoState.rotation * Math.PI / 180);
+                ctx.translate(-canvas.width / 2, -canvas.height / 2);
+            }
+            
+            // Draw background based on type
+            drawBackground();
+            
+            // Draw shape if selected
+            drawShape();
+            
+            // Draw icon if selected
+            if (logoState.icon) {
+                drawIcon();
+            }
+            
+            // Draw text with effects
+            drawText();
+            
+            // Draw Amazon smile arrow if enabled
+            if (logoState.amazonSmile) {
+                drawAmazonSmile();
+            }
+            
+            // Restore context
+            ctx.restore();
+            
+            // Reset global alpha
+            ctx.globalAlpha = 1.0;
+        }
+        
+        // Draw background based on type
+        function drawBackground() {
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            if (logoState.bgType === 'transparent') {
+                // Transparent background - draw checkerboard pattern
+                const size = 20;
+                for (let y = 0; y < height; y += size) {
+                    for (let x = 0; x < width; x += size) {
+                        ctx.fillStyle = ((x + y) % (size * 2) === 0) ? '#222' : '#333';
+                        ctx.fillRect(x, y, size, size);
+                    }
+                }
+            } else if (logoState.bgType === 'gradient') {
+                // Gradient background
+                const gradient = ctx.createLinearGradient(
+                    0, 0, 
+                    width * Math.cos(logoState.gradientDirection * Math.PI / 180), 
+                    height * Math.sin(logoState.gradientDirection * Math.PI / 180)
+                );
+                gradient.addColorStop(0, logoState.gradientColor1);
+                gradient.addColorStop(1, logoState.gradientColor2);
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, width, height);
+            } else if (logoState.bgType === 'pattern') {
+                // Pattern background
+                ctx.fillStyle = logoState.bgColor;
+                ctx.fillRect(0, 0, width, height);
+                
+                // Apply pattern based on selection
+                if (logoState.pattern === 'dots') {
+                    ctx.fillStyle = '#ff8000';
+                    for (let y = 0; y < height; y += 20) {
+                        for (let x = 0; x < width; x += 20) {
+                            if ((x + y) % 40 === 0) {
+                                ctx.beginPath();
+                                ctx.arc(x + 10, y + 10, 2, 0, Math.PI * 2);
+                                ctx.fill();
+                            }
+                        }
+                    }
+                } else if (logoState.pattern === 'lines') {
+                    ctx.strokeStyle = '#ff8000';
+                    ctx.lineWidth = 2;
+                    for (let y = 0; y < height; y += 20) {
+                        ctx.beginPath();
+                        ctx.moveTo(0, y);
+                        ctx.lineTo(width, y);
+                        ctx.stroke();
+                    }
+                } else if (logoState.pattern === 'grid') {
+                    ctx.strokeStyle = '#ff8000';
+                    ctx.lineWidth = 1;
+                    for (let x = 0; x <= width; x += 20) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, 0);
+                        ctx.lineTo(x, height);
+                        ctx.stroke();
+                    }
+                    for (let y = 0; y <= height; y += 20) {
+                        ctx.beginPath();
+                        ctx.moveTo(0, y);
+                        ctx.lineTo(width, y);
+                        ctx.stroke();
+                    }
+                }
+            } else {
+                // Solid background
+                ctx.fillStyle = logoState.bgColor;
+                ctx.fillRect(0, 0, width, height);
+            }
+        }
+        
+        // Draw shape based on selection
+        function drawShape() {
+            if (logoState.shape === 'none') return;
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const shapeSize = Math.min(canvas.width, canvas.height) * 0.7;
+            
+            ctx.fillStyle = logoState.color + '30'; // Add transparency
+            
+            if (logoState.shape === 'circle') {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, shapeSize / 2, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (logoState.shape === 'square') {
+                ctx.fillRect(centerX - shapeSize/2, centerY - shapeSize/2, shapeSize, shapeSize);
+            } else if (logoState.shape === 'rounded') {
+                const radius = 20;
+                ctx.beginPath();
+                // Using roundRect if available, otherwise draw manually
+                if (ctx.roundRect) {
+                    ctx.roundRect(centerX - shapeSize/2, centerY - shapeSize/2, shapeSize, shapeSize, radius);
+                } else {
+                    // Manual rounded rectangle
+                    drawRoundedRect(ctx, centerX - shapeSize/2, centerY - shapeSize/2, shapeSize, shapeSize, radius);
+                }
+                ctx.fill();
+            } else if (logoState.shape === 'diamond') {
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY - shapeSize/2);
+                ctx.lineTo(centerX + shapeSize/2, centerY);
+                ctx.lineTo(centerX, centerY + shapeSize/2);
+                ctx.lineTo(centerX - shapeSize/2, centerY);
+                ctx.closePath();
+                ctx.fill();
+            } else if (logoState.shape === 'hexagon') {
+                const sides = 6;
+                const radius = shapeSize / 2;
+                
+                ctx.beginPath();
+                for (let i = 0; i < sides; i++) {
+                    const angle = (i * 2 * Math.PI) / sides - Math.PI / 6;
+                    const x = centerX + radius * Math.cos(angle);
+                    const y = centerY + radius * Math.sin(angle);
+                    
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.closePath();
+                ctx.fill();
+            }
+            
+            // Draw border if specified
+            if (logoState.borderWidth > 0) {
+                ctx.strokeStyle = logoState.borderColor;
+                ctx.lineWidth = logoState.borderWidth;
+                ctx.stroke();
+            }
+        }
+        
+        // Helper function for rounded rectangle (for browsers that don't support roundRect)
+        function drawRoundedRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+        
+        // Draw icon if selected
+        function drawIcon() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 3; // Position above text
+            
+            // Map icon names to font awesome classes
+            const iconMap = {
+                'crown': 'fas fa-crown',
+                'star': 'fas fa-star',
+                'rocket': 'fas fa-rocket',
+                'gem': 'fas fa-gem',
+                'lightbulb': 'fas fa-lightbulb',
+                'shield': 'fas fa-shield-alt',
+                'leaf': 'fas fa-leaf',
+                'fire': 'fas fa-fire',
+                'bolt': 'fas fa-bolt',
+                'heart': 'fas fa-heart',
+                'globe': 'fas fa-globe'
+            };
+            
+            // In a real implementation, we would render the actual icon
+            // For this demo, we'll draw a simple representation
+            ctx.fillStyle = logoState.color;
+            
+            if (logoState.icon === 'crown') {
+                // Draw crown
+                ctx.beginPath();
+                ctx.moveTo(centerX - logoState.iconSize/2, centerY + logoState.iconSize/4);
+                ctx.lineTo(centerX - logoState.iconSize/4, centerY - logoState.iconSize/2);
+                ctx.lineTo(centerX, centerY - logoState.iconSize/4);
+                ctx.lineTo(centerX + logoState.iconSize/4, centerY - logoState.iconSize/2);
+                ctx.lineTo(centerX + logoState.iconSize/2, centerY + logoState.iconSize/4);
+                ctx.lineTo(centerX - logoState.iconSize/2, centerY + logoState.iconSize/4);
+                ctx.fill();
+            } else if (logoState.icon === 'star') {
+                // Draw star
+                drawStar(ctx, centerX, centerY, 5, logoState.iconSize/2, logoState.iconSize/4);
+                ctx.fill();
+            } else {
+                // Draw generic icon (circle with first letter)
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, logoState.iconSize/2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `bold ${logoState.iconSize/2}px ${logoState.fontFamily}`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(logoState.icon.charAt(0).toUpperCase(), centerX, centerY);
+            }
+        }
+        
+        // Draw star shape
+        function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+            let rot = Math.PI / 2 * 3;
+            let x = cx;
+            let y = cy;
+            const step = Math.PI / spikes;
+            
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - outerRadius);
+            
+            for (let i = 0; i < spikes; i++) {
+                x = cx + Math.cos(rot) * outerRadius;
+                y = cy + Math.sin(rot) * outerRadius;
+                ctx.lineTo(x, y);
+                rot += step;
+                
+                x = cx + Math.cos(rot) * innerRadius;
+                y = cy + Math.sin(rot) * innerRadius;
+                ctx.lineTo(x, y);
+                rot += step;
+            }
+            
+            ctx.lineTo(cx, cy - outerRadius);
+            ctx.closePath();
+        }
+        
+        // Draw text with effects
+        function drawText() {
+            let text = logoState.text;
+            const slogan = logoState.slogan;
+            
+            // Apply text transformation
+            switch(logoState.textTransform) {
+                case 'uppercase':
+                    text = text.toUpperCase();
+                    break;
+                case 'lowercase':
+                    text = text.toLowerCase();
+                    break;
+                case 'capitalize':
+                    text = text.replace(/\b\w/g, char => char.toUpperCase());
+                    break;
+            }
+            
+            // Set text properties
+            ctx.font = `bold ${logoState.fontSize}px ${logoState.fontFamily}`;
+            
+            // Set text alignment
+            let textX;
+            switch(logoState.textAlign) {
+                case 'left':
+                    ctx.textAlign = 'left';
+                    textX = canvas.width * 0.1;
+                    break;
+                case 'right':
+                    ctx.textAlign = 'right';
+                    textX = canvas.width * 0.9;
+                    break;
+                default:
+                    ctx.textAlign = 'center';
+                    textX = canvas.width / 2;
+            }
+            
+            let centerY = canvas.height / 2;
+            
+            // Adjust position if icon is present
+            if (logoState.icon) {
+                centerY = canvas.height * 2/3;
+            }
+            
+            ctx.textBaseline = 'middle';
+            
+            // Apply letter spacing
+            const textWidth = ctx.measureText(text).width;
+            const charSpacing = logoState.letterSpacing;
+            const wordSpacing = logoState.wordSpacing;
+            
+            // Apply shadow effect
+            if (logoState.shadow === 'soft') {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetX = 3;
+                ctx.shadowOffsetY = 3;
+            } else if (logoState.shadow === 'hard') {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+                ctx.shadowBlur = 5;
+                ctx.shadowOffsetX = 5;
+                ctx.shadowOffsetY = 5;
+            }
+            
+            // Draw outline if specified
+            if (logoState.outline !== 'none') {
+                const outlineWidth = logoState.outline === 'thick' ? 3 : 1.5;
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = outlineWidth;
+                
+                // Draw text with outline
+                if (charSpacing === 0) {
+                    ctx.strokeText(text, textX, centerY);
+                } else {
+                    drawTextWithSpacing(ctx, text, textX, centerY, charSpacing, wordSpacing, true);
+                }
+                
+                // Reset shadow for fill to avoid double shadow
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+                
+                // Fill text with gradient if enabled
+                if (logoState.textGradient) {
+                    const gradient = ctx.createLinearGradient(
+                        textX - textWidth/2, centerY - logoState.fontSize/2,
+                        textX + textWidth/2, centerY + logoState.fontSize/2
+                    );
+                    gradient.addColorStop(0, logoState.textGradient1);
+                    gradient.addColorStop(1, logoState.textGradient2);
+                    ctx.fillStyle = gradient;
+                } else {
+                    ctx.fillStyle = logoState.color;
+                }
+                
+                // Fill text
+                if (charSpacing === 0) {
+                    ctx.fillText(text, textX, centerY);
+                } else {
+                    drawTextWithSpacing(ctx, text, textX, centerY, charSpacing, wordSpacing, false);
+                }
+            } else {
+                // Fill text without outline
+                if (logoState.textGradient) {
+                    const gradient = ctx.createLinearGradient(
+                        textX - textWidth/2, centerY - logoState.fontSize/2,
+                        textX + textWidth/2, centerY + logoState.fontSize/2
+                    );
+                    gradient.addColorStop(0, logoState.textGradient1);
+                    gradient.addColorStop(1, logoState.textGradient2);
+                    ctx.fillStyle = gradient;
+                } else {
+                    ctx.fillStyle = logoState.color;
+                }
+                
+                if (charSpacing === 0) {
+                    ctx.fillText(text, textX, centerY);
+                } else {
+                    drawTextWithSpacing(ctx, text, textX, centerY, charSpacing, wordSpacing, false);
+                }
+            }
+            
+            // Reset shadow
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            
+            // Draw slogan if exists
+            if (slogan && slogan.trim() !== '') {
+                ctx.font = `italic ${logoState.fontSize * 0.4}px ${logoState.fontFamily}`;
+                ctx.fillStyle = logoState.color + 'CC'; // Slightly transparent
+                
+                if (charSpacing === 0) {
+                    ctx.fillText(slogan, textX, centerY + logoState.fontSize * 0.8);
+                } else {
+                    drawTextWithSpacing(ctx, slogan, textX, centerY + logoState.fontSize * 0.8, charSpacing/2, wordSpacing/2, false);
+                }
+            }
+        }
+        
+        // Draw text with custom letter spacing
+        function drawTextWithSpacing(ctx, text, x, y, charSpacing, wordSpacing, isStroke) {
+            const words = text.split(' ');
+            let currentX = x;
+            
+            if (ctx.textAlign === 'center') {
+                const totalWidth = words.reduce((width, word, index) => {
+                    return width + ctx.measureText(word).width + 
+                           (word.length * charSpacing) + 
+                           (index < words.length - 1 ? wordSpacing : 0);
+                }, 0);
+                currentX = x - totalWidth / 2;
+            } else if (ctx.textAlign === 'right') {
+                const totalWidth = words.reduce((width, word, index) => {
+                    return width + ctx.measureText(word).width + 
+                           (word.length * charSpacing) + 
+                           (index < words.length - 1 ? wordSpacing : 0);
+                }, 0);
+                currentX = x - totalWidth;
+            }
+            
+            for (let w = 0; w < words.length; w++) {
+                const word = words[w];
+                for (let i = 0; i < word.length; i++) {
+                    const char = word[i];
+                    if (isStroke) {
+                        ctx.strokeText(char, currentX, y);
+                    } else {
+                        ctx.fillText(char, currentX, y);
+                    }
+                    currentX += ctx.measureText(char).width + charSpacing;
+                }
+                
+                // Add word spacing (except after the last word)
+                if (w < words.length - 1) {
+                    currentX += wordSpacing;
+                }
+            }
+        }
+        
+        // Draw Amazon smile arrow
+        function drawAmazonSmile() {
+            const centerX = canvas.width / 2;
+            let centerY = canvas.height / 2;
+            
+            // Adjust position if icon is present
+            if (logoState.icon) {
+                centerY = canvas.height * 2/3;
+            }
+            
+            // Position smile below text
+            const smileY = centerY + logoState.fontSize * 0.6;
+            const smileRadius = logoState.smileSize;
+            const smileWidth = ctx.measureText(logoState.text).width * 0.8;
+            
+            // Draw smile curve (Amazon-style arrow)
+            ctx.beginPath();
+            ctx.arc(centerX, smileY, smileRadius, Math.PI * 0.2, Math.PI * 0.8);
+            ctx.strokeStyle = logoState.color;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // Draw arrowhead at the end
+            const arrowAngle = Math.PI * 0.8;
+            const arrowX = centerX + smileRadius * Math.cos(arrowAngle);
+            const arrowY = smileY + smileRadius * Math.sin(arrowAngle);
+            
+            ctx.save();
+            ctx.translate(arrowX, arrowY);
+            ctx.rotate(arrowAngle + Math.PI/2);
+            
+            // Draw arrowhead
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-8, 15);
+            ctx.lineTo(8, 15);
+            ctx.closePath();
+            ctx.fillStyle = logoState.color;
+            ctx.fill();
+            
+            ctx.restore();
+            
+            // Draw arrow tail at the start
+            const tailAngle = Math.PI * 0.2;
+            const tailX = centerX + smileRadius * Math.cos(tailAngle);
+            const tailY = smileY + smileRadius * Math.sin(tailAngle);
+            
+            ctx.save();
+            ctx.translate(tailX, tailY);
+            ctx.rotate(tailAngle + Math.PI/2);
+            
+            // Draw arrow tail (small circle)
+            ctx.beginPath();
+            ctx.arc(0, -5, 4, 0, Math.PI * 2);
+            ctx.fillStyle = logoState.color;
+            ctx.fill();
+            
+            ctx.restore();
+        }
+        
+        // Apply brand style configurations
+        function applyBrandStyle(brand) {
+            switch(brand) {
+                case 'amazon':
+                    logoState.text = 'amazon';
+                    logoState.slogan = '';
+                    logoState.color = '#ff9900';
+                    logoState.bgColor = '#ffffff';
+                    logoState.bgType = 'solid';
+                    logoState.fontFamily = "'Amazon Ember', Arial, sans-serif";
+                    logoState.fontSize = 52;
+                    logoState.amazonSmile = true;
+                    logoState.smileSize = 30;
+                    logoState.textGradient = true;
+                    logoState.textGradient1 = '#ff9900';
+                    logoState.textGradient2 = '#ff5500';
+                    logoState.textTransform = 'lowercase';
+                    logoState.letterSpacing = 2;
+                    logoState.wordSpacing = 0;
+                    logoState.shape = 'none';
+                    logoState.icon = '';
+                    break;
+                    
+                case 'google':
+                    logoState.text = 'Google';
+                    logoState.slogan = '';
+                    logoState.color = '#4285F4';
+                    logoState.bgColor = '#ffffff';
+                    logoState.bgType = 'solid';
+                    logoState.fontFamily = "'Product Sans', Arial, sans-serif";
+                    logoState.fontSize = 48;
+                    logoState.amazonSmile = false;
+                    logoState.textGradient = false;
+                    logoState.textTransform = 'none';
+                    logoState.letterSpacing = 0;
+                    logoState.wordSpacing = 0;
+                    logoState.shape = 'none';
+                    logoState.icon = '';
+                    break;
+                    
+                case 'apple':
+                    logoState.text = 'Apple';
+                    logoState.slogan = '';
+                    logoState.color = '#000000';
+                    logoState.bgColor = '#ffffff';
+                    logoState.bgType = 'solid';
+                    logoState.fontFamily = "'SF Pro Display', -apple-system, sans-serif";
+                    logoState.fontSize = 50;
+                    logoState.amazonSmile = false;
+                    logoState.textGradient = false;
+                    logoState.textTransform = 'none';
+                    logoState.letterSpacing = 0;
+                    logoState.wordSpacing = 0;
+                    logoState.shape = 'none';
+                    logoState.icon = 'apple';
+                    break;
+                    
+                case 'microsoft':
+                    logoState.text = 'Microsoft';
+                    logoState.slogan = '';
+                    logoState.color = '#737373';
+                    logoState.bgColor = '#ffffff';
+                    logoState.bgType = 'solid';
+                    logoState.fontFamily = "'Segoe UI', sans-serif";
+                    logoState.fontSize = 46;
+                    logoState.amazonSmile = false;
+                    logoState.textGradient = false;
+                    logoState.textTransform = 'none';
+                    logoState.letterSpacing = 0;
+                    logoState.wordSpacing = 0;
+                    logoState.shape = 'none';
+                    logoState.icon = '';
+                    break;
+            }
+            
+            // Update UI to reflect brand style
+            updateUIFromState();
+            saveToHistory();
+            drawLogo();
+        }
+        
+        // Apply template configurations
+        function applyTemplate(template) {
+            switch(template) {
+                case 'modern':
+                    logoState.color = '#00a8ff';
+                    logoState.bgColor = '#0a0a1a';
+                    logoState.bgType = 'solid';
+                    logoState.fontFamily = "'Montserrat', sans-serif";
+                    logoState.shape = 'rounded';
+                    logoState.icon = 'rocket';
+                    logoState.shadow = 'soft';
+                    logoState.amazonSmile = false;
+                    logoState.textGradient = false;
+                    break;
+                case 'vintage':
+                    logoState.color = '#d4af37';
+                    logoState.bgColor = '#3d2b1f';
+                    logoState.bgType = 'pattern';
+                    logoState.pattern = 'dots';
+                    logoState.fontFamily = "'Playfair Display', serif";
+                    logoState.shape = 'circle';
+                    logoState.icon = 'crown';
+                    logoState.amazonSmile = false;
+                    logoState.textGradient = false;
+                    break;
+                case 'tech':
+                    logoState.color = '#00ff88';
+                    logoState.bgColor = '#001122';
+                    logoState.bgType = 'gradient';
+                    logoState.gradientColor1 = '#001122';
+                    logoState.gradientColor2 = '#003344';
+                    logoState.fontFamily = "'Roboto', sans-serif";
+                    logoState.shape = 'hexagon';
+                    logoState.icon = 'bolt';
+                    logoState.shadow = 'hard';
+                    logoState.amazonSmile = false;
+                    logoState.textGradient = false;
+                    break;
+                case 'elegant':
+                    logoState.color = '#ff4081';
+                    logoState.bgColor = '#1a0a2e';
+                    logoState.bgType = 'solid';
+                    logoState.fontFamily = "'Poppins', sans-serif";
+                    logoState.shape = 'none';
+                    logoState.icon = 'gem';
+                    logoState.outline = 'thick';
+                    logoState.amazonSmile = false;
+                    logoState.textGradient = false;
+                    break;
+                case 'minimal':
+                    logoState.color = '#ffffff';
+                    logoState.bgColor = '#000000';
+                    logoState.bgType = 'solid';
+                    logoState.fontFamily = "'Open Sans', sans-serif";
+                    logoState.shape = 'none';
+                    logoState.icon = '';
+                    logoState.shadow = 'none';
+                    logoState.outline = 'none';
+                    logoState.amazonSmile = false;
+                    logoState.textGradient = false;
+                    break;
+                case 'bold':
+                    logoState.color = '#ff8000';
+                    logoState.bgColor = '#000000';
+                    logoState.bgType = 'solid';
+                    logoState.fontFamily = "'Impact', sans-serif";
+                    logoState.shape = 'square';
+                    logoState.icon = 'fire';
+                    logoState.shadow = 'hard';
+                    logoState.amazonSmile = false;
+                    logoState.textGradient = false;
+                    break;
+                case 'amazon':
+                    applyBrandStyle('amazon');
+                    return;
+                case 'google':
+                    applyBrandStyle('google');
+                    return;
+            }
+            
+            // Update UI to reflect template
+            updateUIFromState();
+            saveToHistory();
+            drawLogo();
+        }
+        
+        // Apply preset configurations
+        function applyPreset(preset) {
+            switch(preset) {
+                case 'corporate':
+                    logoState.color = '#2a6ebb';
+                    logoState.bgColor = '#f0f4f8';
+                    logoState.fontFamily = "'Segoe UI', sans-serif";
+                    logoState.icon = 'shield';
+                    break;
+                case 'creative':
+                    logoState.color = '#ff6b6b';
+                    logoState.bgColor = '#ffeaa7';
+                    logoState.fontFamily = "'Comic Sans MS', cursive";
+                    logoState.icon = 'lightbulb';
+                    break;
+                case 'luxury':
+                    logoState.color = '#d4af37';
+                    logoState.bgColor = '#2c2c2c';
+                    logoState.fontFamily = "'Times New Roman', serif";
+                    logoState.icon = 'gem';
+                    break;
+                case 'nature':
+                    logoState.color = '#27ae60';
+                    logoState.bgColor = '#ecf0f1';
+                    logoState.fontFamily = "'Lato', sans-serif";
+                    logoState.icon = 'leaf';
+                    break;
+                case 'sports':
+                    logoState.color = '#e74c3c';
+                    logoState.bgColor = '#f5f5f5';
+                    logoState.fontFamily = "'Arial Black', sans-serif";
+                    logoState.icon = 'fire';
+                    break;
+                case 'food':
+                    logoState.color = '#e67e22';
+                    logoState.bgColor = '#fff9e6';
+                    logoState.fontFamily = "'Comic Sans MS', cursive";
+                    logoState.icon = 'heart';
+                    break;
+                case 'amazon':
+                    applyBrandStyle('amazon');
+                    return;
+                case 'tech':
+                    logoState.color = '#00a8ff';
+                    logoState.bgColor = '#0a0a1a';
+                    logoState.fontFamily = "'Roboto', sans-serif";
+                    logoState.icon = 'bolt';
+                    break;
+            }
+            
+            // Update UI to reflect preset
+            updateUIFromState();
+            saveToHistory();
+            drawLogo();
+        }
+        
+        // Update UI controls from state
+        function updateUIFromState() {
+            document.getElementById('logoText').value = logoState.text;
+            document.getElementById('sloganText').value = logoState.slogan;
+            document.getElementById('fontSize').value = logoState.fontSize;
+            document.getElementById('fontSizeValue').textContent = logoState.fontSize;
+            document.getElementById('fontFamily').value = logoState.fontFamily;
+            document.getElementById('customColorPicker').value = logoState.color;
+            document.getElementById('iconSize').value = logoState.iconSize;
+            document.getElementById('iconSizeValue').textContent = logoState.iconSize;
+            document.getElementById('letterSpacing').value = logoState.letterSpacing;
+            document.getElementById('letterSpacingValue').textContent = logoState.letterSpacing;
+            document.getElementById('wordSpacing').value = logoState.wordSpacing;
+            document.getElementById('wordSpacingValue').textContent = logoState.wordSpacing;
+            document.getElementById('logoOpacity').value = logoState.opacity * 100;
+            document.getElementById('opacityValue').textContent = logoState.opacity * 100;
+            document.getElementById('borderWidth').value = logoState.borderWidth;
+            document.getElementById('borderColor').value = logoState.borderColor;
+            document.getElementById('logoRotation').value = logoState.rotation;
+            document.getElementById('rotationValue').textContent = logoState.rotation;
+            document.getElementById('gradientColor1').value = logoState.gradientColor1;
+            document.getElementById('gradientColor2').value = logoState.gradientColor2;
+            document.getElementById('textGradient1').value = logoState.textGradient1;
+            document.getElementById('textGradient2').value = logoState.textGradient2;
+            document.getElementById('smileSize').value = logoState.smileSize;
+            document.getElementById('smileSizeValue').textContent = logoState.smileSize;
+            
+            // Update smile button
+            const smileBtn = document.getElementById('toggleSmile');
+            smileBtn.textContent = logoState.amazonSmile ? 'Disable Smile Arrow' : 'Enable Smile Arrow';
+            smileBtn.style.backgroundColor = logoState.amazonSmile ? 'rgba(255, 153, 0, 0.3)' : 'rgba(255, 128, 0, 0.1)';
+            smileBtn.style.borderColor = logoState.amazonSmile ? '#ff9900' : 'rgba(255, 128, 0, 0.3)';
+            
+            // Update text gradient button
+            const gradientBtn = document.getElementById('toggleTextGradient');
+            gradientBtn.textContent = logoState.textGradient ? 'Disable Text Gradient' : 'Enable Text Gradient';
+            gradientBtn.style.backgroundColor = logoState.textGradient ? 'rgba(255, 153, 0, 0.3)' : 'rgba(255, 128, 0, 0.1)';
+            gradientBtn.style.borderColor = logoState.textGradient ? '#ff9900' : 'rgba(255, 128, 0, 0.3)';
+            
+            updateGradientPreview();
+            
+            // Update color options
+            document.querySelectorAll('.color-option[data-color]').forEach(option => {
+                option.classList.remove('active');
+                if (option.getAttribute('data-color') === logoState.color) {
+                    option.classList.add('active');
+                }
+            });
+            
+            // Update background color options
+            document.querySelectorAll('.color-option[data-bgcolor]').forEach(option => {
+                option.classList.remove('active');
+                if (option.getAttribute('data-bgcolor') === logoState.bgColor) {
+                    option.classList.add('active');
+                }
+            });
+            
+            // Update background type
+            document.querySelectorAll('.shape-btn[data-bgtype]').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-bgtype') === logoState.bgType) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Update shape buttons
+            document.querySelectorAll('.shape-btn[data-shape]').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-shape') === logoState.shape) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Update icon selection
+            document.querySelectorAll('.icon-option').forEach(icon => {
+                icon.classList.remove('active');
+                if (icon.getAttribute('data-icon') === logoState.icon) {
+                    icon.classList.add('active');
+                }
+            });
+            
+            // Update shadow buttons
+            document.querySelectorAll('.shape-btn[data-shadow]').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-shadow') === logoState.shadow) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Update outline buttons
+            document.querySelectorAll('.shape-btn[data-outline]').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-outline') === logoState.outline) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Update pattern selection
+            document.querySelectorAll('.pattern-option').forEach(pattern => {
+                pattern.classList.remove('active');
+                if (pattern.getAttribute('data-pattern') === logoState.pattern) {
+                    pattern.classList.add('active');
+                }
+            });
+            
+            // Update gradient direction
+            document.querySelectorAll('.direction-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseInt(btn.getAttribute('data-direction')) === logoState.gradientDirection) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Update text transformation
+            document.querySelectorAll('.transform-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-transform') === logoState.textTransform) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Update text alignment
+            document.querySelectorAll('.shape-btn[data-align]').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-align') === logoState.textAlign) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+        
+        // Save current state to history
+        function saveToHistory() {
+            // Remove any future states if we're not at the end
+            if (currentHistoryIndex < designHistory.length - 1) {
+                designHistory.splice(currentHistoryIndex + 1);
+            }
+            
+            // Save a deep copy of the state
+            designHistory.push(JSON.parse(JSON.stringify(logoState)));
+            currentHistoryIndex = designHistory.length - 1;
+            
+            // Update undo/redo buttons
+            updateHistoryButtons();
+        }
+        
+        // Undo last change
+        function undo() {
+            if (currentHistoryIndex > 0) {
+                currentHistoryIndex--;
+                Object.assign(logoState, designHistory[currentHistoryIndex]);
+                updateUIFromState();
+                drawLogo();
+                updateHistoryButtons();
+            }
+        }
+        
+        // Redo last undone change
+        function redo() {
+            if (currentHistoryIndex < designHistory.length - 1) {
+                currentHistoryIndex++;
+                Object.assign(logoState, designHistory[currentHistoryIndex]);
+                updateUIFromState();
+                drawLogo();
+                updateHistoryButtons();
+            }
+        }
+        
+        // Update undo/redo button states
+        function updateHistoryButtons() {
+            document.getElementById('undoBtn').disabled = currentHistoryIndex <= 0;
+            document.getElementById('redoBtn').disabled = currentHistoryIndex >= designHistory.length - 1;
+        }
+        
+        // Save design to localStorage
+        function saveDesign() {
+            const designData = {
+                state: logoState,
+                timestamp: new Date().toISOString(),
+                name: prompt("Enter a name for this design:", `Logo Design ${new Date().toLocaleDateString()}`)
+            };
+            
+            if (designData.name) {
+                const savedDesigns = JSON.parse(localStorage.getItem('logoDesigns') || '[]');
+                savedDesigns.push(designData);
+                localStorage.setItem('logoDesigns', JSON.stringify(savedDesigns));
+                alert(`Design "${designData.name}" saved successfully!`);
+            }
+        }
+        
+        // Load design from localStorage
+        function loadDesign() {
+            const savedDesigns = JSON.parse(localStorage.getItem('logoDesigns') || '[]');
+            
+            if (savedDesigns.length === 0) {
+                alert("No saved designs found!");
+                return;
+            }
+            
+            const designNames = savedDesigns.map((design, index) => `${index + 1}. ${design.name} (${new Date(design.timestamp).toLocaleDateString()})`);
+            const selection = prompt(`Saved designs:\n${designNames.join('\n')}\n\nEnter the number of the design to load:`);
+            
+            if (selection) {
+                const index = parseInt(selection) - 1;
+                if (index >= 0 && index < savedDesigns.length) {
+                    Object.assign(logoState, savedDesigns[index].state);
+                    updateUIFromState();
+                    saveToHistory();
+                    drawLogo();
+                    alert(`Design "${savedDesigns[index].name}" loaded successfully!`);
+                } else {
+                    alert("Invalid selection!");
+                }
+            }
+        }
+        
+        // Export logo in different formats
+        function exportLogo(format) {
+            const link = document.getElementById('downloadLink');
+            let fileName = `logo_${Date.now()}`;
+            
+            // Create a temporary canvas for export with desired size
+            const exportCanvas = document.createElement('canvas');
+            exportCanvas.width = logoState.exportSize.width;
+            exportCanvas.height = logoState.exportSize.height;
+            const exportCtx = exportCanvas.getContext('2d');
+            
+            // Scale and draw the logo to the export canvas
+            exportCtx.save();
+            
+            // Draw background
+            if (logoState.bgType === 'transparent') {
+                // For PNG with transparency, clear the canvas
+                exportCtx.clearRect(0, 0, exportCanvas.width, exportCanvas.height);
+            } else {
+                // Draw background based on type
+                // This is a simplified version - in production you'd replicate the full drawLogo logic
+                exportCtx.fillStyle = logoState.bgColor;
+                exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+            }
+            
+            // Scale and draw the original canvas content
+            exportCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, exportCanvas.width, exportCanvas.height);
+            
+            exportCtx.restore();
+            
+            switch(format) {
+                case 'png':
+                    exportCanvas.toBlob(blob => {
+                        const url = URL.createObjectURL(blob);
+                        link.href = url;
+                        link.download = `${fileName}.png`;
+                        link.click();
+                        URL.revokeObjectURL(url);
+                    }, 'image/png');
+                    break;
+                    
+                case 'jpeg':
+                    const quality = document.getElementById('exportQuality').value / 10;
+                    exportCanvas.toBlob(blob => {
+                        const url = URL.createObjectURL(blob);
+                        link.href = url;
+                        link.download = `${fileName}.jpg`;
+                        link.click();
+                        URL.revokeObjectURL(url);
+                    }, 'image/jpeg', quality);
+                    break;
+                    
+                case 'svg':
+                    exportAsSVG();
+                    break;
+                    
+                case 'pdf':
+                    alert('PDF export would require additional libraries. For now, please export as PNG and convert to PDF.');
+                    break;
+                    
+                case 'webp':
+                    const webpQuality = document.getElementById('exportQuality').value / 10;
+                    exportCanvas.toBlob(blob => {
+                        const url = URL.createObjectURL(blob);
+                        link.href = url;
+                        link.download = `${fileName}.webp`;
+                        link.click();
+                        URL.revokeObjectURL(url);
+                    }, 'image/webp', webpQuality);
+                    break;
+                    
+                case 'ico':
+                    alert('ICO export requires specialized conversion. For now, please export as PNG and use an online ICO converter.');
+                    break;
+            }
+        }
+        
+        // Export as SVG (simplified version)
+        function exportAsSVG() {
+            const svgContent = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="${logoState.exportSize.width}" height="${logoState.exportSize.height}" viewBox="0 0 ${logoState.exportSize.width} ${logoState.exportSize.height}">
+                <rect width="${logoState.exportSize.width}" height="${logoState.exportSize.height}" fill="${logoState.bgColor}" />
+                <text x="${logoState.exportSize.width/2}" y="${logoState.exportSize.height/2}" font-family="${logoState.fontFamily}" font-size="${logoState.fontSize}" 
+                      fill="${logoState.color}" text-anchor="middle" dominant-baseline="middle" font-weight="bold">
+                    ${logoState.text}
+                </text>
+                ${logoState.slogan ? `<text x="${logoState.exportSize.width/2}" y="${logoState.exportSize.height/2 + logoState.fontSize * 0.8}" font-family="${logoState.fontFamily}" font-size="${logoState.fontSize * 0.4}" fill="${logoState.color}" text-anchor="middle" font-style="italic">${logoState.slogan}</text>` : ''}
+            </svg>`;
+            
+            const blob = new Blob([svgContent], {type: 'image/svg+xml'});
+            const url = URL.createObjectURL(blob);
+            const link = document.getElementById('downloadLink');
+            link.href = url;
+            link.download = `logo_${Date.now()}.svg`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Initialize the app
+        window.addEventListener('DOMContentLoaded', initCanvas);
+    </script>
+</body>
+</html>

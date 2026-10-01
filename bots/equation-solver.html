@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equation Solver</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+    color: #fff;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background: rgba(20, 20, 35, 0.8);
+    border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+    margin-bottom: 30px;
+    border-radius: 10px;
+}
+
+.back-btn {
+    padding: 8px 15px;
+    background: rgba(255, 128, 0, 0.2);
+    border: 1px solid #ff8000;
+    border-radius: 5px;
+    color: #ff8000;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.section {
+    background: rgba(20, 20, 35, 0.5);
+    border: 1px solid rgba(255, 69, 0, 0.2);
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #ccc;
+    font-weight: bold;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px 15px;
+    background: rgba(50, 50, 70, 0.4);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    border-radius: 5px;
+    color: #fff;
+}
+
+.form-group input::placeholder {
+    color: #888;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.btn {
+    padding: 12px 25px;
+    background: linear-gradient(to right, #ff7e00, #ff4500);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 69, 0, 0.4);
+}
+
+.solution {
+    background: rgba(50, 50, 70, 0.3);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    display: none;
+}
+
+.solution.show {
+    display: block;
+}
+
+.answer-box {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.1));
+    border: 1px solid #4caf50;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    margin-top: 15px;
+}
+
+.answer-label {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-bottom: 10px;
+}
+
+.answer-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #4caf50;
+    font-family: 'Courier New', monospace;
+}
+
+@media (max-width: 600px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold;">Equation Solver</span>
+        <div style="width: 60px;"></div>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <h2 style="margin-bottom: 20px;"><i class="fas fa-equals"></i> Linear Equation Solver</h2>
+            <p style="color: #aaa; margin-bottom: 20px;">Solve equations of the form: ax + b = c</p>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Coefficient (a)</label>
+                    <input type="number" id="coefA" placeholder="Enter a" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Constant 1 (b)</label>
+                    <input type="number" id="constB" placeholder="Enter b" step="0.01">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Result (c)</label>
+                <input type="number" id="result" placeholder="Enter c" step="0.01">
+            </div>
+            <button class="btn" onclick="solveLinear()"><i class="fas fa-magic"></i> Solve Linear Equation</button>
+        </div>
+
+        <div class="section">
+            <h2 style="margin-bottom: 20px;"><i class="fas fa-superscript"></i> Quadratic Equation Solver</h2>
+            <p style="color: #aaa; margin-bottom: 20px;">Solve equations of the form: ax² + bx + c = 0</p>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>a (coefficient of x²)</label>
+                    <input type="number" id="quadA" placeholder="Enter a" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>b (coefficient of x)</label>
+                    <input type="number" id="quadB" placeholder="Enter b" step="0.01">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>c (constant)</label>
+                <input type="number" id="quadC" placeholder="Enter c" step="0.01">
+            </div>
+            <button class="btn" onclick="solveQuadratic()"><i class="fas fa-magic"></i> Solve Quadratic Equation</button>
+        </div>
+
+        <div class="section solution" id="solution">
+            <h2 style="margin-bottom: 20px; color: #ff8000;"><i class="fas fa-check"></i> Solution</h2>
+            <div id="solutionContent"></div>
+        </div>
+    </div>
+
+    <script>
+        function solveLinear() {
+            const a = parseFloat(document.getElementById('coefA').value);
+            const b = parseFloat(document.getElementById('constB').value);
+            const c = parseFloat(document.getElementById('result').value);
+
+            if (isNaN(a) || isNaN(b) || isNaN(c)) {
+                alert('Please enter all values');
+                return;
+            }
+
+            if (a === 0) {
+                alert('Coefficient a cannot be zero');
+                return;
+            }
+
+            const x = (c - b) / a;
+            displaySolution(`Linear Equation: ${a}x + ${b} = ${c}`, `x = ${x.toFixed(4)}`);
+        }
+
+        function solveQuadratic() {
+            const a = parseFloat(document.getElementById('quadA').value);
+            const b = parseFloat(document.getElementById('quadB').value);
+            const c = parseFloat(document.getElementById('quadC').value);
+
+            if (isNaN(a) || isNaN(b) || isNaN(c)) {
+                alert('Please enter all values');
+                return;
+            }
+
+            if (a === 0) {
+                alert('Coefficient a cannot be zero');
+                return;
+            }
+
+            const discriminant = (b * b) - (4 * a * c);
+            let solutionHTML = `<p><strong>Equation: ${a}x² + ${b}x + ${c} = 0</strong></p>`;
+            solutionHTML += `<p>Discriminant (b² - 4ac) = ${discriminant.toFixed(2)}</p>`;
+
+            if (discriminant < 0) {
+                solutionHTML += `<p style="color: #ff9800;">No real solutions (discriminant is negative)</p>`;
+            } else if (discriminant === 0) {
+                const x = -b / (2 * a);
+                solutionHTML += `<div class="answer-box"><div class="answer-label">One Solution:</div><div class="answer-value">x = ${x.toFixed(4)}</div></div>`;
+            } else {
+                const x1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+                const x2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+                solutionHTML += `<div class="answer-box"><div class="answer-label">Two Solutions:</div><div class="answer-value">x₁ = ${x1.toFixed(4)}<br>x₂ = ${x2.toFixed(4)}</div></div>`;
+            }
+
+            document.getElementById('solutionContent').innerHTML = solutionHTML;
+            document.getElementById('solution').classList.add('show');
+        }
+
+        function displaySolution(equation, answer) {
+            document.getElementById('solutionContent').innerHTML = `
+                <p><strong>${equation}</strong></p>
+                <div class="answer-box">
+                    <div class="answer-label">Solution:</div>
+                    <div class="answer-value">${answer}</div>
+                </div>
+            `;
+            document.getElementById('solution').classList.add('show');
+        }
+    </script>
+</body>
+</html>

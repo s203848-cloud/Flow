@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Coordinate Plane Graphing Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .header h1 {
+            color: #ff8000;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .graphing-area {
+            flex: 1;
+            min-width: 600px;
+        }
+        
+        .canvas-container {
+            background: rgba(10, 10, 26, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #coordinateCanvas {
+            background-color: #0c0c1c;
+            border-radius: 5px;
+            display: block;
+            margin: 0 auto;
+            cursor: crosshair;
+        }
+        
+        .canvas-info {
+            text-align: center;
+            margin-top: 15px;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .controls {
+            flex: 0 0 300px;
+            background: rgba(10, 10, 26, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .control-section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .control-section h3 {
+            color: #ff8000;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ddd;
+        }
+        
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .input-row input {
+            flex: 1;
+            padding: 8px 10px;
+            background: rgba(20, 20, 40, 0.8);
+            border: 1px solid #444;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        .input-row input:focus {
+            outline: none;
+            border-color: #ff8000;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .btn-primary {
+            background: rgba(255, 128, 0, 0.4);
+        }
+        
+        .btn-primary:hover {
+            background: rgba(255, 128, 0, 0.6);
+        }
+        
+        .btn-danger {
+            background: rgba(255, 0, 0, 0.2);
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+        
+        .btn-danger:hover {
+            background: rgba(255, 0, 0, 0.3);
+        }
+        
+        .points-list, .lines-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 5px;
+            padding: 10px;
+        }
+        
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            margin-bottom: 8px;
+            background: rgba(30, 30, 60, 0.8);
+            border-radius: 5px;
+            border-left: 3px solid #ff8000;
+        }
+        
+        .list-item button {
+            padding: 3px 8px;
+            font-size: 0.8rem;
+            background: rgba(255, 64, 64, 0.2);
+            border: 1px solid #ff4040;
+            color: #ff8080;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        .list-item button:hover {
+            background: rgba(255, 64, 64, 0.4);
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+        
+        .instructions {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 8px;
+            border-left: 4px solid #ff8000;
+        }
+        
+        .instructions h4 {
+            color: #ff8000;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            color: #ccc;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 1000px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .graphing-area, .controls {
+                min-width: 100%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        </div>
+        
+        <div class="header">
+            <h1>Coordinate Plane Graphing Tool</h1>
+            <p>Plot points, draw lines, and explore coordinate geometry interactively</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="graphing-area">
+                <div class="canvas-container">
+                    <canvas id="coordinateCanvas" width="700" height="500"></canvas>
+                    <div class="canvas-info">
+                        <p>Click on the canvas to plot points. Click and drag to draw lines.</p>
+                        <p>Current coordinates: <span id="coordinates">(0, 0)</span></p>
+                    </div>
+                </div>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #ff8000;"></div>
+                        <span>Points</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #00aaff;"></div>
+                        <span>Lines</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #00cc88;"></div>
+                        <span>Axes & Grid</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <div class="control-section">
+                    <h3><i class="fas fa-dot-circle"></i> Plot Points</h3>
+                    <div class="control-group">
+                        <div class="input-row">
+                            <input type="number" id="pointX" placeholder="X coordinate" step="0.5" value="2">
+                            <input type="number" id="pointY" placeholder="Y coordinate" step="0.5" value="3">
+                            <button id="addPointBtn" class="btn btn-primary">Add Point</button>
+                        </div>
+                    </div>
+                    
+                    <h4>Plotted Points:</h4>
+                    <div class="points-list" id="pointsList">
+                        <!-- Points will be added here dynamically -->
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <h3><i class="fas fa-slash"></i> Draw Lines</h3>
+                    <div class="control-group">
+                        <div class="input-row">
+                            <input type="number" id="lineM" placeholder="Slope (m)" step="0.1" value="1">
+                            <input type="number" id="lineB" placeholder="Y-intercept (b)" step="0.1" value="0">
+                            <button id="addLineBtn" class="btn btn-primary">Add Line</button>
+                        </div>
+                    </div>
+                    
+                    <h4>Drawn Lines:</h4>
+                    <div class="lines-list" id="linesList">
+                        <!-- Lines will be added here dynamically -->
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <h3><i class="fas fa-cog"></i> Controls</h3>
+                    <div class="control-group">
+                        <div class="input-row">
+                            <button id="clearAllBtn" class="btn btn-danger">Clear All</button>
+                            <button id="resetViewBtn" class="btn">Reset View</button>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="gridSize">Grid Size:</label>
+                        <input type="range" id="gridSize" min="5" max="50" value="10" step="5">
+                        <span id="gridSizeValue">10</span>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="pointSize">Point Size:</label>
+                        <input type="range" id="pointSize" min="1" max="10" value="5" step="1">
+                        <span id="pointSizeValue">5</span>
+                    </div>
+                </div>
+                
+                <div class="instructions">
+                    <h4><i class="fas fa-info-circle"></i> Instructions</h4>
+                    <ul>
+                        <li>Click anywhere on the canvas to plot a point</li>
+                        <li>Enter coordinates manually and click "Add Point"</li>
+                        <li>Enter slope and y-intercept to draw a line</li>
+                        <li>Drag on the canvas to pan the view</li>
+                        <li>Use mouse wheel to zoom in/out</li>
+                        <li>Click on a point or line in the list to remove it</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Canvas and context
+        const canvas = document.getElementById('coordinateCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // UI elements
+        const coordinatesDisplay = document.getElementById('coordinates');
+        const pointXInput = document.getElementById('pointX');
+        const pointYInput = document.getElementById('pointY');
+        const addPointBtn = document.getElementById('addPointBtn');
+        const pointsList = document.getElementById('pointsList');
+        const lineMInput = document.getElementById('lineM');
+        const lineBInput = document.getElementById('lineB');
+        const addLineBtn = document.getElementById('addLineBtn');
+        const linesList = document.getElementById('linesList');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const resetViewBtn = document.getElementById('resetViewBtn');
+        const gridSizeSlider = document.getElementById('gridSize');
+        const gridSizeValue = document.getElementById('gridSizeValue');
+        const pointSizeSlider = document.getElementById('pointSize');
+        const pointSizeValue = document.getElementById('pointSizeValue');
+        
+        // Application state
+        let points = [];
+        let lines = [];
+        
+        // View transformation state
+        let viewOffsetX = canvas.width / 2;
+        let viewOffsetY = canvas.height / 2;
+        let scale = 40; // pixels per unit
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let startOffsetX = 0;
+        let startOffsetY = 0;
+        
+        // Colors
+        const colors = {
+            background: '#0c0c1c',
+            grid: '#00cc88',
+            axes: '#00cc88',
+            point: '#ff8000',
+            line: '#00aaff',
+            text: '#ffffff'
+        };
+        
+        // Initialize
+        function init() {
+            // Add sample points and lines
+            points.push({x: 2, y: 3, label: 'A'});
+            points.push({x: -3, y: 1, label: 'B'});
+            points.push({x: 0, y: -2, label: 'C'});
+            
+            lines.push({m: 1, b: 0, label: 'y = x'});
+            lines.push({m: -0.5, b: 2, label: 'y = -0.5x + 2'});
+            
+            updatePointsList();
+            updateLinesList();
+            draw();
+            
+            // Add event listeners
+            canvas.addEventListener('mousedown', handleMouseDown);
+            canvas.addEventListener('mousemove', handleMouseMove);
+            canvas.addEventListener('mouseup', handleMouseUp);
+            canvas.addEventListener('wheel', handleMouseWheel);
+            canvas.addEventListener('click', handleCanvasClick);
+            
+            addPointBtn.addEventListener('click', addPointFromInput);
+            addLineBtn.addEventListener('click', addLineFromInput);
+            clearAllBtn.addEventListener('click', clearAll);
+            resetViewBtn.addEventListener('click', resetView);
+            
+            gridSizeSlider.addEventListener('input', function() {
+                gridSizeValue.textContent = this.value;
+                draw();
+            });
+            
+            pointSizeSlider.addEventListener('input', function() {
+                pointSizeValue.textContent = this.value;
+                draw();
+            });
+            
+            // Allow Enter key to add points/lines
+            pointXInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') addPointFromInput();
+            });
+            
+            pointYInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') addPointFromInput();
+            });
+            
+            lineMInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') addLineFromInput();
+            });
+            
+            lineBInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') addLineFromInput();
+            });
+        }
+        
+        // Convert screen coordinates to graph coordinates
+        function screenToGraph(x, y) {
+            return {
+                x: (x - viewOffsetX) / scale,
+                y: -(y - viewOffsetY) / scale
+            };
+        }
+        
+        // Convert graph coordinates to screen coordinates
+        function graphToScreen(x, y) {
+            return {
+                x: viewOffsetX + x * scale,
+                y: viewOffsetY - y * scale
+            };
+        }
+        
+        // Draw the coordinate plane
+        function draw() {
+            // Clear canvas
+            ctx.fillStyle = colors.background;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Get grid size
+            const gridSize = parseInt(gridSizeSlider.value);
+            
+            // Draw grid
+            ctx.strokeStyle = colors.grid;
+            ctx.lineWidth = 0.5;
+            ctx.globalAlpha = 0.3;
+            
+            // Vertical grid lines
+            for (let x = -canvas.width; x <= canvas.width; x += gridSize) {
+                const screenX = viewOffsetX + x * scale;
+                if (screenX >= 0 && screenX <= canvas.width) {
+                    ctx.beginPath();
+                    ctx.moveTo(screenX, 0);
+                    ctx.lineTo(screenX, canvas.height);
+                    ctx.stroke();
+                }
+            }
+            
+            // Horizontal grid lines
+            for (let y = -canvas.height; y <= canvas.height; y += gridSize) {
+                const screenY = viewOffsetY - y * scale;
+                if (screenY >= 0 && screenY <= canvas.height) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, screenY);
+                    ctx.lineTo(canvas.width, screenY);
+                    ctx.stroke();
+                }
+            }
+            
+            // Draw axes
+            ctx.globalAlpha = 1;
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = colors.axes;
+            
+            // X-axis
+            ctx.beginPath();
+            ctx.moveTo(0, viewOffsetY);
+            ctx.lineTo(canvas.width, viewOffsetY);
+            ctx.stroke();
+            
+            // Y-axis
+            ctx.beginPath();
+            ctx.moveTo(viewOffsetX, 0);
+            ctx.lineTo(viewOffsetX, canvas.height);
+            ctx.stroke();
+            
+            // Draw axis labels and ticks
+            ctx.fillStyle = colors.text;
+            ctx.font = "12px 'Segoe UI'";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "top";
+            
+            // X-axis ticks and labels
+            for (let x = -10; x <= 10; x++) {
+                const screenX = viewOffsetX + x * scale;
+                if (screenX >= 0 && screenX <= canvas.width) {
+                    ctx.beginPath();
+                    ctx.moveTo(screenX, viewOffsetY - 5);
+                    ctx.lineTo(screenX, viewOffsetY + 5);
+                    ctx.stroke();
+                    
+                    if (x !== 0) {
+                        ctx.fillText(x.toString(), screenX, viewOffsetY + 10);
+                    }
+                }
+            }
+            
+            // Y-axis ticks and labels
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            for (let y = -10; y <= 10; y++) {
+                const screenY = viewOffsetY - y * scale;
+                if (screenY >= 0 && screenY <= canvas.height) {
+                    ctx.beginPath();
+                    ctx.moveTo(viewOffsetX - 5, screenY);
+                    ctx.lineTo(viewOffsetX + 5, screenY);
+                    ctx.stroke();
+                    
+                    if (y !== 0) {
+                        ctx.fillText(y.toString(), viewOffsetX - 10, screenY);
+                    }
+                }
+            }
+            
+            // Draw origin label
+            ctx.textAlign = "left";
+            ctx.fillText("0", viewOffsetX + 8, viewOffsetY + 8);
+            
+            // Draw lines
+            ctx.strokeStyle = colors.line;
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.8;
+            
+            lines.forEach(line => {
+                const m = line.m;
+                const b = line.b;
+                
+                // Calculate two points on the line at the edges of the view
+                const x1 = -10;
+                const y1 = m * x1 + b;
+                const x2 = 10;
+                const y2 = m * x2 + b;
+                
+                const p1 = graphToScreen(x1, y1);
+                const p2 = graphToScreen(x2, y2);
+                
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.stroke();
+                
+                // Draw line label
+                ctx.fillStyle = colors.line;
+                ctx.font = "bold 14px 'Segoe UI'";
+                ctx.textAlign = "left";
+                ctx.fillText(line.label, p2.x + 10, p2.y);
+            });
+            
+            // Draw points
+            const pointSize = parseInt(pointSizeSlider.value);
+            points.forEach(point => {
+                const screenPos = graphToScreen(point.x, point.y);
+                
+                // Draw point
+                ctx.fillStyle = colors.point;
+                ctx.globalAlpha = 1;
+                ctx.beginPath();
+                ctx.arc(screenPos.x, screenPos.y, pointSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw point label
+                ctx.fillStyle = colors.point;
+                ctx.font = "bold 14px 'Segoe UI'";
+                ctx.textAlign = "left";
+                ctx.textBaseline = "bottom";
+                ctx.fillText(point.label, screenPos.x + 8, screenPos.y - 8);
+                
+                // Draw coordinates near the point
+                ctx.font = "10px 'Segoe UI'";
+                ctx.fillText(`(${point.x}, ${point.y})`, screenPos.x + 8, screenPos.y + 12);
+            });
+            
+            // Reset global alpha
+            ctx.globalAlpha = 1;
+        }
+        
+        // Update points list UI
+        function updatePointsList() {
+            pointsList.innerHTML = '';
+            points.forEach((point, index) => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <span>${point.label}: (${point.x}, ${point.y})</span>
+                    <button data-index="${index}">Remove</button>
+                `;
+                pointsList.appendChild(item);
+            });
+            
+            // Add event listeners to remove buttons
+            const removeButtons = pointsList.querySelectorAll('button');
+            removeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    points.splice(index, 1);
+                    updatePointsList();
+                    draw();
+                });
+            });
+        }
+        
+        // Update lines list UI
+        function updateLinesList() {
+            linesList.innerHTML = '';
+            lines.forEach((line, index) => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <span>${line.label}</span>
+                    <button data-index="${index}">Remove</button>
+                `;
+                linesList.appendChild(item);
+            });
+            
+            // Add event listeners to remove buttons
+            const removeButtons = linesList.querySelectorAll('button');
+            removeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    lines.splice(index, 1);
+                    updateLinesList();
+                    draw();
+                });
+            });
+        }
+        
+        // Add point from input fields
+        function addPointFromInput() {
+            const x = parseFloat(pointXInput.value);
+            const y = parseFloat(pointYInput.value);
+            
+            if (isNaN(x) || isNaN(y)) {
+                alert('Please enter valid numbers for coordinates');
+                return;
+            }
+            
+            // Generate label (A, B, C, ...)
+            const label = String.fromCharCode(65 + points.length % 26);
+            
+            points.push({x, y, label});
+            updatePointsList();
+            draw();
+            
+            // Clear inputs
+            pointXInput.value = '';
+            pointYInput.value = '';
+            pointXInput.focus();
+        }
+        
+        // Add line from input fields
+        function addLineFromInput() {
+            const m = parseFloat(lineMInput.value);
+            const b = parseFloat(lineBInput.value);
+            
+            if (isNaN(m) || isNaN(b)) {
+                alert('Please enter valid numbers for slope and intercept');
+                return;
+            }
+            
+            // Generate label
+            let label = `y = ${m}x`;
+            if (b > 0) {
+                label += ` + ${b}`;
+            } else if (b < 0) {
+                label += ` - ${Math.abs(b)}`;
+            }
+            
+            lines.push({m, b, label});
+            updateLinesList();
+            draw();
+            
+            // Clear inputs
+            lineMInput.value = '';
+            lineBInput.value = '0';
+            lineMInput.focus();
+        }
+        
+        // Clear all points and lines
+        function clearAll() {
+            if (confirm('Are you sure you want to clear all points and lines?')) {
+                points = [];
+                lines = [];
+                updatePointsList();
+                updateLinesList();
+                draw();
+            }
+        }
+        
+        // Reset view to default
+        function resetView() {
+            viewOffsetX = canvas.width / 2;
+            viewOffsetY = canvas.height / 2;
+            scale = 40;
+            draw();
+        }
+        
+        // Handle mouse events for dragging and clicking
+        function handleMouseDown(e) {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            isDragging = true;
+            dragStartX = mouseX;
+            dragStartY = mouseY;
+            startOffsetX = viewOffsetX;
+            startOffsetY = viewOffsetY;
+            
+            canvas.style.cursor = 'grabbing';
+        }
+        
+        function handleMouseMove(e) {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // Update coordinates display
+            const graphCoords = screenToGraph(mouseX, mouseY);
+            coordinatesDisplay.textContent = `(${graphCoords.x.toFixed(2)}, ${graphCoords.y.toFixed(2)})`;
+            
+            // Handle dragging
+            if (isDragging) {
+                viewOffsetX = startOffsetX + (mouseX - dragStartX);
+                viewOffsetY = startOffsetY + (mouseY - dragStartY);
+                draw();
+            }
+        }
+        
+        function handleMouseUp() {
+            isDragging = false;
+            canvas.style.cursor = 'crosshair';
+        }
+        
+        function handleMouseWheel(e) {
+            e.preventDefault();
+            
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // Get graph coordinates before scaling
+            const graphBefore = screenToGraph(mouseX, mouseY);
+            
+            // Adjust scale
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            scale *= delta;
+            
+            // Clamp scale
+            scale = Math.max(10, Math.min(scale, 200));
+            
+            // Get graph coordinates after scaling
+            const graphAfter = screenToGraph(mouseX, mouseY);
+            
+            // Adjust offset to keep the point under the cursor fixed
+            viewOffsetX += (graphAfter.x - graphBefore.x) * scale;
+            viewOffsetY -= (graphAfter.y - graphBefore.y) * scale;
+            
+            draw();
+        }
+        
+        function handleCanvasClick(e) {
+            // Don't add point if we were dragging
+            if (isDragging) {
+                isDragging = false;
+                return;
+            }
+            
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            const graphCoords = screenToGraph(mouseX, mouseY);
+            
+            // Generate label
+            const label = String.fromCharCode(65 + points.length % 26);
+            
+            points.push({
+                x: Math.round(graphCoords.x * 2) / 2, // Round to nearest 0.5
+                y: Math.round(graphCoords.y * 2) / 2,
+                label
+            });
+            
+            updatePointsList();
+            draw();
+        }
+        
+        // Initialize the application
+        init();
+    </script>
+</body>
+</html>

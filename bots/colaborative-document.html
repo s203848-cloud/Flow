@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Collaborative Editor - Real-time Document Editing</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-3px);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #ff8000;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        .header p {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+        
+        .editor-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .editor-wrapper {
+            flex: 3;
+            min-width: 300px;
+        }
+        
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .editor-title {
+            font-size: 1.5rem;
+            color: #ff8000;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 150, 255, 0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 150, 255, 0.5);
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #0f0;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        .editor {
+            background: rgba(10, 10, 26, 0.8);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 500px;
+            overflow-y: auto;
+            outline: none;
+            color: #fff;
+            line-height: 1.6;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: border-color 0.3s;
+        }
+        
+        .editor:focus {
+            border-color: #ff8000;
+        }
+        
+        .editor:empty:before {
+            content: "Start typing here... Collaborate in real-time with others!";
+            color: #666;
+        }
+        
+        .sidebar {
+            flex: 1;
+            min-width: 250px;
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #333;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .sidebar-title {
+            color: #ff8000;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            padding-bottom: 10px;
+        }
+        
+        .user-list {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+        
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            border-left: 4px solid;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #000;
+        }
+        
+        .user-name {
+            font-weight: 500;
+        }
+        
+        .user-status {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+        
+        .controls {
+            margin-top: 20px;
+        }
+        
+        .controls h3 {
+            margin-bottom: 15px;
+            color: #ff8000;
+        }
+        
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .btn.clear {
+            background: rgba(255, 0, 0, 0.2);
+            border-color: #ff3333;
+            color: #ff6666;
+        }
+        
+        .btn.clear:hover {
+            background: rgba(255, 0, 0, 0.3);
+        }
+        
+        .btn.format {
+            background: rgba(0, 150, 255, 0.2);
+            border-color: #0096ff;
+            color: #66b8ff;
+        }
+        
+        .btn.format:hover {
+            background: rgba(0, 150, 255, 0.3);
+        }
+        
+        .stats {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 5px 0;
+        }
+        
+        .stat-label {
+            color: #aaa;
+        }
+        
+        .stat-value {
+            font-weight: 500;
+            color: #ff8000;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.2);
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .editor-container {
+                flex-direction: column;
+            }
+            
+            .editor-wrapper, .sidebar {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+            <div class="logo">
+                <i class="fas fa-users" style="color: #ff8000;"></i>
+                <span style="margin-left: 8px; font-weight: 600;">Collaborative Editor</span>
+            </div>
+        </div>
+        
+        <div class="header">
+            <h1>Real-time Collaborative Editor</h1>
+            <p>Edit documents together in real-time. Changes are synchronized across all users.</p>
+        </div>
+        
+        <div class="editor-container">
+            <div class="editor-wrapper">
+                <div class="editor-header">
+                    <div class="editor-title">
+                        <i class="fas fa-file-alt"></i> Collaborative Document
+                    </div>
+                    <div class="status">
+                        <div class="status-dot"></div>
+                        <span>Live - Changes saved automatically</span>
+                    </div>
+                </div>
+                
+                <div class="editor" id="editor" contenteditable="true">
+                    # Welcome to the Collaborative Editor!
+                    
+                    This is a shared document that updates in real-time for all users.
+                    
+                    ## How to use:
+                    1. Start typing - your changes will appear for others
+                    2. Use the formatting buttons to style text
+                    3. See who else is online in the sidebar
+                    4. Changes are automatically saved
+                    
+                    ## Try it out:
+                    - Open this page in another browser tab to see collaboration in action
+                    - Invite others to join by sharing the URL
+                    
+                    Let's create something amazing together!
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <h3 class="sidebar-title"><i class="fas fa-users"></i> Active Users</h3>
+                <ul class="user-list" id="user-list">
+                    <!-- Users will be dynamically added here -->
+                </ul>
+                
+                <div class="controls">
+                    <h3><i class="fas fa-edit"></i> Formatting Tools</h3>
+                    <div class="btn-group">
+                        <button class="btn format" id="bold-btn">
+                            <i class="fas fa-bold"></i> Bold
+                        </button>
+                        <button class="btn format" id="italic-btn">
+                            <i class="fas fa-italic"></i> Italic
+                        </button>
+                        <button class="btn format" id="underline-btn">
+                            <i class="fas fa-underline"></i> Underline
+                        </button>
+                        <button class="btn clear" id="clear-btn">
+                            <i class="fas fa-trash"></i> Clear Document
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="stats">
+                    <h3 class="sidebar-title"><i class="fas fa-chart-bar"></i> Document Stats</h3>
+                    <div class="stat-item">
+                        <span class="stat-label">Characters:</span>
+                        <span class="stat-value" id="char-count">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Words:</span>
+                        <span class="stat-value" id="word-count">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Last Updated:</span>
+                        <span class="stat-value" id="last-updated">Just now</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Active Users:</span>
+                        <span class="stat-value" id="user-count">1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><i class="fas fa-info-circle"></i> This collaborative editor uses localStorage to simulate real-time updates across tabs. Open multiple tabs to see collaboration in action.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Generate a random user for this session
+            const userId = 'user_' + Math.floor(Math.random() * 10000);
+            const userColors = ['#ff8000', '#0096ff', '#00cc66', '#cc66ff', '#ffcc00'];
+            const userColor = userColors[Math.floor(Math.random() * userColors.length)];
+            const userNames = ['Alex Writer', 'Taylor Editor', 'Jordan Collaborator', 'Casey Reviewer', 'Riley Designer'];
+            const userName = userNames[Math.floor(Math.random() * userNames.length)];
+            
+            // Editor element
+            const editor = document.getElementById('editor');
+            
+            // Stat elements
+            const charCount = document.getElementById('char-count');
+            const wordCount = document.getElementById('word-count');
+            const lastUpdated = document.getElementById('last-updated');
+            const userCount = document.getElementById('user-count');
+            
+            // Initialize user list with current user
+            const userList = document.getElementById('user-list');
+            
+            // Update stats function
+            function updateStats() {
+                const text = editor.textContent || editor.innerText;
+                const chars = text.length;
+                const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+                
+                charCount.textContent = chars;
+                wordCount.textContent = words;
+                lastUpdated.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            }
+            
+            // Add user to sidebar
+            function addUserToList(id, name, color, isCurrentUser = false) {
+                const userItem = document.createElement('li');
+                userItem.className = 'user-item';
+                userItem.style.borderLeftColor = color;
+                
+                const avatar = document.createElement('div');
+                avatar.className = 'user-avatar';
+                avatar.style.backgroundColor = color;
+                avatar.textContent = name.charAt(0);
+                
+                const userInfo = document.createElement('div');
+                userInfo.innerHTML = `
+                    <div class="user-name">${name} ${isCurrentUser ? '(You)' : ''}</div>
+                    <div class="user-status">${isCurrentUser ? 'Editing now' : 'Active'}</div>
+                `;
+                
+                userItem.appendChild(avatar);
+                userItem.appendChild(userInfo);
+                userList.appendChild(userItem);
+                
+                // Update user count
+                userCount.textContent = document.querySelectorAll('.user-item').length;
+            }
+            
+            // Clear user list and add current user
+            function refreshUserList() {
+                userList.innerHTML = '';
+                addUserToList(userId, userName, userColor, true);
+                
+                // Check for other users in localStorage
+                const users = JSON.parse(localStorage.getItem('collab-editor-users') || '{}');
+                const now = Date.now();
+                
+                for (const [id, userData] of Object.entries(users)) {
+                    // Only show users active in the last 10 seconds
+                    if (id !== userId && now - userData.timestamp < 10000) {
+                        addUserToList(id, userData.name, userData.color);
+                    }
+                }
+            }
+            
+            // Save user activity
+            function updateUserActivity() {
+                const users = JSON.parse(localStorage.getItem('collab-editor-users') || '{}');
+                users[userId] = {
+                    name: userName,
+                    color: userColor,
+                    timestamp: Date.now()
+                };
+                
+                // Remove inactive users (older than 10 seconds)
+                for (const [id, userData] of Object.entries(users)) {
+                    if (Date.now() - userData.timestamp > 10000) {
+                        delete users[id];
+                    }
+                }
+                
+                localStorage.setItem('collab-editor-users', JSON.stringify(users));
+                localStorage.setItem('collab-editor-user-update', Date.now().toString());
+            }
+            
+            // Save editor content to localStorage
+            function saveContent() {
+                const content = editor.innerHTML;
+                localStorage.setItem('collab-editor-content', content);
+                localStorage.setItem('collab-editor-last-updated', Date.now().toString());
+                updateStats();
+                updateUserActivity();
+            }
+            
+            // Load editor content from localStorage
+            function loadContent() {
+                const savedContent = localStorage.getItem('collab-editor-content');
+                if (savedContent) {
+                    editor.innerHTML = savedContent;
+                }
+                updateStats();
+            }
+            
+            // Formatting functions
+            function formatText(command) {
+                document.execCommand(command, false, null);
+                editor.focus();
+                saveContent();
+            }
+            
+            // Clear editor content
+            function clearEditor() {
+                if (confirm('Are you sure you want to clear the document? This will clear for all users.')) {
+                    editor.innerHTML = '<p>Document cleared. Start typing to add new content...</p>';
+                    saveContent();
+                }
+            }
+            
+            // Event Listeners
+            editor.addEventListener('input', saveContent);
+            
+            editor.addEventListener('keydown', function(e) {
+                // Handle tab key for indentation
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    document.execCommand('insertHTML', false, '&nbsp;&nbsp;&nbsp;&nbsp;');
+                    saveContent();
+                }
+                
+                // Update stats on keyup
+                if (e.key.length === 1) {
+                    setTimeout(updateStats, 10);
+                }
+            });
+            
+            // Formatting buttons
+            document.getElementById('bold-btn').addEventListener('click', () => formatText('bold'));
+            document.getElementById('italic-btn').addEventListener('click', () => formatText('italic'));
+            document.getElementById('underline-btn').addEventListener('click', () => formatText('underline'));
+            document.getElementById('clear-btn').addEventListener('click', clearEditor);
+            
+            // Listen for storage events (other tabs updating content)
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'collab-editor-content') {
+                    editor.innerHTML = e.newValue;
+                    updateStats();
+                }
+                
+                if (e.key === 'collab-editor-user-update') {
+                    refreshUserList();
+                }
+            });
+            
+            // Simulate other users for demo purposes
+            function simulateOtherUsers() {
+                const now = Date.now();
+                const users = JSON.parse(localStorage.getItem('collab-editor-users') || '{}');
+                
+                // Add a simulated user if none exist (for demo purposes)
+                if (Object.keys(users).length <= 1) {
+                    const demoUserId = 'demo_user_123';
+                    const demoColors = userColors.filter(c => c !== userColor);
+                    const demoColor = demoColors[Math.floor(Math.random() * demoColors.length)];
+                    const demoName = userNames.find(name => name !== userName) || 'Demo User';
+                    
+                    users[demoUserId] = {
+                        name: demoName,
+                        color: demoColor,
+                        timestamp: now - 5000 // 5 seconds ago
+                    };
+                    
+                    localStorage.setItem('collab-editor-users', JSON.stringify(users));
+                    localStorage.setItem('collab-editor-user-update', now.toString());
+                    refreshUserList();
+                }
+            }
+            
+            // Initialize
+            loadContent();
+            refreshUserList();
+            simulateOtherUsers();
+            
+            // Update user activity every 3 seconds
+            setInterval(updateUserActivity, 3000);
+            
+            // Refresh user list every 5 seconds
+            setInterval(refreshUserList, 5000);
+            
+            // Update stats initially
+            updateStats();
+            
+            // Focus the editor
+            editor.focus();
+        });
+    </script>
+</body>
+</html>

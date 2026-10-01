@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.8);
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: transform 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-2px);
+        }
+
+        .section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ff8000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            font-size: 0.9rem;
+            color: #aaa;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .grade-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(50, 50, 70, 0.3);
+            border-radius: 8px;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        .grade-item:hover {
+            background: rgba(50, 50, 70, 0.5);
+        }
+
+        .grade-item input {
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .grade-item input:focus {
+            outline: none;
+            border-color: #ff8000;
+        }
+
+        .grade-item input::placeholder {
+            color: #888;
+        }
+
+        .grade-item button {
+            padding: 8px 15px;
+            background: linear-gradient(to right, #ff5500, #ff3300);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 40px;
+        }
+
+        .grade-item button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(255, 69, 0, 0.3);
+        }
+
+        .class-grade {
+            font-weight: bold;
+            color: #4caf50;
+        }
+
+        .letter-grade {
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+
+        .result {
+            padding: 30px;
+            background: rgba(50, 50, 70, 0.4);
+            border: 2px solid rgba(255, 128, 0, 0.4);
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .result-grade {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .result-percentage {
+            font-size: 1.5rem;
+            color: #aaa;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background: linear-gradient(to right, #ff7e00, #ff4500);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 69, 0, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .input-row input {
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .input-row input:focus {
+            outline: none;
+            border-color: #ff8000;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-style: italic;
+        }
+
+        .grade-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .grade-item {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .input-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .grade-actions {
+                flex-direction: column;
+            }
+            
+            .grade-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold;">Grade Calculator</span>
+        <div style="width: 60px;"></div>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <div class="section-header">
+                <h2><i class="fas fa-book"></i> Assignment Grades</h2>
+                <div class="stats" id="assignmentStats">No assignments added</div>
+            </div>
+            <div id="gradesList">
+                <div class="no-data">Add your first assignment to get started</div>
+            </div>
+            <div class="grade-actions">
+                <button class="btn" onclick="addGrade()">
+                    <i class="fas fa-plus"></i> Add Assignment
+                </button>
+                <button class="btn btn-secondary" onclick="clearAllGrades()">
+                    <i class="fas fa-trash"></i> Clear All
+                </button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2><i class="fas fa-chart-line"></i> Class Grades</h2>
+                <div class="stats" id="classStats">No classes added</div>
+            </div>
+            <div class="input-row">
+                <input type="text" id="classInput" placeholder="Class name (e.g., Math, English)">
+                <input type="number" id="gradeInput" placeholder="Grade (0-100)" min="0" max="100" step="0.1">
+                <button class="btn" onclick="addClass()">
+                    <i class="fas fa-plus"></i> Add
+                </button>
+            </div>
+            <div id="classesList">
+                <div class="no-data">Add your first class to get started</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-calculator"></i> Overall Results</h2>
+            <div class="result">
+                <div class="result-grade" id="overallGrade">-</div>
+                <div class="result-percentage" id="overallPercentage">Add classes to calculate GPA</div>
+            </div>
+            <div class="grade-actions">
+                <button class="btn" onclick="calculateGPA()">
+                    <i class="fas fa-calculator"></i> Calculate GPA
+                </button>
+                <button class="btn btn-secondary" onclick="resetAll()">
+                    <i class="fas fa-redo"></i> Reset All
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced Grade Calculator with better functionality
+        let grades = JSON.parse(localStorage.getItem('grades')) || [];
+        let classes = JSON.parse(localStorage.getItem('classes')) || [];
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            renderGrades();
+            renderClasses();
+            updateStats();
+            updateOverallResult();
+        });
+
+        // Assignment Management
+        function addGrade() {
+            const id = Date.now();
+            const defaultGrade = {
+                id,
+                name: '',
+                score: '',
+                weight: 10,
+                maxScore: 100
+            };
+            grades.push(defaultGrade);
+            saveToLocalStorage();
+            renderGrades();
+            updateStats();
+        }
+
+        function updateGrade(id, field, value) {
+            const grade = grades.find(g => g.id === id);
+            if (grade) {
+                if (field === 'name') {
+                    grade[field] = value;
+                } else {
+                    const numValue = parseFloat(value);
+                    if (!isNaN(numValue)) {
+                        grade[field] = numValue;
+                    }
+                }
+            }
+            saveToLocalStorage();
+            updateStats();
+        }
+
+        function deleteGrade(id) {
+            grades = grades.filter(g => g.id !== id);
+            saveToLocalStorage();
+            renderGrades();
+            updateStats();
+        }
+
+        function clearAllGrades() {
+            if (grades.length === 0) return;
+            if (confirm('Are you sure you want to clear all assignments?')) {
+                grades = [];
+                saveToLocalStorage();
+                renderGrades();
+                updateStats();
+            }
+        }
+
+        function renderGrades() {
+            const list = document.getElementById('gradesList');
+            
+            if (grades.length === 0) {
+                list.innerHTML = '<div class="no-data">Add your first assignment to get started</div>';
+                return;
+            }
+
+            list.innerHTML = grades.map(grade => `
+                <div class="grade-item">
+                    <input type="text" 
+                           placeholder="Assignment name" 
+                           value="${grade.name}" 
+                           oninput="updateGrade(${grade.id}, 'name', this.value)">
+                    <input type="number" 
+                           placeholder="Score" 
+                           value="${grade.score}" 
+                           oninput="updateGrade(${grade.id}, 'score', this.value)" 
+                           min="0" 
+                           max="${grade.maxScore}">
+                    <input type="number" 
+                           placeholder="Weight %" 
+                           value="${grade.weight}" 
+                           oninput="updateGrade(${grade.id}, 'weight', this.value)" 
+                           min="1" 
+                           max="100">
+                    <button onclick="deleteGrade(${grade.id})" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Class Management
+        function addClass() {
+            const nameInput = document.getElementById('classInput');
+            const gradeInput = document.getElementById('gradeInput');
+            
+            const name = nameInput.value.trim();
+            const grade = parseFloat(gradeInput.value);
+
+            if (!name) {
+                alert('Please enter a class name');
+                nameInput.focus();
+                return;
+            }
+
+            if (isNaN(grade) || grade < 0 || grade > 100) {
+                alert('Please enter a valid grade between 0 and 100');
+                gradeInput.focus();
+                return;
+            }
+
+            const id = Date.now();
+            classes.push({ id, name, grade });
+            
+            // Clear inputs
+            nameInput.value = '';
+            gradeInput.value = '';
+            
+            saveToLocalStorage();
+            renderClasses();
+            updateStats();
+        }
+
+        function deleteClass(id) {
+            classes = classes.filter(c => c.id !== id);
+            saveToLocalStorage();
+            renderClasses();
+            updateStats();
+            updateOverallResult();
+        }
+
+        function renderClasses() {
+            const list = document.getElementById('classesList');
+            
+            if (classes.length === 0) {
+                list.innerHTML = '<div class="no-data">Add your first class to get started</div>';
+                return;
+            }
+
+            list.innerHTML = classes.map(cls => {
+                const letterGrade = getLetterGrade(cls.grade);
+                return `
+                    <div class="grade-item">
+                        <div>${cls.name}</div>
+                        <div class="class-grade">${cls.grade.toFixed(1)}%</div>
+                        <div class="letter-grade">${letterGrade}</div>
+                        <button onclick="deleteClass(${cls.id})" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // GPA Calculation
+        function calculateGPA() {
+            if (classes.length === 0) {
+                alert('Please add at least one class to calculate GPA');
+                return;
+            }
+
+            const totalGrade = classes.reduce((sum, cls) => sum + cls.grade, 0);
+            const average = totalGrade / classes.length;
+            
+            updateOverallResult(average);
+        }
+
+        function updateOverallResult(average = null) {
+            const overallGrade = document.getElementById('overallGrade');
+            const overallPercentage = document.getElementById('overallPercentage');
+            
+            if (classes.length === 0) {
+                overallGrade.textContent = '-';
+                overallGrade.style.color = '#ff8000';
+                overallPercentage.textContent = 'Add classes to calculate GPA';
+                return;
+            }
+            
+            if (average === null) {
+                const totalGrade = classes.reduce((sum, cls) => sum + cls.grade, 0);
+                average = totalGrade / classes.length;
+            }
+            
+            const letterGrade = getLetterGrade(average);
+            overallGrade.textContent = letterGrade;
+            overallGrade.style.color = getGradeColor(average);
+            overallPercentage.textContent = `${average.toFixed(2)}% Average (${classes.length} classes)`;
+        }
+
+        // Utility Functions
+        function getLetterGrade(percentage) {
+            if (percentage >= 93) return 'A';
+            if (percentage >= 90) return 'A-';
+            if (percentage >= 87) return 'B+';
+            if (percentage >= 83) return 'B';
+            if (percentage >= 80) return 'B-';
+            if (percentage >= 77) return 'C+';
+            if (percentage >= 73) return 'C';
+            if (percentage >= 70) return 'C-';
+            if (percentage >= 67) return 'D+';
+            if (percentage >= 63) return 'D';
+            if (percentage >= 60) return 'D-';
+            return 'F';
+        }
+
+        function getGradeColor(percentage) {
+            if (percentage >= 90) return '#4caf50';
+            if (percentage >= 80) return '#8bc34a';
+            if (percentage >= 70) return '#ffc107';
+            if (percentage >= 60) return '#ff9800';
+            return '#f44336';
+        }
+
+        function updateStats() {
+            // Update assignment stats
+            const assignmentStats = document.getElementById('assignmentStats');
+            if (grades.length === 0) {
+                assignmentStats.textContent = 'No assignments added';
+            } else {
+                const validGrades = grades.filter(g => g.score && g.score !== '');
+                assignmentStats.textContent = `${validGrades.length}/${grades.length} assignments filled`;
+            }
+            
+            // Update class stats
+            const classStats = document.getElementById('classStats');
+            if (classes.length === 0) {
+                classStats.textContent = 'No classes added';
+            } else {
+                const average = classes.reduce((sum, cls) => sum + cls.grade, 0) / classes.length;
+                classStats.textContent = `${classes.length} classes, ${average.toFixed(1)}% avg`;
+            }
+        }
+
+        function resetAll() {
+            if (confirm('Are you sure you want to reset everything? This cannot be undone.')) {
+                grades = [];
+                classes = [];
+                saveToLocalStorage();
+                renderGrades();
+                renderClasses();
+                updateStats();
+                updateOverallResult();
+            }
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('grades', JSON.stringify(grades));
+            localStorage.setItem('classes', JSON.stringify(classes));
+        }
+    </script>
+</body>
+</html>

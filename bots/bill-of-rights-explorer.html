@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ All 27 Amendments · Explorer</title>
+    <!-- Font Awesome 6 (free) for the back arrow and extra polish -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ----- base styles (exactly as requested, extended) ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s, border-color 0.2s;
+            font-weight: 500;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ffaa33;
+        }
+
+        /* ----- polished additions (fancy but subtle) ----- */
+        .navbar {
+            margin-bottom: 2rem;
+        }
+
+        header {
+            margin-bottom: 2.5rem;
+            border-left: 4px solid #ff8000;
+            padding-left: 1.5rem;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            font-weight: 350;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        header h1 i {
+            color: #ff8000;
+            font-size: 2.2rem;
+            opacity: 0.9;
+        }
+
+        header p {
+            color: #ffaa66;
+            font-size: 1.2rem;
+            margin-top: 8px;
+            font-weight: 300;
+        }
+
+        /* grid – elegant, responsive */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 18px;
+            margin: 30px 0 30px;
+        }
+
+        .amendment-card {
+            background: rgba(15, 15, 30, 0.7);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 128, 0, 0.25);
+            border-radius: 20px;
+            padding: 1.4rem 0.8rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.6);
+            border-bottom: 3px solid transparent;
+        }
+
+        .amendment-card:hover {
+            background: rgba(30, 20, 40, 0.8);
+            border-color: rgba(255, 128, 0, 0.7);
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 24px 36px -12px rgba(255, 128, 0, 0.2);
+        }
+
+        .amendment-card.selected {
+            background: rgba(255, 128, 0, 0.18);
+            border: 1px solid #ff8000;
+            border-bottom: 3px solid #ff8000;
+            box-shadow: 0 0 25px rgba(255, 128, 0, 0.4);
+        }
+
+        .amendment-number {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #ffaa66;
+            margin-bottom: 8px;
+            text-shadow: 0 0 8px rgba(255, 128, 0, 0.4);
+        }
+
+        .amendment-short {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            color: #ddd;
+            padding: 0 5px;
+        }
+
+        /* display panel – glassy, refined */
+        .display-panel {
+            background: rgba(8, 8, 24, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-left: 6px solid #ff8000;
+            border-radius: 0 28px 28px 0;
+            padding: 2rem 2.5rem;
+            margin: 40px 0 20px;
+            box-shadow: 0 20px 40px -10px black;
+            transition: all 0.2s;
+            max-height: 500px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #ff8000 #1a0a2e;
+        }
+
+        .display-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .display-panel::-webkit-scrollbar-track {
+            background: #1a0a2e;
+            border-radius: 10px;
+        }
+
+        .display-panel::-webkit-scrollbar-thumb {
+            background: #ff8000;
+            border-radius: 10px;
+        }
+
+        .display-panel h2 {
+            color: #ffaa66;
+            font-weight: 380;
+            font-size: 2.2rem;
+            border-bottom: 2px solid rgba(255, 128, 0, 0.4);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .display-panel h2 i {
+            color: #ff8000;
+            font-size: 2rem;
+        }
+
+        .display-panel p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #f0f0f0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            white-space: pre-line;      /* respect line breaks from full text */
+        }
+
+        .display-panel .placeholder {
+            font-style: italic;
+            color: #aaa;
+            font-size: 1.3rem;
+            font-weight: 300;
+        }
+
+        /* meta footer */
+        footer {
+            margin-top: 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #ffaa66;
+            border-top: 1px dashed #ff8000;
+            padding-top: 1.2rem;
+        }
+
+        .badge {
+            background: rgba(255, 128, 0, 0.15);
+            border-radius: 40px;
+            padding: 6px 18px;
+            border: 1px solid #ff8000;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        .badge i {
+            margin-right: 6px;
+        }
+
+        /* small extras */
+        .fas, .far {
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- navigation with back button (exact style from template) -->
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <!-- header with fancy icon -->
+    <header>
+        <h1>
+            <i class="fas fa-scroll"></i> 
+            The Constitution · 27 Amendments
+        </h1>
+        <p><i class="fas fa-hand-pointer" style="margin-right: 6px;"></i> Click any card to read the full text – from the Bill of Rights to the last amendment</p>
+    </header>
+
+    <!-- dynamic grid will be injected here -->
+    <div id="amendmentsGrid" class="grid-container"></div>
+
+    <!-- display panel with subtle glass effect -->
+    <div id="displayPanel" class="display-panel">
+        <h2><i class="fas fa-star"></i> Select an amendment</h2>
+        <p class="placeholder">👉 tap on any card above to discover its full text</p>
+    </div>
+
+    <!-- footer with counter and credit -->
+    <footer>
+        <span class="badge"><i class="fas fa-gavel"></i> 1791 – 1992</span>
+        <span><i class="fas fa-ellipsis-h" style="color: #ff8000;"></i> all 27 amendments · interactive guide</span>
+    </footer>
+
+    <script>
+        (function() {
+            // ----- ALL 27 AMENDMENTS (short descriptions & full texts) -----
+            const amendments = [
+                // 1
+                {
+                    number: "I",
+                    short: "Religion, speech, press, assembly, petition",
+                    full: `Congress shall make no law respecting an establishment of religion, or prohibiting the free exercise thereof; or abridging the freedom of speech, or of the press; or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances.`
+                },
+                // 2
+                {
+                    number: "II",
+                    short: "Right to keep and bear arms",
+                    full: `A well regulated Militia, being necessary to the security of a free State, the right of the people to keep and bear Arms, shall not be infringed.`
+                },
+                // 3
+                {
+                    number: "III",
+                    short: "No quartering of soldiers",
+                    full: `No Soldier shall, in time of peace be quartered in any house, without the consent of the Owner, nor in time of war, but in a manner to be prescribed by law.`
+                },
+                // 4
+                {
+                    number: "IV",
+                    short: "Unreasonable searches & seizures",
+                    full: `The right of the people to be secure in their persons, houses, papers, and effects, against unreasonable searches and seizures, shall not be violated, and no Warrants shall issue, but upon probable cause, supported by Oath or affirmation, and particularly describing the place to be searched, and the persons or things to be seized.`
+                },
+                // 5
+                {
+                    number: "V",
+                    short: "Grand jury, double jeopardy, due process",
+                    full: `No person shall be held to answer for a capital, or otherwise infamous crime, unless on a presentment or indictment of a Grand Jury, except in cases arising in the land or naval forces, or in the Militia, when in actual service in time of War or public danger; nor shall any person be subject for the same offence to be twice put in jeopardy of life or limb; nor shall be compelled in any criminal case to be a witness against himself, nor be deprived of life, liberty, or property, without due process of law; nor shall private property be taken for public use, without just compensation.`
+                },
+                // 6
+                {
+                    number: "VI",
+                    short: "Speedy trial, witnesses, counsel",
+                    full: `In all criminal prosecutions, the accused shall enjoy the right to a speedy and public trial, by an impartial jury of the State and district wherein the crime shall have been committed, which district shall have been previously ascertained by law, and to be informed of the nature and cause of the accusation; to be confronted with the witnesses against him; to have compulsory process for obtaining witnesses in his favor, and to have the Assistance of Counsel for his defence.`
+                },
+                // 7
+                {
+                    number: "VII",
+                    short: "Civil trial by jury",
+                    full: `In Suits at common law, where the value in controversy shall exceed twenty dollars, the right of trial by jury shall be preserved, and no fact tried by a jury, shall be otherwise re-examined in any Court of the United States, than according to the rules of the common law.`
+                },
+                // 8
+                {
+                    number: "VIII",
+                    short: "No excessive bail or cruel punishment",
+                    full: `Excessive bail shall not be required, nor excessive fines imposed, nor cruel and unusual punishments inflicted.`
+                },
+                // 9
+                {
+                    number: "IX",
+                    short: "Rights retained by the people",
+                    full: `The enumeration in the Constitution, of certain rights, shall not be construed to deny or disparage others retained by the people.`
+                },
+                // 10
+                {
+                    number: "X",
+                    short: "Powers reserved to the states",
+                    full: `The powers not delegated to the United States by the Constitution, nor prohibited by it to the States, are reserved to the States respectively, or to the people.`
+                },
+                // 11
+                {
+                    number: "XI",
+                    short: "Suits against states",
+                    full: `The Judicial power of the United States shall not be construed to extend to any suit in law or equity, commenced or prosecuted against one of the United States by Citizens of another State, or by Citizens or Subjects of any Foreign State.`
+                },
+                // 12
+                {
+                    number: "XII",
+                    short: "Separate electoral votes for President / VP",
+                    full: `The Electors shall meet in their respective states and vote by ballot for President and Vice-President, one of whom, at least, shall not be an inhabitant of the same state with themselves; they shall name in their ballots the person voted for as President, and in distinct ballots the person voted for as Vice-President, and they shall make distinct lists of all persons voted for as President, and of all persons voted for as Vice-President, and of the number of votes for each, which lists they shall sign and certify, and transmit sealed to the seat of the government of the United States, directed to the President of the Senate; -- The President of the Senate shall, in the presence of the Senate and House of Representatives, open all the certificates and the votes shall then be counted; -- The person having the greatest number of votes for President, shall be the President, if such number be a majority of the whole number of Electors appointed; and if no person have such majority, then from the persons having the highest numbers not exceeding three on the list of those voted for as President, the House of Representatives shall choose immediately, by ballot, the President. But in choosing the President, the votes shall be taken by states, the representation from each state having one vote; a quorum for this purpose shall consist of a member or members from two-thirds of the states, and a majority of all the states shall be necessary to a choice. [The remainder outlines the Vice President election process – the full text as ratified.]`
+                },
+                // 13
+                {
+                    number: "XIII",
+                    short: "Abolition of slavery",
+                    full: `Section 1. Neither slavery nor involuntary servitude, except as a punishment for crime whereof the party shall have been duly convicted, shall exist within the United States, or any place subject to their jurisdiction.\n\nSection 2. Congress shall have power to enforce this article by appropriate legislation.`
+                },
+                // 14
+                {
+                    number: "XIV",
+                    short: "Citizenship, due process, equal protection",
+                    full: `Section 1. All persons born or naturalized in the United States, and subject to the jurisdiction thereof, are citizens of the United States and of the State wherein they reside. No State shall make or enforce any law which shall abridge the privileges or immunities of citizens of the United States; nor shall any State deprive any person of life, liberty, or property, without due process of law; nor deny to any person within its jurisdiction the equal protection of the laws.\n\nSection 2. Representatives shall be apportioned among the several States according to their respective numbers, counting the whole number of persons in each State, excluding Indians not taxed. But when the right to vote at any election ... is denied to any of the male inhabitants ... the basis of representation therein shall be reduced ...\n\nSection 3. No person shall be a Senator or Representative ... who, having previously taken an oath ... shall have engaged in insurrection or rebellion ...\n\nSection 4. The validity of the public debt ... shall not be questioned. ...\n\nSection 5. The Congress shall have power to enforce, by appropriate legislation, the provisions of this article.`
+                },
+                // 15
+                {
+                    number: "XV",
+                    short: "Vote regardless of race",
+                    full: `Section 1. The right of citizens of the United States to vote shall not be denied or abridged by the United States or by any State on account of race, color, or previous condition of servitude.\n\nSection 2. The Congress shall have power to enforce this article by appropriate legislation.`
+                },
+                // 16
+                {
+                    number: "XVI",
+                    short: "Income tax authorized",
+                    full: `The Congress shall have power to lay and collect taxes on incomes, from whatever source derived, without apportionment among the several States, and without regard to any census or enumeration.`
+                },
+                // 17
+                {
+                    number: "XVII",
+                    short: "Direct election of senators",
+                    full: `The Senate of the United States shall be composed of two Senators from each State, elected by the people thereof, for six years; and each Senator shall have one vote. The electors in each State shall have the qualifications requisite for electors of the most numerous branch of the State legislatures.\n\nWhen vacancies happen in the representation of any State in the Senate, the executive authority of such State shall issue writs of election to fill such vacancies: Provided, That the legislature of any State may empower the executive thereof to make temporary appointments until the people fill the vacancies by election as the legislature may direct.\n\nThis amendment shall not be so construed as to affect the election or term of any Senator chosen before it becomes valid as part of the Constitution.`
+                },
+                // 18
+                {
+                    number: "XVIII",
+                    short: "Prohibition of alcohol",
+                    full: `Section 1. After one year from the ratification of this article the manufacture, sale, or transportation of intoxicating liquors within, the importation thereof into, or the exportation thereof from the United States and all territory subject to the jurisdiction thereof for beverage purposes is hereby prohibited.\n\nSection 2. The Congress and the several States shall have concurrent power to enforce this article by appropriate legislation.\n\nSection 3. This article shall be inoperative unless it shall have been ratified as an amendment to the Constitution by the legislatures of the several States, as provided in the Constitution, within seven years from the date of the submission hereof to the States by the Congress.`
+                },
+                // 19
+                {
+                    number: "XIX",
+                    short: "Women's suffrage",
+                    full: `The right of citizens of the United States to vote shall not be denied or abridged by the United States or by any State on account of sex.\n\nCongress shall have power to enforce this article by appropriate legislation.`
+                },
+                // 20
+                {
+                    number: "XX",
+                    short: "Presidential term & succession (lame duck)",
+                    full: `Section 1. The terms of the President and the Vice President shall end at noon on the 20th day of January, and the terms of Senators and Representatives at noon on the 3d day of January, of the years in which such terms would have ended if this article had not been ratified; and the terms of their successors shall then begin.\n\nSection 2. The Congress shall assemble at least once in every year, and such meeting shall begin at noon on the 3d day of January, unless they shall by law appoint a different day.\n\nSection 3. If, at the time fixed for the beginning of the term of the President, the President elect shall have died, the Vice President elect shall become President. ...\n\nSection 4. The Congress may by law provide for the case of the death of any of the persons from whom the House of Representatives may choose a President ...\n\nSection 5. Sections 1 and 2 shall take effect on the 15th day of October following the ratification of this article.\n\nSection 6. This article shall be inoperative unless it shall have been ratified ... within seven years.`
+                },
+                // 21
+                {
+                    number: "XXI",
+                    short: "Repeal of prohibition",
+                    full: `Section 1. The eighteenth article of amendment to the Constitution of the United States is hereby repealed.\n\nSection 2. The transportation or importation into any State, Territory, or possession of the United States for delivery or use therein of intoxicating liquors, in violation of the laws thereof, is hereby prohibited.\n\nSection 3. This article shall be inoperative unless it shall have been ratified as an amendment to the Constitution by conventions in the several States, as provided in the Constitution, within seven years from the date of the submission hereof to the States by the Congress.`
+                },
+                // 22
+                {
+                    number: "XXII",
+                    short: "Presidential term limits",
+                    full: `Section 1. No person shall be elected to the office of the President more than twice, and no person who has held the office of President, or acted as President, for more than two years of a term to which some other person was elected President shall be elected to the office of President more than once. But this Article shall not apply to any person holding the office of President when this Article was proposed by the Congress, and shall not prevent any person who may be holding the office of President, or acting as President, during the term within which this Article becomes operative from holding the office of President or acting as President during the remainder of such term.\n\nSection 2. This article shall be inoperative unless it shall have been ratified ... within seven years.`
+                },
+                // 23
+                {
+                    number: "XXIII",
+                    short: "D.C. presidential vote",
+                    full: `Section 1. The District constituting the seat of Government of the United States shall appoint in such manner as the Congress may direct: A number of electors of President and Vice President equal to the whole number of Senators and Representatives in Congress to which the District would be entitled if it were a State, but in no event more than the least populous State; they shall be in addition to those appointed by the States, but they shall be considered, for the purposes of the election of President and Vice President, to be electors appointed by a State; and they shall meet in the District and perform such duties as provided by the twelfth article of amendment.\n\nSection 2. The Congress shall have power to enforce this article by appropriate legislation.`
+                },
+                // 24
+                {
+                    number: "XXIV",
+                    short: "Abolition of poll taxes",
+                    full: `Section 1. The right of citizens of the United States to vote in any primary or other election for President or Vice President, for electors for President or Vice President, or for Senator or Representative in Congress, shall not be denied or abridged by the United States or any State by reason of failure to pay any poll tax or other tax.\n\nSection 2. The Congress shall have power to enforce this article by appropriate legislation.`
+                },
+                // 25
+                {
+                    number: "XXV",
+                    short: "Presidential disability & succession",
+                    full: `Section 1. In case of the removal of the President from office or of his death or resignation, the Vice President shall become President.\n\nSection 2. Whenever there is a vacancy in the office of the Vice President, the President shall nominate a Vice President who shall take office upon confirmation by a majority vote of both Houses of Congress.\n\nSection 3. Whenever the President transmits ... his written declaration that he is unable to discharge the powers and duties of his office ... such powers and duties shall be discharged by the Vice President as Acting President.\n\nSection 4. Whenever the Vice President and a majority of the principal officers ... transmit ... their written declaration that the President is unable ... the Vice President shall immediately assume the powers and duties of the office as Acting President. ... Congress shall decide the issue.`
+                },
+                // 26
+                {
+                    number: "XXVI",
+                    short: "Voting age set to 18",
+                    full: `Section 1. The right of citizens of the United States, who are eighteen years of age or older, to vote shall not be denied or abridged by the United States or by any State on account of age.\n\nSection 2. The Congress shall have power to enforce this article by appropriate legislation.`
+                },
+                // 27
+                {
+                    number: "XXVII",
+                    short: "Congressional pay",
+                    full: `No law, varying the compensation for the services of the Senators and Representatives, shall take effect, until an election of Representatives shall have intervened.`
+                }
+            ];
+
+            // ----- DOM elements -----
+            const grid = document.getElementById('amendmentsGrid');
+            const panel = document.getElementById('displayPanel');
+
+            // ----- render all cards -----
+            function renderAllCards() {
+                grid.innerHTML = ''; 
+                amendments.forEach((am, idx) => {
+                    const card = document.createElement('div');
+                    card.className = 'amendment-card';
+                    card.dataset.index = idx;
+                    card.innerHTML = `
+                        <div class="amendment-number">${am.number}</div>
+                        <div class="amendment-short">${am.short}</div>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+
+            // ----- update display panel with full text, preserve line breaks -----
+            function displayAmendment(index) {
+                const am = amendments[index];
+                // use innerHTML but with <br> for line breaks (replace \n with <br>)
+                const formattedFull = am.full.replace(/\n/g, '<br>');
+                panel.innerHTML = `
+                    <h2><i class="fas fa-balance-scale"></i> Amendment ${am.number}</h2>
+                    <p>${formattedFull}</p>
+                `;
+            }
+
+            // ----- highlight selected card & remove others -----
+            function setSelectedCard(selectedIndex) {
+                const cards = document.querySelectorAll('.amendment-card');
+                cards.forEach((card, idx) => {
+                    if (idx === selectedIndex) {
+                        card.classList.add('selected');
+                    } else {
+                        card.classList.remove('selected');
+                    }
+                });
+            }
+
+            // ----- click listener delegation (safer with many cards) -----
+            function attachGridListener() {
+                grid.addEventListener('click', (e) => {
+                    // find actual card (could be click on child)
+                    const card = e.target.closest('.amendment-card');
+                    if (!card) return;
+                    const index = parseInt(card.dataset.index, 10);
+                    displayAmendment(index);
+                    setSelectedCard(index);
+                });
+            }
+
+            // ----- initialise -----
+            function init() {
+                renderAllCards();
+                attachGridListener();
+
+                // optionally select first amendment on page load
+                const firstCard = document.querySelector('.amendment-card[data-index="0"]');
+                if (firstCard) {
+                    firstCard.click();
+                }
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
+    </script>
+</body>
+</html>

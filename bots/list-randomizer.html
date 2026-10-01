@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List Randomizer · Wheel, Slot & Pick</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #f0f0f0;
+            min-height: 100vh;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .navbar {
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid #ff8000;
+            border-radius: 40px;
+            color: #ff8000;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.25);
+            border-color: #ffaa33;
+            color: #ffaa33;
+            transform: translateX(-3px);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        /* Tab Bar */
+        .tab-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            background: rgba(20, 15, 30, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            color: #ffaa66;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+        }
+
+        .tab i {
+            color: #ff8000;
+        }
+
+        .tab.active {
+            background: #ff8000;
+            color: #0a0a1a;
+            border-color: #ff8000;
+            box-shadow: 0 0 20px #ff8000;
+        }
+
+        .tab.active i {
+            color: #0a0a1a;
+        }
+
+        .mode-card {
+            background: rgba(10, 10, 26, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 128, 0, 0.15);
+            border-radius: 32px;
+            padding: 2rem;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        .input-area {
+            margin-bottom: 30px;
+        }
+
+        textarea {
+            width: 100%;
+            background: #1e1a2b;
+            border: 1px solid #332e40;
+            border-radius: 20px;
+            padding: 18px 20px;
+            color: white;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 140px;
+            outline: none;
+            transition: border 0.2s, box-shadow 0.2s;
+        }
+
+        textarea:focus {
+            border-color: #ff8000;
+            box-shadow: 0 0 0 3px rgba(255, 128, 0, 0.2);
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid #ff8000;
+            color: #ff8000;
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #ff8000;
+            color: #0a0a1a;
+            border: none;
+            box-shadow: 0 8px 20px rgba(255, 128, 0, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #ff9933;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255,128,0,0.15);
+        }
+
+        .result-box {
+            background: #140e1f;
+            border-radius: 28px;
+            padding: 28px;
+            border: 1px solid rgba(255,128,0,0.3);
+            min-height: 100px;
+            font-size: 1.2rem;
+            color: #f0e0d0;
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .copy-btn {
+            background: none;
+            border: 1px dashed #ff8000;
+            color: #ffaa66;
+            padding: 8px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255,128,0,0.2);
+        }
+
+        /* Wheel specific */
+        .wheel-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .wheel-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        canvas#wheelCanvas {
+            width: 100%;
+            max-width: 450px;
+            height: auto;
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+            background: #1e1a2b;
+            box-shadow: 0 0 0 4px #ff8000, 0 30px 40px rgba(0,0,0,0.6), 0 0 20px #ff8000;
+            transition: box-shadow 0.3s;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid #ff8000;
+            filter: drop-shadow(0 4px 6px black);
+            z-index: 10;
+        }
+
+        .wheel-result {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #ffaa66;
+            text-align: center;
+            min-height: 70px;
+            text-shadow: 0 0 10px #ff8000;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.9; text-shadow: 0 0 5px #ff8000; }
+            50% { opacity: 1; text-shadow: 0 0 20px #ff8000; }
+            100% { opacity: 0.9; text-shadow: 0 0 5px #ff8000; }
+        }
+
+        /* Slot machine */
+        .slot-machine {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .reel {
+            width: 100px;
+            height: 120px;
+            background: linear-gradient(145deg, #2f2140, #1c1325);
+            border: 3px solid #ff8000;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd966;
+            text-shadow: 0 0 8px #ff8000;
+            box-shadow: inset 0 0 15px black, 0 10px 10px rgba(0,0,0,0.5);
+            transition: all 0.1s;
+        }
+
+        /* Classic mode */
+        .mode-selector {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,128,0,0.08);
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: 1px solid rgba(255,128,0,0.3);
+            cursor: pointer;
+        }
+
+        .radio-item input[type="radio"] {
+            accent-color: #ff8000;
+        }
+
+        /* Confetti canvas (hidden) */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <div class="container">
+        <!-- Tab Bar -->
+        <div class="tab-bar">
+            <div class="tab active" data-mode="classic"><i class="fas fa-list"></i> Classic</div>
+            <div class="tab" data-mode="wheel"><i class="fas fa-circle-notch"></i> Wheel</div>
+            <div class="tab" data-mode="slot"><i class="fas fa-slot-machine"></i> Slot</div>
+        </div>
+
+        <!-- Classic Mode -->
+        <div id="classic-mode" class="mode-card">
+            <h2><i class="fas fa-random"></i> Shuffle or Pick</h2>
+            <div class="input-area">
+                <textarea id="classicInput" placeholder="Enter one item per line">Apple
+Banana
+Cherry
+Dragon fruit
+Elderberry
+Fig
+Grape</textarea>
+            </div>
+            <div class="mode-selector">
+                <label class="radio-item"><input type="radio" name="classicMode" value="shuffle" checked> 🔀 Shuffle all</label>
+                <label class="radio-item"><input type="radio" name="classicMode" value="pick"> 🎲 Pick random</label>
+            </div>
+            <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                <div>
+                    <label for="classicPickCount">Number:</label>
+                    <input type="number" id="classicPickCount" min="1" value="3" style="background: #1e1a2b; border: 1px solid #332e40; border-radius: 30px; padding: 8px 16px; width: 80px; color: white;">
+                </div>
+                <button class="btn btn-primary" id="classicShuffleBtn"><i class="fas fa-dice"></i> Randomize</button>
+                <button class="btn" id="classicClearBtn"><i class="fas fa-eraser"></i> Clear</button>
+                <button class="copy-btn" id="classicCopyBtn"><i class="far fa-copy"></i> Copy</button>
+            </div>
+            <div class="result-box" id="classicResult">Click Randomize</div>
+        </div>
+
+        <!-- Wheel Mode -->
+        <div id="wheel-mode" class="mode-card hidden">
+            <h2><i class="fas fa-circle-notch"></i> Spin the Wheel</h2>
+            <div class="input-area">
+                <textarea id="wheelInput" placeholder="Enter items for the wheel (one per line)">Pizza
+Burger
+Sushi
+Pasta
+Salad
+Tacos</textarea>
+            </div>
+            <div class="wheel-container">
+                <div class="wheel-wrapper">
+                    <canvas id="wheelCanvas" width="800" height="800"></canvas>
+                    <div class="wheel-pointer"></div>
+                </div>
+                <button class="btn btn-primary" id="spinWheelBtn"><i class="fas fa-sync-alt"></i> Spin Wheel</button>
+                <div class="wheel-result" id="wheelResult">—</div>
+            </div>
+        </div>
+
+        <!-- Slot Mode -->
+        <div id="slot-mode" class="mode-card hidden">
+            <h2><i class="fas fa-slot-machine"></i> Slot Machine</h2>
+            <div class="input-area">
+                <textarea id="slotInput" placeholder="Enter items for the slots">🍒
+🍊
+🍋
+7️⃣
+💎
+BAR</textarea>
+            </div>
+            <div class="slot-machine">
+                <div class="reel" id="reel1">🍒</div>
+                <div class="reel" id="reel2">🍒</div>
+                <div class="reel" id="reel3">🍒</div>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                <button class="btn btn-primary" id="spinSlotsBtn"><i class="fas fa-sync-alt"></i> Spin Slots</button>
+                <button class="copy-btn" id="slotCopyBtn"><i class="far fa-copy"></i> Copy Result</button>
+            </div>
+            <div class="result-box" id="slotResult">—</div>
+        </div>
+    </div>
+
+    <!-- Confetti canvas (hidden) -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <script>
+        (function() {
+            // ---------- Tab Switching ----------
+            const tabs = document.querySelectorAll('.tab');
+            const classicCard = document.getElementById('classic-mode');
+            const wheelCard = document.getElementById('wheel-mode');
+            const slotCard = document.getElementById('slot-mode');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    classicCard.classList.add('hidden');
+                    wheelCard.classList.add('hidden');
+                    slotCard.classList.add('hidden');
+                    if (tab.dataset.mode === 'classic') classicCard.classList.remove('hidden');
+                    if (tab.dataset.mode === 'wheel') {
+                        wheelCard.classList.remove('hidden');
+                        setTimeout(() => drawWheel(getItems('wheel'), currentWheelRotation), 50);
+                    }
+                    if (tab.dataset.mode === 'slot') slotCard.classList.remove('hidden');
+                });
+            });
+
+            // Helper to get items from specific textarea
+            function getItems(mode) {
+                const id = mode === 'classic' ? 'classicInput' : (mode === 'wheel' ? 'wheelInput' : 'slotInput');
+                const textarea = document.getElementById(id);
+                return textarea.value.split(/\n/).map(s => s.trim()).filter(s => s !== '');
+            }
+
+            // ---------- Classic Mode ----------
+            const classicInput = document.getElementById('classicInput');
+            const classicShuffleBtn = document.getElementById('classicShuffleBtn');
+            const classicClearBtn = document.getElementById('classicClearBtn');
+            const classicResult = document.getElementById('classicResult');
+            const classicCopyBtn = document.getElementById('classicCopyBtn');
+            const classicPickCount = document.getElementById('classicPickCount');
+
+            function shuffleArray(arr) {
+                const a = [...arr];
+                for (let i = a.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [a[i], a[j]] = [a[j], a[i]];
+                }
+                return a;
+            }
+
+            function updateClassicResult() {
+                const items = getItems('classic');
+                if (!items.length) {
+                    classicResult.innerHTML = 'No items';
+                    return;
+                }
+                const mode = document.querySelector('input[name="classicMode"]:checked').value;
+                if (mode === 'shuffle') {
+                    const shuffled = shuffleArray(items);
+                    classicResult.innerHTML = shuffled.map((item, i) => `${i+1}. ${item}`).join('<br>');
+                } else {
+                    let count = parseInt(classicPickCount.value, 10);
+                    if (isNaN(count) || count < 1) count = 1;
+                    const shuffled = shuffleArray(items);
+                    const picked = shuffled.slice(0, Math.min(count, items.length));
+                    classicResult.innerHTML = picked.map((item, i) => `${i+1}. ${item}`).join('<br>');
+                }
+            }
+
+            classicShuffleBtn.addEventListener('click', updateClassicResult);
+            classicClearBtn.addEventListener('click', () => {
+                classicInput.value = '';
+                classicResult.innerHTML = 'Cleared';
+            });
+            classicCopyBtn.addEventListener('click', () => {
+                const text = classicResult.innerText || classicResult.textContent;
+                if (text && !text.includes('No items') && !text.includes('Cleared')) {
+                    navigator.clipboard.writeText(text);
+                    classicCopyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => classicCopyBtn.innerHTML = '<i class="far fa-copy"></i> Copy', 1500);
+                }
+            });
+
+            // ---------- WHEEL MODE (Realistic, Long Spin, Full Text) ----------
+            const wheelCanvas = document.getElementById('wheelCanvas');
+            const ctx = wheelCanvas.getContext('2d');
+            const spinWheelBtn = document.getElementById('spinWheelBtn');
+            const wheelResultDiv = document.getElementById('wheelResult');
+            const wheelInput = document.getElementById('wheelInput');
+
+            let currentWheelRotation = 0;
+            let spinning = false;
+            let animationFrame = null;
+            let spinVelocity = 0;
+            let targetItem = '';
+
+            // Physics constants for longer spin
+            const friction = 0.985;       // lower friction = longer spin
+            const minSpin = 0.005;
+
+            // Colors for slices (gradients)
+            const colors = ['#ff8000', '#ffaa33', '#ff5500', '#ffaa00', '#ff8000', '#ffbb44'];
+
+            function drawWheel(items, rotation) {
+                const count = items.length;
+                const width = 800, height = 800;
+                ctx.clearRect(0, 0, width, height);
+
+                if (count === 0) {
+                    ctx.font = 'bold 40px Segoe UI';
+                    ctx.fillStyle = '#ff8000';
+                    ctx.fillText('Add items', 250, 400);
+                    return;
+                }
+
+                const centerX = 400, centerY = 400;
+                const radius = 350;
+                const angleStep = (Math.PI * 2) / count;
+
+                // Draw slices with gradient
+                for (let i = 0; i < count; i++) {
+                    const start = i * angleStep + rotation;
+                    const end = start + angleStep;
+
+                    // Create gradient
+                    const gradient = ctx.createRadialGradient(centerX-50, centerY-50, 50, centerX, centerY, radius);
+                    const color1 = colors[i % colors.length];
+                    const color2 = i % 2 ? '#ffaa33' : '#ff8000';
+                    gradient.addColorStop(0, color1);
+                    gradient.addColorStop(1, color2);
+
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.arc(centerX, centerY, radius, start, end);
+                    ctx.closePath();
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                    
+                    // Add stroke
+                    ctx.strokeStyle = '#0a0a1a';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+
+                    // Draw text (full item, but trim if too long)
+                    ctx.save();
+                    ctx.translate(centerX, centerY);
+                    ctx.rotate(start + angleStep / 2);
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.font = 'bold 24px "Segoe UI", sans-serif';
+                    
+                    // Truncate text if longer than 12 chars for readability
+                    let displayText = items[i];
+                    if (displayText.length > 12) displayText = displayText.substring(0, 10) + '…';
+                    
+                    ctx.fillStyle = '#1a0a2e';
+                    ctx.shadowColor = '#ffffff';
+                    ctx.shadowBlur = 6;
+                    ctx.fillText(displayText, radius * 0.65, 0);
+                    ctx.shadowBlur = 0;
+                    ctx.restore();
+                }
+
+                // Draw center circle
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, 50, 0, 2 * Math.PI);
+                ctx.fillStyle = '#ff8000';
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = '#ff8000';
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            // Determine winning item based on pointer (pointing up = angle -PI/2)
+            function getItemUnderPointer(items, rotation) {
+                if (!items.length) return null;
+                const count = items.length;
+                const angleStep = (Math.PI * 2) / count;
+                const pointerAngle = (3 * Math.PI / 2) % (2 * Math.PI); // 270 degrees
+                let adjusted = (pointerAngle - rotation) % (2 * Math.PI);
+                if (adjusted < 0) adjusted += 2 * Math.PI;
+                const index = Math.floor(adjusted / angleStep);
+                return items[index % count];
+            }
+
+            // Confetti (simple)
+            function startConfetti() {
+                const canvas = document.getElementById('confetti-canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                
+                let particles = [];
+                for (let i = 0; i < 100; i++) {
+                    particles.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height - canvas.height,
+                        size: Math.random() * 5 + 2,
+                        speedY: Math.random() * 3 + 2,
+                        speedX: Math.random() * 2 - 1,
+                        color: `hsl(${Math.random() * 60 + 20}, 100%, 50%)`
+                    });
+                }
+                
+                function animate() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    let anyVisible = false;
+                    for (let p of particles) {
+                        p.y += p.speedY;
+                        p.x += p.speedX;
+                        if (p.y < canvas.height) anyVisible = true;
+                        ctx.fillStyle = p.color;
+                        ctx.fillRect(p.x, p.y, p.size, p.size);
+                    }
+                    if (anyVisible) requestAnimationFrame(animate);
+                }
+                animate();
+            }
+
+            function startWheelSpin() {
+                if (spinning) return;
+                const items = getItems('wheel');
+                if (items.length === 0) {
+                    wheelResultDiv.innerText = 'Add items first';
+                    return;
+                }
+
+                // Select random target (fair)
+                const targetIndex = Math.floor(Math.random() * items.length);
+                targetItem = items[targetIndex];
+
+                // Calculate target rotation to bring target under pointer
+                const count = items.length;
+                const angleStep = (Math.PI * 2) / count;
+                const targetMid = targetIndex * angleStep + angleStep / 2;
+                const pointerAngle = (3 * Math.PI / 2) % (2 * Math.PI);
+                let targetRot = (pointerAngle - targetMid) % (2 * Math.PI);
+                if (targetRot < 0) targetRot += 2 * Math.PI;
+
+                // Start with high random velocity for long spin
+                spinVelocity = 1.2 + Math.random() * 0.8; // 1.2 to 2.0 rad/frame
+                spinning = true;
+                wheelResultDiv.innerText = 'Spinning...';
+
+                function animate() {
+                    if (!spinning) return;
+
+                    // Apply friction
+                    spinVelocity *= friction;
+
+                    // Update rotation
+                    currentWheelRotation = (currentWheelRotation + spinVelocity) % (2 * Math.PI);
+
+                    // Draw
+                    drawWheel(items, currentWheelRotation);
+
+                    // Check if nearly stopped
+                    if (spinVelocity < minSpin) {
+                        // Find final item based on pointer
+                        const finalItem = getItemUnderPointer(items, currentWheelRotation);
+                        // Snap to exact alignment for that item
+                        const finalIndex = items.indexOf(finalItem);
+                        if (finalIndex !== -1) {
+                            const finalMid = finalIndex * angleStep + angleStep / 2;
+                            let snapRot = (pointerAngle - finalMid) % (2 * Math.PI);
+                            if (snapRot < 0) snapRot += 2 * Math.PI;
+                            currentWheelRotation = snapRot;
+                        }
+                        drawWheel(items, currentWheelRotation);
+                        spinning = false;
+                        wheelResultDiv.innerText = `🎉 ${finalItem}`;
+                        startConfetti(); // Celebrate!
+                        return;
+                    }
+
+                    requestAnimationFrame(animate);
+                }
+
+                animate();
+            }
+
+            spinWheelBtn.addEventListener('click', startWheelSpin);
+
+            // Redraw wheel when input changes
+            wheelInput.addEventListener('input', () => {
+                if (!spinning) drawWheel(getItems('wheel'), currentWheelRotation);
+            });
+
+            // Initial draw
+            drawWheel(getItems('wheel'), 0);
+
+            // ---------- SLOT MODE ----------
+            const slotInput = document.getElementById('slotInput');
+            const reel1 = document.getElementById('reel1');
+            const reel2 = document.getElementById('reel2');
+            const reel3 = document.getElementById('reel3');
+            const spinSlotsBtn = document.getElementById('spinSlotsBtn');
+            const slotResultDiv = document.getElementById('slotResult');
+            const slotCopyBtn = document.getElementById('slotCopyBtn');
+
+            let slotSpinning = false;
+            let slotIntervals = [];
+
+            function stopSlotIntervals() {
+                slotIntervals.forEach(clearInterval);
+                slotIntervals = [];
+            }
+
+            function spinSlots() {
+                if (slotSpinning) return;
+                const items = getItems('slot');
+                if (items.length === 0) {
+                    slotResultDiv.innerText = 'Add items first';
+                    return;
+                }
+
+                slotSpinning = true;
+                spinSlotsBtn.disabled = true;
+                stopSlotIntervals();
+
+                const final1 = items[Math.floor(Math.random() * items.length)];
+                const final2 = items[Math.floor(Math.random() * items.length)];
+                const final3 = items[Math.floor(Math.random() * items.length)];
+
+                const spinDuration = 2000; // longer spin
+                const spinRate = 70;
+
+                function getRandomItem() {
+                    return items[Math.floor(Math.random() * items.length)];
+                }
+
+                slotIntervals.push(setInterval(() => { reel1.innerText = getRandomItem(); }, spinRate));
+                slotIntervals.push(setInterval(() => { reel2.innerText = getRandomItem(); }, spinRate));
+                slotIntervals.push(setInterval(() => { reel3.innerText = getRandomItem(); }, spinRate));
+
+                setTimeout(() => {
+                    clearInterval(slotIntervals[0]);
+                    reel1.innerText = final1;
+                }, spinDuration * 0.3);
+                setTimeout(() => {
+                    clearInterval(slotIntervals[1]);
+                    reel2.innerText = final2;
+                }, spinDuration * 0.6);
+                setTimeout(() => {
+                    clearInterval(slotIntervals[2]);
+                    reel3.innerText = final3;
+                    slotSpinning = false;
+                    spinSlotsBtn.disabled = false;
+                    slotResultDiv.innerText = `${final1} · ${final2} · ${final3}`;
+                    slotIntervals = [];
+                }, spinDuration);
+            }
+
+            spinSlotsBtn.addEventListener('click', spinSlots);
+            slotCopyBtn.addEventListener('click', () => {
+                const text = slotResultDiv.innerText;
+                if (text && text !== '—' && !text.includes('Add items')) {
+                    navigator.clipboard.writeText(text);
+                    slotCopyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => slotCopyBtn.innerHTML = '<i class="far fa-copy"></i> Copy Result', 1500);
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

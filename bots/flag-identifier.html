@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flag identifier · learn + quiz (195 emojis)</title>
+    <!-- Font Awesome for icons (same as template) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            transition: background 0.3s ease;
+        }
+
+        .navbar {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .back-btn {
+            padding: 8px 18px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 40px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.35);
+            border-color: #ffaa33;
+            color: #ffaa33;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(255,128,0,0.2);
+        }
+
+        /* mode switch */
+        .mode-switch {
+            display: flex;
+            gap: 12px;
+            background: rgba(0,0,0,0.3);
+            padding: 6px;
+            border-radius: 60px;
+            border: 1px solid rgba(255,128,0,0.3);
+            backdrop-filter: blur(8px);
+            margin-left: auto;
+        }
+
+        .mode-btn {
+            padding: 8px 24px;
+            border: none;
+            background: transparent;
+            color: #ffcc99;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mode-btn i {
+            font-size: 1.1rem;
+        }
+
+        .mode-btn.active {
+            background: #ff8000;
+            color: #0a0a1a;
+            box-shadow: 0 4px 12px rgba(255,128,0,0.5);
+        }
+
+        .mode-btn:not(.active):hover {
+            background: rgba(255,128,0,0.2);
+            color: #ffaa66;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            animation: fadeSlide 0.3s ease;
+        }
+
+        @keyframes fadeSlide {
+            0% { opacity: 0.6; transform: translateY(5px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #ff8000;
+            font-weight: 500;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-size: 2.2rem;
+            border-left: 5px solid #ff8000;
+            padding-left: 20px;
+        }
+
+        .subtitle {
+            color: #bbb;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            padding-left: 25px;
+        }
+
+        /* ----- explore mode (grid) ----- */
+        #explore-mode {
+            transition: opacity 0.25s ease;
+        }
+
+        .search-wrapper {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0 40px;
+        }
+
+        #searchInput {
+            width: 100%;
+            max-width: 480px;
+            padding: 16px 24px;
+            background: rgba(10, 10, 26, 0.7);
+            border: 1px solid #ff8000;
+            border-radius: 60px;
+            color: white;
+            font-size: 1.1rem;
+            outline: none;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 15px rgba(255, 128, 0, 0.2);
+            transition: 0.3s;
+            padding-left: 50px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23ff8000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>');
+            background-repeat: no-repeat;
+            background-position: 20px center;
+            background-size: 20px;
+        }
+
+        #searchInput:focus {
+            border-color: #ffaa33;
+            box-shadow: 0 0 28px rgba(255, 170, 51, 0.5);
+            background-color: rgba(20, 20, 40, 0.8);
+        }
+
+        .stats {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            color: #ffaa66;
+        }
+
+        .flag-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 18px;
+            margin-top: 20px;
+        }
+
+        .flag-card {
+            background: rgba(255, 128, 0, 0.08);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 24px;
+            padding: 18px 8px 12px 8px;
+            width: 150px;
+            text-align: center;
+            backdrop-filter: blur(6px);
+            transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), background 0.2s, border-color 0.2s, box-shadow 0.2s;
+            cursor: default;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
+        }
+
+        .flag-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+            box-shadow: 0 20px 30px rgba(255, 128, 0, 0.3);
+        }
+
+        .flag-emoji {
+            font-size: 4.8rem;
+            line-height: 1.1;
+            filter: drop-shadow(4px 6px 8px rgba(0,0,0,0.6));
+            margin-bottom: 8px;
+            transition: transform 0.2s;
+        }
+        .flag-card:hover .flag-emoji {
+            transform: scale(1.05);
+        }
+
+        .country-name {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #fff;
+            background: rgba(0,0,0,0.35);
+            padding: 6px 5px;
+            border-radius: 40px;
+            border: 1px dotted rgba(255,128,0,0.5);
+            word-break: break-word;
+        }
+
+        .no-result {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #ffaa66;
+            padding: 60px 20px;
+            background: rgba(255,128,0,0.05);
+            border-radius: 40px;
+            margin-top: 40px;
+            border: 1px dashed #ff8000;
+        }
+
+        /* ----- quiz mode (glass) ----- */
+        #quiz-mode {
+            max-width: 700px;
+            margin: 20px auto 40px;
+            transition: opacity 0.25s ease;
+        }
+
+        .quiz-panel {
+            background: rgba(10, 10, 26, 0.6);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,128,0,0.35);
+            border-radius: 48px;
+            padding: 30px 25px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,128,0,0.2) inset;
+            transition: box-shadow 0.3s;
+        }
+
+        .quiz-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .score-badge {
+            background: rgba(255,128,0,0.15);
+            border: 1px solid #ff8000;
+            border-radius: 60px;
+            padding: 8px 22px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: #ffcc99;
+            box-shadow: 0 0 12px rgba(255,128,0,0.3);
+        }
+
+        .flag-question {
+            text-align: center;
+            margin: 15px 0 20px;
+        }
+
+        .big-flag {
+            font-size: 8rem;
+            line-height: 1.2;
+            filter: drop-shadow(0 12px 18px black);
+            margin-bottom: 5px;
+            animation: popFlag 0.4s ease;
+        }
+
+        @keyframes popFlag {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .question-text {
+            font-size: 1.6rem;
+            color: #fff;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+        .question-text span {
+            color: #ffaa66;
+            font-weight: 600;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin: 35px 0 25px;
+        }
+
+        .quiz-option {
+            background: rgba(0,0,0,0.4);
+            border: 2px solid rgba(255,128,0,0.4);
+            border-radius: 60px;
+            padding: 16px 8px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+            line-height: 1.2;
+        }
+
+        .quiz-option:hover:not(:disabled) {
+            background: rgba(255,128,0,0.3);
+            border-color: #ffaa33;
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px rgba(255,128,0,0.3);
+        }
+
+        .quiz-option.correct-answer {
+            background: #1f8b4c;
+            border-color: #4cd964;
+            color: white;
+            box-shadow: 0 0 18px #2ecc71;
+        }
+
+        .quiz-option.wrong-answer {
+            background: #aa3a3a;
+            border-color: #ff4d4d;
+            opacity: 0.9;
+        }
+
+        .quiz-option:disabled {
+            cursor: default;
+            opacity: 0.7;
+        }
+
+        .quiz-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .next-btn {
+            background: rgba(255,128,0,0.2);
+            border: 1px solid #ff8000;
+            border-radius: 60px;
+            padding: 14px 38px;
+            color: #ffaa66;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .next-btn:hover:not(:disabled) {
+            background: rgba(255,128,0,0.4);
+            border-color: #ffaa33;
+            color: #fff;
+            transform: translateX(4px);
+            box-shadow: 0 8px 18px rgba(255,128,0,0.4);
+        }
+
+        .next-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .feedback-msg {
+            font-size: 1.2rem;
+            color: #ffcc99;
+            min-height: 2.4rem;
+        }
+
+        .reset-quiz {
+            background: transparent;
+            border: 1px dashed #ff8000;
+            border-radius: 40px;
+            padding: 10px 20px;
+            color: #ffaa66;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .reset-quiz:hover {
+            background: rgba(255,128,0,0.1);
+            border-style: solid;
+        }
+
+        footer {
+            margin-top: 60px;
+            text-align: center;
+            color: #8866aa;
+            font-size: 0.9rem;
+            border-top: 1px solid #332244;
+            padding-top: 20px;
+        }
+
+        .hide {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <div class="mode-switch">
+            <button class="mode-btn active" id="btnExplore"><i class="fas fa-globe"></i> Explore</button>
+            <button class="mode-btn" id="btnQuiz"><i class="fas fa-question-circle"></i> Quiz</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>🚩 Flag identifier</h1>
+        <div class="subtitle">195 countries · learn or quiz yourself</div>
+
+        <!-- EXPLORE MODE (grid) -->
+        <div id="explore-mode">
+            <div class="search-wrapper">
+                <input type="text" id="searchInput" placeholder="Search country name ..." autocomplete="off">
+            </div>
+            <div class="stats" id="stats">Showing <span id="visibleCount">195</span> of 195 countries</div>
+            <div id="flagGrid" class="flag-grid"></div>
+            <div id="noResultMsg" class="no-result" style="display: none;">✨ No matching flags · try again</div>
+        </div>
+
+        <!-- QUIZ MODE (hidden by default) -->
+        <div id="quiz-mode" class="hide">
+            <div class="quiz-panel">
+                <div class="quiz-header">
+                    <div class="score-badge" id="quizScore">0 / 0</div>
+                    <button class="reset-quiz" id="resetQuizBtn"><i class="fas fa-redo-alt"></i> Restart</button>
+                </div>
+
+                <div class="flag-question">
+                    <div class="big-flag" id="quizFlagEmoji">🇺🇳</div>
+                    <div class="question-text">Which country's flag is <span>this</span>?</div>
+                </div>
+
+                <div class="options-grid" id="quizOptions"></div>
+
+                <div class="quiz-footer">
+                    <div class="feedback-msg" id="quizFeedback"></div>
+                    <button class="next-btn" id="nextQuizBtn" disabled><i class="fas fa-arrow-right"></i> Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>🇦🇫 195 flags · smooth quiz mode · orange accent</footer>
+
+    <script>
+        (function() {
+            // ----- same country list (195: UN + Palestine + Vatican, no Kosovo/Taiwan) -----
+            const rawCountries = [
+                { name: "Afghanistan", code: "AF" }, { name: "Albania", code: "AL" }, { name: "Algeria", code: "DZ" },
+                { name: "Andorra", code: "AD" }, { name: "Angola", code: "AO" }, { name: "Antigua and Barbuda", code: "AG" },
+                { name: "Argentina", code: "AR" }, { name: "Armenia", code: "AM" }, { name: "Australia", code: "AU" },
+                { name: "Austria", code: "AT" }, { name: "Azerbaijan", code: "AZ" }, { name: "Bahamas", code: "BS" },
+                { name: "Bahrain", code: "BH" }, { name: "Bangladesh", code: "BD" }, { name: "Barbados", code: "BB" },
+                { name: "Belarus", code: "BY" }, { name: "Belgium", code: "BE" }, { name: "Belize", code: "BZ" },
+                { name: "Benin", code: "BJ" }, { name: "Bhutan", code: "BT" }, { name: "Bolivia", code: "BO" },
+                { name: "Bosnia and Herzegovina", code: "BA" }, { name: "Botswana", code: "BW" }, { name: "Brazil", code: "BR" },
+                { name: "Brunei", code: "BN" }, { name: "Bulgaria", code: "BG" }, { name: "Burkina Faso", code: "BF" },
+                { name: "Burundi", code: "BI" }, { name: "Cabo Verde", code: "CV" }, { name: "Cambodia", code: "KH" },
+                { name: "Cameroon", code: "CM" }, { name: "Canada", code: "CA" }, { name: "Central African Republic", code: "CF" },
+                { name: "Chad", code: "TD" }, { name: "Chile", code: "CL" }, { name: "China", code: "CN" },
+                { name: "Colombia", code: "CO" }, { name: "Comoros", code: "KM" }, { name: "Congo, Democratic Republic of the", code: "CD" },
+                { name: "Congo, Republic of the", code: "CG" }, { name: "Costa Rica", code: "CR" }, { name: "Côte d'Ivoire", code: "CI" },
+                { name: "Croatia", code: "HR" }, { name: "Cuba", code: "CU" }, { name: "Cyprus", code: "CY" },
+                { name: "Czech Republic", code: "CZ" }, { name: "Denmark", code: "DK" }, { name: "Djibouti", code: "DJ" },
+                { name: "Dominica", code: "DM" }, { name: "Dominican Republic", code: "DO" }, { name: "Ecuador", code: "EC" },
+                { name: "Egypt", code: "EG" }, { name: "El Salvador", code: "SV" }, { name: "Equatorial Guinea", code: "GQ" },
+                { name: "Eritrea", code: "ER" }, { name: "Estonia", code: "EE" }, { name: "Eswatini", code: "SZ" },
+                { name: "Ethiopia", code: "ET" }, { name: "Fiji", code: "FJ" }, { name: "Finland", code: "FI" },
+                { name: "France", code: "FR" }, { name: "Gabon", code: "GA" }, { name: "Gambia", code: "GM" },
+                { name: "Georgia", code: "GE" }, { name: "Germany", code: "DE" }, { name: "Ghana", code: "GH" },
+                { name: "Greece", code: "GR" }, { name: "Grenada", code: "GD" }, { name: "Guatemala", code: "GT" },
+                { name: "Guinea", code: "GN" }, { name: "Guinea-Bissau", code: "GW" }, { name: "Guyana", code: "GY" },
+                { name: "Haiti", code: "HT" }, { name: "Honduras", code: "HN" }, { name: "Hungary", code: "HU" },
+                { name: "Iceland", code: "IS" }, { name: "India", code: "IN" }, { name: "Indonesia", code: "ID" },
+                { name: "Iran", code: "IR" }, { name: "Iraq", code: "IQ" }, { name: "Ireland", code: "IE" },
+                { name: "Israel", code: "IL" }, { name: "Italy", code: "IT" }, { name: "Jamaica", code: "JM" },
+                { name: "Japan", code: "JP" }, { name: "Jordan", code: "JO" }, { name: "Kazakhstan", code: "KZ" },
+                { name: "Kenya", code: "KE" }, { name: "Kiribati", code: "KI" }, { name: "Korea, North", code: "KP" },
+                { name: "Korea, South", code: "KR" }, { name: "Kuwait", code: "KW" }, { name: "Kyrgyzstan", code: "KG" },
+                { name: "Laos", code: "LA" }, { name: "Latvia", code: "LV" }, { name: "Lebanon", code: "LB" },
+                { name: "Lesotho", code: "LS" }, { name: "Liberia", code: "LR" }, { name: "Libya", code: "LY" },
+                { name: "Liechtenstein", code: "LI" }, { name: "Lithuania", code: "LT" }, { name: "Luxembourg", code: "LU" },
+                { name: "Madagascar", code: "MG" }, { name: "Malawi", code: "MW" }, { name: "Malaysia", code: "MY" },
+                { name: "Maldives", code: "MV" }, { name: "Mali", code: "ML" }, { name: "Malta", code: "MT" },
+                { name: "Marshall Islands", code: "MH" }, { name: "Mauritania", code: "MR" }, { name: "Mauritius", code: "MU" },
+                { name: "Mexico", code: "MX" }, { name: "Micronesia", code: "FM" }, { name: "Moldova", code: "MD" },
+                { name: "Monaco", code: "MC" }, { name: "Mongolia", code: "MN" }, { name: "Montenegro", code: "ME" },
+                { name: "Morocco", code: "MA" }, { name: "Mozambique", code: "MZ" }, { name: "Myanmar", code: "MM" },
+                { name: "Namibia", code: "NA" }, { name: "Nauru", code: "NR" }, { name: "Nepal", code: "NP" },
+                { name: "Netherlands", code: "NL" }, { name: "New Zealand", code: "NZ" }, { name: "Nicaragua", code: "NI" },
+                { name: "Niger", code: "NE" }, { name: "Nigeria", code: "NG" }, { name: "North Macedonia", code: "MK" },
+                { name: "Norway", code: "NO" }, { name: "Oman", code: "OM" }, { name: "Pakistan", code: "PK" },
+                { name: "Palau", code: "PW" }, { name: "Palestine", code: "PS" }, { name: "Panama", code: "PA" },
+                { name: "Papua New Guinea", code: "PG" }, { name: "Paraguay", code: "PY" }, { name: "Peru", code: "PE" },
+                { name: "Philippines", code: "PH" }, { name: "Poland", code: "PL" }, { name: "Portugal", code: "PT" },
+                { name: "Qatar", code: "QA" }, { name: "Romania", code: "RO" }, { name: "Russia", code: "RU" },
+                { name: "Rwanda", code: "RW" }, { name: "Saint Kitts and Nevis", code: "KN" }, { name: "Saint Lucia", code: "LC" },
+                { name: "Saint Vincent and the Grenadines", code: "VC" }, { name: "Samoa", code: "WS" }, { name: "San Marino", code: "SM" },
+                { name: "Sao Tome and Principe", code: "ST" }, { name: "Saudi Arabia", code: "SA" }, { name: "Senegal", code: "SN" },
+                { name: "Serbia", code: "RS" }, { name: "Seychelles", code: "SC" }, { name: "Sierra Leone", code: "SL" },
+                { name: "Singapore", code: "SG" }, { name: "Slovakia", code: "SK" }, { name: "Slovenia", code: "SI" },
+                { name: "Solomon Islands", code: "SB" }, { name: "Somalia", code: "SO" }, { name: "South Africa", code: "ZA" },
+                { name: "South Sudan", code: "SS" }, { name: "Spain", code: "ES" }, { name: "Sri Lanka", code: "LK" },
+                { name: "Sudan", code: "SD" }, { name: "Suriname", code: "SR" }, { name: "Sweden", code: "SE" },
+                { name: "Switzerland", code: "CH" }, { name: "Syria", code: "SY" }, { name: "Tajikistan", code: "TJ" },
+                { name: "Tanzania", code: "TZ" }, { name: "Thailand", code: "TH" }, { name: "Timor-Leste", code: "TL" },
+                { name: "Togo", code: "TG" }, { name: "Tonga", code: "TO" }, { name: "Trinidad and Tobago", code: "TT" },
+                { name: "Tunisia", code: "TN" }, { name: "Turkey", code: "TR" }, { name: "Turkmenistan", code: "TM" },
+                { name: "Tuvalu", code: "TV" }, { name: "Uganda", code: "UG" }, { name: "Ukraine", code: "UA" },
+                { name: "United Arab Emirates", code: "AE" }, { name: "United Kingdom", code: "GB" }, { name: "United States", code: "US" },
+                { name: "Uruguay", code: "UY" }, { name: "Uzbekistan", code: "UZ" }, { name: "Vanuatu", code: "VU" },
+                { name: "Vatican City", code: "VA" }, { name: "Venezuela", code: "VE" }, { name: "Vietnam", code: "VN" },
+                { name: "Yemen", code: "YE" }, { name: "Zambia", code: "ZM" }, { name: "Zimbabwe", code: "ZW" }
+            ];
+            // filter out Kosovo (XK) and Taiwan (TW) if present — we want exactly 195 (UN+Palestine+Vatican)
+            const countries = rawCountries.filter(c => c.code !== "XK" && c.code !== "TW");
+
+            // ---------- helper: country code -> flag emoji ----------
+            function codeToFlag(code) {
+                return code.toUpperCase().split('').map(c => String.fromCodePoint(127397 + c.charCodeAt())).join('');
+            }
+
+            // ---------- explore mode (grid) ----------
+            const grid = document.getElementById('flagGrid');
+            const searchInput = document.getElementById('searchInput');
+            const visibleSpan = document.getElementById('visibleCount');
+            const noResultDiv = document.getElementById('noResultMsg');
+
+            function renderGrid(filter = '') {
+                const filterLower = filter.toLowerCase().trim();
+                let visible = 0;
+                grid.innerHTML = '';
+                const sorted = [...countries].sort((a, b) => a.name.localeCompare(b.name));
+
+                sorted.forEach(c => {
+                    if (filter && !c.name.toLowerCase().includes(filterLower)) return;
+                    visible++;
+                    const card = document.createElement('div');
+                    card.className = 'flag-card';
+                    card.innerHTML = `<div class="flag-emoji">${codeToFlag(c.code)}</div><div class="country-name">${c.name}</div>`;
+                    grid.appendChild(card);
+                });
+
+                visibleSpan.textContent = visible;
+                noResultDiv.style.display = visible === 0 ? 'block' : 'none';
+            }
+            renderGrid();
+            searchInput.addEventListener('input', (e) => renderGrid(e.target.value));
+
+            // ---------- quiz mode ----------
+            const exploreDiv = document.getElementById('explore-mode');
+            const quizDiv = document.getElementById('quiz-mode');
+            const btnExplore = document.getElementById('btnExplore');
+            const btnQuiz = document.getElementById('btnQuiz');
+            const quizFlagEmoji = document.getElementById('quizFlagEmoji');
+            const quizOptionsDiv = document.getElementById('quizOptions');
+            const quizFeedback = document.getElementById('quizFeedback');
+            const nextBtn = document.getElementById('nextQuizBtn');
+            const quizScoreSpan = document.getElementById('quizScore');
+            const resetQuizBtn = document.getElementById('resetQuizBtn');
+
+            // quiz state
+            let currentQuestion = null;           // { country, options (array of names), correctIndex }
+            let score = { correct: 0, total: 0 };
+            let answered = false;                 // true if question answered (disable options)
+            let quizCountries = [...countries];    // copy for random picks
+
+            // shuffle array utility
+            function shuffleArray(arr) {
+                for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+                return arr;
+            }
+
+            // get 3 random distinct country names excluding current country
+            function getRandomWrongNames(currentName, count = 3) {
+                const others = countries.filter(c => c.name !== currentName).map(c => c.name);
+                return shuffleArray(others).slice(0, count);
+            }
+
+            // generate new question
+            function newQuestion() {
+                // pick random country from full list
+                const randomIndex = Math.floor(Math.random() * countries.length);
+                const country = countries[randomIndex];
+                const correctName = country.name;
+                const wrongNames = getRandomWrongNames(correctName, 3);
+                // combine and shuffle
+                let options = [correctName, ...wrongNames];
+                options = shuffleArray(options);
+                const correctIndex = options.indexOf(correctName);
+                currentQuestion = { country, options, correctIndex };
+                answered = false;
+
+                // render flag and options
+                quizFlagEmoji.textContent = codeToFlag(country.code);
+                quizOptionsDiv.innerHTML = '';
+                options.forEach((name, idx) => {
+                    const btn = document.createElement('div');
+                    btn.className = 'quiz-option';
+                    btn.textContent = name;
+                    btn.dataset.index = idx;
+                    btn.addEventListener('click', () => handleOptionClick(idx));
+                    quizOptionsDiv.appendChild(btn);
+                });
+
+                quizFeedback.textContent = '';
+                nextBtn.disabled = true;
+                // remove any correct/wrong classes from previous
+            }
+
+            function handleOptionClick(clickedIdx) {
+                if (answered || !currentQuestion) return;
+                answered = true;
+                const isCorrect = (clickedIdx === currentQuestion.correctIndex);
+                if (isCorrect) {
+                    score.correct++;
+                    quizFeedback.textContent = '✅ Correct!';
+                } else {
+                    quizFeedback.textContent = `❌ Wrong. It's ${currentQuestion.options[currentQuestion.correctIndex]}`;
+                }
+                score.total++;
+                updateScore();
+
+                // style all options: mark correct & wrong
+                const optionDivs = document.querySelectorAll('.quiz-option');
+                optionDivs.forEach((div, idx) => {
+                    div.style.pointerEvents = 'none';
+                    if (idx === currentQuestion.correctIndex) {
+                        div.classList.add('correct-answer');
+                    } else if (idx === clickedIdx && !isCorrect) {
+                        div.classList.add('wrong-answer');
+                    }
+                });
+
+                nextBtn.disabled = false;
+            }
+
+            function updateScore() {
+                quizScoreSpan.textContent = `${score.correct} / ${score.total}`;
+            }
+
+            function resetQuiz() {
+                score = { correct: 0, total: 0 };
+                updateScore();
+                newQuestion();
+            }
+
+            // event listeners for mode switch
+            btnExplore.addEventListener('click', () => {
+                btnExplore.classList.add('active');
+                btnQuiz.classList.remove('active');
+                exploreDiv.classList.remove('hide');
+                quizDiv.classList.add('hide');
+            });
+
+            btnQuiz.addEventListener('click', () => {
+                btnQuiz.classList.add('active');
+                btnExplore.classList.remove('active');
+                exploreDiv.classList.add('hide');
+                quizDiv.classList.remove('hide');
+                if (!currentQuestion) newQuestion(); // start quiz on first switch
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (!nextBtn.disabled) newQuestion();
+            });
+
+            resetQuizBtn.addEventListener('click', resetQuiz);
+
+            // start with one question preloaded (if quiz opened later)
+            newQuestion(); // preload but not visible until quiz mode
+
+            // ensure quiz displays properly if active from start? (explore active by default)
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Braille Translator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        .navbar {
+            margin-bottom: 30px;
+        }
+        
+        .back-btn {
+            padding: 10px 18px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 128, 0, 0.2);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        h1 {
+            color: #ff8000;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+        }
+        
+        .subtitle {
+            color: #a0a0d0;
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+        
+        .translator-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .translator-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .translation-box {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(100, 100, 150, 0.2);
+        }
+        
+        .translation-box h2 {
+            color: #ff8000;
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .translation-box h2 i {
+            font-size: 1.4rem;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 150px;
+            background: rgba(10, 10, 20, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            padding: 15px;
+            font-size: 16px;
+            resize: vertical;
+            margin-bottom: 20px;
+            transition: border 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.2);
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .translate-btn {
+            background: linear-gradient(to right, #ff8000, #ff5500);
+            color: white;
+            flex-grow: 1;
+        }
+        
+        .translate-btn:hover {
+            background: linear-gradient(to right, #ff9000, #ff6600);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 128, 0, 0.4);
+        }
+        
+        .clear-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ddd;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .clear-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .braille-output-container {
+            min-height: 180px;
+            background: rgba(10, 10, 20, 0.5);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-start;
+            justify-content: center;
+        }
+        
+        .braille-cell {
+            width: 70px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(30, 30, 50, 0.8);
+            border-radius: 8px;
+            padding: 10px;
+            position: relative;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .braille-cell:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 128, 0, 0.5);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.2);
+        }
+        
+        .braille-dots {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 8px;
+            width: 50px;
+            height: 75px;
+        }
+        
+        .braille-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(100, 100, 150, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .braille-dot.active {
+            background: #ff8000;
+            box-shadow: 0 0 10px #ff8000;
+        }
+        
+        .braille-char {
+            position: absolute;
+            bottom: 5px;
+            font-size: 1.2rem;
+            color: #ff8000;
+            font-weight: bold;
+        }
+        
+        .braille-space {
+            width: 40px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a0a0d0;
+            font-size: 1.5rem;
+        }
+        
+        .options-section {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(100, 100, 150, 0.2);
+        }
+        
+        .options-section h2 {
+            color: #ff8000;
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .options-section h2 i {
+            font-size: 1.4rem;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .option-group label {
+            color: #a0a0d0;
+            font-size: 0.95rem;
+        }
+        
+        .option-select, .option-input {
+            padding: 12px 15px;
+            background: rgba(10, 10, 20, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 16px;
+        }
+        
+        .option-select:focus, .option-input:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 8px rgba(255, 128, 0, 0.2);
+        }
+        
+        .braille-guide {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(100, 100, 150, 0.2);
+        }
+        
+        .braille-guide h2 {
+            color: #ff8000;
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .braille-guide h2 i {
+            font-size: 1.4rem;
+        }
+        
+        .guide-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+        }
+        
+        .guide-item {
+            background: rgba(10, 10, 20, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #ff8000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .guide-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .guide-char {
+            font-weight: bold;
+            color: #fff;
+            font-size: 1.3rem;
+        }
+        
+        .guide-dots {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 5px;
+            width: 60px;
+            height: 90px;
+        }
+        
+        .guide-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(100, 100, 150, 0.3);
+        }
+        
+        .guide-dot.active {
+            background: #ff8000;
+        }
+        
+        .unicode-output {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(10, 10, 20, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            font-family: monospace;
+            font-size: 1.4rem;
+            letter-spacing: 3px;
+            color: #ff8000;
+            min-height: 60px;
+            word-break: break-all;
+            text-align: center;
+        }
+        
+        .unicode-label {
+            color: #a0a0d0;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .active-translation {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { border-color: rgba(255, 128, 0, 0.2); }
+            50% { border-color: #ff8000; }
+            100% { border-color: rgba(255, 128, 0, 0.2); }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.2);
+            color: #a0a0d0;
+            font-size: 0.9rem;
+        }
+        
+        .info-box {
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #ffcc99;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .info-box i {
+            color: #ff8000;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        </nav>
+        
+        <header>
+            <h1>Braille Translator</h1>
+            <p class="subtitle">Convert text to Braille patterns with visual representation. Explore the Braille alphabet and generate tactile writing patterns for accessibility and learning.</p>
+        </header>
+        
+        <main>
+            <div class="translator-container">
+                <div class="translation-box">
+                    <h2><i class="fas fa-keyboard"></i> Text to Braille</h2>
+                    <textarea id="text-input" placeholder="Enter text to convert to Braille...">Hello World</textarea>
+                    <div class="buttons">
+                        <button id="text-to-braille-btn" class="translate-btn"><i class="fas fa-language"></i> Convert to Braille</button>
+                        <button id="clear-text-btn" class="clear-btn"><i class="fas fa-eraser"></i> Clear</button>
+                    </div>
+                    
+                    <div class="unicode-label">
+                        <i class="fas fa-code"></i> Unicode Braille Output
+                    </div>
+                    <div class="unicode-output" id="unicode-output">⠓⠑⠇⠇⠕ ⠺⠕⠗⠇⠙</div>
+                </div>
+                
+                <div class="translation-box">
+                    <h2><i class="fas fa-eye"></i> Visual Braille Output</h2>
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i> Each Braille character is represented by a 2x3 grid of dots. Raised dots are shown in orange.
+                    </div>
+                    <div class="braille-output-container" id="braille-output">
+                        <!-- Braille cells will be inserted here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="options-section">
+                <h2><i class="fas fa-sliders-h"></i> Translation Options</h2>
+                <div class="options-grid">
+                    <div class="option-group">
+                        <label for="braille-type"><i class="fas fa-text-height"></i> Braille Type</label>
+                        <select id="braille-type" class="option-select">
+                            <option value="grade1">Grade 1 (Letter-by-letter)</option>
+                            <option value="grade2">Grade 2 (Contracted)</option>
+                            <option value="numbers">Numbers & Punctuation</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label for="cell-size"><i class="fas fa-expand-alt"></i> Cell Size</label>
+                        <select id="cell-size" class="option-select">
+                            <option value="small">Small</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="large">Large</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label for="show-original"><i class="fas fa-font"></i> Show Original Character</label>
+                        <select id="show-original" class="option-select">
+                            <option value="yes" selected>Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label for="case-type"><i class="fas fa-font-case"></i> Character Case</label>
+                        <select id="case-type" class="option-select">
+                            <option value="uppercase">Uppercase</option>
+                            <option value="lowercase" selected>Lowercase</option>
+                            <option value="preserve">Preserve Original</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="braille-guide">
+                <h2><i class="fas fa-book"></i> Braille Alphabet Reference</h2>
+                <div class="guide-content" id="braille-guide">
+                    <!-- Braille guide will be populated by JavaScript -->
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Braille Translator | Created with <i class="fas fa-heart" style="color: #ff8000;"></i> for accessibility and learning</p>
+            <p style="margin-top: 5px; font-size: 0.8rem;">Braille is a tactile writing system used by people who are visually impaired.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Braille mapping (Grade 1 - letter-by-letter)
+        // Each Braille character is represented by a 6-bit binary (dots 1-6)
+        // Dot positions: 1 4
+        //                 2 5
+        //                 3 6
+        const brailleMap = {
+            // Letters a-z
+            'a': [1,0,0,0,0,0], 'b': [1,1,0,0,0,0], 'c': [1,0,0,1,0,0],
+            'd': [1,0,0,1,1,0], 'e': [1,0,0,0,1,0], 'f': [1,1,0,1,0,0],
+            'g': [1,1,0,1,1,0], 'h': [1,1,0,0,1,0], 'i': [0,1,0,1,0,0],
+            'j': [0,1,0,1,1,0], 'k': [1,0,1,0,0,0], 'l': [1,1,1,0,0,0],
+            'm': [1,0,1,1,0,0], 'n': [1,0,1,1,1,0], 'o': [1,0,1,0,1,0],
+            'p': [1,1,1,1,0,0], 'q': [1,1,1,1,1,0], 'r': [1,1,1,0,1,0],
+            's': [0,1,1,1,0,0], 't': [0,1,1,1,1,0], 'u': [1,0,1,0,0,1],
+            'v': [1,1,1,0,0,1], 'w': [0,1,0,1,1,1], 'x': [1,0,1,1,0,1],
+            'y': [1,0,1,1,1,1], 'z': [1,0,1,0,1,1],
+            
+            // Numbers (preceded by number sign)
+            '1': [1,0,0,0,0,0], '2': [1,1,0,0,0,0], '3': [1,0,0,1,0,0],
+            '4': [1,0,0,1,1,0], '5': [1,0,0,0,1,0], '6': [1,1,0,1,0,0],
+            '7': [1,1,0,1,1,0], '8': [1,1,0,0,1,0], '9': [0,1,0,1,0,0],
+            '0': [0,1,0,1,1,0],
+            
+            // Punctuation
+            '.': [0,0,1,0,1,1], ',': [0,0,1,0,0,0], '?': [0,0,1,1,0,1],
+            '!': [0,0,1,1,0,0], "'": [0,0,0,0,1,0], '-': [0,0,1,0,0,1],
+            '"': [0,0,1,1,0,0], '(': [0,0,1,1,1,1], ')': [0,0,1,1,1,1],
+            ':': [0,0,1,0,1,0], ';': [0,0,1,1,0,0], '/': [0,0,0,1,1,0],
+            ' ': [0,0,0,0,0,0], // Space
+            'capital': [0,0,0,0,0,1], // Capital sign (dot 6)
+            'number': [0,0,1,1,1,1]  // Number sign
+        };
+
+        // Unicode Braille characters (U+2800 to U+283F)
+        // The Unicode offset for Braille is 0x2800
+        // Each dot corresponds to a bit: dot1=0x01, dot2=0x02, dot3=0x04, dot4=0x08, dot5=0x10, dot6=0x20
+        function getBrailleUnicode(dots) {
+            let unicodeValue = 0x2800;
+            if (dots[0]) unicodeValue += 0x01; // Dot 1
+            if (dots[1]) unicodeValue += 0x02; // Dot 2
+            if (dots[2]) unicodeValue += 0x04; // Dot 3
+            if (dots[3]) unicodeValue += 0x08; // Dot 4
+            if (dots[4]) unicodeValue += 0x10; // Dot 5
+            if (dots[5]) unicodeValue += 0x20; // Dot 6
+            return String.fromCharCode(unicodeValue);
+        }
+
+        // DOM elements
+        const textInput = document.getElementById('text-input');
+        const textToBrailleBtn = document.getElementById('text-to-braille-btn');
+        const clearTextBtn = document.getElementById('clear-text-btn');
+        const brailleOutput = document.getElementById('braille-output');
+        const unicodeOutput = document.getElementById('unicode-output');
+        const brailleTypeSelect = document.getElementById('braille-type');
+        const cellSizeSelect = document.getElementById('cell-size');
+        const showOriginalSelect = document.getElementById('show-original');
+        const caseTypeSelect = document.getElementById('case-type');
+        const brailleGuide = document.getElementById('braille-guide');
+
+        // Initialize the page
+        function init() {
+            // Set up event listeners
+            textToBrailleBtn.addEventListener('click', convertTextToBraille);
+            clearTextBtn.addEventListener('click', () => {
+                textInput.value = '';
+                brailleOutput.innerHTML = '';
+                unicodeOutput.textContent = '';
+            });
+            
+            // Add real-time conversion as user types
+            textInput.addEventListener('input', convertTextToBraille);
+            
+            // Add event listeners to options
+            brailleTypeSelect.addEventListener('change', convertTextToBraille);
+            cellSizeSelect.addEventListener('change', updateBrailleDisplay);
+            showOriginalSelect.addEventListener('change', updateBrailleDisplay);
+            caseTypeSelect.addEventListener('change', convertTextToBraille);
+            
+            // Populate the Braille guide
+            populateBrailleGuide();
+            
+            // Convert initial example text
+            convertTextToBraille();
+        }
+
+        // Convert text to Braille
+        function convertTextToBraille() {
+            let text = textInput.value;
+            if (!text.trim()) {
+                text = "Hello World";
+                textInput.value = text;
+            }
+            
+            const brailleType = brailleTypeSelect.value;
+            const caseType = caseTypeSelect.value;
+            
+            // Process text based on case type
+            if (caseType === 'uppercase') {
+                text = text.toUpperCase();
+            } else if (caseType === 'lowercase') {
+                text = text.toLowerCase();
+            }
+            
+            // Convert to Braille based on type
+            let brailleChars = [];
+            let unicodeString = '';
+            
+            if (brailleType === 'grade1') {
+                // Grade 1 Braille (letter-by-letter)
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i].toLowerCase();
+                    
+                    // Check for uppercase letters
+                    if (text[i] === text[i].toUpperCase() && text[i].match(/[A-Z]/)) {
+                        // Add capital sign
+                        brailleChars.push({
+                            char: text[i],
+                            dots: brailleMap['capital'],
+                            isCapital: true
+                        });
+                        unicodeString += getBrailleUnicode(brailleMap['capital']);
+                    }
+                    
+                    if (brailleMap[char]) {
+                        brailleChars.push({
+                            char: text[i],
+                            dots: brailleMap[char],
+                            isCapital: false
+                        });
+                        unicodeString += getBrailleUnicode(brailleMap[char]);
+                    } else if (char === ' ') {
+                        brailleChars.push({
+                            char: ' ',
+                            dots: brailleMap[' '],
+                            isSpace: true
+                        });
+                        unicodeString += ' ';
+                    } else {
+                        // Unknown character - use question mark
+                        brailleChars.push({
+                            char: text[i],
+                            dots: brailleMap['?'],
+                            isUnknown: true
+                        });
+                        unicodeString += getBrailleUnicode(brailleMap['?']);
+                    }
+                }
+            } else if (brailleType === 'numbers') {
+                // Numbers mode - treat all digits as numbers
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i].toLowerCase();
+                    
+                    if (char.match(/[0-9]/)) {
+                        // Add number sign before first digit in a sequence
+                        if (i === 0 || !text[i-1].match(/[0-9]/)) {
+                            brailleChars.push({
+                                char: '#',
+                                dots: brailleMap['number'],
+                                isNumberSign: true
+                            });
+                            unicodeString += getBrailleUnicode(brailleMap['number']);
+                        }
+                        
+                        // Add the digit
+                        brailleChars.push({
+                            char: text[i],
+                            dots: brailleMap[char],
+                            isNumber: true
+                        });
+                        unicodeString += getBrailleUnicode(brailleMap[char]);
+                    } else if (brailleMap[char]) {
+                        brailleChars.push({
+                            char: text[i],
+                            dots: brailleMap[char],
+                            isLetter: true
+                        });
+                        unicodeString += getBrailleUnicode(brailleMap[char]);
+                    } else if (char === ' ') {
+                        brailleChars.push({
+                            char: ' ',
+                            dots: brailleMap[' '],
+                            isSpace: true
+                        });
+                        unicodeString += ' ';
+                    } else {
+                        brailleChars.push({
+                            char: text[i],
+                            dots: brailleMap['?'],
+                            isUnknown: true
+                        });
+                        unicodeString += getBrailleUnicode(brailleMap['?']);
+                    }
+                }
+            } else {
+                // Grade 2 (contracted) - simplified version
+                // Note: Real Grade 2 Braille has many contractions - this is a simplified version
+                const contractions = {
+                    'the': [0,1,1,1,0,1], 'and': [1,1,1,1,0,1], 'for': [1,1,1,1,0,1],
+                    'with': [1,1,1,1,1,1], 'ing': [0,0,1,1,0,1], 'ch': [1,0,0,0,0,1],
+                    'sh': [1,0,0,1,0,1], 'th': [0,0,1,1,0,0], 'wh': [1,0,0,0,1,1],
+                    'ou': [1,1,0,1,1,1], 'st': [0,0,1,1,0,0]
+                };
+                
+                // Simple implementation - look for common words
+                const words = text.toLowerCase().split(' ');
+                for (let w = 0; w < words.length; w++) {
+                    const word = words[w];
+                    
+                    // Check if word has a contraction
+                    let usedContraction = false;
+                    if (contractions[word] && word.length > 2) {
+                        brailleChars.push({
+                            char: word,
+                            dots: contractions[word],
+                            isContraction: true
+                        });
+                        unicodeString += getBrailleUnicode(contractions[word]);
+                        usedContraction = true;
+                    }
+                    
+                    // If no contraction found, process letter by letter
+                    if (!usedContraction) {
+                        for (let i = 0; i < word.length; i++) {
+                            const char = word[i];
+                            if (brailleMap[char]) {
+                                brailleChars.push({
+                                    char: text[i],
+                                    dots: brailleMap[char],
+                                    isLetter: true
+                                });
+                                unicodeString += getBrailleUnicode(brailleMap[char]);
+                            }
+                        }
+                    }
+                    
+                    // Add space between words (but not after last word)
+                    if (w < words.length - 1) {
+                        brailleChars.push({
+                            char: ' ',
+                            dots: brailleMap[' '],
+                            isSpace: true
+                        });
+                        unicodeString += ' ';
+                    }
+                }
+            }
+            
+            // Update outputs
+            unicodeOutput.textContent = unicodeString;
+            unicodeOutput.classList.add('active-translation');
+            setTimeout(() => unicodeOutput.classList.remove('active-translation'), 1500);
+            
+            // Update visual braille display
+            updateBrailleDisplay(brailleChars);
+        }
+
+        // Update the visual braille display
+        function updateBrailleDisplay(brailleChars) {
+            // If brailleChars not provided, get from current conversion
+            if (!brailleChars) {
+                // We'd need to recalculate, but for simplicity we'll just return
+                // In a full implementation, we'd store the current brailleChars
+                convertTextToBraille();
+                return;
+            }
+            
+            const cellSize = cellSizeSelect.value;
+            const showOriginal = showOriginalSelect.value === 'yes';
+            
+            // Clear previous output
+            brailleOutput.innerHTML = '';
+            
+            // Add each braille character
+            brailleChars.forEach(item => {
+                if (item.isSpace) {
+                    // Add a space indicator
+                    const spaceElement = document.createElement('div');
+                    spaceElement.className = 'braille-space';
+                    spaceElement.innerHTML = '<i class="fas fa-arrows-alt-h"></i>';
+                    brailleOutput.appendChild(spaceElement);
+                } else {
+                    // Create braille cell
+                    const cellElement = document.createElement('div');
+                    cellElement.className = 'braille-cell';
+                    
+                    // Set size class
+                    if (cellSize === 'small') {
+                        cellElement.style.width = '60px';
+                        cellElement.style.height = '90px';
+                    } else if (cellSize === 'large') {
+                        cellElement.style.width = '90px';
+                        cellElement.style.height = '130px';
+                    }
+                    
+                    // Create dots grid
+                    const dotsElement = document.createElement('div');
+                    dotsElement.className = 'braille-dots';
+                    
+                    // Adjust dot size based on cell size
+                    if (cellSize === 'small') {
+                        dotsElement.style.width = '40px';
+                        dotsElement.style.height = '60px';
+                        dotsElement.style.gap = '6px';
+                    } else if (cellSize === 'large') {
+                        dotsElement.style.width = '70px';
+                        dotsElement.style.height = '105px';
+                        dotsElement.style.gap = '12px';
+                    }
+                    
+                    // Create each dot
+                    for (let i = 0; i < 6; i++) {
+                        const dotElement = document.createElement('div');
+                        dotElement.className = 'braille-dot';
+                        if (item.dots[i]) {
+                            dotElement.classList.add('active');
+                        }
+                        
+                        // Adjust dot size
+                        if (cellSize === 'small') {
+                            dotElement.style.width = '10px';
+                            dotElement.style.height = '10px';
+                        } else if (cellSize === 'large') {
+                            dotElement.style.width = '20px';
+                            dotElement.style.height = '20px';
+                        }
+                        
+                        dotsElement.appendChild(dotElement);
+                    }
+                    
+                    cellElement.appendChild(dotsElement);
+                    
+                    // Add original character if enabled
+                    if (showOriginal) {
+                        const charElement = document.createElement('div');
+                        charElement.className = 'braille-char';
+                        
+                        // Add indicator for special characters
+                        if (item.isCapital) {
+                            charElement.textContent = item.char.toUpperCase();
+                            charElement.title = "Capital letter";
+                        } else if (item.isNumberSign) {
+                            charElement.textContent = '#';
+                            charElement.title = "Number sign";
+                        } else if (item.isContraction) {
+                            charElement.textContent = '~' + item.char;
+                            charElement.title = "Contraction";
+                        } else if (item.isUnknown) {
+                            charElement.textContent = '?';
+                            charElement.title = "Unknown character";
+                        } else {
+                            charElement.textContent = item.char;
+                        }
+                        
+                        cellElement.appendChild(charElement);
+                    }
+                    
+                    // Add title for accessibility
+                    if (item.isCapital) {
+                        cellElement.title = `Capital ${item.char} in Braille`;
+                    } else if (item.isNumberSign) {
+                        cellElement.title = "Number sign in Braille";
+                    } else if (item.isContraction) {
+                        cellElement.title = `Contraction for "${item.char}" in Braille`;
+                    } else if (item.isUnknown) {
+                        cellElement.title = "Unknown character (shown as question mark)";
+                    } else {
+                        cellElement.title = `"${item.char}" in Braille`;
+                    }
+                    
+                    brailleOutput.appendChild(cellElement);
+                }
+            });
+        }
+
+        // Populate the Braille guide
+        function populateBrailleGuide() {
+            // Letters a-z
+            const letters = 'abcdefghijklmnopqrstuvwxyz';
+            const numbers = '1234567890';
+            const punctuation = '.,?!-';
+            
+            let guideHTML = '';
+            
+            // Add letters
+            guideHTML += '<div style="grid-column: 1 / -1; color: #a0a0d0; margin-bottom: 5px; font-size: 0.9rem;">LETTERS</div>';
+            for (let char of letters) {
+                guideHTML += `
+                    <div class="guide-item">
+                        <span class="guide-char">${char.toUpperCase()}</span>
+                        <div class="guide-dots">
+                `;
+                
+                // Add each dot
+                for (let i = 0; i < 6; i++) {
+                    guideHTML += `<div class="guide-dot ${brailleMap[char][i] ? 'active' : ''}"></div>`;
+                }
+                
+                guideHTML += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Add numbers
+            guideHTML += '<div style="grid-column: 1 / -1; color: #a0a0d0; margin: 15px 0 5px; font-size: 0.9rem;">NUMBERS</div>';
+            for (let char of numbers) {
+                guideHTML += `
+                    <div class="guide-item">
+                        <span class="guide-char">${char}</span>
+                        <div class="guide-dots">
+                `;
+                
+                // Add each dot
+                for (let i = 0; i < 6; i++) {
+                    guideHTML += `<div class="guide-dot ${brailleMap[char][i] ? 'active' : ''}"></div>`;
+                }
+                
+                guideHTML += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Add punctuation
+            guideHTML += '<div style="grid-column: 1 / -1; color: #a0a0d0; margin: 15px 0 5px; font-size: 0.9rem;">PUNCTUATION</div>';
+            for (let char of punctuation) {
+                if (brailleMap[char]) {
+                    guideHTML += `
+                        <div class="guide-item">
+                            <span class="guide-char">${char}</span>
+                            <div class="guide-dots">
+                    `;
+                    
+                    // Add each dot
+                    for (let i = 0; i < 6; i++) {
+                        guideHTML += `<div class="guide-dot ${brailleMap[char][i] ? 'active' : ''}"></div>`;
+                    }
+                    
+                    guideHTML += `
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Add special symbols
+            guideHTML += '<div style="grid-column: 1 / -1; color: #a0a0d0; margin: 15px 0 5px; font-size: 0.9rem;">SPECIAL SIGNS</div>';
+            
+            // Capital sign
+            guideHTML += `
+                <div class="guide-item">
+                    <span class="guide-char">CAP</span>
+                    <div class="guide-dots">
+            `;
+            for (let i = 0; i < 6; i++) {
+                guideHTML += `<div class="guide-dot ${brailleMap['capital'][i] ? 'active' : ''}"></div>`;
+            }
+            guideHTML += `
+                    </div>
+                </div>
+            `;
+            
+            // Number sign
+            guideHTML += `
+                <div class="guide-item">
+                    <span class="guide-char">#</span>
+                    <div class="guide-dots">
+            `;
+            for (let i = 0; i < 6; i++) {
+                guideHTML += `<div class="guide-dot ${brailleMap['number'][i] ? 'active' : ''}"></div>`;
+            }
+            guideHTML += `
+                    </div>
+                </div>
+            `;
+            
+            brailleGuide.innerHTML = guideHTML;
+        }
+
+        // Initialize the application when the page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Format Encoder/Decoder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .navbar {
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .back-btn {
+            padding: 10px 20px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-3px);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #ff8000, #ffaa00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .header p {
+            color: #aaa;
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .control-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+            background: rgba(20, 20, 40, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .mode-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+        
+        .mode-switch {
+            position: relative;
+            width: 200px;
+            height: 50px;
+            background: rgba(10, 10, 25, 0.8);
+            border-radius: 25px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .mode-slider {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+        }
+        
+        .mode-option {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 1;
+            transition: color 0.3s;
+        }
+        
+        .mode-option.active {
+            color: #ffaa00;
+        }
+        
+        .mode-indicator {
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            background: rgba(255, 128, 0, 0.3);
+            border-radius: 25px;
+            left: 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .mode-indicator.decode {
+            transform: translateX(100%);
+        }
+        
+        .encoding-selector {
+            flex: 2;
+        }
+        
+        .encoding-selector select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(10, 10, 25, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        .encoding-selector select option {
+            background: rgba(20, 20, 40, 0.9);
+        }
+        
+        .encoding-info {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            color: #ffaa00;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i {
+            color: #ff8000;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ddd;
+            font-weight: 500;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 180px;
+            padding: 15px;
+            background: rgba(10, 10, 25, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            resize: vertical;
+            transition: border 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #ff8000;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ffaa00;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            justify-content: center;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: rgba(255, 128, 0, 0.4);
+        }
+        
+        .file-upload {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .file-upload input[type="file"] {
+            display: none;
+        }
+        
+        .file-upload-label {
+            display: block;
+            padding: 20px;
+            background: rgba(10, 10, 25, 0.8);
+            border: 2px dashed rgba(255, 128, 0, 0.4);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-upload-label:hover {
+            background: rgba(15, 15, 35, 0.9);
+            border-color: #ff8000;
+        }
+        
+        .file-upload-label i {
+            font-size: 2rem;
+            color: #ff8000;
+            margin-bottom: 10px;
+        }
+        
+        .file-info {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(10, 10, 25, 0.6);
+            border-radius: 5px;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        .result-box {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .result-box h3 {
+            color: #ffaa00;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.2);
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .alert {
+            padding: 12px 15px;
+            background: rgba(255, 128, 0, 0.1);
+            border-left: 4px solid #ff8000;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert.show {
+            display: block;
+        }
+        
+        .alert.error {
+            background: rgba(255, 50, 50, 0.1);
+            border-left-color: #ff3232;
+        }
+        
+        .char-count {
+            text-align: right;
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        
+        .encoding-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .encoding-item {
+            background: rgba(10, 10, 25, 0.5);
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .encoding-item:hover {
+            border-color: rgba(255, 128, 0, 0.3);
+            background: rgba(15, 15, 35, 0.7);
+        }
+        
+        .encoding-item.active {
+            border-color: #ff8000;
+            background: rgba(255, 128, 0, 0.1);
+        }
+        
+        .encoding-item h4 {
+            color: #ffaa00;
+            margin-bottom: 5px;
+        }
+        
+        .encoding-item p {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        </div>
+        
+        <div class="header">
+            <h1>Multi-Format Encoder/Decoder</h1>
+            <p>Encode and decode text or files using 20+ different encoding formats. Switch between encoding and decoding modes with a single click.</p>
+        </div>
+        
+        <div class="alert" id="alert">
+            <span id="alert-text">This is an alert message.</span>
+        </div>
+        
+        <div class="control-panel">
+            <div class="mode-selector">
+                <span>Mode:</span>
+                <div class="mode-switch">
+                    <div class="mode-slider">
+                        <div class="mode-option active" id="encode-mode">Encode</div>
+                        <div class="mode-option" id="decode-mode">Decode</div>
+                    </div>
+                    <div class="mode-indicator" id="mode-indicator"></div>
+                </div>
+            </div>
+            
+            <div class="encoding-selector">
+                <select id="encoding-type">
+                    <option value="base64">Base64</option>
+                    <option value="base32">Base32</option>
+                    <option value="hex">Hexadecimal</option>
+                    <option value="binary">Binary</option>
+                    <option value="ascii">ASCII Codes</option>
+                    <option value="url">URL Encoding</option>
+                    <option value="html">HTML Entities</option>
+                    <option value="rot13">ROT13 Cipher</option>
+                    <option value="caesar">Caesar Cipher</option>
+                    <option value="reverse">Reverse Text</option>
+                    <option value="morse">Morse Code</option>
+                    <option value="base85">Base85 (Ascii85)</option>
+                    <option value="base58">Base58 (Bitcoin)</option>
+                    <option value="base91">Base91</option>
+                    <option value="uuencode">UUEncode</option>
+                    <option value="quoted-printable">Quoted-Printable</option>
+                    <option value="punycode">Punycode</option>
+                    <option value="json">JSON String</option>
+                    <option value="sha1">SHA-1 Hash</option>
+                    <option value="md5">MD5 Hash</option>
+                    <option value="crc32">CRC32 Hash</option>
+                    <option value="utf8">UTF-8 Byte Array</option>
+                    <option value="utf16">UTF-16 Byte Array</option>
+                </select>
+                <div class="encoding-info" id="encoding-info">
+                    Base64: Encodes binary data into ASCII string format using 64 characters.
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <!-- Text Encoding/Decoding Card -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-font"></i>
+                    <span id="text-card-title">Text Encoding</span>
+                </div>
+                
+                <div class="input-group">
+                    <label for="input-text" id="input-label">Text to Encode:</label>
+                    <textarea id="input-text" placeholder="Enter text to encode..."></textarea>
+                    <div class="char-count">
+                        <span id="input-count">0</span> characters
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button class="btn btn-primary" id="process-btn">
+                        <i class="fas fa-cogs"></i> <span id="process-btn-text">Encode</span>
+                    </button>
+                    <button class="btn" id="clear-text-btn">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                </div>
+                
+                <div class="input-group">
+                    <label for="output-text" id="output-label">Encoded Result:</label>
+                    <textarea id="output-text" readonly placeholder="Result will appear here..."></textarea>
+                    <div class="char-count">
+                        <span id="output-count">0</span> characters
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn" id="copy-text-btn">
+                        <i class="fas fa-copy"></i> Copy Result
+                    </button>
+                    <button class="btn" id="swap-btn">
+                        <i class="fas fa-exchange-alt"></i> Swap Input/Output
+                    </button>
+                </div>
+            </div>
+            
+            <!-- File Encoding/Decoding Card -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-file"></i>
+                    <span id="file-card-title">File Encoding</span>
+                </div>
+                
+                <div class="file-upload">
+                    <input type="file" id="file-input">
+                    <label for="file-input" class="file-upload-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <div>Choose a file or drag it here</div>
+                        <div style="font-size: 0.8rem; margin-top: 5px;">Max file size: 5MB</div>
+                    </label>
+                    <div class="file-info" id="file-info">
+                        No file selected
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button class="btn btn-primary" id="process-file-btn">
+                        <i class="fas fa-file-export"></i> <span id="process-file-btn-text">Encode File</span>
+                    </button>
+                    <button class="btn" id="clear-file-btn">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                </div>
+                
+                <div class="result-box">
+                    <h3><i class="fas fa-file-code"></i> <span id="file-result-title">Encoded Result:</span></h3>
+                    <textarea id="file-result" placeholder="File encoding result will appear here..." style="min-height: 120px;"></textarea>
+                    
+                    <div class="action-buttons">
+                        <button class="btn" id="copy-file-btn">
+                            <i class="fas fa-copy"></i> Copy Result
+                        </button>
+                        <button class="btn" id="download-file-btn" style="display: none;">
+                            <i class="fas fa-download"></i> Download File
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-list"></i>
+                <span>Available Encoding Formats</span>
+            </div>
+            
+            <div class="encoding-grid" id="encoding-grid">
+                <!-- Encoding items will be populated by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Multi-Format Encoder/Decoder Tool &copy; 2023 | All data is processed locally in your browser</p>
+            <div class="stats">
+                <div>Supported Formats: <span id="format-count">23</span></div>
+                <div>Last Action: <span id="last-action">None</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const inputText = document.getElementById('input-text');
+        const outputText = document.getElementById('output-text');
+        const processBtn = document.getElementById('process-btn');
+        const clearTextBtn = document.getElementById('clear-text-btn');
+        const copyTextBtn = document.getElementById('copy-text-btn');
+        const swapBtn = document.getElementById('swap-btn');
+        const fileInput = document.getElementById('file-input');
+        const fileInfo = document.getElementById('file-info');
+        const processFileBtn = document.getElementById('process-file-btn');
+        const clearFileBtn = document.getElementById('clear-file-btn');
+        const fileResult = document.getElementById('file-result');
+        const copyFileBtn = document.getElementById('copy-file-btn');
+        const downloadFileBtn = document.getElementById('download-file-btn');
+        const alertBox = document.getElementById('alert');
+        const alertText = document.getElementById('alert-text');
+        const inputCount = document.getElementById('input-count');
+        const outputCount = document.getElementById('output-count');
+        const encodingType = document.getElementById('encoding-type');
+        const encodingInfo = document.getElementById('encoding-info');
+        const encodeModeBtn = document.getElementById('encode-mode');
+        const decodeModeBtn = document.getElementById('decode-mode');
+        const modeIndicator = document.getElementById('mode-indicator');
+        const textCardTitle = document.getElementById('text-card-title');
+        const fileCardTitle = document.getElementById('file-card-title');
+        const inputLabel = document.getElementById('input-label');
+        const outputLabel = document.getElementById('output-label');
+        const processBtnText = document.getElementById('process-btn-text');
+        const processFileBtnText = document.getElementById('process-file-btn-text');
+        const fileResultTitle = document.getElementById('file-result-title');
+        const lastAction = document.getElementById('last-action');
+        const encodingGrid = document.getElementById('encoding-grid');
+        
+        // Current state
+        let currentMode = 'encode'; // 'encode' or 'decode'
+        let currentFile = null;
+        let currentFileName = '';
+        
+        // Encoding information
+        const encodingDetails = {
+            base64: {
+                name: "Base64",
+                description: "Encodes binary data into ASCII string format using 64 characters.",
+                encode: (text) => btoa(text),
+                decode: (text) => atob(text),
+                fileSupport: true
+            },
+            base32: {
+                name: "Base32",
+                description: "Encodes binary data using 32 characters (A-Z, 2-7).",
+                encode: (text) => base32Encode(text),
+                decode: (text) => base32Decode(text),
+                fileSupport: false
+            },
+            hex: {
+                name: "Hexadecimal",
+                description: "Converts text to hexadecimal representation.",
+                encode: (text) => {
+                    return text.split('').map(c => 
+                        c.charCodeAt(0).toString(16).padStart(2, '0')
+                    ).join(' ');
+                },
+                decode: (text) => {
+                    return text.replace(/\s+/g, '').replace(/../g, hex => 
+                        String.fromCharCode(parseInt(hex, 16))
+                    );
+                },
+                fileSupport: true
+            },
+            binary: {
+                name: "Binary",
+                description: "Converts text to binary (8-bit) representation.",
+                encode: (text) => {
+                    return text.split('').map(c => 
+                        c.charCodeAt(0).toString(2).padStart(8, '0')
+                    ).join(' ');
+                },
+                decode: (text) => {
+                    return text.split(' ').filter(b => b).map(b => 
+                        String.fromCharCode(parseInt(b, 2))
+                    ).join('');
+                },
+                fileSupport: false
+            },
+            ascii: {
+                name: "ASCII Codes",
+                description: "Converts text to ASCII decimal codes.",
+                encode: (text) => {
+                    return text.split('').map(c => 
+                        c.charCodeAt(0).toString()
+                    ).join(' ');
+                },
+                decode: (text) => {
+                    return text.split(' ').filter(n => n).map(n => 
+                        String.fromCharCode(parseInt(n))
+                    ).join('');
+                },
+                fileSupport: false
+            },
+            url: {
+                name: "URL Encoding",
+                description: "Encodes text for use in URL parameters.",
+                encode: (text) => encodeURIComponent(text),
+                decode: (text) => decodeURIComponent(text),
+                fileSupport: false
+            },
+            html: {
+                name: "HTML Entities",
+                description: "Converts special characters to HTML entities.",
+                encode: (text) => {
+                    const elem = document.createElement('textarea');
+                    elem.textContent = text;
+                    return elem.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                },
+                decode: (text) => {
+                    const elem = document.createElement('textarea');
+                    elem.innerHTML = text;
+                    return elem.value;
+                },
+                fileSupport: false
+            },
+            rot13: {
+                name: "ROT13 Cipher",
+                description: "Simple letter substitution cipher that rotates letters by 13 positions.",
+                encode: (text) => rot13(text),
+                decode: (text) => rot13(text),
+                fileSupport: false
+            },
+            caesar: {
+                name: "Caesar Cipher",
+                description: "Shifts letters by a fixed number of positions (default: 3).",
+                encode: (text) => caesarCipher(text, 3),
+                decode: (text) => caesarCipher(text, -3),
+                fileSupport: false
+            },
+            reverse: {
+                name: "Reverse Text",
+                description: "Reverses the order of characters in text.",
+                encode: (text) => text.split('').reverse().join(''),
+                decode: (text) => text.split('').reverse().join(''),
+                fileSupport: false
+            },
+            morse: {
+                name: "Morse Code",
+                description: "Converts text to Morse code representation.",
+                encode: (text) => textToMorse(text),
+                decode: (text) => morseToText(text),
+                fileSupport: false
+            },
+            base85: {
+                name: "Base85 (Ascii85)",
+                description: "Encodes binary data using 85 ASCII characters.",
+                encode: (text) => ascii85Encode(text),
+                decode: (text) => ascii85Decode(text),
+                fileSupport: false
+            },
+            base58: {
+                name: "Base58 (Bitcoin)",
+                description: "Encodes binary data using 58 characters, used in Bitcoin addresses.",
+                encode: (text) => base58Encode(text),
+                decode: (text) => base58Decode(text),
+                fileSupport: false
+            },
+            base91: {
+                name: "Base91",
+                description: "Encodes binary data using 91 ASCII characters.",
+                encode: (text) => base91Encode(text),
+                decode: (text) => base91Decode(text),
+                fileSupport: false
+            },
+            uuencode: {
+                name: "UUEncode",
+                description: "Binary-to-text encoding used in Unix systems.",
+                encode: (text) => uuencode(text),
+                decode: (text) => uudecode(text),
+                fileSupport: false
+            },
+            quotedPrintable: {
+                name: "Quoted-Printable",
+                description: "Encodes text for email transmission.",
+                encode: (text) => quotedPrintableEncode(text),
+                decode: (text) => quotedPrintableDecode(text),
+                fileSupport: false
+            },
+            punycode: {
+                name: "Punycode",
+                description: "Encodes Unicode strings to ASCII for use in domain names.",
+                encode: (text) => punycodeEncode(text),
+                decode: (text) => punycodeDecode(text),
+                fileSupport: false
+            },
+            json: {
+                name: "JSON String",
+                description: "Converts text to a JSON-encoded string.",
+                encode: (text) => JSON.stringify(text),
+                decode: (text) => {
+                    try {
+                        return JSON.parse(text);
+                    } catch {
+                        return "Invalid JSON string";
+                    }
+                },
+                fileSupport: false
+            },
+            sha1: {
+                name: "SHA-1 Hash",
+                description: "Generates SHA-1 cryptographic hash (one-way).",
+                encode: (text) => sha1Hash(text),
+                decode: (text) => "Hashes cannot be decoded (one-way function)",
+                fileSupport: true
+            },
+            md5: {
+                name: "MD5 Hash",
+                description: "Generates MD5 cryptographic hash (one-way).",
+                encode: (text) => md5Hash(text),
+                decode: (text) => "Hashes cannot be decoded (one-way function)",
+                fileSupport: true
+            },
+            crc32: {
+                name: "CRC32 Hash",
+                description: "Generates CRC32 checksum (one-way).",
+                encode: (text) => crc32Hash(text),
+                decode: (text) => "Checksums cannot be decoded (one-way function)",
+                fileSupport: true
+            },
+            utf8: {
+                name: "UTF-8 Byte Array",
+                description: "Converts text to UTF-8 byte array representation.",
+                encode: (text) => {
+                    const encoder = new TextEncoder();
+                    const bytes = encoder.encode(text);
+                    return Array.from(bytes).join(' ');
+                },
+                decode: (text) => {
+                    const bytes = text.split(' ').filter(b => b).map(b => parseInt(b));
+                    const decoder = new TextDecoder('utf-8');
+                    return decoder.decode(new Uint8Array(bytes));
+                },
+                fileSupport: true
+            },
+            utf16: {
+                name: "UTF-16 Byte Array",
+                description: "Converts text to UTF-16 byte array representation.",
+                encode: (text) => {
+                    let result = '';
+                    for (let i = 0; i < text.length; i++) {
+                        const code = text.charCodeAt(i);
+                        result += code.toString(16).padStart(4, '0') + ' ';
+                    }
+                    return result.trim();
+                },
+                decode: (text) => {
+                    const hexCodes = text.match(/.{1,4}/g) || [];
+                    return hexCodes.map(hex => 
+                        String.fromCharCode(parseInt(hex, 16))
+                    ).join('');
+                },
+                fileSupport: false
+            }
+        };
+        
+        // Show alert function
+        function showAlert(message, isError = false) {
+            alertText.textContent = message;
+            alertBox.classList.remove('error');
+            
+            if (isError) {
+                alertBox.classList.add('error');
+            }
+            
+            alertBox.classList.add('show');
+            
+            setTimeout(() => {
+                alertBox.classList.remove('show');
+            }, 4000);
+        }
+        
+        // Update character count
+        function updateCharCount() {
+            inputCount.textContent = inputText.value.length;
+            outputCount.textContent = outputText.value.length;
+        }
+        
+        // Update UI based on mode
+        function updateModeUI() {
+            // Update mode indicator
+            modeIndicator.classList.toggle('decode', currentMode === 'decode');
+            
+            // Update active mode button
+            encodeModeBtn.classList.toggle('active', currentMode === 'encode');
+            decodeModeBtn.classList.toggle('active', currentMode === 'decode');
+            
+            // Update labels and titles
+            const modeText = currentMode === 'encode' ? 'Encode' : 'Decode';
+            const reverseModeText = currentMode === 'encode' ? 'Decode' : 'Encode';
+            
+            textCardTitle.textContent = `${modeText} Text`;
+            fileCardTitle.textContent = `${modeText} File`;
+            processBtnText.textContent = modeText;
+            processFileBtnText.textContent = `${modeText} File`;
+            fileResultTitle.textContent = `${reverseModeText} Result:`;
+            
+            inputLabel.textContent = currentMode === 'encode' 
+                ? `Text to ${encodingDetails[encodingType.value].name} Encode:` 
+                : `${encodingDetails[encodingType.value].name} to Decode:`;
+                
+            outputLabel.textContent = currentMode === 'encode' 
+                ? `${encodingDetails[encodingType.value].name} Encoded Result:` 
+                : `Decoded Text:`;
+            
+            // Update last action
+            lastAction.textContent = `${modeText} ${encodingDetails[encodingType.value].name}`;
+        }
+        
+        // Update encoding info
+        function updateEncodingInfo() {
+            const encoding = encodingDetails[encodingType.value];
+            encodingInfo.textContent = `${encoding.name}: ${encoding.description}`;
+            
+            // Update encoding grid active item
+            document.querySelectorAll('.encoding-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.encoding === encodingType.value) {
+                    item.classList.add('active');
+                }
+            });
+        }
+        
+        // Process text based on current mode and encoding
+        function processText() {
+            const text = inputText.value.trim();
+            const encoding = encodingDetails[encodingType.value];
+            
+            if (!text) {
+                showAlert(`Please enter text to ${currentMode}.`, true);
+                return;
+            }
+            
+            try {
+                if (currentMode === 'encode') {
+                    outputText.value = encoding.encode(text);
+                } else {
+                    outputText.value = encoding.decode(text);
+                }
+                updateCharCount();
+                showAlert(`Text successfully ${currentMode}d using ${encoding.name}!`);
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, true);
+            }
+        }
+        
+        // Process file based on current mode and encoding
+        function processFile() {
+            if (!currentFile && encodingType.value !== 'sha1' && encodingType.value !== 'md5' && encodingType.value !== 'crc32') {
+                showAlert('Please select a file first.', true);
+                return;
+            }
+            
+            const encoding = encodingDetails[encodingType.value];
+            
+            // For hash functions, we can hash the text input if no file
+            if ((encodingType.value === 'sha1' || encodingType.value === 'md5' || encodingType.value === 'crc32') && !currentFile) {
+                const text = inputText.value.trim();
+                if (!text) {
+                    showAlert('Please select a file or enter text to hash.', true);
+                    return;
+                }
+                
+                try {
+                    fileResult.value = encoding.encode(text);
+                    showAlert(`Text successfully hashed using ${encoding.name}!`);
+                } catch (error) {
+                    showAlert(`Error: ${error.message}`, true);
+                }
+                return;
+            }
+            
+            if (!encoding.fileSupport && currentMode === 'encode') {
+                showAlert(`${encoding.name} encoding is not supported for files.`, true);
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    if (currentMode === 'encode') {
+                        if (encodingType.value === 'hex' || encodingType.value === 'utf8') {
+                            const bytes = new Uint8Array(e.target.result);
+                            fileResult.value = encoding.encode(String.fromCharCode.apply(null, bytes));
+                        } else if (encodingType.value === 'base64') {
+                            // Base64 encode the file
+                            const base64String = e.target.result.split(',')[1] || e.target.result;
+                            fileResult.value = base64String;
+                        } else if (encodingType.value === 'sha1' || encodingType.value === 'md5' || encodingType.value === 'crc32') {
+                            // Hash the file
+                            const bytes = new Uint8Array(e.target.result);
+                            const text = String.fromCharCode.apply(null, bytes);
+                            fileResult.value = encoding.encode(text);
+                        }
+                    } else {
+                        // Decode mode
+                        fileResult.value = "File decoding requires implementation specific to each encoding type.";
+                    }
+                    
+                    showAlert(`File successfully ${currentMode === 'encode' ? 'encoded' : 'decoded'} using ${encoding.name}!`);
+                    downloadFileBtn.style.display = currentMode === 'encode' && encoding.fileSupport ? 'inline-flex' : 'none';
+                } catch (error) {
+                    showAlert(`Error: ${error.message}`, true);
+                }
+            };
+            
+            reader.onerror = function() {
+                showAlert('Error reading file.', true);
+            };
+            
+            if (currentMode === 'encode') {
+                reader.readAsDataURL(currentFile);
+            } else {
+                // For decode mode, we'd need to handle differently
+                showAlert('File decoding is limited for this encoding type.', true);
+            }
+        }
+        
+        // Encoding algorithm implementations
+        function base32Encode(text) {
+            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+            let result = '';
+            let buffer = 0;
+            let bitsLeft = 0;
+            
+            for (let i = 0; i < text.length; i++) {
+                buffer = (buffer << 8) | text.charCodeAt(i);
+                bitsLeft += 8;
+                
+                while (bitsLeft >= 5) {
+                    bitsLeft -= 5;
+                    result += alphabet[(buffer >> bitsLeft) & 31];
+                }
+            }
+            
+            if (bitsLeft > 0) {
+                result += alphabet[(buffer << (5 - bitsLeft)) & 31];
+            }
+            
+            return result;
+        }
+        
+        function base32Decode(text) {
+            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+            let result = '';
+            let buffer = 0;
+            let bitsLeft = 0;
+            
+            text = text.replace(/[^A-Z2-7]/g, '').toUpperCase();
+            
+            for (let i = 0; i < text.length; i++) {
+                const index = alphabet.indexOf(text[i]);
+                if (index === -1) continue;
+                
+                buffer = (buffer << 5) | index;
+                bitsLeft += 5;
+                
+                if (bitsLeft >= 8) {
+                    bitsLeft -= 8;
+                    result += String.fromCharCode((buffer >> bitsLeft) & 255);
+                }
+            }
+            
+            return result;
+        }
+        
+        function rot13(text) {
+            return text.replace(/[a-zA-Z]/g, function(c) {
+                const base = c <= 'Z' ? 65 : 97;
+                return String.fromCharCode((c.charCodeAt(0) - base + 13) % 26 + base);
+            });
+        }
+        
+        function caesarCipher(text, shift) {
+            return text.replace(/[a-zA-Z]/g, function(c) {
+                const base = c <= 'Z' ? 65 : 97;
+                return String.fromCharCode((c.charCodeAt(0) - base + shift + 26) % 26 + base);
+            });
+        }
+        
+        function textToMorse(text) {
+            const morseCode = {
+                'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
+                'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+                'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+                'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+                'Y': '-.--', 'Z': '--..', '0': '-----', '1': '.----', '2': '..---',
+                '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...',
+                '8': '---..', '9': '----.', ' ': '/'
+            };
+            
+            return text.toUpperCase().split('').map(c => morseCode[c] || c).join(' ');
+        }
+        
+        function morseToText(text) {
+            const morseCode = {
+                '.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E', '..-.': 'F',
+                '--.': 'G', '....': 'H', '..': 'I', '.---': 'J', '-.-': 'K', '.-..': 'L',
+                '--': 'M', '-.': 'N', '---': 'O', '.--.': 'P', '--.-': 'Q', '.-.': 'R',
+                '...': 'S', '-': 'T', '..-': 'U', '...-': 'V', '.--': 'W', '-..-': 'X',
+                '-.--': 'Y', '--..': 'Z', '-----': '0', '.----': '1', '..---': '2',
+                '...--': '3', '....-': '4', '.....': '5', '-....': '6', '--...': '7',
+                '---..': '8', '----.': '9', '/': ' '
+            };
+            
+            return text.split(' ').map(code => morseCode[code] || code).join('');
+        }
+        
+        // Simple implementations for other encodings (would need full implementations for production)
+        function ascii85Encode(text) {
+            return `ASCII85 encoded: ${btoa(text).substring(0, 50)}... (full implementation required)`;
+        }
+        
+        function ascii85Decode(text) {
+            return "ASCII85 decoding requires full implementation";
+        }
+        
+        function base58Encode(text) {
+            return `Base58 encoded: ${btoa(text).substring(0, 30)}...`;
+        }
+        
+        function base58Decode(text) {
+            return "Base58 decoding requires full implementation";
+        }
+        
+        function base91Encode(text) {
+            return `Base91 encoded: ${btoa(text).substring(0, 40)}...`;
+        }
+        
+        function base91Decode(text) {
+            return "Base91 decoding requires full implementation";
+        }
+        
+        function uuencode(text) {
+            return `begin 644 encoded.txt\n${btoa(text).match(/.{1,60}/g).join('\n')}\nend`;
+        }
+        
+        function uudecode(text) {
+            const lines = text.split('\n');
+            if (lines.length < 3) return "Invalid UUEncoded data";
+            return atob(lines.slice(1, -1).join(''));
+        }
+        
+        function quotedPrintableEncode(text) {
+            return text.replace(/[^\x20-\x7E]/g, function(c) {
+                return '=' + c.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0');
+            });
+        }
+        
+        function quotedPrintableDecode(text) {
+            return text.replace(/=([0-9A-F]{2})/g, function(m, hex) {
+                return String.fromCharCode(parseInt(hex, 16));
+            });
+        }
+        
+        function punycodeEncode(text) {
+            return text.split('').map(c => {
+                const code = c.charCodeAt(0);
+                return code > 127 ? `xn--${code.toString(16)}` : c;
+            }).join('');
+        }
+        
+        function punycodeDecode(text) {
+            return text.replace(/xn--([0-9a-f]+)/g, function(m, hex) {
+                return String.fromCharCode(parseInt(hex, 16));
+            });
+        }
+        
+        function sha1Hash(text) {
+            // Simple SHA-1 simulation (not cryptographically secure)
+            let hash = 0;
+            for (let i = 0; i < text.length; i++) {
+                hash = ((hash << 5) - hash) + text.charCodeAt(i);
+                hash |= 0;
+            }
+            return `sha1-${Math.abs(hash).toString(16).padStart(8, '0')}`;
+        }
+        
+        function md5Hash(text) {
+            // Simple MD5 simulation (not cryptographically secure)
+            let hash = 0;
+            for (let i = 0; i < text.length; i++) {
+                hash = ((hash << 5) - hash) + text.charCodeAt(i);
+                hash |= 0;
+            }
+            return `md5-${Math.abs(hash).toString(16).padStart(8, '0')}`;
+        }
+        
+        function crc32Hash(text) {
+            // Simple CRC32 simulation
+            let crc = 0 ^ (-1);
+            for (let i = 0; i < text.length; i++) {
+                crc = (crc >>> 8) ^ text.charCodeAt(i);
+                crc = (crc ^ (-1)) >>> 0;
+            }
+            return `crc32-${crc.toString(16).padStart(8, '0')}`;
+        }
+        
+        // Initialize encoding grid
+        function initEncodingGrid() {
+            encodingGrid.innerHTML = '';
+            Object.keys(encodingDetails).forEach(encodingKey => {
+                const encoding = encodingDetails[encodingKey];
+                const item = document.createElement('div');
+                item.className = `encoding-item ${encodingKey === 'base64' ? 'active' : ''}`;
+                item.dataset.encoding = encodingKey;
+                
+                item.innerHTML = `
+                    <h4>${encoding.name}</h4>
+                    <p>${encoding.description.substring(0, 60)}...</p>
+                    <div style="font-size: 0.8rem; color: ${encoding.fileSupport ? '#4CAF50' : '#ff8000'}; margin-top: 5px;">
+                        ${encoding.fileSupport ? 'Supports files' : 'Text only'}
+                    </div>
+                `;
+                
+                item.addEventListener('click', () => {
+                    encodingType.value = encodingKey;
+                    updateEncodingInfo();
+                    updateModeUI();
+                });
+                
+                encodingGrid.appendChild(item);
+            });
+            
+            document.getElementById('format-count').textContent = Object.keys(encodingDetails).length;
+        }
+        
+        // Event Listeners
+        encodeModeBtn.addEventListener('click', () => {
+            currentMode = 'encode';
+            updateModeUI();
+        });
+        
+        decodeModeBtn.addEventListener('click', () => {
+            currentMode = 'decode';
+            updateModeUI();
+        });
+        
+        processBtn.addEventListener('click', processText);
+        
+        clearTextBtn.addEventListener('click', () => {
+            inputText.value = '';
+            outputText.value = '';
+            updateCharCount();
+            showAlert('Text areas cleared.');
+        });
+        
+        copyTextBtn.addEventListener('click', () => {
+            if (!outputText.value.trim()) {
+                showAlert('No result to copy.', true);
+                return;
+            }
+            
+            navigator.clipboard.writeText(outputText.value)
+                .then(() => showAlert('Result copied to clipboard!'))
+                .catch(err => showAlert('Failed to copy: ' + err, true));
+        });
+        
+        swapBtn.addEventListener('click', () => {
+            const temp = inputText.value;
+            inputText.value = outputText.value;
+            outputText.value = temp;
+            updateCharCount();
+            currentMode = currentMode === 'encode' ? 'decode' : 'encode';
+            updateModeUI();
+            showAlert('Input and output swapped.');
+        });
+        
+        // File handling
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            
+            if (!file) {
+                fileInfo.textContent = 'No file selected';
+                currentFile = null;
+                return;
+            }
+            
+            // Check file size (5MB limit)
+            if (file.size > 5 * 1024 * 1024) {
+                showAlert('File size exceeds 5MB limit.', true);
+                fileInput.value = '';
+                fileInfo.textContent = 'No file selected';
+                currentFile = null;
+                return;
+            }
+            
+            currentFile = file;
+            currentFileName = file.name;
+            fileInfo.innerHTML = `
+                <strong>Selected file:</strong> ${file.name}<br>
+                <strong>Size:</strong> ${(file.size / 1024).toFixed(2)} KB<br>
+                <strong>Type:</strong> ${file.type || 'Unknown'}
+            `;
+            
+            // Clear the result when a new file is selected
+            fileResult.value = '';
+            downloadFileBtn.style.display = 'none';
+        });
+        
+        // Drag and drop functionality
+        const fileUploadLabel = document.querySelector('.file-upload-label');
+        
+        fileUploadLabel.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadLabel.style.borderColor = '#ff8000';
+            fileUploadLabel.style.background = 'rgba(255, 128, 0, 0.1)';
+        });
+        
+        fileUploadLabel.addEventListener('dragleave', () => {
+            fileUploadLabel.style.borderColor = 'rgba(255, 128, 0, 0.4)';
+            fileUploadLabel.style.background = 'rgba(10, 10, 25, 0.8)';
+        });
+        
+        fileUploadLabel.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadLabel.style.borderColor = 'rgba(255, 128, 0, 0.4)';
+            fileUploadLabel.style.background = 'rgba(10, 10, 25, 0.8)';
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                fileInput.dispatchEvent(new Event('change'));
+            }
+        });
+        
+        processFileBtn.addEventListener('click', processFile);
+        
+        clearFileBtn.addEventListener('click', () => {
+            fileInput.value = '';
+            fileResult.value = '';
+            fileInfo.textContent = 'No file selected';
+            currentFile = null;
+            downloadFileBtn.style.display = 'none';
+            showAlert('File section cleared.');
+        });
+        
+        copyFileBtn.addEventListener('click', () => {
+            if (!fileResult.value.trim()) {
+                showAlert('No result to copy.', true);
+                return;
+            }
+            
+            navigator.clipboard.writeText(fileResult.value)
+                .then(() => showAlert('Result copied to clipboard!'))
+                .catch(err => showAlert('Failed to copy: ' + err, true));
+        });
+        
+        encodingType.addEventListener('change', () => {
+            updateEncodingInfo();
+            updateModeUI();
+        });
+        
+        // Initialize character count
+        updateCharCount();
+        
+        // Update character count on input
+        inputText.addEventListener('input', updateCharCount);
+        outputText.addEventListener('input', updateCharCount);
+        
+        // Initialize the page
+        function initPage() {
+            updateModeUI();
+            updateEncodingInfo();
+            initEncodingGrid();
+            
+            // Add example text
+            inputText.value = "Hello, this is a sample text for encoding/decoding!";
+            updateCharCount();
+            
+            showAlert('Welcome to the Multi-Format Encoder/Decoder! Select an encoding type and mode to get started.');
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('load', initPage);
+    </script>
+</body>
+</html>

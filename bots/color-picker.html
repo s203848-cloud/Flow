@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Color Picker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .navbar {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 15px 0;
+        }
+        
+        .back-btn {
+            padding: 10px 20px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 8px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.2);
+        }
+        
+        .title {
+            font-size: 28px;
+            background: linear-gradient(90deg, #ff8000, #ffaa00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            max-width: 1200px;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .color-picker-section {
+            flex: 1;
+            min-width: 350px;
+            background: rgba(20, 15, 40, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #ffaa00;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            color: #ff8000;
+        }
+        
+        /* Color Wheel Styles */
+        .color-wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 30px;
+        }
+        
+        .color-wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                #ff0000 0deg,
+                #ffff00 60deg,
+                #00ff00 120deg,
+                #00ffff 180deg,
+                #0000ff 240deg,
+                #ff00ff 300deg,
+                #ff0000 360deg
+            );
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .color-selector {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #0a0a1a;
+            cursor: grab;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+            z-index: 10;
+        }
+        
+        .color-selector:active {
+            cursor: grabbing;
+        }
+        
+        /* Brightness Slider */
+        .brightness-slider-container {
+            margin: 20px auto;
+            width: 300px;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #ffaa00;
+            font-weight: 500;
+        }
+        
+        .brightness-slider {
+            width: 100%;
+            height: 10px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(to right, #000, #fff);
+            border-radius: 5px;
+            outline: none;
+        }
+        
+        .brightness-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #0a0a1a;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+        }
+        
+        .brightness-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #0a0a1a;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+        }
+        
+        /* Color Preview */
+        .color-preview {
+            width: 100%;
+            height: 100px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            transition: all 0.3s;
+        }
+        
+        /* Color Inputs */
+        .color-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .input-group label {
+            color: #ffaa00;
+            font-weight: 500;
+        }
+        
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .input-row input {
+            flex: 1;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            background: rgba(10, 10, 26, 0.8);
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .input-row input:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+        }
+        
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            color: #ffaa00;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .mode-btn.active {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff8000;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(255, 128, 0, 0.2);
+        }
+        
+        .mode-btn:hover:not(.active) {
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        /* Image Picker Section */
+        .image-picker-section {
+            flex: 1;
+            min-width: 350px;
+            background: rgba(20, 15, 40, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .image-upload-area {
+            border: 2px dashed rgba(255, 128, 0, 0.4);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 25px;
+            background: rgba(10, 10, 26, 0.5);
+        }
+        
+        .image-upload-area:hover {
+            border-color: #ff8000;
+            background: rgba(10, 10, 26, 0.8);
+        }
+        
+        .image-upload-area i {
+            font-size: 50px;
+            color: #ff8000;
+            margin-bottom: 15px;
+        }
+        
+        .image-upload-area p {
+            color: #aaa;
+        }
+        
+        .image-preview-container {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            display: none;
+            border: 2px solid rgba(255, 128, 0, 0.3);
+            background: rgba(10, 10, 26, 0.5);
+        }
+        
+        .image-preview-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            cursor: crosshair;
+        }
+        
+        .image-preview {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s;
+        }
+        
+        .image-zoom-controls {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+        
+        .zoom-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 128, 0, 0.5);
+            color: #ff8000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .zoom-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .zoom-reset-btn {
+            width: 60px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+        
+        .eyedropper-cursor {
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M26 2L16 12l2 2 10-10zM4 20l8 8 10-10-2-2-8 8-6-6z' fill='%23fff'/%3E%3C/svg%3E") 0 32, crosshair;
+        }
+        
+        .color-samples {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .color-sample {
+            height: 50px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .color-sample:hover {
+            transform: scale(1.05);
+            border-color: white;
+        }
+        
+        .color-sample.selected {
+            border-color: #ff8000;
+            box-shadow: 0 0 15px rgba(255, 128, 0, 0.5);
+        }
+        
+        .color-sample .tooltip {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 30;
+        }
+        
+        .color-sample:hover .tooltip {
+            opacity: 1;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .copy-btn {
+            background: rgba(0, 150, 255, 0.2);
+            color: #0096ff;
+            border: 1px solid #0096ff;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(0, 150, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .random-btn {
+            background: rgba(255, 128, 0, 0.2);
+            color: #ff8000;
+            border: 1px solid #ff8000;
+        }
+        
+        .random-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* Eyedropper Tool */
+        .eyedropper-tool {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(10, 10, 26, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .eyedropper-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            color: #ffaa00;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .eyedropper-toggle.active {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff8000;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+        }
+        
+        .eyedropper-toggle:hover:not(.active) {
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        .color-preview-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Footer */
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #aaa;
+            font-size: 14px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.2);
+            width: 100%;
+            max-width: 1200px;
+        }
+        
+        /* Instructions */
+        .instructions {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #aaa;
+            text-align: center;
+        }
+        
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .color-picker-section, .image-picker-section {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .color-wheel-container {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .brightness-slider-container {
+                width: 250px;
+            }
+            
+            .color-samples {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        <h1 class="title">Advanced Color Picker</h1>
+        <div style="width: 110px;"></div> <!-- Spacer for alignment -->
+    </div>
+    
+    <div class="container">
+        <!-- Color Picker Section -->
+        <section class="color-picker-section">
+            <h2 class="section-title"><i class="fas fa-palette"></i> Color Wheel (Full Circle)</h2>
+            
+            <div class="color-wheel-container">
+                <div class="color-wheel" id="colorWheel"></div>
+                <div class="color-selector" id="colorSelector"></div>
+            </div>
+            
+            <div class="brightness-slider-container">
+                <div class="slider-label">
+                    <span>Brightness</span>
+                    <span id="brightnessValue">50%</span>
+                </div>
+                <input type="range" min="0" max="100" value="50" class="brightness-slider" id="brightnessSlider">
+            </div>
+            
+            <div class="color-preview" id="colorPreview">
+                Selected Color
+            </div>
+            
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="hex">HEX</button>
+                <button class="mode-btn" data-mode="rgb">RGB</button>
+                <button class="mode-btn" data-mode="hsl">HSL</button>
+            </div>
+            
+            <div class="color-inputs">
+                <div class="input-group">
+                    <label id="colorModeLabel">HEX Color</label>
+                    <div class="input-row">
+                        <input type="text" id="colorInput" value="#ff8000">
+                        <div class="color-sample" id="currentColorSample" style="width: 60px; border-radius: 8px;"></div>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Color Values</label>
+                    <div class="input-row">
+                        <input type="text" id="colorValue1" placeholder="R: 255" value="FF">
+                        <input type="text" id="colorValue2" placeholder="G: 128" value="80">
+                        <input type="text" id="colorValue3" placeholder="B: 0" value="00">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn copy-btn" id="copyColorBtn">
+                    <i class="far fa-copy"></i> Copy Color
+                </button>
+                <button class="action-btn random-btn" id="randomColorBtn">
+                    <i class="fas fa-random"></i> Random Color
+                </button>
+            </div>
+        </section>
+        
+        <!-- Image Color Picker Section -->
+        <section class="image-picker-section">
+            <h2 class="section-title"><i class="fas fa-image"></i> Extract from Image</h2>
+            
+            <div class="eyedropper-tool">
+                <div class="eyedropper-toggle" id="eyedropperToggle">
+                    <i class="fas fa-eye-dropper"></i>
+                    <span>Freehand Color Picker</span>
+                </div>
+                <div class="color-preview-circle" id="eyedropperPreview"></div>
+                <span id="eyedropperColor">#FF8000</span>
+            </div>
+            
+            <div class="image-upload-area" id="imageUploadArea">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Click to upload an image or drag and drop</p>
+                <p style="font-size: 14px; margin-top: 5px;">Supports JPG, PNG, WebP (Max 5MB)</p>
+                <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+            </div>
+            
+            <div class="image-preview-container" id="imagePreviewContainer">
+                <div class="image-preview-wrapper" id="imagePreviewWrapper">
+                    <img class="image-preview" id="imagePreview" alt="Image Preview">
+                </div>
+                <div class="image-zoom-controls">
+                    <button class="zoom-btn" id="zoomOutBtn" title="Zoom Out">-</button>
+                    <button class="zoom-btn zoom-reset-btn" id="zoomResetBtn" title="Reset Zoom">100%</button>
+                    <button class="zoom-btn" id="zoomInBtn" title="Zoom In">+</button>
+                </div>
+                <canvas id="imageCanvas" style="display: none;"></canvas>
+            </div>
+            
+            <p class="instructions">Toggle eyedropper and click on the image to pick colors</p>
+            
+            <p style="margin-bottom: 15px; color: #aaa;">Or use the extracted colors below:</p>
+            
+            <div class="color-samples" id="colorSamples">
+                <!-- Color samples will be generated here -->
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn copy-btn" id="clearImageBtn">
+                    <i class="fas fa-times"></i> Clear Image
+                </button>
+                <button class="action-btn random-btn" id="extractColorsBtn">
+                    <i class="fas fa-palette"></i> Extract Colors
+                </button>
+            </div>
+        </section>
+    </div>
+    
+    <div class="footer">
+        <p>Advanced Color Picker Tool • RGB, HEX & HSL Modes • Image Color Extraction</p>
+        <p style="margin-top: 5px;">Use the eyedropper tool to click on images and pick colors</p>
+    </div>
+
+    <script>
+        // DOM Elements
+        const colorWheel = document.getElementById('colorWheel');
+        const colorSelector = document.getElementById('colorSelector');
+        const colorPreview = document.getElementById('colorPreview');
+        const colorInput = document.getElementById('colorInput');
+        const colorValue1 = document.getElementById('colorValue1');
+        const colorValue2 = document.getElementById('colorValue2');
+        const colorValue3 = document.getElementById('colorValue3');
+        const colorModeLabel = document.getElementById('colorModeLabel');
+        const currentColorSample = document.getElementById('currentColorSample');
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        const copyColorBtn = document.getElementById('copyColorBtn');
+        const randomColorBtn = document.getElementById('randomColorBtn');
+        const imageUploadArea = document.getElementById('imageUploadArea');
+        const imageUpload = document.getElementById('imageUpload');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+        const imagePreviewWrapper = document.getElementById('imagePreviewWrapper');
+        const colorSamples = document.getElementById('colorSamples');
+        const extractColorsBtn = document.getElementById('extractColorsBtn');
+        const clearImageBtn = document.getElementById('clearImageBtn');
+        const brightnessSlider = document.getElementById('brightnessSlider');
+        const brightnessValue = document.getElementById('brightnessValue');
+        const imageCanvas = document.getElementById('imageCanvas');
+        const eyedropperToggle = document.getElementById('eyedropperToggle');
+        const eyedropperPreview = document.getElementById('eyedropperPreview');
+        const eyedropperColor = document.getElementById('eyedropperColor');
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
+        const zoomResetBtn = document.getElementById('zoomResetBtn');
+        
+        // State variables
+        let currentMode = 'hex';
+        let currentColor = { r: 255, g: 128, b: 0 };
+        let isDraggingWheel = false;
+        let imageColors = [];
+        let brightness = 0.5;
+        let isEyedropperActive = false;
+        let imageZoom = 1;
+        let imageLoaded = false;
+        let imageData = null;
+        
+        // Initialize the color picker
+        function init() {
+            updateColorFromWheel(0, 0);
+            setupEventListeners();
+            generateDefaultColorSamples();
+            
+            // Set initial brightness
+            brightnessSlider.value = 50;
+            brightness = 0.5;
+        }
+        
+        // Set up all event listeners
+        function setupEventListeners() {
+            // Color wheel interactions
+            colorWheel.addEventListener('mousedown', startDraggingWheel);
+            document.addEventListener('mousemove', dragWheelSelector);
+            document.addEventListener('mouseup', stopDraggingWheel);
+            
+            // Brightness slider
+            brightnessSlider.addEventListener('input', function() {
+                brightness = this.value / 100;
+                brightnessValue.textContent = `${this.value}%`;
+                updateColorFromCurrentPosition();
+            });
+            
+            // Touch events for mobile
+            colorWheel.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                startDraggingWheel(e.touches[0]);
+            });
+            document.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                dragWheelSelector(e.touches[0]);
+            });
+            document.addEventListener('touchend', stopDraggingWheel);
+            
+            // Mode switching
+            modeButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    modeButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentMode = btn.dataset.mode;
+                    updateColorInputs();
+                });
+            });
+            
+            // Color input changes
+            colorInput.addEventListener('input', handleColorInputChange);
+            colorValue1.addEventListener('input', handleColorValueChange);
+            colorValue2.addEventListener('input', handleColorValueChange);
+            colorValue3.addEventListener('input', handleColorValueChange);
+            
+            // Action buttons
+            copyColorBtn.addEventListener('click', copyCurrentColor);
+            randomColorBtn.addEventListener('click', generateRandomColor);
+            
+            // Image upload
+            imageUploadArea.addEventListener('click', () => imageUpload.click());
+            imageUpload.addEventListener('change', handleImageUpload);
+            
+            // Eyedropper toggle
+            eyedropperToggle.addEventListener('click', toggleEyedropper);
+            
+            // Image click for color picking
+            imagePreviewWrapper.addEventListener('click', pickColorFromImage);
+            imagePreviewWrapper.addEventListener('mousemove', previewColorFromImage);
+            
+            // Zoom controls
+            zoomInBtn.addEventListener('click', () => adjustZoom(0.1));
+            zoomOutBtn.addEventListener('click', () => adjustZoom(-0.1));
+            zoomResetBtn.addEventListener('click', resetZoom);
+            
+            // Mouse wheel zoom
+            imagePreviewWrapper.addEventListener('wheel', handleWheelZoom);
+            
+            // Extract colors button
+            extractColorsBtn.addEventListener('click', extractColorsFromImage);
+            clearImageBtn.addEventListener('click', clearImage);
+        }
+        
+        // Color wheel dragging functionality
+        function startDraggingWheel(e) {
+            isDraggingWheel = true;
+            dragWheelSelector(e);
+        }
+        
+        function dragWheelSelector(e) {
+            if (!isDraggingWheel) return;
+            
+            const rect = colorWheel.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            let x = e.clientX - centerX;
+            let y = e.clientY - centerY;
+            
+            // Calculate distance from center
+            const distance = Math.sqrt(x * x + y * y);
+            const radius = rect.width / 2;
+            
+            // Limit selector to the wheel boundary
+            if (distance > radius) {
+                x = (x / distance) * radius;
+                y = (y / distance) * radius;
+            }
+            
+            // Update selector position
+            colorSelector.style.left = `${50 + (x / radius) * 50}%`;
+            colorSelector.style.top = `${50 + (y / radius) * 50}%`;
+            
+            // Convert coordinates to hue and saturation
+            const hue = (Math.atan2(y, x) * 180 / Math.PI + 180) % 360;
+            const saturation = distance / radius;
+            
+            // Update color with current brightness
+            updateColorFromHSL(hue, saturation, brightness);
+        }
+        
+        function stopDraggingWheel() {
+            isDraggingWheel = false;
+        }
+        
+        // Update color from current wheel position
+        function updateColorFromCurrentPosition() {
+            const rect = colorWheel.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            const selectorLeft = parseFloat(colorSelector.style.left);
+            const selectorTop = parseFloat(colorSelector.style.top);
+            
+            const x = ((selectorLeft - 50) / 50) * (rect.width / 2);
+            const y = ((selectorTop - 50) / 50) * (rect.height / 2);
+            
+            const distance = Math.sqrt(x * x + y * y);
+            const radius = rect.width / 2;
+            const saturation = Math.min(distance / radius, 1);
+            const hue = (Math.atan2(y, x) * 180 / Math.PI + 180) % 360;
+            
+            updateColorFromHSL(hue, saturation, brightness);
+        }
+        
+        // Update color from wheel position
+        function updateColorFromWheel(xPercent, yPercent) {
+            const x = (xPercent - 0.5) * 2;
+            const y = (yPercent - 0.5) * 2;
+            
+            const hue = (Math.atan2(y, x) * 180 / Math.PI + 180) % 360;
+            const saturation = Math.min(Math.sqrt(x*x + y*y), 1);
+            
+            updateColorFromHSL(hue, saturation, brightness);
+        }
+        
+        // Convert HSL to RGB and update UI
+        function updateColorFromHSL(h, s, l) {
+            // HSL to RGB conversion
+            h /= 360;
+            
+            let r, g, b;
+            
+            if (s === 0) {
+                r = g = b = l; // achromatic
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+                
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+            
+            currentColor = {
+                r: Math.round(r * 255),
+                g: Math.round(g * 255),
+                b: Math.round(b * 255)
+            };
+            
+            updateUI();
+        }
+        
+        // Update UI elements with current color
+        function updateUI() {
+            const { r, g, b } = currentColor;
+            
+            // Update color preview
+            colorPreview.style.background = `rgb(${r}, ${g}, ${b})`;
+            
+            // Update current color sample
+            currentColorSample.style.background = `rgb(${r}, ${g}, ${b})`;
+            
+            // Update color inputs based on current mode
+            updateColorInputs();
+            
+            // Update selector color (opposite for visibility)
+            const brightnessValue = (r * 299 + g * 587 + b * 114) / 1000;
+            colorSelector.style.background = brightnessValue > 128 ? '#000' : '#fff';
+        }
+        
+        // Update color inputs based on current mode
+        function updateColorInputs() {
+            const { r, g, b } = currentColor;
+            
+            switch(currentMode) {
+                case 'hex':
+                    colorModeLabel.textContent = 'HEX Color';
+                    colorInput.value = rgbToHex(r, g, b);
+                    colorValue1.value = rgbToHex(r, g, b).substring(1, 3).toUpperCase();
+                    colorValue2.value = rgbToHex(r, g, b).substring(3, 5).toUpperCase();
+                    colorValue3.value = rgbToHex(r, g, b).substring(5, 7).toUpperCase();
+                    break;
+                    
+                case 'rgb':
+                    colorModeLabel.textContent = 'RGB Color';
+                    colorInput.value = `rgb(${r}, ${g}, ${b})`;
+                    colorValue1.value = r;
+                    colorValue2.value = g;
+                    colorValue3.value = b;
+                    break;
+                    
+                case 'hsl':
+                    const hsl = rgbToHsl(r, g, b);
+                    colorModeLabel.textContent = 'HSL Color';
+                    colorInput.value = `hsl(${Math.round(hsl.h)}, ${Math.round(hsl.s)}%, ${Math.round(hsl.l)}%)`;
+                    colorValue1.value = Math.round(hsl.h);
+                    colorValue2.value = Math.round(hsl.s);
+                    colorValue3.value = Math.round(hsl.l);
+                    break;
+            }
+        }
+        
+        // Handle color input changes
+        function handleColorInputChange() {
+            const value = colorInput.value.trim();
+            
+            try {
+                if (currentMode === 'hex' && /^#[0-9A-F]{6}$/i.test(value)) {
+                    const r = parseInt(value.substring(1, 3), 16);
+                    const g = parseInt(value.substring(3, 5), 16);
+                    const b = parseInt(value.substring(5, 7), 16);
+                    currentColor = { r, g, b };
+                    
+                    // Update wheel position based on new color
+                    updateWheelPositionFromColor();
+                    updateUI();
+                } else if (currentMode === 'rgb' && value.startsWith('rgb(')) {
+                    const parts = value.substring(4, value.length - 1).split(',');
+                    const r = parseInt(parts[0]);
+                    const g = parseInt(parts[1]);
+                    const b = parseInt(parts[2]);
+                    currentColor = { r, g, b };
+                    
+                    // Update wheel position based on new color
+                    updateWheelPositionFromColor();
+                    updateUI();
+                } else if (currentMode === 'hsl' && value.startsWith('hsl(')) {
+                    const parts = value.substring(4, value.length - 1).split(',');
+                    const h = parseInt(parts[0]);
+                    const s = parseInt(parts[1]);
+                    const l = parseInt(parts[2]) / 100;
+                    const rgb = hslToRgb(h, s, l * 100);
+                    currentColor = { r: rgb.r, g: rgb.g, b: rgb.b };
+                    
+                    // Update wheel position based on new color
+                    updateWheelPositionFromColor();
+                    updateUI();
+                }
+            } catch (e) {
+                console.error("Invalid color format", e);
+            }
+        }
+        
+        // Update wheel position based on current color
+        function updateWheelPositionFromColor() {
+            const { r, g, b } = currentColor;
+            const hsl = rgbToHsl(r, g, b);
+            
+            // Convert hue to radians
+            const hueRad = (hsl.h * Math.PI) / 180;
+            
+            // Calculate position on wheel
+            const saturation = hsl.s / 100;
+            const x = Math.cos(hueRad) * saturation;
+            const y = Math.sin(hueRad) * saturation;
+            
+            // Update selector position
+            colorSelector.style.left = `${50 + x * 50}%`;
+            colorSelector.style.top = `${50 + y * 50}%`;
+            
+            // Update brightness slider
+            brightness = hsl.l / 100;
+            brightnessSlider.value = hsl.l;
+            brightnessValue.textContent = `${hsl.l}%`;
+        }
+        
+        // Handle individual color value changes
+        function handleColorValueChange() {
+            switch(currentMode) {
+                case 'hex':
+                    const hex = `#${colorValue1.value}${colorValue2.value}${colorValue3.value}`;
+                    if (/^#[0-9A-F]{6}$/i.test(hex)) {
+                        colorInput.value = hex;
+                        handleColorInputChange();
+                    }
+                    break;
+                    
+                case 'rgb':
+                    const r = parseInt(colorValue1.value) || 0;
+                    const g = parseInt(colorValue2.value) || 0;
+                    const b = parseInt(colorValue3.value) || 0;
+                    colorInput.value = `rgb(${r}, ${g}, ${b})`;
+                    handleColorInputChange();
+                    break;
+                    
+                case 'hsl':
+                    const h = parseInt(colorValue1.value) || 0;
+                    const s = parseInt(colorValue2.value) || 0;
+                    const l = parseInt(colorValue3.value) || 0;
+                    colorInput.value = `hsl(${h}, ${s}%, ${l}%)`;
+                    handleColorInputChange();
+                    break;
+            }
+        }
+        
+        // Generate random color
+        function generateRandomColor() {
+            // Generate random hue (0-360) and saturation (0.5-1)
+            const hue = Math.floor(Math.random() * 360);
+            const saturation = 0.5 + Math.random() * 0.5;
+            
+            // Use current brightness
+            updateColorFromHSL(hue, saturation, brightness);
+            
+            // Update wheel position
+            const hueRad = (hue * Math.PI) / 180;
+            const x = Math.cos(hueRad) * saturation;
+            const y = Math.sin(hueRad) * saturation;
+            
+            colorSelector.style.left = `${50 + x * 50}%`;
+            colorSelector.style.top = `${50 + y * 50}%`;
+        }
+        
+        // Copy current color to clipboard
+        function copyCurrentColor() {
+            const colorText = colorInput.value;
+            navigator.clipboard.writeText(colorText)
+                .then(() => {
+                    const originalText = copyColorBtn.innerHTML;
+                    copyColorBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => {
+                        copyColorBtn.innerHTML = originalText;
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+        }
+        
+        // Handle image upload
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.match('image.*')) {
+                alert('Please select an image file');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image size should be less than 5MB');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    // Display the image
+                    imagePreview.src = event.target.result;
+                    imagePreview.alt = 'Uploaded image';
+                    
+                    // Reset zoom
+                    imageZoom = 1;
+                    updateImageZoom();
+                    
+                    // Show the preview container
+                    imagePreviewContainer.style.display = 'block';
+                    
+                    // Store image data for color extraction
+                    imageCanvas.width = img.width;
+                    imageCanvas.height = img.height;
+                    const ctx = imageCanvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    imageData = ctx.getImageData(0, 0, img.width, img.height);
+                    
+                    imageLoaded = true;
+                    
+                    // Extract colors from the image
+                    extractColorsFromImage();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Toggle eyedropper tool
+        function toggleEyedropper() {
+            isEyedropperActive = !isEyedropperActive;
+            
+            if (isEyedropperActive) {
+                eyedropperToggle.classList.add('active');
+                imagePreviewWrapper.classList.add('eyedropper-cursor');
+            } else {
+                eyedropperToggle.classList.remove('active');
+                imagePreviewWrapper.classList.remove('eyedropper-cursor');
+            }
+        }
+        
+        // Pick color from image on click
+        function pickColorFromImage(e) {
+            if (!isEyedropperActive || !imageLoaded) return;
+            
+            const rect = imagePreview.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Adjust for zoom
+            const adjustedX = x / imageZoom;
+            const adjustedY = y / imageZoom;
+            
+            // Get color from image data
+            const pixel = getPixelColor(adjustedX, adjustedY);
+            
+            if (pixel) {
+                currentColor = { r: pixel.r, g: pixel.g, b: pixel.b };
+                updateWheelPositionFromColor();
+                updateUI();
+                
+                // Update eyedropper preview
+                const hex = rgbToHex(pixel.r, pixel.g, pixel.b);
+                eyedropperPreview.style.background = hex;
+                eyedropperColor.textContent = hex;
+                
+                // Add to color samples if not already present
+                addColorToSamples(pixel);
+            }
+        }
+        
+        // Preview color when hovering over image
+        function previewColorFromImage(e) {
+            if (!isEyedropperActive || !imageLoaded) return;
+            
+            const rect = imagePreview.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Adjust for zoom
+            const adjustedX = x / imageZoom;
+            const adjustedY = y / imageZoom;
+            
+            // Get color from image data
+            const pixel = getPixelColor(adjustedX, adjustedY);
+            
+            if (pixel) {
+                const hex = rgbToHex(pixel.r, pixel.g, pixel.b);
+                eyedropperPreview.style.background = hex;
+                eyedropperColor.textContent = hex;
+            }
+        }
+        
+        // Get pixel color from image
+        function getPixelColor(x, y) {
+            if (!imageData || x < 0 || y < 0 || x >= imageCanvas.width || y >= imageCanvas.height) {
+                return null;
+            }
+            
+            const index = (Math.floor(y) * imageCanvas.width + Math.floor(x)) * 4;
+            const data = imageData.data;
+            
+            return {
+                r: data[index],
+                g: data[index + 1],
+                b: data[index + 2]
+            };
+        }
+        
+        // Add color to samples
+        function addColorToSamples(color) {
+            const hex = rgbToHex(color.r, color.g, color.b);
+            
+            // Check if color already exists
+            const existing = imageColors.find(c => 
+                rgbToHex(c.r, c.g, c.b) === hex
+            );
+            
+            if (!existing) {
+                // Add to beginning and keep only 10 colors
+                imageColors.unshift(color);
+                if (imageColors.length > 10) {
+                    imageColors.pop();
+                }
+                displayColorSamples();
+            }
+        }
+        
+        // Extract colors from uploaded image
+        function extractColorsFromImage() {
+            if (!imageCanvas.width || !imageData) {
+                generateDefaultColorSamples();
+                return;
+            }
+            
+            const data = imageData.data;
+            const colorMap = {};
+            const step = 50; // Sample every 50th pixel
+            
+            for (let i = 0; i < data.length; i += 4 * step) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                
+                // Group similar colors
+                const key = `${Math.floor(r/10)*10},${Math.floor(g/10)*10},${Math.floor(b/10)*10}`;
+                colorMap[key] = (colorMap[key] || 0) + 1;
+            }
+            
+            // Sort by frequency and get top 10 colors
+            const sortedColors = Object.entries(colorMap)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10)
+                .map(entry => {
+                    const [key] = entry;
+                    const [r, g, b] = key.split(',').map(Number);
+                    return { r, g, b };
+                });
+            
+            imageColors = sortedColors;
+            displayColorSamples();
+        }
+        
+        // Display extracted color samples
+        function displayColorSamples() {
+            colorSamples.innerHTML = '';
+            
+            imageColors.forEach(color => {
+                const colorSample = document.createElement('div');
+                colorSample.className = 'color-sample';
+                colorSample.style.background = `rgb(${color.r}, ${color.g}, ${color.b})`;
+                
+                const hexColor = rgbToHex(color.r, color.g, color.b);
+                
+                // Create tooltip
+                const tooltip = document.createElement('div');
+                tooltip.className = 'tooltip';
+                tooltip.textContent = hexColor;
+                colorSample.appendChild(tooltip);
+                
+                colorSample.addEventListener('click', () => {
+                    // Remove selected class from all samples
+                    document.querySelectorAll('.color-sample').forEach(sample => {
+                        sample.classList.remove('selected');
+                    });
+                    
+                    // Add selected class to clicked sample
+                    colorSample.classList.add('selected');
+                    
+                    // Update current color
+                    currentColor = { r: color.r, g: color.g, b: color.b };
+                    
+                    // Update wheel position
+                    updateWheelPositionFromColor();
+                    updateUI();
+                });
+                
+                colorSamples.appendChild(colorSample);
+            });
+        }
+        
+        // Generate default color samples
+        function generateDefaultColorSamples() {
+            const defaultColors = [
+                { r: 255, g: 128, b: 0 },   // Orange
+                { r: 255, g: 0, b: 0 },     // Red
+                { r: 0, g: 255, b: 0 },     // Green
+                { r: 0, g: 0, b: 255 },     // Blue
+                { r: 255, g: 255, b: 0 },   // Yellow
+                { r: 255, g: 0, b: 255 },   // Magenta
+                { r: 0, g: 255, b: 255 },   // Cyan
+                { r: 128, g: 0, b: 128 },   // Purple
+                { r: 255, g: 255, b: 255 }, // White
+                { r: 0, g: 0, b: 0 }        // Black
+            ];
+            
+            imageColors = defaultColors;
+            displayColorSamples();
+        }
+        
+        // Adjust image zoom
+        function adjustZoom(delta) {
+            imageZoom = Math.max(0.1, Math.min(3, imageZoom + delta));
+            updateImageZoom();
+        }
+        
+        // Reset zoom to 100%
+        function resetZoom() {
+            imageZoom = 1;
+            updateImageZoom();
+        }
+        
+        // Update image zoom display
+        function updateImageZoom() {
+            imagePreview.style.transform = `scale(${imageZoom})`;
+            zoomResetBtn.textContent = `${Math.round(imageZoom * 100)}%`;
+        }
+        
+        // Handle mouse wheel zoom
+        function handleWheelZoom(e) {
+            if (!imageLoaded) return;
+            
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            adjustZoom(delta);
+        }
+        
+        // Clear uploaded image
+        function clearImage() {
+            imagePreview.src = '';
+            imagePreviewContainer.style.display = 'none';
+            imageUpload.value = '';
+            imageLoaded = false;
+            imageData = null;
+            imageZoom = 1;
+            isEyedropperActive = false;
+            eyedropperToggle.classList.remove('active');
+            imagePreviewWrapper.classList.remove('eyedropper-cursor');
+            generateDefaultColorSamples();
+        }
+        
+        // Color conversion utilities
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+        }
+        
+        function rgbToHsl(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+            
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+            
+            if (max === min) {
+                h = s = 0; // achromatic
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                
+                switch(max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                
+                h /= 6;
+            }
+            
+            return {
+                h: h * 360,
+                s: s * 100,
+                l: l * 100
+            };
+        }
+        
+        function hslToRgb(h, s, l) {
+            h /= 360;
+            s /= 100;
+            l /= 100;
+            
+            let r, g, b;
+            
+            if (s === 0) {
+                r = g = b = l; // achromatic
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+                
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+            
+            return {
+                r: Math.round(r * 255),
+                g: Math.round(g * 255),
+                b: Math.round(b * 255)
+            };
+        }
+        
+        // Initialize the color picker
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

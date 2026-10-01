@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment Creator - Teacher Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .page-title {
+            color: #ff8000;
+            font-size: 1.8rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .form-section, .preview-section {
+            background: rgba(10, 10, 26, 0.7);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .section-title {
+            color: #ff8000;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffcc99;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(20, 20, 40, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.4);
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .tool-section {
+            margin-top: 30px;
+        }
+        
+        .tool-item {
+            background: rgba(20, 20, 40, 0.6);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .remove-tool {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 50, 50, 0.2);
+            border: 1px solid #ff5050;
+            color: #ff5050;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .remove-tool:hover {
+            background: rgba(255, 50, 50, 0.4);
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .btn-primary {
+            background: rgba(255, 128, 0, 0.8);
+            color: #0a0a1a;
+        }
+        
+        .btn-primary:hover {
+            background: rgba(255, 128, 0, 0.9);
+        }
+        
+        .btn-large {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .preview-content {
+            background: rgba(20, 20, 40, 0.6);
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .preview-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 128, 0, 0.5);
+        }
+        
+        .preview-title {
+            color: #ff8000;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .preview-subtitle {
+            color: #ffcc99;
+            font-size: 1.2rem;
+        }
+        
+        .preview-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: #ccccff;
+            font-size: 0.9rem;
+        }
+        
+        .preview-task {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed rgba(255, 128, 0, 0.3);
+        }
+        
+        .task-title {
+            color: #ffcc99;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .task-desc {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .task-tool {
+            display: inline-block;
+            background: rgba(255, 128, 0, 0.2);
+            color: #ffcc99;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #8888cc;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .instructions {
+            background: rgba(255, 128, 0, 0.1);
+            border-left: 3px solid #ff8000;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .instructions h4 {
+            color: #ffcc99;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+        #pdf-preview {
+            background: white;
+            color: black;
+            padding: 20px;
+            min-height: 500px;
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            border: 2px solid #ff8000;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+        
+        .modal-title {
+            color: #ff8000;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+        
+        .success-message {
+            background: rgba(0, 200, 0, 0.1);
+            border: 1px solid #00cc00;
+            color: #00cc00;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .close-modal-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #ff8000;
+            font-size: 24px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+        
+        .close-modal-btn:hover {
+            background: rgba(255, 128, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Tools
+            </a>
+            <h1 class="page-title">
+                <i class="fas fa-tasks"></i> Assignment Creator
+            </h1>
+            <div class="user-info">
+                <span>Teacher Mode</span>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <!-- Assignment Creation Form -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <i class="fas fa-edit"></i> Create Assignment
+                </h2>
+                
+                <div class="form-group">
+                    <label for="assignment-title">Assignment Title</label>
+                    <input type="text" id="assignment-title" placeholder="Enter assignment title" value="Mathematics Problem Set">
+                </div>
+                
+                <div class="form-group">
+                    <label for="assignment-desc">Assignment Description</label>
+                    <textarea id="assignment-desc" placeholder="Describe the assignment objectives and expectations">This assignment focuses on applying algebraic concepts to solve real-world problems. Students should show all their work and justify their reasoning.</textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <select id="subject">
+                            <option value="math">Mathematics</option>
+                            <option value="science">Science</option>
+                            <option value="english">English</option>
+                            <option value="history">History</option>
+                            <option value="art">Art</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="due-date">Due Date</label>
+                        <input type="date" id="due-date" value="2023-11-30">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="grade-level">Grade Level</label>
+                        <select id="grade-level">
+                            <option value="9">Grade 9</option>
+                            <option value="10" selected>Grade 10</option>
+                            <option value="11">Grade 11</option>
+                            <option value="12">Grade 12</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="points">Total Points</label>
+                        <input type="number" id="points" value="100" min="0">
+                    </div>
+                </div>
+                
+                <!-- Tool-based Tasks Section -->
+                <div class="tool-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-tools"></i> Tool-Based Tasks
+                    </h3>
+                    
+                    <div class="instructions">
+                        <h4>How to add tool tasks:</h4>
+                        <ul>
+                            <li>Select a tool from the dropdown</li>
+                            <li>Add task description and any specific parameters</li>
+                            <li>Click "Add Task" to include it in the assignment</li>
+                        </ul>
+                    </div>
+                    
+                    <div id="tool-tasks-container">
+                        <!-- Tool tasks will be added here -->
+                        <div class="tool-item">
+                            <button class="remove-tool" onclick="removeToolTask(this)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <div class="form-group">
+                                <label>Tool Name</label>
+                                <select class="tool-name">
+                                    <option value="graphing-calculator">Graphing Calculator</option>
+                                    <option value="geometry-tool" selected>Geometry Tool</option>
+                                    <option value="equation-solver">Equation Solver</option>
+                                    <option value="statistics-tool">Statistics Tool</option>
+                                    <option value="simulation">Simulation</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Task Description</label>
+                                <textarea class="tool-desc">Use the geometry tool to construct a triangle with angles 30°, 60°, and 90°. Calculate the side lengths using trigonometric ratios.</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Parameters (Optional)</label>
+                                <input type="text" class="tool-params" placeholder="e.g., angle=30,60,90">
+                            </div>
+                        </div>
+                        
+                        <div class="tool-item">
+                            <button class="remove-tool" onclick="removeToolTask(this)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <div class="form-group">
+                                <label>Tool Name</label>
+                                <select class="tool-name">
+                                    <option value="graphing-calculator" selected>Graphing Calculator</option>
+                                    <option value="geometry-tool">Geometry Tool</option>
+                                    <option value="equation-solver">Equation Solver</option>
+                                    <option value="statistics-tool">Statistics Tool</option>
+                                    <option value="simulation">Simulation</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Task Description</label>
+                                <textarea class="tool-desc">Graph the functions f(x) = x² and g(x) = 2x + 3. Find their intersection points using the graphing calculator.</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Parameters (Optional)</label>
+                                <input type="text" class="tool-params" placeholder="e.g., functions=x^2,2x+3">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn" onclick="addToolTask()">
+                        <i class="fas fa-plus"></i> Add Tool Task
+                    </button>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary btn-large" onclick="generatePDF()">
+                        <i class="fas fa-file-pdf"></i> Export as PDF
+                    </button>
+                    <button class="btn btn-large" onclick="saveAssignment()">
+                        <i class="fas fa-save"></i> Save Assignment
+                    </button>
+                    <button class="btn btn-large" onclick="previewAssignment()">
+                        <i class="fas fa-eye"></i> Preview
+                    </button>
+                    <button class="btn btn-large" onclick="clearForm()">
+                        <i class="fas fa-redo"></i> Clear Form
+                    </button>
+                </div>
+                
+                <div id="success-message" class="success-message">
+                    <i class="fas fa-check-circle"></i> Assignment successfully exported as PDF!
+                </div>
+            </div>
+            
+            <!-- Assignment Preview -->
+            <div class="preview-section">
+                <h2 class="section-title">
+                    <i class="fas fa-file-alt"></i> Assignment Preview
+                </h2>
+                
+                <div class="preview-content" id="assignment-preview">
+                    <!-- Preview will be generated here -->
+                </div>
+                
+                <div class="instructions">
+                    <h4>PDF Export Notes:</h4>
+                    <ul>
+                        <li>The exported PDF will include all assignment details</li>
+                        <li>Tool tasks will be listed with instructions</li>
+                        <li>Student submission guidelines will be added automatically</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Assignment Creator Tool • For Teacher Use Only • Export assignments as PDF for distribution</p>
+        </div>
+    </div>
+    
+    <!-- PDF Preview Modal -->
+    <div id="pdf-modal" class="modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="close-modal-btn" onclick="closeModal(event)">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="modal-title">
+                <i class="fas fa-file-pdf"></i> PDF Export Ready
+            </h2>
+            <p>Your assignment has been formatted for PDF export.</p>
+            <div id="pdf-preview">
+                <!-- PDF content will be rendered here -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="downloadPDF()">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+                <button class="btn" onclick="closeModal(event)">
+                    <i class="fas fa-times"></i> Close Preview
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- jsPDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <script>
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        
+        // Initialize with sample data
+        document.addEventListener('DOMContentLoaded', function() {
+            previewAssignment();
+            
+            // Add keyboard event listener for Escape key
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeModal(event);
+                }
+            });
+        });
+        
+        // Add a new tool task
+        function addToolTask() {
+            const container = document.getElementById('tool-tasks-container');
+            const newTask = document.createElement('div');
+            newTask.className = 'tool-item';
+            newTask.innerHTML = `
+                <button class="remove-tool" onclick="removeToolTask(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="form-group">
+                    <label>Tool Name</label>
+                    <select class="tool-name">
+                        <option value="graphing-calculator">Graphing Calculator</option>
+                        <option value="geometry-tool">Geometry Tool</option>
+                        <option value="equation-solver">Equation Solver</option>
+                        <option value="statistics-tool">Statistics Tool</option>
+                        <option value="simulation">Simulation</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Task Description</label>
+                    <textarea class="tool-desc" placeholder="Describe what students should do with this tool"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Parameters (Optional)</label>
+                    <input type="text" class="tool-params" placeholder="e.g., angle=30,60,90">
+                </div>
+            `;
+            container.appendChild(newTask);
+        }
+        
+        // Remove a tool task
+        function removeToolTask(button) {
+            const taskItem = button.closest('.tool-item');
+            taskItem.remove();
+            previewAssignment();
+        }
+        
+        // Generate assignment preview
+        function previewAssignment() {
+            const title = document.getElementById('assignment-title').value || 'Untitled Assignment';
+            const desc = document.getElementById('assignment-desc').value || 'No description provided.';
+            const subject = document.getElementById('subject').options[document.getElementById('subject').selectedIndex].text;
+            const dueDate = document.getElementById('due-date').value;
+            const gradeLevel = document.getElementById('grade-level').options[document.getElementById('grade-level').selectedIndex].text;
+            const points = document.getElementById('points').value;
+            
+            // Format date
+            const formattedDate = dueDate ? new Date(dueDate).toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            }) : 'Not specified';
+            
+            // Get tool tasks
+            const toolTasks = [];
+            document.querySelectorAll('.tool-item').forEach(item => {
+                const toolName = item.querySelector('.tool-name').options[item.querySelector('.tool-name').selectedIndex].text;
+                const toolDesc = item.querySelector('.tool-desc').value;
+                const toolParams = item.querySelector('.tool-params').value;
+                toolTasks.push({ toolName, toolDesc, toolParams });
+            });
+            
+            // Build preview HTML
+            let previewHTML = `
+                <div class="preview-header">
+                    <h2 class="preview-title">${title}</h2>
+                    <div class="preview-subtitle">${subject} • ${gradeLevel}</div>
+                </div>
+                <div class="preview-info">
+                    <div><strong>Due Date:</strong> ${formattedDate}</div>
+                    <div><strong>Total Points:</strong> ${points}</div>
+                </div>
+                <div class="preview-task">
+                    <h3 class="task-title"><i class="fas fa-info-circle"></i> Assignment Description</h3>
+                    <div class="task-desc">${desc.replace(/\n/g, '<br>')}</div>
+                </div>
+            `;
+            
+            // Add tool tasks to preview
+            if (toolTasks.length > 0) {
+                previewHTML += `
+                    <div class="preview-task">
+                        <h3 class="task-title"><i class="fas fa-tools"></i> Tool-Based Tasks</h3>
+                        <p>Complete the following tasks using the specified digital tools:</p>
+                    </div>
+                `;
+                
+                toolTasks.forEach((task, index) => {
+                    previewHTML += `
+                        <div class="preview-task">
+                            <h4 class="task-title">Task ${index + 1}: ${task.toolName}</h4>
+                            <div class="task-desc">${task.toolDesc.replace(/\n/g, '<br>')}</div>
+                            ${task.toolParams ? `<div><strong>Parameters:</strong> ${task.toolParams}</div>` : ''}
+                            <div class="task-tool">Tool: ${task.toolName}</div>
+                        </div>
+                    `;
+                });
+            } else {
+                previewHTML += `
+                    <div class="preview-task">
+                        <h3 class="task-title"><i class="fas fa-tools"></i> Tool-Based Tasks</h3>
+                        <div class="task-desc">No tool tasks added yet. Use the form to add tasks that require specific digital tools.</div>
+                    </div>
+                `;
+            }
+            
+            // Add submission guidelines
+            previewHTML += `
+                <div class="preview-task">
+                    <h3 class="task-title"><i class="fas fa-clipboard-check"></i> Submission Guidelines</h3>
+                    <div class="task-desc">
+                        <ul>
+                            <li>Complete all tool-based tasks as described</li>
+                            <li>Show all work and calculations where applicable</li>
+                            <li>Submit your completed assignment by the due date</li>
+                            <li>For tool tasks, save your work and include screenshots if required</li>
+                            <li>Ensure your name and student ID are included on all submissions</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('assignment-preview').innerHTML = previewHTML;
+        }
+        
+        // Generate PDF
+        function generatePDF() {
+            // Show the modal
+            document.getElementById('pdf-modal').classList.add('show');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
+            
+            // Generate PDF preview
+            const title = document.getElementById('assignment-title').value || 'Untitled Assignment';
+            const desc = document.getElementById('assignment-desc').value || 'No description provided.';
+            const subject = document.getElementById('subject').options[document.getElementById('subject').selectedIndex].text;
+            const dueDate = document.getElementById('due-date').value;
+            const gradeLevel = document.getElementById('grade-level').options[document.getElementById('grade-level').selectedIndex].text;
+            const points = document.getElementById('points').value;
+            
+            // Format date
+            const formattedDate = dueDate ? new Date(dueDate).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            }) : 'Not specified';
+            
+            // Get tool tasks
+            const toolTasks = [];
+            document.querySelectorAll('.tool-item').forEach(item => {
+                const toolName = item.querySelector('.tool-name').options[item.querySelector('.tool-name').selectedIndex].text;
+                const toolDesc = item.querySelector('.tool-desc').value;
+                const toolParams = item.querySelector('.tool-params').value;
+                toolTasks.push({ toolName, toolDesc, toolParams });
+            });
+            
+            // Build PDF preview HTML
+            let pdfPreviewHTML = `
+                <div style="font-family: Arial, sans-serif; padding: 10px; color: #000;">
+                    <div style="text-align: center; border-bottom: 2px solid #ff8000; padding-bottom: 10px; margin-bottom: 15px;">
+                        <h1 style="color: #ff8000; margin-bottom: 5px; font-size: 24px;">${title}</h1>
+                        <h2 style="color: #555; font-size: 18px;">${subject} • ${gradeLevel}</h2>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px;">
+                        <div><strong>Due Date:</strong> ${formattedDate}</div>
+                        <div><strong>Total Points:</strong> ${points}</div>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="color: #ff8000; border-bottom: 1px solid #ddd; padding-bottom: 5px; font-size: 18px;">Assignment Description</h3>
+                        <p style="line-height: 1.5; font-size: 14px;">${desc}</p>
+                    </div>
+            `;
+            
+            // Add tool tasks to PDF preview
+            if (toolTasks.length > 0) {
+                pdfPreviewHTML += `
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="color: #ff8000; border-bottom: 1px solid #ddd; padding-bottom: 5px; font-size: 18px;">Tool-Based Tasks</h3>
+                        <p style="font-size: 14px;">Complete the following tasks using the specified digital tools:</p>
+                    </div>
+                `;
+                
+                toolTasks.forEach((task, index) => {
+                    pdfPreviewHTML += `
+                        <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #ccc;">
+                            <h4 style="color: #333; font-size: 16px;">Task ${index + 1}: ${task.toolName}</h4>
+                            <p style="line-height: 1.5; font-size: 14px;">${task.toolDesc}</p>
+                            ${task.toolParams ? `<p style="font-size: 14px;"><strong>Parameters:</strong> ${task.toolParams}</p>` : ''}
+                            <div style="background-color: #f5f5f5; padding: 5px 10px; display: inline-block; border-radius: 3px; font-size: 12px;">
+                                <strong>Tool:</strong> ${task.toolName}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            // Add submission guidelines
+            pdfPreviewHTML += `
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #ddd;">
+                    <h3 style="color: #ff8000; border-bottom: 1px solid #ddd; padding-bottom: 5px; font-size: 18px;">Submission Guidelines</h3>
+                    <ul style="line-height: 1.6; font-size: 14px;">
+                        <li>Complete all tool-based tasks as described</li>
+                        <li>Show all work and calculations where applicable</li>
+                        <li>Submit your completed assignment by the due date</li>
+                        <li>For tool tasks, save your work and include screenshots if required</li>
+                        <li>Ensure your name and student ID are included on all submissions</li>
+                    </ul>
+                </div>
+            `;
+            
+            document.getElementById('pdf-preview').innerHTML = pdfPreviewHTML;
+            document.getElementById('pdf-preview').style.display = 'block';
+        }
+        
+        // Close modal function
+        function closeModal(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            document.getElementById('pdf-modal').classList.remove('show');
+            document.body.style.overflow = 'auto'; // Re-enable scrolling
+        }
+        
+        // Download PDF
+        function downloadPDF() {
+            const title = document.getElementById('assignment-title').value || 'Untitled Assignment';
+            const desc = document.getElementById('assignment-desc').value || 'No description provided.';
+            const subject = document.getElementById('subject').options[document.getElementById('subject').selectedIndex].text;
+            const dueDate = document.getElementById('due-date').value;
+            const gradeLevel = document.getElementById('grade-level').options[document.getElementById('grade-level').selectedIndex].text;
+            const points = document.getElementById('points').value;
+            
+            // Format date
+            const formattedDate = dueDate ? new Date(dueDate).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            }) : 'Not specified';
+            
+            // Get tool tasks
+            const toolTasks = [];
+            document.querySelectorAll('.tool-item').forEach(item => {
+                const toolName = item.querySelector('.tool-name').options[item.querySelector('.tool-name').selectedIndex].text;
+                const toolDesc = item.querySelector('.tool-desc').value;
+                const toolParams = item.querySelector('.tool-params').value;
+                toolTasks.push({ toolName, toolDesc, toolParams });
+            });
+            
+            // Create PDF document
+            const doc = new jsPDF();
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const margin = 20;
+            let yPos = 20;
+            
+            // Add title
+            doc.setFontSize(20);
+            doc.setTextColor(255, 128, 0);
+            doc.text(title, pageWidth / 2, yPos, { align: 'center' });
+            yPos += 10;
+            
+            // Add subject and grade
+            doc.setFontSize(14);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`${subject} • ${gradeLevel}`, pageWidth / 2, yPos, { align: 'center' });
+            yPos += 15;
+            
+            // Add due date and points
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Due Date: ${formattedDate}`, margin, yPos);
+            doc.text(`Total Points: ${points}`, pageWidth - margin, yPos, { align: 'right' });
+            yPos += 15;
+            
+            // Add description
+            doc.setFontSize(14);
+            doc.setTextColor(255, 128, 0);
+            doc.text('Assignment Description', margin, yPos);
+            yPos += 8;
+            
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            const descLines = doc.splitTextToSize(desc, pageWidth - 2 * margin);
+            descLines.forEach(line => {
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                doc.text(line, margin, yPos);
+                yPos += 7;
+            });
+            
+            yPos += 10;
+            
+            // Add tool tasks
+            if (toolTasks.length > 0) {
+                doc.setFontSize(14);
+                doc.setTextColor(255, 128, 0);
+                doc.text('Tool-Based Tasks', margin, yPos);
+                yPos += 10;
+                
+                doc.setFontSize(11);
+                doc.setTextColor(0, 0, 0);
+                doc.text('Complete the following tasks using the specified digital tools:', margin, yPos);
+                yPos += 10;
+                
+                toolTasks.forEach((task, index) => {
+                    if (yPos > 250) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+                    
+                    doc.setFontSize(12);
+                    doc.setTextColor(0, 0, 0);
+                    doc.text(`Task ${index + 1}: ${task.toolName}`, margin, yPos);
+                    yPos += 8;
+                    
+                    doc.setFontSize(11);
+                    const descLines = doc.splitTextToSize(task.toolDesc, pageWidth - 2 * margin);
+                    descLines.forEach(line => {
+                        if (yPos > 270) {
+                            doc.addPage();
+                            yPos = 20;
+                        }
+                        doc.text(line, margin, yPos);
+                        yPos += 7;
+                    });
+                    
+                    if (task.toolParams) {
+                        doc.text(`Parameters: ${task.toolParams}`, margin, yPos);
+                        yPos += 7;
+                    }
+                    
+                    doc.setTextColor(100, 100, 100);
+                    doc.text(`Tool: ${task.toolName}`, margin, yPos);
+                    yPos += 10;
+                });
+            }
+            
+            yPos += 10;
+            
+            // Add submission guidelines
+            if (yPos > 220) {
+                doc.addPage();
+                yPos = 20;
+            }
+            
+            doc.setFontSize(14);
+            doc.setTextColor(255, 128, 0);
+            doc.text('Submission Guidelines', margin, yPos);
+            yPos += 10;
+            
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            const guidelines = [
+                '• Complete all tool-based tasks as described',
+                '• Show all work and calculations where applicable',
+                '• Submit your completed assignment by the due date',
+                '• For tool tasks, save your work and include screenshots if required',
+                '• Ensure your name and student ID are included on all submissions'
+            ];
+            
+            guidelines.forEach(guideline => {
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                doc.text(guideline, margin, yPos);
+                yPos += 7;
+            });
+            
+            // Save the PDF
+            doc.save(`${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_assignment.pdf`);
+            
+            // Show success message and close modal
+            closeModal();
+            const successMsg = document.getElementById('success-message');
+            successMsg.style.display = 'block';
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Save assignment (simulate save functionality)
+        function saveAssignment() {
+            alert('Assignment saved successfully! (This is a simulation - in a real app, this would save to a database)');
+            previewAssignment();
+        }
+        
+        // Clear form
+        function clearForm() {
+            if (confirm('Are you sure you want to clear the entire form? This cannot be undone.')) {
+                document.getElementById('assignment-title').value = '';
+                document.getElementById('assignment-desc').value = '';
+                document.getElementById('subject').value = 'math';
+                document.getElementById('due-date').value = '';
+                document.getElementById('grade-level').value = '10';
+                document.getElementById('points').value = '100';
+                
+                // Clear tool tasks
+                const container = document.getElementById('tool-tasks-container');
+                container.innerHTML = '';
+                
+                // Add one empty tool task
+                addToolTask();
+                
+                previewAssignment();
+            }
+        }
+    </script>
+</body>
+</html>

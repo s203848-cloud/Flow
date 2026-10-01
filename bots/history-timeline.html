@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.S. History Timeline</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.95);
+            border-bottom: 2px solid rgba(255, 105, 0, 0.3);
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            flex-wrap: wrap;
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, rgba(255, 105, 0, 0.2), rgba(255, 69, 0, 0.2));
+            border: 1px solid rgba(255, 105, 0, 0.5);
+            border-radius: 8px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, rgba(255, 105, 0, 0.3), rgba(255, 69, 0, 0.3));
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 16px rgba(255, 105, 0, 0.25);
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #ff8000, #ff4500);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+            flex-grow: 1;
+            margin: 0 20px;
+            text-shadow: 0 2px 10px rgba(255, 105, 0, 0.2);
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            min-height: 100vh;
+        }
+
+        .section {
+            background: linear-gradient(135deg, rgba(20, 20, 35, 0.8), rgba(25, 25, 45, 0.8));
+            border: 1px solid rgba(255, 105, 0, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #ff8000, transparent);
+        }
+
+        h2 {
+            color: #ff8000;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+
+        /* Timeline Container */
+        .timeline-container {
+            position: relative;
+            padding: 40px 0 100px 0;
+            overflow: visible;
+            min-height: 600px;
+            margin-bottom: 40px;
+        }
+
+        .timeline-scroll-wrapper {
+            position: relative;
+            overflow-x: auto;
+            overflow-y: visible;
+            padding: 120px 0 150px 0;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            cursor: grab;
+            scroll-behavior: smooth;
+            height: 400px;
+        }
+
+        .timeline-scroll-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Timeline Line */
+        .timeline-line {
+            position: absolute;
+            left: 50px;
+            right: 50px;
+            top: 220px;
+            height: 5px;
+            background: linear-gradient(to right, 
+                rgba(255, 128, 0, 0.3) 0%, 
+                rgba(255, 128, 0, 0.8) 20%, 
+                rgba(255, 128, 0, 0.9) 50%, 
+                rgba(255, 128, 0, 0.8) 80%, 
+                rgba(255, 128, 0, 0.3) 100%);
+            z-index: 1;
+            border-radius: 3px;
+            box-shadow: 0 0 25px rgba(255, 128, 0, 0.3);
+        }
+
+        .timeline-line::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 0;
+            right: 0;
+            height: 9px;
+            background: linear-gradient(to right, 
+                transparent, 
+                rgba(255, 128, 0, 0.15), 
+                transparent);
+            border-radius: 4px;
+        }
+
+        /* Timeline Content */
+        .timeline-content {
+            display: flex;
+            min-width: 5000px;
+            position: relative;
+            height: 400px;
+        }
+
+        /* Timeline Year Markers */
+        .year-marker {
+            position: absolute;
+            top: 180px;
+            transform: translateX(-50%);
+            color: #aaa;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            z-index: 3;
+            font-weight: 600;
+            padding: 6px 12px;
+            background: rgba(20, 20, 35, 0.9);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .year-marker:hover {
+            color: #ff8000;
+            transform: translateX(-50%) scale(1.1);
+            background: rgba(20, 20, 35, 0.95);
+            border-color: rgba(255, 128, 0, 0.6);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .year-marker.major {
+            color: #ff8000;
+            font-size: 1.1rem;
+            font-weight: 700;
+            top: 170px;
+            background: rgba(255, 128, 0, 0.15);
+            border: 2px solid rgba(255, 128, 0, 0.5);
+            box-shadow: 0 6px 15px rgba(255, 128, 0, 0.2);
+        }
+
+        /* Timeline Events */
+        .timeline-event {
+            position: absolute;
+            transform: translateX(-50%);
+            z-index: 10;
+            cursor: pointer;
+            text-align: center;
+            width: 200px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .event-dot-container {
+            position: relative;
+            width: 100%;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .event-dot {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #ff7e00, #ff4500);
+            border-radius: 50%;
+            margin: 0 auto;
+            border: 5px solid rgba(20, 20, 35, 0.95);
+            box-shadow: 0 0 0 4px rgba(255, 128, 0, 0.4),
+                        0 0 25px rgba(255, 128, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 12;
+            top: 0;
+        }
+
+        .event-dot::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.9;
+            box-shadow: 0 0 12px white;
+        }
+
+        .event-dot::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, rgba(255, 128, 0, 0.25) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .event-dot:hover {
+            transform: scale(2);
+            box-shadow: 0 0 0 8px rgba(255, 128, 0, 0.5), 
+                        0 0 35px rgba(255, 128, 0, 0.6);
+        }
+
+        .event-dot:hover::after {
+            opacity: 1;
+        }
+
+        .event-dot.active {
+            transform: scale(2.2);
+            box-shadow: 0 0 0 10px rgba(255, 128, 0, 0.6), 
+                        0 0 50px rgba(255, 128, 0, 0.8);
+            animation: pulse 2s infinite;
+            z-index: 100;
+        }
+
+        .event-title {
+            font-size: 1rem;
+            color: #ddd;
+            font-weight: 700;
+            margin-top: 15px;
+            padding: 12px 10px;
+            background: linear-gradient(135deg, rgba(40, 40, 60, 0.95), rgba(30, 30, 50, 0.95));
+            border-radius: 12px;
+            border: 1px solid rgba(255, 128, 0, 0.4);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.4;
+            word-break: break-word;
+            position: relative;
+            z-index: 11;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+            width: 180px;
+            margin-left: 10px;
+        }
+
+        .event-title::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 128, 0, 0.4);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .timeline-event.active .event-title {
+            background: linear-gradient(135deg, rgba(255, 105, 0, 0.35), rgba(255, 69, 0, 0.35));
+            color: #fff;
+            border: 2px solid rgba(255, 128, 0, 0.9);
+            box-shadow: 0 10px 30px rgba(255, 105, 0, 0.4);
+            transform: translateY(-10px);
+            z-index: 101;
+        }
+
+        /* Position event titles below the dots (on top of line) */
+        .timeline-event .event-title {
+            position: absolute;
+            top: 40px; /* Position below the dot */
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Event Details Panel */
+        .event-details {
+            background: linear-gradient(135deg, rgba(50, 50, 70, 0.95), rgba(30, 30, 50, 0.95));
+            border: 2px solid rgba(255, 128, 0, 0.4);
+            border-radius: 20px;
+            padding: 35px;
+            margin-top: 40px;
+            display: none;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .event-details::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, #ff7e00, #ff4500);
+        }
+
+        .event-details.show {
+            display: block;
+            animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .event-year {
+            color: #ff8000;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 0 3px 10px rgba(255, 105, 0, 0.4);
+        }
+
+        .event-headline {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #fff;
+            line-height: 1.3;
+            font-weight: 700;
+            background: linear-gradient(to right, #fff, #ffcc99);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .event-description {
+            color: #eee;
+            line-height: 1.8;
+            font-size: 1.25rem;
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+
+        .event-category {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(255, 105, 0, 0.25);
+            color: #ff8000;
+            border-radius: 20px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 10px;
+            border: 1px solid rgba(255, 128, 0, 0.4);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Navigation Controls */
+        .timeline-nav {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 50px;
+            padding: 20px;
+            background: rgba(30, 30, 50, 0.3);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+
+        .nav-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, rgba(255, 105, 0, 0.2), rgba(255, 69, 0, 0.2));
+            border: 1px solid rgba(255, 128, 0, 0.5);
+            border-radius: 12px;
+            color: #ff8000;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover {
+            background: linear-gradient(135deg, rgba(255, 105, 0, 0.3), rgba(255, 69, 0, 0.3));
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(255, 105, 0, 0.3);
+            border-color: rgba(255, 128, 0, 0.7);
+        }
+
+        .century-tag {
+            display: inline-block;
+            padding: 6px 18px;
+            background: linear-gradient(135deg, rgba(255, 128, 0, 0.25), rgba(255, 69, 0, 0.25));
+            color: #ff8000;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-left: 10px;
+            vertical-align: middle;
+            border: 1px solid rgba(255, 128, 0, 0.4);
+        }
+
+        .era-section {
+            position: absolute;
+            top: 100px;
+            height: 45px;
+            background: rgba(255, 128, 0, 0.15);
+            border: 2px dashed rgba(255, 128, 0, 0.5);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff8000;
+            font-weight: 700;
+            font-size: 1.1rem;
+            z-index: 2;
+            padding: 0 25px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 128, 0, 0.8); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 128, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 128, 0, 0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Instructions */
+        .instructions {
+            color: #bbb;
+            font-size: 1.05rem;
+            text-align: center;
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(50, 50, 70, 0.35);
+            border-radius: 15px;
+            border: 1px dashed rgba(255, 128, 0, 0.4);
+            line-height: 1.6;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        /* Search and filter controls */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 35px;
+            align-items: center;
+            animation: fadeInUp 0.6s ease;
+            padding: 20px;
+            background: rgba(40, 40, 60, 0.3);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+
+        .search-box {
+            flex-grow: 1;
+            padding: 15px 25px;
+            background: rgba(40, 40, 60, 0.7);
+            border: 1px solid rgba(255, 128, 0, 0.4);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1.15rem;
+            min-width: 350px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: rgba(255, 128, 0, 0.8);
+            box-shadow: 0 0 0 4px rgba(255, 128, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .search-box::placeholder {
+            color: #aaa;
+        }
+
+        .filter-btn {
+            padding: 12px 25px;
+            background: rgba(50, 50, 70, 0.6);
+            border: 1px solid rgba(255, 128, 0, 0.4);
+            border-radius: 12px;
+            color: #ddd;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, rgba(255, 105, 0, 0.35), rgba(255, 69, 0, 0.35));
+            color: #ff8000;
+            border-color: #ff8000;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 105, 0, 0.25);
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 105, 0, 0.25);
+            color: #ff8000;
+            transform: translateY(-2px);
+        }
+
+        /* Enhanced timeline line with glow effect */
+        .timeline-line-glow {
+            position: absolute;
+            left: 50px;
+            right: 50px;
+            top: 220px;
+            height: 10px;
+            background: radial-gradient(circle at center, rgba(255, 128, 0, 0.4) 0%, transparent 70%);
+            z-index: 0;
+            filter: blur(8px);
+        }
+
+        /* Floating effect for events */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .timeline-event:hover .event-dot {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Vertical scroll indicator */
+        .scroll-indicator {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(20, 20, 35, 0.8);
+            border-radius: 20px;
+            padding: 10px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .scroll-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid rgba(255, 128, 0, 0.4);
+            border-radius: 50%;
+            color: #ff8000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .scroll-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: scale(1.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1600px) {
+            .timeline-content {
+                min-width: 4500px;
+            }
+        }
+
+        @media (max-width: 1400px) {
+            .timeline-content {
+                min-width: 4000px;
+            }
+            
+            .timeline-line {
+                left: 40px;
+                right: 40px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            .timeline-content {
+                min-width: 3500px;
+            }
+            
+            .event-title {
+                width: 160px;
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+                padding: 15px;
+                position: static;
+                margin-top: 0;
+            }
+            
+            .page-title {
+                margin: 10px 0;
+                font-size: 1.6rem;
+            }
+            
+            .timeline-content {
+                min-width: 3200px;
+            }
+            
+            .timeline-line {
+                left: 30px;
+                right: 30px;
+                top: 200px;
+            }
+            
+            .timeline-line-glow {
+                left: 30px;
+                right: 30px;
+                top: 200px;
+            }
+            
+            .event-title {
+                font-size: 0.9rem;
+                min-height: 70px;
+                padding: 10px 8px;
+                width: 140px;
+            }
+            
+            .event-details {
+                padding: 25px;
+            }
+            
+            .event-headline {
+                font-size: 1.8rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                min-width: 100%;
+                font-size: 1.1rem;
+            }
+            
+            .scroll-indicator {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .timeline-line {
+                left: 20px;
+                right: 20px;
+                top: 180px;
+            }
+            
+            .timeline-line-glow {
+                left: 20px;
+                right: 20px;
+                top: 180px;
+            }
+            
+            .timeline-content {
+                min-width: 2800px;
+                height: 350px;
+            }
+            
+            .year-marker {
+                font-size: 0.85rem;
+                top: 160px;
+            }
+            
+            .era-section {
+                top: 90px;
+                font-size: 1rem;
+                padding: 0 15px;
+                height: 40px;
+            }
+            
+            .event-dot {
+                width: 24px;
+                height: 24px;
+            }
+            
+            .event-title {
+                width: 120px;
+                font-size: 0.85rem;
+                min-height: 65px;
+            }
+            
+            .nav-btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+            
+            .event-year {
+                font-size: 2.2rem;
+            }
+            
+            .event-headline {
+                font-size: 1.6rem;
+            }
+            
+            .event-description {
+                font-size: 1.15rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .timeline-content {
+                min-width: 2500px;
+            }
+            
+            .event-title {
+                width: 110px;
+                font-size: 0.8rem;
+                min-height: 60px;
+                margin-top: 10px;
+            }
+            
+            .timeline-nav {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .nav-btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+            
+            .filter-btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+                flex: 1;
+                text-align: center;
+            }
+            
+            .search-box {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+            
+            .controls > div {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .timeline-content {
+                min-width: 2200px;
+            }
+            
+            .event-title {
+                width: 100px;
+                font-size: 0.75rem;
+                min-height: 55px;
+            }
+            
+            .timeline-scroll-wrapper {
+                height: 350px;
+            }
+            
+            .page-title {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .navbar, .controls, .timeline-nav, .instructions {
+                display: none;
+            }
+            
+            .section {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+            
+            body {
+                background: white;
+                color: black;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scroll-indicator">
+        <div class="scroll-btn" id="scrollUpBtn">
+            <i class="fas fa-chevron-up"></i>
+        </div>
+        <div class="scroll-btn" id="scrollDownBtn">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </div>
+    
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        <span class="page-title">U.S. History Timeline (1770-2025)</span>
+        <div style="width: 60px; visibility: hidden;">Spacer</div>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <h2><i class="fas fa-history"></i> Interactive U.S. History Timeline</h2>
+            <p style="color: #ccc; margin-bottom: 25px; line-height: 1.7; font-size: 1.15rem;">
+                Explore over 50 key events in American history from the Revolutionary era to modern times. Click on any event dot to see detailed information. Scroll horizontally or use navigation buttons to explore different time periods.
+            </p>
+
+            <div class="controls">
+                <input type="text" class="search-box" id="searchBox" placeholder="Search historical events...">
+                <div>
+                    <div class="filter-btn active" data-era="all">All Events</div>
+                    <div class="filter-btn" data-era="18th">18th Century</div>
+                    <div class="filter-btn" data-era="19th">19th Century</div>
+                    <div class="filter-btn" data-era="20th">20th Century</div>
+                    <div class="filter-btn" data-era="21st">21st Century</div>
+                </div>
+            </div>
+
+            <div class="timeline-container">
+                <div class="timeline-line-glow"></div>
+                <div class="timeline-line"></div>
+                
+                <div class="timeline-scroll-wrapper" id="timelineScroll">
+                    <div class="timeline-content" id="timelineContent">
+                        <!-- Year markers and event dots will be added by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="timeline-nav">
+                    <div class="nav-btn" id="scrollLeftBtn">
+                        <i class="fas fa-chevron-left"></i> Earlier Events
+                    </div>
+                    <div class="nav-btn" id="centerActiveBtn">
+                        <i class="fas fa-crosshairs"></i> Center Active Event
+                    </div>
+                    <div class="nav-btn" id="scrollRightBtn">
+                        Later Events <i class="fas fa-chevron-right"></i>
+                    </div>
+                    <div class="nav-btn" id="resetViewBtn">
+                        <i class="fas fa-home"></i> Reset View
+                    </div>
+                </div>
+
+                <div class="instructions">
+                    <i class="fas fa-mouse-pointer"></i> Click on any event dot to see details. Drag the timeline or use navigation buttons to explore. 
+                    <span style="color: #ff8000; font-weight: bold;">Active events are highlighted with a larger dot and glowing title.</span>
+                </div>
+            </div>
+
+            <div class="event-details" id="eventDetails">
+                <div class="event-year" id="detailYear">1776</div>
+                <div class="event-headline" id="detailTitle">Declaration of Independence</div>
+                <div class="event-description" id="detailDescription">
+                    The Continental Congress adopts the Declaration of Independence, drafted primarily by Thomas Jefferson, announcing the thirteen American colonies' separation from Great Britain.
+                </div>
+                <div class="event-category" id="detailCategory">Politics & Government</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced Timeline data for U.S. history (1770-2025)
+        const timelineEvents = [
+            { year: 1607, title: "Jamestown Founded", shortTitle: "Jamestown", description: "The first permanent English settlement in North America is established in Virginia, marking the beginning of sustained British colonization.", category: "Expansion" },
+    { year: 1620, title: "Mayflower Compact", shortTitle: "Mayflower Compact", description: "Pilgrims aboard the Mayflower sign a governing agreement before landing at Plymouth, establishing an early form of self-government.", category: "Politics & Government" },
+    { year: 1676, title: "King Philip's War Ends", shortTitle: "King Philip's War", description: "The bloody conflict between New England colonists and a coalition of Native American tribes concludes, devastating Native populations and securing colonial dominance in the region.", category: "Conflict" }, /* New Minor Event */
+    { year: 1692, title: "Salem Witch Trials", shortTitle: "Salem Witch Trials", description: "A series of hearings and prosecutions for witchcraft in colonial Massachusetts result in the execution of twenty people.", category: "Social Movement" },
+    { year: 1735, title: "Zenger Trial", shortTitle: "Zenger Trial", description: "The trial of publisher John Peter Zenger establishes a precedent for freedom of the press in the colonies.", category: "Politics & Government" },
+    { year: 1754, title: "French and Indian War", shortTitle: "French & Indian War", description: "War between Britain and France begins in North America, leading to British debt and subsequent taxes on the colonies.", category: "Conflict" },
+    { year: 1770, title: "Boston Massacre", shortTitle: "Boston Massacre", description: "British soldiers kill five civilians in Boston, escalating colonial tensions. This event becomes a rallying cry for American patriots against British rule.", category: "Conflict" },
+    { year: 1773, title: "Boston Tea Party", shortTitle: "Boston Tea Party", description: "American colonists, frustrated with British taxation without representation, dump 342 chests of British tea into Boston Harbor, accelerating the path to revolution.", category: "Protest" },
+    { year: 1775, title: "Revolutionary War Begins", shortTitle: "Rev War Starts", description: "The battles of Lexington and Concord mark the first military engagements of the American Revolutionary War, with 'the shot heard round the world'.", category: "Conflict" },
+    { year: 1776, title: "Declaration of Independence", shortTitle: "Declaration", description: "The Continental Congress adopts the Declaration of Independence, announcing the thirteen American colonies' separation from Great Britain.", category: "Politics & Government" },
+    { year: 1777, title: "Articles of Confederation", shortTitle: "Confederation", description: "The Articles of Confederation are adopted, creating the first constitution of the United States with a weak central government.", category: "Politics & Government" },
+    { year: 1781, title: "Battle of Yorktown", shortTitle: "Yorktown Victory", description: "British General Cornwallis surrenders to George Washington, effectively ending major fighting in the Revolutionary War.", category: "Conflict" },
+    { year: 1783, title: "Treaty of Paris", shortTitle: "Treaty of Paris", description: "Great Britain recognizes American independence with the Treaty of Paris, officially ending the Revolutionary War.", category: "Politics & Government" },
+    { year: 1786, title: "Shays' Rebellion", shortTitle: "Shays' Rebellion", description: "An armed uprising of farmers in Massachusetts protesting debt collections and economic injustices highlights the weaknesses of the Articles of Confederation.", category: "Protest" }, /* New Minor Event */
+    { year: 1787, title: "U.S. Constitution", shortTitle: "Constitution", description: "The Constitutional Convention drafts the U.S. Constitution in Philadelphia, creating the framework for the federal government.", category: "Politics & Government" },
+    { year: 1789, title: "Washington Inaugurated", shortTitle: "First President", description: "George Washington is inaugurated as the first President of the United States. The Bill of Rights is also proposed.", category: "Politics & Government" },
+    { year: 1791, title: "Bill of Rights", shortTitle: "Bill of Rights", description: "The first ten amendments to the U.S. Constitution, guaranteeing fundamental rights and freedoms, are ratified.", category: "Politics & Government" },
+    { year: 1793, title: "Cotton Gin Patented", shortTitle: "Cotton Gin", description: "Eli Whitney invents the cotton gin, revolutionizing the cotton industry and entrenching the institution of slavery in the South.", category: "Technology" },
+    { year: 1794, title: "Whiskey Rebellion", shortTitle: "Whiskey Rebellion", description: "First major test of federal authority when farmers in Pennsylvania rebel against a tax on whiskey.", category: "Protest" },
+    { year: 1798, title: "Alien & Sedition Acts", shortTitle: "Alien & Sedition", description: "Controversial laws passed to suppress political opposition, making it harder for immigrants to become citizens and criminalizing criticism of the government.", category: "Politics & Government" }, /* New Minor Event */
+    { year: 1800, title: "White House Occupied", shortTitle: "White House", description: "John Adams becomes the first president to occupy the White House in Washington, D.C.", category: "Politics & Government" },
+    { year: 1803, title: "Louisiana Purchase", shortTitle: "Louisiana Purchase", description: "President Thomas Jefferson purchases the Louisiana Territory from France, doubling the size of the United States.", category: "Expansion" },
+    { year: 1804, title: "Lewis & Clark Expedition", shortTitle: "Lewis & Clark", description: "Meriwether Lewis and William Clark begin their expedition to explore the newly acquired Louisiana Territory.", category: "Exploration" },
+    { year: 1804, title: "Burr-Hamilton Duel", shortTitle: "Hamilton Killed", description: "Former Treasury Secretary Alexander Hamilton is mortally wounded in a duel with Vice President Aaron Burr.", category: "Politics & Government" }, /* New Minor Event */
+    { year: 1811, title: "New Madrid Earthquakes", shortTitle: "New Madrid Quakes", description: "A series of powerful intraplate earthquakes strike the Mississippi Valley, causing the river to temporarily run backwards and felt across much of the eastern U.S.", category: "Disaster" }, /* New Minor Event */
+    { year: 1812, title: "War of 1812", shortTitle: "War of 1812", description: "The United States declares war on Britain over trade restrictions and British support for Native American tribes.", category: "Conflict" },
+    { year: 1814, title: "Star-Spangled Banner", shortTitle: "National Anthem", description: "Francis Scott Key writes 'The Star-Spangled Banner' after witnessing the British bombardment of Fort McHenry.", category: "Culture" },
+    { year: 1819, title: "McCulloch v. Maryland", shortTitle: "McCulloch v. MD", description: "Landmark Supreme Court decision establishes the doctrine of implied powers and federal supremacy over states.", category: "Politics & Government" },
+    { year: 1820, title: "Missouri Compromise", shortTitle: "Missouri Compromise", description: "Congress admits Missouri as a slave state and Maine as a free state, maintaining the balance between slave and free states.", category: "Politics & Government" },
+    { year: 1823, title: "Monroe Doctrine", shortTitle: "Monroe Doctrine", description: "President James Monroe declares that European powers should not interfere in affairs of the Western Hemisphere.", category: "Foreign Policy" },
+    { year: 1825, title: "Erie Canal Opens", shortTitle: "Erie Canal", description: "The 363-mile canal connects the Great Lakes to the Hudson River, transforming transportation and commerce.", category: "Technology" },
+    { year: 1830, title: "Indian Removal Act", shortTitle: "Indian Removal", description: "President Andrew Jackson signs legislation leading to the forced relocation of Native American tribes (Trail of Tears).", category: "Expansion" },
+    { year: 1831, title: "Nat Turner's Rebellion", shortTitle: "Nat Turner", description: "A slave rebellion in Virginia led by Nat Turner results in the deaths of 55-65 white people and leads to harsher slave codes in the South.", category: "Conflict" }, /* New Minor Event */
+    { year: 1836, title: "Battle of the Alamo", shortTitle: "The Alamo", description: "Mexican forces defeat Texan defenders at the Alamo mission in San Antonio, becoming a symbol of resistance.", category: "Conflict" },
+    { year: 1838, title: "Trail of Tears", shortTitle: "Trail of Tears", description: "The forced removal of Cherokee and other Native American nations from the Southeast results in thousands of deaths during the journey west.", category: "Expansion" },
+    { year: 1844, title: "First Telegraph Message", shortTitle: "What Hath God Wrought", description: "Samuel Morse sends the first official telegraph message from Washington to Baltimore, ushering in a revolution in communication.", category: "Technology" }, /* New Minor Event */
+    { year: 1845, title: "Texas Annexation", shortTitle: "Texas Annexation", description: "Texas is admitted to the Union as the 28th state, escalating tensions with Mexico that lead to the Mexican-American War.", category: "Expansion" },
+    { year: 1845, title: "Manifest Destiny", shortTitle: "Manifest Destiny", description: "Journalist John L. O'Sullivan coins the term, articulating the belief that U.S. expansion across the continent was inevitable and divinely ordained.", category: "Expansion" },
+    { year: 1846, title: "Mexican-American War", shortTitle: "Mexican-American War", description: "A border dispute leads to war with Mexico, resulting in the U.S. acquiring vast territories in the Southwest.", category: "Conflict" },
+    { year: 1848, title: "Gold Rush Begins", shortTitle: "Gold Rush", description: "Gold is discovered at Sutter's Mill in California, sparking a massive migration to the West Coast.", category: "Expansion" },
+    { year: 1848, title: "Seneca Falls Convention", shortTitle: "Women's Rights", description: "The first women's rights convention is held in New York, launching the organized women's suffrage movement.", category: "Social Movement" },
+    { year: 1850, title: "Compromise of 1850", shortTitle: "1850 Compromise", description: "A series of laws attempting to settle slavery disputes, including a stronger Fugitive Slave Act.", category: "Politics & Government" },
+    { year: 1852, title: "Uncle Tom's Cabin", shortTitle: "Uncle Tom's Cabin", description: "Harriet Beecher Stowe's anti-slavery novel is published, galvanizing abolitionist sentiment in the North.", category: "Culture" },
+    { year: 1857, title: "Dred Scott Decision", shortTitle: "Dred Scott", description: "The Supreme Court rules that African Americans cannot be citizens and Congress cannot ban slavery in territories.", category: "Politics & Government" },
+    { year: 1859, title: "Harper's Ferry Raid", shortTitle: "John Brown's Raid", description: "Abolitionist John Brown leads a raid on the federal arsenal at Harper's Ferry to initiate a slave revolt.", category: "Conflict" },
+    { year: 1861, title: "Civil War Begins", shortTitle: "Civil War Starts", description: "The Confederate attack on Fort Sumter begins the American Civil War over states' rights and slavery.", category: "Conflict" },
+    { year: 1862, title: "Homestead Act", shortTitle: "Homestead Act", description: "Law provides 160 acres of public land to settlers for a small fee, encouraging westward migration and farming.", category: "Expansion" },
+    { year: 1863, title: "Emancipation Proclamation", shortTitle: "Emancipation", description: "President Abraham Lincoln issues the Emancipation Proclamation, declaring slaves in Confederate territory free.", category: "Politics & Government" },
+    { year: 1863, title: "Gettysburg Address", shortTitle: "Gettysburg", description: "Lincoln delivers his famous speech redefining the purpose of the Civil War and the meaning of American democracy.", category: "Politics & Government" },
+    { year: 1864, title: "Sand Creek Massacre", shortTitle: "Sand Creek", description: "Colorado militia attacks a village of Cheyenne and Arapaho, killing over 200 Native Americans, mostly women and children.", category: "Conflict" }, /* New Minor Event */
+    { year: 1865, title: "Civil War Ends", shortTitle: "Civil War Ends", description: "General Robert E. Lee surrenders at Appomattox Court House, ending the Civil War. Lincoln is assassinated days later.", category: "Conflict" },
+    { year: 1865, title: "13th Amendment", shortTitle: "Abolish Slavery", description: "The 13th Amendment to the Constitution is ratified, abolishing slavery throughout the United States.", category: "Politics & Government" },
+    { year: 1867, title: "Alaska Purchase", shortTitle: "Seward's Folly", description: "The U.S. purchases Alaska from Russia for $7.2 million, initially mocked but later valued for its resources.", category: "Expansion" },
+    { year: 1869, title: "Transcontinental Railroad", shortTitle: "Transcontinental RR", description: "The First Transcontinental Railroad is completed, connecting the eastern and western United States by rail.", category: "Technology" },
+    { year: 1870, title: "15th Amendment", shortTitle: "Voting Rights", description: "The 15th Amendment is ratified, prohibiting the denial of voting rights based on race, color, or previous servitude.", category: "Politics & Government" },
+    { year: 1873, title: "Panic of 1873", shortTitle: "Panic of 1873", description: "A major economic depression begins, triggered by the failure of a leading investment bank and causing widespread unemployment and hardship.", category: "Economy" }, /* New Minor Event */
+    { year: 1876, title: "Battle of Little Bighorn", shortTitle: "Custer's Last Stand", description: "Lakota and Cheyenne warriors defeat U.S. Army forces led by Lieutenant Colonel George Custer.", category: "Conflict" },
+    { year: 1877, title: "Reconstruction Ends", shortTitle: "Reconstruction Ends", description: "The Compromise of 1877 ends Reconstruction, withdrawing federal troops from the South.", category: "Politics & Government" },
+    { year: 1879, title: "Edison's Light Bulb", shortTitle: "Light Bulb", description: "Thomas Edison demonstrates the first practical incandescent light bulb, paving the way for widespread electric lighting.", category: "Technology" },
+    { year: 1881, title: "President Garfield Shot", shortTitle: "Garfield Assassinated", description: "President James A. Garfield is shot by a disgruntled office seeker; he dies from infections months later, leading to civil service reform.", category: "Politics & Government" }, /* New Minor Event */
+    { year: 1886, title: "Statue of Liberty", shortTitle: "Statue of Liberty", description: "The Statue of Liberty is dedicated in New York Harbor, becoming a symbol of freedom and immigration.", category: "Culture" },
+    { year: 1890, title: "Wounded Knee Massacre", shortTitle: "Wounded Knee", description: "U.S. soldiers kill over 200 Lakota Sioux at Wounded Knee Creek, South Dakota, marking the end of armed Native American resistance.", category: "Conflict" },
+    { year: 1896, title: "Plessy v. Ferguson", shortTitle: "Plessy v. Ferguson", description: "The Supreme Court establishes the 'separate but equal' doctrine, legalizing racial segregation for decades.", category: "Politics & Government" },
+    { year: 1898, title: "Spanish-American War", shortTitle: "Spanish-American War", description: "The United States defeats Spain, acquiring Puerto Rico, Guam, and the Philippines, establishing itself as a world power.", category: "Conflict" },
+    { year: 1901, title: "President McKinley Assassinated", shortTitle: "McKinley Killed", description: "President William McKinley is shot by anarchist Leon Czolgosz and dies eight days later, elevating Theodore Roosevelt to the presidency.", category: "Politics & Government" }, /* New Minor Event */
+    { year: 1903, title: "Wright Brothers Flight", shortTitle: "First Flight", description: "Orville and Wilbur Wright achieve the first controlled, sustained flight of a powered aircraft at Kitty Hawk, North Carolina.", category: "Technology" },
+    { year: 1906, title: "San Francisco Earthquake", shortTitle: "SF Earthquake", description: "A massive earthquake and subsequent fires devastate San Francisco, killing thousands and destroying much of the city.", category: "Disaster" },
+    { year: 1911, title: "Triangle Shirtwaist Fire", shortTitle: "Factory Fire", description: "A deadly fire in a New York City garment factory kills 146 workers, leading to major reforms in labor and safety laws.", category: "Disaster" },
+    { year: 1912, title: "Titanic Sinks", shortTitle: "Titanic", description: "The RMS Titanic sinks after hitting an iceberg, resulting in over 1,500 deaths and leading to improved maritime safety regulations.", category: "Disaster" },
+    { year: 1914, title: "Panama Canal Opens", shortTitle: "Panama Canal", description: "The U.S.-built Panama Canal opens, dramatically reducing travel time between the Atlantic and Pacific Oceans.", category: "Technology" }, /* New Minor Event */
+    { year: 1917, title: "U.S. Enters WWI", shortTitle: "Enter WWI", description: "President Woodrow Wilson asks Congress to declare war on Germany, bringing the United States into World War I.", category: "Conflict" },
+    { year: 1920, title: "Women's Suffrage", shortTitle: "Women Vote", description: "The 19th Amendment is ratified, guaranteeing women the right to vote after decades of activism.", category: "Social Movement" },
+    { year: 1925, title: "Scopes Monkey Trial", shortTitle: "Scopes Trial", description: "High school teacher John Scopes is tried for teaching evolution, highlighting the conflict between modern science and religious fundamentalism.", category: "Culture" },
+    { year: 1927, title: "First Talking Film", shortTitle: "Talkies Begin", description: "The Jazz Singer premieres as the first feature-length motion picture with synchronized dialogue, revolutionizing cinema.", category: "Culture" },
+    { year: 1929, title: "Stock Market Crash", shortTitle: "Market Crash", description: "The Wall Street Crash of 1929 triggers the Great Depression, the worst economic downturn in industrialized history.", category: "Economy" },
+    { year: 1933, title: "New Deal Begins", shortTitle: "New Deal", description: "President Franklin D. Roosevelt launches the New Deal, a series of programs to provide relief, recovery, and reform during the Great Depression.", category: "Economy" },
+    { year: 1935, title: "Social Security Act", shortTitle: "Social Security", description: "President Franklin D. Roosevelt signs the act, creating a system of old-age benefits and unemployment insurance.", category: "Economy" },
+    { year: 1941, title: "Pearl Harbor", shortTitle: "Pearl Harbor", description: "Japan attacks the U.S. naval base at Pearl Harbor, leading the United States to enter World War II.", category: "Conflict" },
+    { year: 1942, title: "Japanese Internment", shortTitle: "Internment Camps", description: "Executive Order 9066 authorizes the forced relocation and incarceration of over 120,000 Japanese Americans.", category: "Social Movement" },
+    { year: 1944, title: "D-Day Invasion", shortTitle: "D-Day", description: "Allied forces launch the largest seaborne invasion in history on the beaches of Normandy, beginning the liberation of Western Europe from Nazi control.", category: "Conflict" },
+    { year: 1944, title: "GI Bill Signed", shortTitle: "GI Bill", description: "The Servicemen's Readjustment Act provides college and vocational education, unemployment insurance, and home loans for WWII veterans.", category: "Economy" },
+    { year: 1945, title: "Atomic Bombs Dropped", shortTitle: "Atomic Bombs", description: "The U.S. drops atomic bombs on Hiroshima and Nagasaki, leading to Japan's surrender and ending World War II.", category: "Conflict" },
+    { year: 1945, title: "United Nations Founded", shortTitle: "UN Founded", description: "The United Nations is established to promote international cooperation and prevent future conflicts.", category: "Foreign Policy" },
+    { year: 1947, title: "Cold War Begins", shortTitle: "Cold War", description: "The Truman Doctrine is announced, establishing the policy of containment against Soviet expansion and marking the beginning of the Cold War.", category: "Foreign Policy" },
+    { year: 1947, title: "Jackie Robinson Breaks Color Barrier", shortTitle: "Jackie Robinson", description: "Robinson debuts for the Brooklyn Dodgers, becoming the first African American to play Major League Baseball in the modern era.", category: "Culture" }, /* New Minor Event */
+    { year: 1948, title: "Marshall Plan", shortTitle: "Marshall Plan", description: "The U.S. launches a massive economic aid program to rebuild Western European economies after World War II.", category: "Foreign Policy" },
+    { year: 1950, title: "Korean War", shortTitle: "Korean War", description: "The United States enters the Korean War as part of a UN force to defend South Korea from communist invasion.", category: "Conflict" },
+    { year: 1954, title: "Brown v. Board", shortTitle: "School Desegregation", description: "The Supreme Court rules that racial segregation in public schools is unconstitutional, overturning 'separate but equal' doctrine.", category: "Social Movement" },
+    { year: 1955, title: "Montgomery Bus Boycott", shortTitle: "Bus Boycott", description: "Rosa Parks refuses to give up her bus seat, sparking the Montgomery Bus Boycott and galvanizing the Civil Rights Movement.", category: "Social Movement" },
+    { year: 1956, title: "Interstate Highway Act", shortTitle: "Interstate Highways", description: "President Eisenhower signs the law authorizing the construction of a nationwide system of interstate highways.", category: "Technology" },
+    { year: 1962, title: "Cuban Missile Crisis", shortTitle: "Cuban Crisis", description: "A 13-day confrontation between the U.S. and Soviet Union over Soviet missiles in Cuba brings the world to the brink of nuclear war.", category: "Foreign Policy" },
+    { year: 1963, title: "March on Washington", shortTitle: "MLK Speech", description: "Martin Luther King Jr. delivers his 'I Have a Dream' speech at the March on Washington for civil rights.", category: "Social Movement" },
+    { year: 1963, title: "JFK Assassinated", shortTitle: "JFK Killed", description: "President John F. Kennedy is assassinated in Dallas, Texas, sending the nation into mourning and conspiracy theories.", category: "Politics & Government" },
+    { year: 1964, title: "Civil Rights Act", shortTitle: "Civil Rights Act", description: "President Lyndon Johnson signs the Civil Rights Act of 1964, outlawing discrimination based on race, color, religion, sex, or national origin.", category: "Social Movement" },
+    { year: 1965, title: "Voting Rights Act", shortTitle: "Voting Rights Act", description: "Landmark legislation prohibits racial discrimination in voting, especially targeting discriminatory practices in the South.", category: "Social Movement" },
+    { year: 1968, title: "MLK Assassinated", shortTitle: "MLK Killed", description: "Civil rights leader Martin Luther King Jr. is assassinated in Memphis, Tennessee, sparking riots in over 100 cities.", category: "Social Movement" },
+    { year: 1969, title: "Moon Landing", shortTitle: "Moon Landing", description: "Apollo 11 astronauts Neil Armstrong and Buzz Aldrin become the first humans to walk on the moon.", category: "Technology" },
+    { year: 1970, title: "Kent State Shootings", shortTitle: "Kent State", description: "Ohio National Guard troops kill four unarmed students during an anti-war protest, intensifying opposition to the Vietnam War.", category: "Protest" },
+    { year: 1973, title: "Roe v. Wade", shortTitle: "Abortion Rights", description: "The Supreme Court rules that the Constitution protects a pregnant woman's right to choose an abortion without excessive government restriction.", category: "Social Movement" },
+    { year: 1974, title: "Watergate Scandal", shortTitle: "Nixon Resigns", description: "President Richard Nixon resigns amid the Watergate scandal, becoming the first and only U.S. president to resign.", category: "Politics & Government" },
+    { year: 1977, title: "NYC Blackout", shortTitle: "1977 Blackout", description: "A major power failure plunges New York City into darkness for 25 hours, leading to widespread looting and arson.", category: "Disaster" }, /* New Minor Event */
+    { year: 1979, title: "Three Mile Island", shortTitle: "Nuclear Accident", description: "A partial meltdown at a Pennsylvania nuclear power plant becomes the worst commercial nuclear accident in U.S. history.", category: "Disaster" },
+    { year: 1980, title: "Mount St. Helens Erupts", shortTitle: "Volcano Erupts", description: "Mount St. Helens erupts in Washington state, causing massive destruction and the deadliest volcanic event in U.S. history.", category: "Disaster" },
+    { year: 1981, title: "Space Shuttle Launched", shortTitle: "Space Shuttle", description: "NASA launches the first reusable spacecraft, Columbia, beginning the Space Shuttle program.", category: "Technology" },
+    { year: 1986, title: "Challenger Disaster", shortTitle: "Challenger", description: "The Space Shuttle Challenger breaks apart 73 seconds after launch, killing all seven crew members, including teacher Christa McAuliffe.", category: "Disaster" },
+    { year: 1989, title: "Berlin Wall Falls", shortTitle: "Berlin Wall", description: "The fall of the Berlin Wall symbolizes the end of the Cold War, with the United States emerging as the world's sole superpower.", category: "Foreign Policy" },
+    { year: 1991, title: "World Wide Web", shortTitle: "Web Invented", description: "Tim Berners-Lee introduces the World Wide Web to the public, revolutionizing communication and information sharing.", category: "Technology" },
+    { year: 1992, title: "LA Riots", shortTitle: "LA Riots", description: "Widespread civil unrest erupts in Los Angeles after the acquittal of police officers filmed beating Rodney King.", category: "Protest" },
+    { year: 1995, title: "Oklahoma City Bombing", shortTitle: "OKC Bombing", description: "A domestic terrorist truck bomb destroys the Alfred P. Murrah Federal Building in Oklahoma City, killing 168 people.", category: "Terrorism" },
+    { year: 1998, title: "Impeachment of Clinton", shortTitle: "Clinton Impeached", description: "President Bill Clinton is impeached by the House for perjury and obstruction of justice, but is acquitted by the Senate.", category: "Politics & Government" },
+    { year: 2001, title: "9/11 Attacks", shortTitle: "9/11", description: "Terrorist attacks on the World Trade Center and Pentagon kill nearly 3,000 people, leading to the War on Terror.", category: "Terrorism" },
+    { year: 2005, title: "Hurricane Katrina", shortTitle: "Katrina", description: "Hurricane Katrina devastates New Orleans and the Gulf Coast, killing over 1,800 and causing $125 billion in damage.", category: "Disaster" },
+    { year: 2008, title: "Financial Crisis", shortTitle: "Market Crash", description: "The collapse of Lehman Brothers triggers a global financial crisis and the Great Recession.", category: "Economy" },
+    { year: 2009, title: "First Black President", shortTitle: "Obama Elected", description: "Barack Obama is inaugurated as the first African American president of the United States.", category: "Politics & Government" },
+    { year: 2011, title: "Killing of Bin Laden", shortTitle: "Bin Laden Killed", description: "U.S. Navy SEALs kill Al-Qaeda leader Osama bin Laden in Pakistan, a major milestone in the War on Terror.", category: "Conflict" },
+    { year: 2015, title: "Obergefell v. Hodges", shortTitle: "Gay Marriage Legal", description: "The Supreme Court rules that states must license and recognize same-sex marriage, guaranteeing the right nationwide.", category: "Social Movement" },
+    { year: 2020, title: "COVID-19 Pandemic", shortTitle: "Pandemic", description: "The COVID-19 pandemic reaches the United States, leading to widespread lockdowns, economic disruption, and over 1 million American deaths.", category: "Health" },
+    { year: 2021, title: "Capitol Riot", shortTitle: "Jan 6 Riot", description: "Supporters of President Donald Trump storm the U.S. Capitol in an attempt to overturn the 2020 election results.", category: "Politics & Government" },
+    { year: 2025, title: "250th Anniversary", shortTitle: "250 Years", description: "The United States approaches the 250th anniversary of the Declaration of Independence.", category: "Culture" }
+        ];
+
+        // DOM Elements
+        const timelineContent = document.getElementById('timelineContent');
+        const eventDetails = document.getElementById('eventDetails');
+        const detailYear = document.getElementById('detailYear');
+        const detailTitle = document.getElementById('detailTitle');
+        const detailDescription = document.getElementById('detailDescription');
+        const detailCategory = document.getElementById('detailCategory');
+        const timelineScroll = document.getElementById('timelineScroll');
+        const scrollLeftBtn = document.getElementById('scrollLeftBtn');
+        const scrollRightBtn = document.getElementById('scrollRightBtn');
+        const resetViewBtn = document.getElementById('resetViewBtn');
+        const centerActiveBtn = document.getElementById('centerActiveBtn');
+        const searchBox = document.getElementById('searchBox');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const scrollUpBtn = document.getElementById('scrollUpBtn');
+        const scrollDownBtn = document.getElementById('scrollDownBtn');
+
+        // Configuration
+        const startYear = 1770;
+        const endYear = 2025;
+        const pixelsPerYear = 18; // Increased for better spacing
+        const timelineWidth = (endYear - startYear) * pixelsPerYear + 400;
+
+        // Track active event
+        let activeEventYear = 1776;
+
+        // Initialize the timeline
+        function initTimeline() {
+            // Set the width of the timeline content
+            timelineContent.style.minWidth = `${timelineWidth}px`;
+            
+            // Clear existing content
+            timelineContent.innerHTML = '';
+            
+            // Add era sections
+            addEraSection(1770, 1799, "Revolutionary Era");
+            addEraSection(1800, 1849, "Early Republic & Expansion");
+            addEraSection(1850, 1865, "Civil War Era");
+            addEraSection(1866, 1899, "Reconstruction & Industrialization");
+            addEraSection(1900, 1945, "World Wars Era");
+            addEraSection(1946, 1989, "Cold War Era");
+            addEraSection(1990, 2025, "Modern Era");
+            
+            // Add year markers (every 25 years, with major every 50)
+            for (let year = startYear; year <= endYear; year += 25) {
+                const yearPosition = getPositionForYear(year);
+                const yearMarker = document.createElement('div');
+                yearMarker.className = 'year-marker';
+                yearMarker.style.left = `${yearPosition}px`;
+                yearMarker.textContent = year;
+                
+                if (year % 50 === 0) {
+                    yearMarker.classList.add('major');
+                }
+                
+                timelineContent.appendChild(yearMarker);
+            }
+            
+            // Add century markers
+            const centuries = [
+                { year: 1600, label: '16th Century' },
+                { year: 1700, label: '17th Century' },
+                { year: 1800, label: '18th Century' },
+                { year: 1900, label: '19th Century' },
+                { year: 2000, label: '20th Century' },
+                { year: 2100, label: '21st Century' }
+            ];
+            
+            centuries.forEach(century => {
+                const centuryPosition = getPositionForYear(century.year);
+                const centuryMarker = document.createElement('div');
+                centuryMarker.className = 'year-marker major';
+                centuryMarker.style.left = `${centuryPosition}px`;
+                centuryMarker.style.top = '50px';
+                centuryMarker.style.fontSize = '1.2rem';
+                centuryMarker.style.color = '#ff8000';
+                centuryMarker.style.background = 'rgba(255, 128, 0, 0.2)';
+                centuryMarker.innerHTML = `<span class="century-tag">${century.label}</span>`;
+                timelineContent.appendChild(centuryMarker);
+            });
+            
+            // Add event dots - ALL on top of the line with titles below
+            timelineEvents.forEach((event, index) => {
+                const eventPosition = getPositionForYear(event.year);
+                const eventElement = document.createElement('div');
+                eventElement.className = 'timeline-event';
+                eventElement.style.left = `${eventPosition}px`;
+                
+                // ALL events positioned with dot on the line at top: 220px
+                eventElement.style.top = '220px';
+                
+                eventElement.dataset.year = event.year;
+                eventElement.dataset.title = event.title;
+                eventElement.dataset.description = event.description;
+                eventElement.dataset.category = event.category;
+                eventElement.dataset.shortTitle = event.shortTitle;
+                
+                // Determine century for filtering
+                if (event.year < 1800) eventElement.dataset.century = "18th";
+                else if (event.year < 1900) eventElement.dataset.century = "19th";
+                else if (event.year < 2000) eventElement.dataset.century = "20th";
+                else eventElement.dataset.century = "21st";
+                
+                // Create event HTML with dot on line and title below
+                eventElement.innerHTML = `
+                    <div class="event-dot-container">
+                        <div class="event-dot" data-event="${event.year}"></div>
+                    </div>
+                    <div class="event-title">${event.shortTitle}</div>
+                `;
+                
+                // Add click event to show details
+                eventElement.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showEventDetails(event.year, event.title, event.description, event.category);
+                    setActiveEvent(event.year);
+                    centerEventInView(event.year);
+                });
+                
+                timelineContent.appendChild(eventElement);
+            });
+            
+            // Show first event by default
+            if (timelineEvents.length > 0) {
+                const firstEvent = timelineEvents.find(event => event.year === 1776) || timelineEvents[0];
+                showEventDetails(firstEvent.year, firstEvent.title, firstEvent.description, firstEvent.category);
+                setActiveEvent(firstEvent.year);
+                setTimeout(() => centerEventInView(firstEvent.year), 300);
+            }
+        }
+
+        // Add era sections to timeline
+        function addEraSection(start, end, label) {
+            const startPos = getPositionForYear(start);
+            const endPos = getPositionForYear(end);
+            const width = endPos - startPos;
+            
+            const eraSection = document.createElement('div');
+            eraSection.className = 'era-section';
+            eraSection.style.left = `${startPos}px`;
+            eraSection.style.width = `${width}px`;
+            eraSection.textContent = label;
+            
+            timelineContent.appendChild(eraSection);
+        }
+
+        // Calculate position for a given year
+        function getPositionForYear(year) {
+            return 100 + (year - startYear) * pixelsPerYear;
+        }
+
+        // Show event details
+        function showEventDetails(year, title, description, category) {
+            detailYear.textContent = year;
+            detailTitle.textContent = title;
+            detailDescription.textContent = description;
+            detailCategory.textContent = category;
+            
+            // Add fade in effect
+            eventDetails.style.opacity = '0';
+            eventDetails.classList.add('show');
+            
+            setTimeout(() => {
+                eventDetails.style.transition = 'opacity 0.3s ease';
+                eventDetails.style.opacity = '1';
+            }, 10);
+            
+            activeEventYear = year;
+        }
+
+        // Set active event (highlight it and bring to front)
+        function setActiveEvent(year) {
+            // Remove active class from all events
+            document.querySelectorAll('.timeline-event').forEach(event => {
+                event.classList.remove('active');
+                event.style.zIndex = '10';
+                event.querySelector('.event-dot')?.classList.remove('active');
+            });
+            
+            // Find and activate the selected event
+            const activeEvent = document.querySelector(`.timeline-event[data-year="${year}"]`);
+            if (activeEvent) {
+                activeEvent.classList.add('active');
+                activeEvent.style.zIndex = '100';
+                const dot = activeEvent.querySelector('.event-dot');
+                if (dot) {
+                    dot.classList.add('active');
+                }
+            }
+        }
+
+        // Center the active event in the view
+        function centerEventInView(year) {
+            const eventPosition = getPositionForYear(year);
+            const scrollContainer = timelineScroll;
+            const scrollPosition = eventPosition - (scrollContainer.offsetWidth / 2) + 100;
+            
+            scrollContainer.scrollTo({
+                left: scrollPosition,
+                behavior: 'smooth'
+            });
+        }
+
+        // Filter events by century
+        function filterEventsByCentury(century) {
+            document.querySelectorAll('.timeline-event').forEach(event => {
+                if (century === 'all' || event.dataset.century === century) {
+                    event.style.display = 'block';
+                    event.style.opacity = '0';
+                    setTimeout(() => {
+                        event.style.transition = 'opacity 0.5s ease';
+                        event.style.opacity = '1';
+                    }, 10);
+                } else {
+                    event.style.transition = 'opacity 0.3s ease';
+                    event.style.opacity = '0';
+                    setTimeout(() => {
+                        event.style.display = 'none';
+                    }, 300);
+                }
+            });
+            
+            // Update active filter buttons
+            filterBtns.forEach(btn => {
+                if (btn.dataset.era === century) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // Search events
+        function searchEvents(query) {
+            const searchTerm = query.toLowerCase().trim();
+            
+            document.querySelectorAll('.timeline-event').forEach(event => {
+                const title = event.dataset.title.toLowerCase();
+                const description = event.dataset.description.toLowerCase();
+                const year = event.dataset.year;
+                const shortTitle = event.dataset.shortTitle?.toLowerCase() || '';
+                
+                if (searchTerm === '' || title.includes(searchTerm) || 
+                    description.includes(searchTerm) || year.includes(searchTerm) ||
+                    shortTitle.includes(searchTerm)) {
+                    event.style.display = 'block';
+                    event.style.opacity = '0';
+                    setTimeout(() => {
+                        event.style.transition = 'opacity 0.5s ease';
+                        event.style.opacity = '1';
+                    }, 10);
+                } else {
+                    event.style.transition = 'opacity 0.3s ease';
+                    event.style.opacity = '0';
+                    setTimeout(() => {
+                        event.style.display = 'none';
+                    }, 300);
+                }
+            });
+        }
+
+        // Scroll page up
+        scrollUpBtn.addEventListener('click', () => {
+            window.scrollBy({ top: -300, behavior: 'smooth' });
+        });
+
+        // Scroll page down
+        scrollDownBtn.addEventListener('click', () => {
+            window.scrollBy({ top: 300, behavior: 'smooth' });
+        });
+
+        // Scroll timeline left
+        scrollLeftBtn.addEventListener('click', () => {
+            timelineScroll.scrollBy({ left: -600, behavior: 'smooth' });
+        });
+
+        // Scroll timeline right
+        scrollRightBtn.addEventListener('click', () => {
+            timelineScroll.scrollBy({ left: 600, behavior: 'smooth' });
+        });
+
+        // Center active event
+        centerActiveBtn.addEventListener('click', () => {
+            centerEventInView(activeEventYear);
+        });
+
+        // Reset view to beginning
+        resetViewBtn.addEventListener('click', () => {
+            timelineScroll.scrollTo({ left: 0, behavior: 'smooth' });
+            
+            // Show first event
+            if (timelineEvents.length > 0) {
+                const firstEvent = timelineEvents.find(event => event.year === 1776) || timelineEvents[0];
+                showEventDetails(firstEvent.year, firstEvent.title, firstEvent.description, firstEvent.category);
+                setActiveEvent(firstEvent.year);
+            }
+        });
+
+        // Add smooth drag functionality to timeline
+        let isDragging = false;
+        let startX;
+        let scrollLeft;
+        let velocity = 0;
+        let lastX;
+        let animationFrame;
+
+        timelineScroll.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.pageX - timelineScroll.offsetLeft;
+            scrollLeft = timelineScroll.scrollLeft;
+            lastX = e.pageX;
+            timelineScroll.style.cursor = 'grabbing';
+            timelineScroll.style.scrollBehavior = 'auto';
+            
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+            }
+        });
+
+        timelineScroll.addEventListener('mouseleave', () => {
+            if (isDragging) {
+                isDragging = false;
+                timelineScroll.style.cursor = 'grab';
+                timelineScroll.style.scrollBehavior = 'smooth';
+                applyMomentum();
+            }
+        });
+
+        timelineScroll.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                timelineScroll.style.cursor = 'grab';
+                timelineScroll.style.scrollBehavior = 'smooth';
+                applyMomentum();
+            }
+        });
+
+        timelineScroll.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - timelineScroll.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            timelineScroll.scrollLeft = scrollLeft - walk;
+            
+            velocity = e.pageX - lastX;
+            lastX = e.pageX;
+        });
+
+        // Apply momentum after dragging
+        function applyMomentum() {
+            if (Math.abs(velocity) > 0.5) {
+                timelineScroll.scrollLeft -= velocity * 15;
+                velocity *= 0.95;
+                animationFrame = requestAnimationFrame(applyMomentum);
+            }
+        }
+
+        // Add touch events for mobile
+        timelineScroll.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            startX = e.touches[0].pageX - timelineScroll.offsetLeft;
+            scrollLeft = timelineScroll.scrollLeft;
+            lastX = e.touches[0].pageX;
+            timelineScroll.style.scrollBehavior = 'auto';
+        });
+
+        timelineScroll.addEventListener('touchend', () => {
+            if (isDragging) {
+                isDragging = false;
+                timelineScroll.style.scrollBehavior = 'smooth';
+                applyMomentum();
+            }
+        });
+
+        timelineScroll.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.touches[0].pageX - timelineScroll.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            timelineScroll.scrollLeft = scrollLeft - walk;
+            
+            velocity = e.touches[0].pageX - lastX;
+            lastX = e.touches[0].pageX;
+        });
+
+        // Add event listeners for filter buttons
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterEventsByCentury(btn.dataset.era);
+            });
+        });
+
+        // Add event listener for search box
+        searchBox.addEventListener('input', () => {
+            searchEvents(searchBox.value);
+        });
+
+        // Clear search on Escape key
+        searchBox.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                searchBox.value = '';
+                searchEvents('');
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                timelineScroll.scrollBy({ left: -500, behavior: 'smooth' });
+            } else if (e.key === 'ArrowRight') {
+                timelineScroll.scrollBy({ left: 500, behavior: 'smooth' });
+            } else if (e.key === ' ' || e.key === 'Spacebar') {
+                e.preventDefault();
+                centerEventInView(activeEventYear);
+            } else if (e.key === 'ArrowUp') {
+                window.scrollBy({ top: -300, behavior: 'smooth' });
+            } else if (e.key === 'ArrowDown') {
+                window.scrollBy({ top: 300, behavior: 'smooth' });
+            }
+        });
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(initTimeline, 100);
+        });
+
+        // Add smooth scroll on wheel for timeline
+        timelineScroll.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            timelineScroll.scrollLeft += e.deltaY * 0.5;
+        }, { passive: false });
+
+        // Make page scrollable vertically
+        document.body.style.overflowY = 'auto';
+        document.body.style.overflowX = 'hidden';
+    </script>
+</body>
+</html>

@@ -1,0 +1,2492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Animator Pro - 2D Animation Software</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 30px;
+            background: rgba(20, 20, 35, 0.9);
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+            margin-bottom: 0;
+            border-radius: 0;
+            height: 60px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo i {
+            color: #ff8000;
+            font-size: 24px;
+        }
+        
+        .logo h1 {
+            font-size: 20px;
+            font-weight: 600;
+            background: linear-gradient(to right, #ff8000, #ff5500);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        /* Enhanced Toolbar with Scroll */
+        .toolbar-container {
+            width: 300px;
+            background: rgba(20, 20, 35, 0.8);
+            border-right: 1px solid rgba(255, 69, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .toolbar-header {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+            font-weight: 600;
+            color: #ff8000;
+            background: rgba(30, 30, 45, 0.9);
+        }
+        
+        .toolbar-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        
+        .tool-group {
+            margin-bottom: 25px;
+        }
+        
+        .group-title {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .tool-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        
+        .tool-btn {
+            background: rgba(50, 50, 70, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            color: #ddd;
+            height: 60px;
+            width: 100%;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 11px;
+            gap: 4px;
+        }
+        
+        .tool-btn i {
+            font-size: 18px;
+            color: #ff8000;
+        }
+        
+        .tool-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+            transform: translateY(-2px);
+        }
+        
+        .tool-btn.active {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff8000;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.5);
+        }
+        
+        .workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            gap: 15px;
+            overflow: hidden;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        #main-canvas {
+            background-color: white;
+            cursor: crosshair;
+            border-radius: 4px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        #overlay-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+        
+        .canvas-controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 6px;
+            padding: 8px;
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+        
+        .canvas-control-btn {
+            background: rgba(50, 50, 70, 0.7);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            color: #ddd;
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .canvas-control-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .timeline-container {
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .timeline-controls {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .timeline-btn {
+            background: rgba(50, 50, 70, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            color: #ddd;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+        
+        .timeline-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+        }
+        
+        .frames-scroll {
+            flex: 1;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+        
+        .frames-container {
+            display: flex;
+            gap: 8px;
+            height: 100%;
+        }
+        
+        .frame {
+            width: 120px;
+            height: 70px;
+            background: rgba(50, 50, 70, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        
+        .frame:hover {
+            background: rgba(255, 128, 0, 0.1);
+            border-color: #ff8000;
+        }
+        
+        .frame.active {
+            box-shadow: 0 0 0 3px #ff8000;
+            border-color: #ff8000;
+        }
+        
+        .frame canvas {
+            border-radius: 4px;
+            background-color: white;
+        }
+        
+        .frame-number {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        
+        .add-frame {
+            font-size: 24px;
+            color: #ff8000;
+        }
+        
+        .frame-actions {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .frame:hover .frame-actions {
+            opacity: 1;
+        }
+        
+        .frame-action-btn {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: rgba(50, 50, 70, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            color: white;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .frame-action-btn:hover {
+            background: #e74c3c;
+            border-color: #e74c3c;
+        }
+        
+        .properties-panel {
+            width: 300px;
+            background: rgba(20, 20, 35, 0.8);
+            border-left: 1px solid rgba(255, 69, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+            font-weight: 600;
+            color: #ff8000;
+            background: rgba(30, 30, 45, 0.9);
+        }
+        
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        
+        .property-group {
+            margin-bottom: 25px;
+        }
+        
+        .property-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #aaa;
+        }
+        
+        .property-input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            background: rgba(50, 50, 70, 0.3);
+            color: #fff;
+        }
+        
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .color-swatch {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s;
+        }
+        
+        .color-swatch.active {
+            border-color: #fff;
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.7);
+        }
+        
+        .export-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .export-btn {
+            background: linear-gradient(135deg, #ff8000, #ff5500);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .export-btn:hover {
+            background: linear-gradient(135deg, #ff7000, #ff4500);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.4);
+        }
+        
+        .export-btn.gif {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+        
+        .export-btn.gif:hover {
+            background: linear-gradient(135deg, #8e44ad, #7d3c98);
+            box-shadow: 0 5px 15px rgba(155, 89, 182, 0.4);
+        }
+        
+        .export-btn.mp4 {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+        
+        .export-btn.mp4:hover {
+            background: linear-gradient(135deg, #2980b9, #2573a7);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .animation-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(30, 30, 45, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .play-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff8000, #ff5500);
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .play-btn:hover {
+            background: linear-gradient(135deg, #ff7000, #ff4500);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 128, 0, 0.5);
+        }
+        
+        .fps-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: rgba(20, 20, 35, 0.95);
+            border: 1px solid rgba(255, 69, 0, 0.3);
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90%;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #ff8000;
+        }
+        
+        .close-modal {
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+            color: #aaa;
+        }
+        
+        .close-modal:hover {
+            color: #ff8000;
+        }
+        
+        /* Toggle Switches */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(50, 50, 70, 0.5);
+            transition: .4s;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 3px;
+            background-color: #ddd;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #ff8000;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Selection Handles */
+        .selection-handle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #ff8000;
+            border: 2px solid white;
+            border-radius: 50%;
+            pointer-events: all;
+            z-index: 100;
+        }
+        
+        .selection-handle.rotate {
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="%23ff8000" stroke="white" stroke-width="1"/></svg>') 8 8, auto;
+        }
+        
+        /* Tool Options */
+        .tool-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .option-btn {
+            background: rgba(50, 50, 70, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            color: #ddd;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .option-btn.active {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff8000;
+        }
+        
+        /* Stats Box */
+        .stats-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stat {
+            background: rgba(50, 50, 70, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .stat-label {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff8000;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(50, 50, 70, 0.3);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 128, 0, 0.5);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 128, 0, 0.7);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .toolbar-container, .properties-panel {
+                width: 250px;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .properties-panel {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <div class="logo">
+            <i class="fas fa-film"></i>
+            <h1>Canvas Animator Pro</h1>
+        </div>
+        <div class="animation-controls">
+            <button class="play-btn" id="play-btn">
+                <i class="fas fa-play"></i>
+            </button>
+            <div class="fps-control">
+                <span>FPS:</span>
+                <input type="range" min="1" max="60" value="12" class="property-input" id="fps-slider" style="width: 80px; padding: 0;">
+                <span id="fps-value">12</span>
+            </div>
+        </div>
+        <button class="timeline-btn" id="export-modal-btn">
+            <i class="fas fa-file-export"></i> Export
+        </button>
+    </div>
+    
+    <div class="main-container">
+        <!-- Left Toolbar with Scroll -->
+        <div class="toolbar-container">
+            <div class="toolbar-header">
+                <i class="fas fa-tools"></i> Tools
+            </div>
+            <div class="toolbar-scroll">
+                <!-- Selection Tools -->
+                <div class="tool-group">
+                    <div class="group-title">Selection Tools</div>
+                    <div class="tool-buttons">
+                        <button class="tool-btn active" id="select-tool" title="Selection Tool (V)">
+                            <i class="fas fa-vector-square"></i>
+                            <span>Select</span>
+                        </button>
+                        <button class="tool-btn" id="move-tool" title="Move Tool (M)">
+                            <i class="fas fa-arrows-alt"></i>
+                            <span>Move</span>
+                        </button>
+                        <button class="tool-btn" id="scale-tool" title="Scale Tool (S)">
+                            <i class="fas fa-expand-alt"></i>
+                            <span>Scale</span>
+                        </button>
+                        <button class="tool-btn" id="rotate-tool" title="Rotate Tool (R)">
+                            <i class="fas fa-redo"></i>
+                            <span>Rotate</span>
+                        </button>
+                        <button class="tool-btn" id="lasso-tool" title="Lasso Tool (L)">
+                            <i class="fas fa-draw-polygon"></i>
+                            <span>Lasso</span>
+                        </button>
+                        <button class="tool-btn" id="magic-wand-tool" title="Magic Wand Tool (W)">
+                            <i class="fas fa-magic"></i>
+                            <span>Wand</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Drawing Tools -->
+                <div class="tool-group">
+                    <div class="group-title">Drawing Tools</div>
+                    <div class="tool-buttons">
+                        <button class="tool-btn" id="brush-tool" title="Brush Tool (B)">
+                            <i class="fas fa-paint-brush"></i>
+                            <span>Brush</span>
+                        </button>
+                        <button class="tool-btn" id="pencil-tool" title="Pencil Tool (P)">
+                            <i class="fas fa-pencil-alt"></i>
+                            <span>Pencil</span>
+                        </button>
+                        <button class="tool-btn" id="eraser-tool" title="Eraser Tool (E)">
+                            <i class="fas fa-eraser"></i>
+                            <span>Eraser</span>
+                        </button>
+                        <button class="tool-btn" id="fill-tool" title="Paint Bucket Tool (G)">
+                            <i class="fas fa-fill-drip"></i>
+                            <span>Fill</span>
+                        </button>
+                        <button class="tool-btn" id="gradient-tool" title="Gradient Tool (G)">
+                            <i class="fas fa-sliders-h"></i>
+                            <span>Gradient</span>
+                        </button>
+                        <button class="tool-btn" id="clone-tool" title="Clone Stamp Tool (C)">
+                            <i class="fas fa-stamp"></i>
+                            <span>Clone</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Shape Tools -->
+                <div class="tool-group">
+                    <div class="group-title">Shape Tools</div>
+                    <div class="tool-buttons">
+                        <button class="tool-btn" id="rectangle-tool" title="Rectangle Tool (U)">
+                            <i class="fas fa-square"></i>
+                            <span>Rectangle</span>
+                        </button>
+                        <button class="tool-btn" id="ellipse-tool" title="Ellipse Tool (U)">
+                            <i class="fas fa-circle"></i>
+                            <span>Ellipse</span>
+                        </button>
+                        <button class="tool-btn" id="line-tool" title="Line Tool (U)">
+                            <i class="fas fa-slash"></i>
+                            <span>Line</span>
+                        </button>
+                        <button class="tool-btn" id="polygon-tool" title="Polygon Tool">
+                            <i class="fas fa-draw-polygon"></i>
+                            <span>Polygon</span>
+                        </button>
+                        <button class="tool-btn" id="curve-tool" title="Curve Tool">
+                            <i class="fas fa-wave-square"></i>
+                            <span>Curve</span>
+                        </button>
+                        <button class="tool-btn" id="text-tool" title="Text Tool (T)">
+                            <i class="fas fa-font"></i>
+                            <span>Text</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Color Picker -->
+                <div class="tool-group">
+                    <div class="group-title">Colors</div>
+                    <div class="color-palette" id="color-palette">
+                        <!-- Color swatches will be added dynamically -->
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <label class="property-label">Brush Color</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="color-picker" style="width: 40px; height: 40px;">
+                                <input type="color" id="color-picker" value="#ff8000">
+                            </div>
+                            <input type="text" class="property-input" id="color-hex" value="#ff8000" style="flex: 1;">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Brush Properties -->
+                <div class="tool-group">
+                    <div class="group-title">Brush Properties</div>
+                    <div>
+                        <label class="property-label">Brush Size: <span id="brush-size-value">5px</span></label>
+                        <input type="range" min="1" max="100" value="5" class="property-input" id="brush-size">
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label class="property-label">Brush Opacity: <span id="opacity-value">100%</span></label>
+                        <input type="range" min="1" max="100" value="100" class="property-input" id="brush-opacity">
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label class="property-label">Brush Hardness: <span id="hardness-value">100%</span></label>
+                        <input type="range" min="1" max="100" value="100" class="property-input" id="brush-hardness">
+                    </div>
+                </div>
+                
+                <!-- Onion Skin Settings -->
+                <div class="tool-group">
+                    <div class="group-title">Onion Skin</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="color: #aaa;">Enabled</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="onion-skin-toggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <label class="property-label">Opacity: <span id="onion-opacity-value">30%</span></label>
+                        <input type="range" min="1" max="100" value="30" class="property-input" id="onion-opacity">
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label class="property-label">Frames Before: <span id="onion-before-value">1</span></label>
+                        <input type="range" min="0" max="5" value="1" class="property-input" id="onion-before">
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label class="property-label">Frames After: <span id="onion-after-value">1</span></label>
+                        <input type="range" min="0" max="5" value="1" class="property-input" id="onion-after">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Workspace -->
+        <div class="workspace">
+            <div class="canvas-container">
+                <canvas id="main-canvas" width="800" height="500"></canvas>
+                <canvas id="overlay-canvas" width="800" height="500"></canvas>
+                
+                <!-- Canvas Controls -->
+                <div class="canvas-controls">
+                    <button class="canvas-control-btn" id="zoom-in-btn" title="Zoom In">
+                        <i class="fas fa-search-plus"></i>
+                    </button>
+                    <button class="canvas-control-btn" id="zoom-out-btn" title="Zoom Out">
+                        <i class="fas fa-search-minus"></i>
+                    </button>
+                    <button class="canvas-control-btn" id="reset-view-btn" title="Reset View">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                    <button class="canvas-control-btn" id="grid-toggle-btn" title="Toggle Grid">
+                        <i class="fas fa-th"></i>
+                    </button>
+                </div>
+                
+                <!-- Selection Handles (will be positioned by JavaScript) -->
+                <div id="selection-handles" style="display: none;">
+                    <div class="selection-handle top-left" data-type="scale"></div>
+                    <div class="selection-handle top-center" data-type="scale"></div>
+                    <div class="selection-handle top-right" data-type="scale"></div>
+                    <div class="selection-handle middle-left" data-type="scale"></div>
+                    <div class="selection-handle middle-right" data-type="scale"></div>
+                    <div class="selection-handle bottom-left" data-type="scale"></div>
+                    <div class="selection-handle bottom-center" data-type="scale"></div>
+                    <div class="selection-handle bottom-right" data-type="scale"></div>
+                    <div class="selection-handle rotate" data-type="rotate"></div>
+                </div>
+            </div>
+            
+            <!-- Timeline -->
+            <div class="timeline-container">
+                <div class="timeline-header">
+                    <h3 style="color: #ff8000; font-size: 16px;"><i class="fas fa-film"></i> Timeline</h3>
+                    <div class="timeline-controls">
+                        <button class="timeline-btn" id="add-frame-btn">
+                            <i class="fas fa-plus"></i> Add Frame
+                        </button>
+                        <button class="timeline-btn" id="duplicate-frame-btn">
+                            <i class="fas fa-copy"></i> Duplicate
+                        </button>
+                        <button class="timeline-btn" id="clear-frame-btn">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="frames-scroll">
+                    <div class="frames-container" id="frames-container">
+                        <!-- Frames will be added here dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Properties Panel -->
+        <div class="properties-panel">
+            <div class="panel-header">
+                <i class="fas fa-sliders-h"></i> Properties
+            </div>
+            <div class="panel-content">
+                <!-- Canvas Properties -->
+                <div class="property-group">
+                    <div class="group-title">Canvas Properties</div>
+                    <div>
+                        <label class="property-label">Canvas Size</label>
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <input type="number" class="property-input" id="canvas-width" value="800" min="100" max="2000" placeholder="Width">
+                            <input type="number" class="property-input" id="canvas-height" value="500" min="100" max="2000" placeholder="Height">
+                        </div>
+                        <button class="timeline-btn" id="resize-canvas-btn" style="width: 100%;">
+                            <i class="fas fa-expand-alt"></i> Resize Canvas
+                        </button>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <label class="property-label">Background Color</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="color-picker" style="width: 30px; height: 30px;">
+                                <input type="color" id="bg-color-picker" value="#ffffff">
+                            </div>
+                            <span style="color: #aaa;">White</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Layer Properties -->
+                <div class="property-group">
+                    <div class="group-title">Layer Properties</div>
+                    <div>
+                        <label class="property-label">Opacity</label>
+                        <input type="range" min="1" max="100" value="100" class="property-input" id="layer-opacity">
+                        <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                            <span style="color: #aaa; font-size: 12px;">Transparent</span>
+                            <span style="color: #aaa; font-size: 12px;" id="layer-opacity-value">100%</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <label class="property-label">Blend Mode</label>
+                        <select class="property-input" id="blend-mode">
+                            <option value="normal">Normal</option>
+                            <option value="multiply">Multiply</option>
+                            <option value="screen">Screen</option>
+                            <option value="overlay">Overlay</option>
+                            <option value="darken">Darken</option>
+                            <option value="lighten">Lighten</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Animation Stats -->
+                <div class="property-group">
+                    <div class="group-title">Animation Stats</div>
+                    <div class="stats-box">
+                        <div class="stat">
+                            <div class="stat-label">Frames</div>
+                            <div class="stat-value" id="frame-count">1</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Current</div>
+                            <div class="stat-value" id="current-frame">1</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">FPS</div>
+                            <div class="stat-value" id="fps-display">12</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Duration</div>
+                            <div class="stat-value" id="duration-display">0.08s</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Export Options -->
+                <div class="property-group">
+                    <div class="group-title">Export</div>
+                    <div class="export-options">
+                        <button class="export-btn" id="export-png-btn">
+                            <i class="fas fa-download"></i> Export PNG
+                        </button>
+                        <button class="export-btn gif" id="export-gif-btn">
+                            <i class="fas fa-download"></i> Export GIF
+                        </button>
+                        <button class="export-btn mp4" id="export-mp4-btn">
+                            <i class="fas fa-download"></i> Export MP4
+                        </button>
+                        <button class="timeline-btn" id="export-json-btn" style="width: 100%; margin-top: 5px;">
+                            <i class="fas fa-file-code"></i> Export as JSON
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Export Modal -->
+    <div class="modal" id="export-modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-export-modal">&times;</span>
+            <h3 class="modal-title">Export Animation</h3>
+            <p style="color: #aaa; margin-bottom: 20px;">Select how you want to export your animation:</p>
+            
+            <div class="export-options" style="margin-top: 20px;">
+                <button class="export-btn" id="export-frames-png">
+                    <i class="fas fa-images"></i> Export All Frames as PNG
+                </button>
+                <button class="export-btn gif" id="export-animation-gif">
+                    <i class="fas fa-film"></i> Export as Animated GIF
+                </button>
+                <button class="export-btn mp4" id="export-animation-mp4">
+                    <i class="fas fa-video"></i> Export as MP4 Video
+                </button>
+                <button class="timeline-btn" id="export-json-modal-btn" style="width: 100%; margin-top: 10px;">
+                    <i class="fas fa-file-code"></i> Export as JSON Project
+                </button>
+            </div>
+            
+            <div class="property-group" style="margin-top: 30px;">
+                <label class="property-label">Export Settings</label>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #aaa;">Frame Delay (ms):</span>
+                        <input type="number" class="property-input" id="export-delay" value="100" min="10" max="1000" style="width: 80px;">
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #aaa;">Loop Count (0 = infinite):</span>
+                        <input type="number" class="property-input" id="export-loop" value="0" min="0" max="100" style="width: 80px;">
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #aaa;">Video Quality:</span>
+                        <select class="property-input" id="video-quality" style="width: 120px;">
+                            <option value="high">High</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Modal -->
+    <div class="modal" id="loading-modal">
+        <div class="modal-content">
+            <h3 class="modal-title" id="loading-title">Processing Animation</h3>
+            <p style="color: #aaa; margin-bottom: 20px; text-align: center;" id="loading-message">Please wait while we process your animation...</p>
+            <div style="display: flex; justify-content: center; margin: 20px 0;">
+                <div style="width: 50px; height: 50px; border: 5px solid rgba(255, 128, 0, 0.3); border-top-color: #ff8000; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            </div>
+            <div style="text-align: center;">
+                <div class="stat-value" id="loading-progress">0%</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced Animation Software with Professional Tools
+        
+        // Global variables
+        let currentTool = 'select';
+        let currentColor = '#ff8000';
+        let brushSize = 5;
+        let brushOpacity = 100;
+        let brushHardness = 100;
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let frames = [];
+        let currentFrameIndex = 0;
+        let isPlaying = false;
+        let animationInterval;
+        let fps = 12;
+        let onionSkinEnabled = true;
+        let onionOpacity = 30;
+        let onionBefore = 1;
+        let onionAfter = 1;
+        let canvasZoom = 1;
+        let canvasOffsetX = 0;
+        let canvasOffsetY = 0;
+        let isPanning = false;
+        let showGrid = true;
+        
+        // Selection system
+        let selection = {
+            active: false,
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0,
+            rotation: 0,
+            scaleX: 1,
+            scaleY: 1
+        };
+        
+        // Transform handles
+        let activeHandle = null;
+        let transformStartX = 0;
+        let transformStartY = 0;
+        let transformStartSelection = null;
+        
+        // Canvas setup
+        const mainCanvas = document.getElementById('main-canvas');
+        const ctx = mainCanvas.getContext('2d', { willReadFrequently: true });
+        const overlayCanvas = document.getElementById('overlay-canvas');
+        const overlayCtx = overlayCanvas.getContext('2d');
+        
+        // Initialize with white background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+        
+        // Set initial frame
+        frames.push({
+            id: 1,
+            canvasData: ctx.getImageData(0, 0, mainCanvas.width, mainCanvas.height),
+            opacity: 100,
+            blendMode: 'normal'
+        });
+        
+        // UI Elements
+        const toolButtons = document.querySelectorAll('.tool-btn');
+        const colorPicker = document.getElementById('color-picker');
+        const colorHex = document.getElementById('color-hex');
+        const brushSizeSlider = document.getElementById('brush-size');
+        const brushSizeValue = document.getElementById('brush-size-value');
+        const opacitySlider = document.getElementById('brush-opacity');
+        const opacityValue = document.getElementById('opacity-value');
+        const hardnessSlider = document.getElementById('brush-hardness');
+        const hardnessValue = document.getElementById('hardness-value');
+        const framesContainer = document.getElementById('frames-container');
+        const addFrameBtn = document.getElementById('add-frame-btn');
+        const clearFrameBtn = document.getElementById('clear-frame-btn');
+        const duplicateFrameBtn = document.getElementById('duplicate-frame-btn');
+        const playBtn = document.getElementById('play-btn');
+        const fpsSlider = document.getElementById('fps-slider');
+        const fpsValue = document.getElementById('fps-value');
+        const fpsDisplay = document.getElementById('fps-display');
+        const frameCountElement = document.getElementById('frame-count');
+        const currentFrameElement = document.getElementById('current-frame');
+        const durationDisplay = document.getElementById('duration-display');
+        const exportModal = document.getElementById('export-modal');
+        const exportModalBtn = document.getElementById('export-modal-btn');
+        const closeExportModal = document.getElementById('close-export-modal');
+        const onionSkinToggle = document.getElementById('onion-skin-toggle');
+        const onionOpacitySlider = document.getElementById('onion-opacity');
+        const onionOpacityValue = document.getElementById('onion-opacity-value');
+        const onionBeforeSlider = document.getElementById('onion-before');
+        const onionBeforeValue = document.getElementById('onion-before-value');
+        const onionAfterSlider = document.getElementById('onion-after');
+        const onionAfterValue = document.getElementById('onion-after-value');
+        const colorPalette = document.getElementById('color-palette');
+        const canvasWidthInput = document.getElementById('canvas-width');
+        const canvasHeightInput = document.getElementById('canvas-height');
+        const resizeCanvasBtn = document.getElementById('resize-canvas-btn');
+        const bgColorPicker = document.getElementById('bg-color-picker');
+        const layerOpacitySlider = document.getElementById('layer-opacity');
+        const layerOpacityValue = document.getElementById('layer-opacity-value');
+        const blendModeSelect = document.getElementById('blend-mode');
+        const zoomInBtn = document.getElementById('zoom-in-btn');
+        const zoomOutBtn = document.getElementById('zoom-out-btn');
+        const resetViewBtn = document.getElementById('reset-view-btn');
+        const gridToggleBtn = document.getElementById('grid-toggle-btn');
+        const selectionHandles = document.getElementById('selection-handles');
+        const loadingModal = document.getElementById('loading-modal');
+        const loadingTitle = document.getElementById('loading-title');
+        const loadingMessage = document.getElementById('loading-message');
+        const loadingProgress = document.getElementById('loading-progress');
+        
+        // Initialize color palette with more colors
+        const paletteColors = [
+            '#ff8000', '#ff5500', '#ffaa00', '#ffff00', '#aaff00',
+            '#00ff00', '#00ffaa', '#00ffff', '#00aaff', '#0080ff',
+            '#0000ff', '#8000ff', '#ff00ff', '#ff0080', '#ff0000',
+            '#ffffff', '#cccccc', '#888888', '#444444', '#000000',
+            '#330000', '#663300', '#666600', '#336600', '#006633',
+            '#006666', '#003366', '#330066', '#660066', '#660033'
+        ];
+        
+        function initColorPalette() {
+            colorPalette.innerHTML = '';
+            paletteColors.forEach(color => {
+                const swatch = document.createElement('div');
+                swatch.className = 'color-swatch';
+                swatch.style.backgroundColor = color;
+                swatch.dataset.color = color;
+                
+                if (color === currentColor) {
+                    swatch.classList.add('active');
+                }
+                
+                swatch.addEventListener('click', () => {
+                    currentColor = color;
+                    colorPicker.value = color;
+                    colorHex.value = color;
+                    
+                    document.querySelectorAll('.color-swatch').forEach(s => {
+                        s.classList.remove('active');
+                    });
+                    swatch.classList.add('active');
+                });
+                
+                colorPalette.appendChild(swatch);
+            });
+        }
+        
+        // Initialize frames display
+        function updateFramesDisplay() {
+            framesContainer.innerHTML = '';
+            
+            frames.forEach((frame, index) => {
+                const frameElement = document.createElement('div');
+                frameElement.className = `frame ${index === currentFrameIndex ? 'active' : ''}`;
+                frameElement.dataset.index = index;
+                
+                // Create a small canvas for the frame thumbnail
+                const thumbnailCanvas = document.createElement('canvas');
+                thumbnailCanvas.width = 100;
+                thumbnailCanvas.height = 60;
+                const thumbnailCtx = thumbnailCanvas.getContext('2d');
+                
+                // Draw the frame data to the thumbnail
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = mainCanvas.width;
+                tempCanvas.height = mainCanvas.height;
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCtx.putImageData(frame.canvasData, 0, 0);
+                
+                // Scale and draw to thumbnail
+                thumbnailCtx.drawImage(tempCanvas, 0, 0, 100, 60);
+                
+                frameElement.appendChild(thumbnailCanvas);
+                
+                // Frame number
+                const frameNumber = document.createElement('div');
+                frameNumber.className = 'frame-number';
+                frameNumber.textContent = index + 1;
+                frameElement.appendChild(frameNumber);
+                
+                // Frame actions (delete button)
+                const frameActions = document.createElement('div');
+                frameActions.className = 'frame-actions';
+                
+                const deleteBtn = document.createElement('div');
+                deleteBtn.className = 'frame-action-btn';
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (frames.length > 1) {
+                        frames.splice(index, 1);
+                        if (currentFrameIndex >= frames.length) {
+                            currentFrameIndex = frames.length - 1;
+                        }
+                        updateFramesDisplay();
+                        loadFrame(currentFrameIndex);
+                        updateSelectionHandles();
+                    }
+                });
+                
+                frameActions.appendChild(deleteBtn);
+                frameElement.appendChild(frameActions);
+                
+                // Click to select frame
+                frameElement.addEventListener('click', () => {
+                    if (currentFrameIndex !== index) {
+                        saveCurrentFrame();
+                        currentFrameIndex = index;
+                        loadFrame(currentFrameIndex);
+                        updateFramesDisplay();
+                        updateSelectionHandles();
+                    }
+                });
+                
+                framesContainer.appendChild(frameElement);
+            });
+            
+            // Add frame button
+            const addFrameElement = document.createElement('div');
+            addFrameElement.className = 'frame';
+            addFrameElement.innerHTML = '<div class="add-frame"><i class="fas fa-plus"></i></div>';
+            addFrameElement.addEventListener('click', addFrame);
+            framesContainer.appendChild(addFrameElement);
+            
+            // Update frame count and current frame display
+            frameCountElement.textContent = frames.length;
+            currentFrameElement.textContent = currentFrameIndex + 1;
+            
+            // Update duration display
+            const duration = frames.length / fps;
+            durationDisplay.textContent = duration.toFixed(2) + 's';
+            fpsDisplay.textContent = fps;
+        }
+        
+        // Save current frame data
+        function saveCurrentFrame() {
+            const imageData = ctx.getImageData(0, 0, mainCanvas.width, mainCanvas.height);
+            frames[currentFrameIndex].canvasData = imageData;
+            frames[currentFrameIndex].opacity = parseInt(layerOpacitySlider.value);
+            frames[currentFrameIndex].blendMode = blendModeSelect.value;
+        }
+        
+        // Load frame data
+        function loadFrame(index) {
+            const frame = frames[index];
+            ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+            ctx.putImageData(frame.canvasData, 0, 0);
+            
+            // Update layer properties
+            layerOpacitySlider.value = frame.opacity;
+            layerOpacityValue.textContent = frame.opacity + '%';
+            blendModeSelect.value = frame.blendMode;
+            
+            // Apply onion skin
+            drawOnionSkin();
+            
+            // Draw grid if enabled
+            if (showGrid) {
+                drawGrid();
+            }
+            
+            // Draw selection if active
+            if (selection.active) {
+                drawSelection();
+            }
+        }
+        
+        // Add new frame
+        function addFrame() {
+            saveCurrentFrame();
+            
+            // Create a new blank frame
+            const newFrame = {
+                id: frames.length + 1,
+                canvasData: ctx.getImageData(0, 0, mainCanvas.width, mainCanvas.height),
+                opacity: 100,
+                blendMode: 'normal'
+            };
+            
+            // Clear the canvas with background color
+            ctx.fillStyle = bgColorPicker.value;
+            ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+            
+            // Add to frames array and set as current
+            frames.push(newFrame);
+            currentFrameIndex = frames.length - 1;
+            updateFramesDisplay();
+            updateSelectionHandles();
+        }
+        
+        // Clear current frame
+        function clearFrame() {
+            ctx.fillStyle = bgColorPicker.value;
+            ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+            saveCurrentFrame();
+        }
+        
+        // Duplicate current frame
+        function duplicateFrame() {
+            saveCurrentFrame();
+            
+            const currentFrameData = ctx.getImageData(0, 0, mainCanvas.width, mainCanvas.height);
+            const duplicatedFrame = {
+                id: frames.length + 1,
+                canvasData: currentFrameData,
+                opacity: frames[currentFrameIndex].opacity,
+                blendMode: frames[currentFrameIndex].blendMode
+            };
+            
+            frames.splice(currentFrameIndex + 1, 0, duplicatedFrame);
+            currentFrameIndex++;
+            updateFramesDisplay();
+            updateSelectionHandles();
+        }
+        
+        // Draw onion skin (previous and next frames)
+        function drawOnionSkin() {
+            if (!onionSkinEnabled) return;
+            
+            overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+            
+            // Draw previous frames
+            for (let i = 1; i <= onionBefore; i++) {
+                const frameIndex = currentFrameIndex - i;
+                if (frameIndex >= 0) {
+                    const frame = frames[frameIndex];
+                    overlayCtx.globalAlpha = onionOpacity / 100 * (1 - i * 0.2);
+                    overlayCtx.drawImage(
+                        createCanvasFromImageData(frame.canvasData),
+                        0, 0, mainCanvas.width, mainCanvas.height
+                    );
+                }
+            }
+            
+            // Draw next frames
+            for (let i = 1; i <= onionAfter; i++) {
+                const frameIndex = currentFrameIndex + i;
+                if (frameIndex < frames.length) {
+                    const frame = frames[frameIndex];
+                    overlayCtx.globalAlpha = onionOpacity / 100 * (1 - i * 0.2);
+                    overlayCtx.drawImage(
+                        createCanvasFromImageData(frame.canvasData),
+                        0, 0, mainCanvas.width, mainCanvas.height
+                    );
+                }
+            }
+            
+            overlayCtx.globalAlpha = 1;
+        }
+        
+        // Helper to create canvas from ImageData
+        function createCanvasFromImageData(imageData) {
+            const canvas = document.createElement('canvas');
+            canvas.width = imageData.width;
+            canvas.height = imageData.height;
+            const ctx = canvas.getContext('2d');
+            ctx.putImageData(imageData, 0, 0);
+            return canvas;
+        }
+        
+        // Draw grid
+        function drawGrid() {
+            ctx.save();
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.lineWidth = 1;
+            
+            // Draw vertical lines
+            for (let x = 0; x <= mainCanvas.width; x += 20) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, mainCanvas.height);
+                ctx.stroke();
+            }
+            
+            // Draw horizontal lines
+            for (let y = 0; y <= mainCanvas.height; y += 20) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(mainCanvas.width, y);
+                ctx.stroke();
+            }
+            
+            ctx.restore();
+        }
+        
+        // Draw selection rectangle and handles
+        function drawSelection() {
+            if (!selection.active) return;
+            
+            overlayCtx.save();
+            overlayCtx.strokeStyle = '#ff8000';
+            overlayCtx.lineWidth = 2;
+            overlayCtx.setLineDash([5, 5]);
+            
+            // Calculate transformed corners
+            const centerX = selection.x + selection.width / 2;
+            const centerY = selection.y + selection.height / 2;
+            
+            overlayCtx.translate(centerX, centerY);
+            overlayCtx.rotate(selection.rotation * Math.PI / 180);
+            overlayCtx.scale(selection.scaleX, selection.scaleY);
+            overlayCtx.translate(-centerX, -centerY);
+            
+            overlayCtx.strokeRect(selection.x, selection.y, selection.width, selection.height);
+            
+            overlayCtx.restore();
+            
+            // Update selection handles position
+            updateSelectionHandles();
+        }
+        
+        // Update selection handles position
+        function updateSelectionHandles() {
+            if (!selection.active) {
+                selectionHandles.style.display = 'none';
+                return;
+            }
+            
+            selectionHandles.style.display = 'block';
+            
+            const centerX = selection.x + selection.width / 2;
+            const centerY = selection.y + selection.height / 2;
+            
+            // Calculate positions for each handle
+            const handles = selectionHandles.querySelectorAll('.selection-handle');
+            handles.forEach(handle => {
+                let x, y;
+                
+                switch (handle.className) {
+                    case 'selection-handle top-left':
+                        x = selection.x;
+                        y = selection.y;
+                        break;
+                    case 'selection-handle top-center':
+                        x = centerX;
+                        y = selection.y;
+                        break;
+                    case 'selection-handle top-right':
+                        x = selection.x + selection.width;
+                        y = selection.y;
+                        break;
+                    case 'selection-handle middle-left':
+                        x = selection.x;
+                        y = centerY;
+                        break;
+                    case 'selection-handle middle-right':
+                        x = selection.x + selection.width;
+                        y = centerY;
+                        break;
+                    case 'selection-handle bottom-left':
+                        x = selection.x;
+                        y = selection.y + selection.height;
+                        break;
+                    case 'selection-handle bottom-center':
+                        x = centerX;
+                        y = selection.y + selection.height;
+                        break;
+                    case 'selection-handle bottom-right':
+                        x = selection.x + selection.width;
+                        y = selection.y + selection.height;
+                        break;
+                    case 'selection-handle rotate':
+                        x = centerX;
+                        y = selection.y - 20;
+                        break;
+                }
+                
+                // Apply rotation
+                const angle = selection.rotation * Math.PI / 180;
+                const rotatedX = centerX + (x - centerX) * Math.cos(angle) - (y - centerY) * Math.sin(angle);
+                const rotatedY = centerY + (x - centerX) * Math.sin(angle) + (y - centerY) * Math.cos(angle);
+                
+                // Apply scaling
+                const scaledX = centerX + (rotatedX - centerX) * selection.scaleX;
+                const scaledY = centerY + (rotatedY - centerY) * selection.scaleY;
+                
+                handle.style.left = (scaledX - 4) + 'px';
+                handle.style.top = (scaledY - 4) + 'px';
+            });
+        }
+        
+        // Start selection
+        function startSelection(x, y) {
+            selection.active = true;
+            selection.x = x;
+            selection.y = y;
+            selection.width = 0;
+            selection.height = 0;
+            selection.rotation = 0;
+            selection.scaleX = 1;
+            selection.scaleY = 1;
+            
+            updateSelectionHandles();
+        }
+        
+        // Update selection
+        function updateSelection(x, y) {
+            selection.width = x - selection.x;
+            selection.height = y - selection.y;
+            
+            // Keep positive width and height
+            if (selection.width < 0) {
+                selection.x = x;
+                selection.width = -selection.width;
+            }
+            if (selection.height < 0) {
+                selection.y = y;
+                selection.height = -selection.height;
+            }
+            
+            drawSelection();
+        }
+        
+        // Move selection
+        function moveSelection(deltaX, deltaY) {
+            selection.x += deltaX;
+            selection.y += deltaY;
+            drawSelection();
+        }
+        
+        // Scale selection
+        function scaleSelection(handleType, deltaX, deltaY) {
+            const centerX = selection.x + selection.width / 2;
+            const centerY = selection.y + selection.height / 2;
+            
+            switch (handleType) {
+                case 'top-left':
+                    selection.x += deltaX;
+                    selection.y += deltaY;
+                    selection.width -= deltaX;
+                    selection.height -= deltaY;
+                    break;
+                case 'top-right':
+                    selection.y += deltaY;
+                    selection.width += deltaX;
+                    selection.height -= deltaY;
+                    break;
+                case 'bottom-left':
+                    selection.x += deltaX;
+                    selection.width -= deltaX;
+                    selection.height += deltaY;
+                    break;
+                case 'bottom-right':
+                    selection.width += deltaX;
+                    selection.height += deltaY;
+                    break;
+                case 'top-center':
+                    selection.y += deltaY;
+                    selection.height -= deltaY;
+                    break;
+                case 'bottom-center':
+                    selection.height += deltaY;
+                    break;
+                case 'middle-left':
+                    selection.x += deltaX;
+                    selection.width -= deltaX;
+                    break;
+                case 'middle-right':
+                    selection.width += deltaX;
+                    break;
+            }
+            
+            // Ensure minimum size
+            if (selection.width < 5) selection.width = 5;
+            if (selection.height < 5) selection.height = 5;
+            
+            drawSelection();
+        }
+        
+        // Rotate selection
+        function rotateSelection(deltaAngle) {
+            selection.rotation += deltaAngle;
+            drawSelection();
+        }
+        
+        // Apply selection transformation to canvas
+        function applySelection() {
+            if (!selection.active) return;
+            
+            // Get selected area
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = selection.width;
+            tempCanvas.height = selection.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // Apply transformations
+            tempCtx.translate(selection.width / 2, selection.height / 2);
+            tempCtx.rotate(selection.rotation * Math.PI / 180);
+            tempCtx.scale(selection.scaleX, selection.scaleY);
+            tempCtx.translate(-selection.width / 2, -selection.height / 2);
+            
+            // Draw the selected area
+            tempCtx.drawImage(mainCanvas, 
+                selection.x, selection.y, selection.width, selection.height,
+                0, 0, selection.width, selection.height);
+            
+            // Clear the original area
+            ctx.fillStyle = bgColorPicker.value;
+            ctx.fillRect(selection.x, selection.y, selection.width, selection.height);
+            
+            // Draw the transformed content back
+            ctx.save();
+            ctx.translate(selection.x + selection.width / 2, selection.y + selection.height / 2);
+            ctx.rotate(selection.rotation * Math.PI / 180);
+            ctx.scale(selection.scaleX, selection.scaleY);
+            ctx.translate(-selection.x - selection.width / 2, -selection.y - selection.height / 2);
+            ctx.drawImage(tempCanvas, selection.x, selection.y);
+            ctx.restore();
+            
+            // Clear selection
+            selection.active = false;
+            updateSelectionHandles();
+        }
+        
+        // Enhanced drawing with brush properties
+        function draw(e) {
+            if (!isDrawing || currentTool === 'select' || currentTool === 'move' || 
+                currentTool === 'scale' || currentTool === 'rotate') return;
+            
+            // Calculate position considering canvas offset and zoom
+            const rect = mainCanvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left - canvasOffsetX) / canvasZoom;
+            const y = (e.clientY - rect.top - canvasOffsetY) / canvasZoom;
+            
+            // Set drawing properties
+            ctx.globalAlpha = brushOpacity / 100;
+            ctx.globalCompositeOperation = 'source-over';
+            
+            if (currentTool === 'eraser') {
+                ctx.strokeStyle = bgColorPicker.value;
+                ctx.globalCompositeOperation = 'destination-out';
+            } else {
+                ctx.strokeStyle = currentColor;
+            }
+            
+            ctx.lineWidth = brushSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            // Create gradient for brush hardness
+            if (brushHardness < 100 && currentTool !== 'eraser') {
+                const gradient = ctx.createRadialGradient(lastX, lastY, 0, lastX, lastY, brushSize / 2);
+                gradient.addColorStop(0, currentColor);
+                gradient.addColorStop(brushHardness / 100, currentColor);
+                gradient.addColorStop(1, 'transparent');
+                ctx.strokeStyle = gradient;
+            }
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            
+            [lastX, lastY] = [x, y];
+        }
+        
+        // Enhanced shape drawing
+        function drawShape(e, shape) {
+            const rect = mainCanvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left - canvasOffsetX) / canvasZoom;
+            const y = (e.clientY - rect.top - canvasOffsetY) / canvasZoom;
+            
+            // Clear and redraw from saved state
+            ctx.putImageData(frames[currentFrameIndex].canvasData, 0, 0);
+            
+            ctx.strokeStyle = currentColor;
+            ctx.fillStyle = currentColor;
+            ctx.lineWidth = brushSize;
+            ctx.globalAlpha = brushOpacity / 100;
+            
+            if (shape === 'line') {
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            } else if (shape === 'rectangle') {
+                const width = x - lastX;
+                const height = y - lastY;
+                
+                ctx.beginPath();
+                ctx.rect(lastX, lastY, width, height);
+                ctx.stroke();
+            } else if (shape === 'ellipse') {
+                const radiusX = Math.abs(x - lastX) / 2;
+                const radiusY = Math.abs(y - lastY) / 2;
+                const centerX = lastX + (x - lastX) / 2;
+                const centerY = lastY + (y - lastY) / 2;
+                
+                ctx.beginPath();
+                ctx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
+                ctx.stroke();
+            } else if (shape === 'polygon') {
+                // Draw polygon with 5 sides by default
+                const sides = 5;
+                const radius = Math.sqrt(Math.pow(x - lastX, 2) + Math.pow(y - lastY, 2));
+                
+                ctx.beginPath();
+                for (let i = 0; i < sides; i++) {
+                    const angle = (i * 2 * Math.PI / sides) - Math.PI / 2;
+                    const px = lastX + radius * Math.cos(angle);
+                    const py = lastY + radius * Math.sin(angle);
+                    
+                    if (i === 0) {
+                        ctx.moveTo(px, py);
+                    } else {
+                        ctx.lineTo(px, py);
+                    }
+                }
+                ctx.closePath();
+                ctx.stroke();
+            }
+        }
+        
+        // Fill tool with tolerance
+        function fillArea(e) {
+            const rect = mainCanvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left - canvasOffsetX) / canvasZoom);
+            const y = Math.floor((e.clientY - rect.top - canvasOffsetY) / canvasZoom);
+            
+            // Get the pixel color at the clicked position
+            const pixelData = ctx.getImageData(x, y, 1, 1).data;
+            const targetColor = { r: pixelData[0], g: pixelData[1], b: pixelData[2], a: pixelData[3] };
+            const newColor = hexToRgb(currentColor);
+            
+            // Check if we're already filling with the same color
+            if (targetColor.r === newColor.r && targetColor.g === newColor.g && targetColor.b === newColor.b) {
+                return;
+            }
+            
+            const imageData = ctx.getImageData(0, 0, mainCanvas.width, mainCanvas.height);
+            const stack = [{x, y}];
+            const visited = new Set();
+            const tolerance = 10; // Color tolerance
+            
+            while (stack.length > 0) {
+                const {x: currentX, y: currentY} = stack.pop();
+                const key = `${currentX},${currentY}`;
+                
+                if (visited.has(key)) continue;
+                if (currentX < 0 || currentX >= mainCanvas.width || currentY < 0 || currentY >= mainCanvas.height) continue;
+                
+                const pixelIndex = (currentY * mainCanvas.width + currentX) * 4;
+                const r = imageData.data[pixelIndex];
+                const g = imageData.data[pixelIndex + 1];
+                const b = imageData.data[pixelIndex + 2];
+                
+                // Check color with tolerance
+                if (Math.abs(r - targetColor.r) <= tolerance &&
+                    Math.abs(g - targetColor.g) <= tolerance &&
+                    Math.abs(b - targetColor.b) <= tolerance) {
+                    
+                    // Fill the pixel
+                    imageData.data[pixelIndex] = newColor.r;
+                    imageData.data[pixelIndex + 1] = newColor.g;
+                    imageData.data[pixelIndex + 2] = newColor.b;
+                    imageData.data[pixelIndex + 3] = 255;
+                    
+                    // Add neighboring pixels to stack
+                    stack.push({x: currentX + 1, y: currentY});
+                    stack.push({x: currentX - 1, y: currentY});
+                    stack.push({x: currentX, y: currentY + 1});
+                    stack.push({x: currentX, y: currentY - 1});
+                    
+                    visited.add(key);
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+        }
+        
+        // Helper function to convert hex to RGB
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : {r: 0, g: 0, b: 0};
+        }
+        
+        // Play/pause animation
+        function toggleAnimation() {
+            if (isPlaying) {
+                // Stop animation
+                clearInterval(animationInterval);
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                isPlaying = false;
+                
+                // Reload current frame
+                loadFrame(currentFrameIndex);
+            } else {
+                // Start animation
+                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                isPlaying = true;
+                
+                let frameIndex = 0;
+                const frameDelay = 1000 / fps;
+                
+                animationInterval = setInterval(() => {
+                    loadFrame(frameIndex);
+                    frameIndex = (frameIndex + 1) % frames.length;
+                }, frameDelay);
+            }
+        }
+        
+        // Export functions
+        function exportFrameAsPNG() {
+            const link = document.createElement('a');
+            link.download = `frame-${currentFrameIndex + 1}.png`;
+            link.href = mainCanvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        function exportAllFramesAsPNG() {
+            showLoading('Exporting Frames', 'Preparing PNG files...');
+            
+            // Simulate processing
+            setTimeout(() => {
+                // In a real implementation, this would create a ZIP file
+                // For this demo, we'll export the current frame
+                exportFrameAsPNG();
+                hideLoading();
+                alert('In a full implementation, this would download a ZIP file with all frames as PNG images.');
+            }, 1000);
+        }
+        
+        function exportAsGIF() {
+            showLoading('Creating GIF', 'Processing animation frames...');
+            
+            // Simulate GIF creation
+            setTimeout(() => {
+                // In a real implementation, this would use a GIF encoder library
+                // For this demo, we'll export the current frame as PNG
+                exportFrameAsPNG();
+                hideLoading();
+                alert('In a full implementation, this would generate and download an animated GIF using a library like gif.js.');
+            }, 1500);
+        }
+        
+        function exportAsMP4() {
+            showLoading('Creating MP4', 'Encoding video... This may take a moment.');
+            
+            // Simulate MP4 encoding
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 5;
+                loadingProgress.textContent = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    
+                    // In a real implementation, this would use the MediaRecorder API
+                    // or a WebAssembly video encoder
+                    setTimeout(() => {
+                        // Create a fake video download
+                        const blob = new Blob(['Simulated MP4 video file'], { type: 'video/mp4' });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = 'animation.mp4';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                        
+                        hideLoading();
+                        alert('MP4 export simulated. In a full implementation, this would use the MediaRecorder API to encode the animation as a video.');
+                    }, 500);
+                }
+            }, 100);
+        }
+        
+        function exportAsJSON() {
+            // Save current frame first
+            saveCurrentFrame();
+            
+            const animationData = {
+                frames: frames.map(frame => {
+                    // Convert ImageData to base64
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = mainCanvas.width;
+                    tempCanvas.height = mainCanvas.height;
+                    const tempCtx = tempCanvas.getContext('2d');
+                    tempCtx.putImageData(frame.canvasData, 0, 0);
+                    
+                    return {
+                        id: frame.id,
+                        data: tempCanvas.toDataURL('image/png'),
+                        opacity: frame.opacity,
+                        blendMode: frame.blendMode
+                    };
+                }),
+                canvasWidth: mainCanvas.width,
+                canvasHeight: mainCanvas.height,
+                fps: fps,
+                backgroundColor: bgColorPicker.value
+            };
+            
+            const dataStr = JSON.stringify(animationData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const link = document.createElement('a');
+            link.download = 'animation-project.json';
+            link.href = dataUri;
+            link.click();
+        }
+        
+        // Show loading modal
+        function showLoading(title, message) {
+            loadingTitle.textContent = title;
+            loadingMessage.textContent = message;
+            loadingProgress.textContent = '0%';
+            loadingModal.style.display = 'flex';
+        }
+        
+        // Hide loading modal
+        function hideLoading() {
+            loadingModal.style.display = 'none';
+        }
+        
+        // Canvas zoom and pan
+        function zoomCanvas(delta) {
+            canvasZoom += delta;
+            if (canvasZoom < 0.1) canvasZoom = 0.1;
+            if (canvasZoom > 10) canvasZoom = 10;
+            
+            applyCanvasTransform();
+        }
+        
+        function resetCanvasView() {
+            canvasZoom = 1;
+            canvasOffsetX = 0;
+            canvasOffsetY = 0;
+            applyCanvasTransform();
+        }
+        
+        function applyCanvasTransform() {
+            mainCanvas.style.transform = `translate(${canvasOffsetX}px, ${canvasOffsetY}px) scale(${canvasZoom})`;
+            overlayCanvas.style.transform = `translate(${canvasOffsetX}px, ${canvasOffsetY}px) scale(${canvasZoom})`;
+            
+            // Update selection handles container
+            selectionHandles.style.transform = `translate(${canvasOffsetX}px, ${canvasOffsetY}px) scale(${canvasZoom})`;
+        }
+        
+        // Event Listeners
+        mainCanvas.addEventListener('mousedown', (e) => {
+            const rect = mainCanvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left - canvasOffsetX) / canvasZoom;
+            const y = (e.clientY - rect.top - canvasOffsetY) / canvasZoom;
+            
+            // Check if clicking on a selection handle
+            const handles = selectionHandles.querySelectorAll('.selection-handle');
+            for (const handle of handles) {
+                const handleRect = handle.getBoundingClientRect();
+                if (e.clientX >= handleRect.left && e.clientX <= handleRect.right &&
+                    e.clientY >= handleRect.top && e.clientY <= handleRect.bottom) {
+                    activeHandle = handle.dataset.type || 'scale';
+                    transformStartX = e.clientX;
+                    transformStartY = e.clientY;
+                    transformStartSelection = { ...selection };
+                    return;
+                }
+            }
+            
+            // Handle different tools
+            if (currentTool === 'select') {
+                if (selection.active && 
+                    x >= selection.x && x <= selection.x + selection.width &&
+                    y >= selection.y && y <= selection.y + selection.height) {
+                    // Clicked inside selection - start moving
+                    activeHandle = 'move';
+                    transformStartX = e.clientX;
+                    transformStartY = e.clientY;
+                    transformStartSelection = { ...selection };
+                } else {
+                    // Start new selection
+                    startSelection(x, y);
+                    isDrawing = true;
+                }
+            } else if (currentTool === 'move') {
+                if (selection.active) {
+                    activeHandle = 'move';
+                    transformStartX = e.clientX;
+                    transformStartY = e.clientY;
+                    transformStartSelection = { ...selection };
+                }
+            } else if (currentTool === 'scale' || currentTool === 'rotate') {
+                if (selection.active) {
+                    activeHandle = currentTool;
+                    transformStartX = e.clientX;
+                    transformStartY = e.clientY;
+                    transformStartSelection = { ...selection };
+                }
+            } else if (currentTool === 'fill') {
+                fillArea(e);
+            } else if (['line', 'rectangle', 'ellipse', 'polygon'].includes(currentTool)) {
+                isDrawing = true;
+                lastX = x;
+                lastY = y;
+            } else {
+                // Drawing tools (brush, pencil, eraser)
+                isDrawing = true;
+                lastX = x;
+                lastY = y;
+                
+                // Draw a single point for click
+                draw(e);
+            }
+        });
+        
+        mainCanvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing && !activeHandle) return;
+            
+            const rect = mainCanvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left - canvasOffsetX) / canvasZoom;
+            const y = (e.clientY - rect.top - canvasOffsetY) / canvasZoom;
+            
+            if (activeHandle) {
+                // Handle transformation
+                const deltaX = (e.clientX - transformStartX) / canvasZoom;
+                const deltaY = (e.clientY - transformStartY) / canvasZoom;
+                
+                if (activeHandle === 'move') {
+                    moveSelection(deltaX, deltaY);
+                } else if (activeHandle === 'scale') {
+                    scaleSelection('bottom-right', deltaX, deltaY);
+                } else if (activeHandle === 'rotate') {
+                    const centerX = selection.x + selection.width / 2;
+                    const centerY = selection.y + selection.height / 2;
+                    const startAngle = Math.atan2(
+                        transformStartY - (centerY * canvasZoom + canvasOffsetY + rect.top),
+                        transformStartX - (centerX * canvasZoom + canvasOffsetX + rect.left)
+                    );
+                    const currentAngle = Math.atan2(
+                        e.clientY - (centerY * canvasZoom + canvasOffsetY + rect.top),
+                        e.clientX - (centerX * canvasZoom + canvasOffsetX + rect.left)
+                    );
+                    rotateSelection((currentAngle - startAngle) * 180 / Math.PI);
+                }
+            } else if (currentTool === 'select') {
+                updateSelection(x, y);
+            } else if (['line', 'rectangle', 'ellipse', 'polygon'].includes(currentTool)) {
+                drawShape(e, currentTool);
+            } else {
+                draw(e);
+            }
+        });
+        
+        mainCanvas.addEventListener('mouseup', () => {
+            if (isDrawing && ['line', 'rectangle', 'ellipse', 'polygon'].includes(currentTool)) {
+                // Finalize shape drawing
+                saveCurrentFrame();
+            } else if (activeHandle) {
+                // Apply transformation
+                applySelection();
+            }
+            
+            isDrawing = false;
+            activeHandle = null;
+            transformStartSelection = null;
+        });
+        
+        mainCanvas.addEventListener('mouseout', () => {
+            isDrawing = false;
+            activeHandle = null;
+        });
+        
+        // Canvas panning
+        mainCanvas.addEventListener('mousedown', (e) => {
+            if (e.button === 1 || (e.button === 0 && e.altKey)) { // Middle click or Alt+Left click
+                isPanning = true;
+                lastX = e.clientX;
+                lastY = e.clientY;
+                mainCanvas.style.cursor = 'grabbing';
+            }
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (isPanning) {
+                canvasOffsetX += e.clientX - lastX;
+                canvasOffsetY += e.clientY - lastY;
+                lastX = e.clientX;
+                lastY = e.clientY;
+                applyCanvasTransform();
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            if (isPanning) {
+                isPanning = false;
+                mainCanvas.style.cursor = getCursorForTool();
+            }
+        });
+        
+        // Get appropriate cursor for current tool
+        function getCursorForTool() {
+            switch (currentTool) {
+                case 'select': return 'crosshair';
+                case 'move': return 'move';
+                case 'scale': return 'nwse-resize';
+                case 'rotate': return 'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="%23ff8000" stroke="white" stroke-width="1"/></svg>\') 8 8, auto';
+                case 'brush': return 'crosshair';
+                case 'pencil': return 'crosshair';
+                case 'eraser': return 'crosshair';
+                default: return 'crosshair';
+            }
+        }
+        
+        // Tool selection
+        toolButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                toolButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                currentTool = button.id.replace('-tool', '');
+                mainCanvas.style.cursor = getCursorForTool();
+            });
+        });
+        
+        // Color picker
+        colorPicker.addEventListener('input', (e) => {
+            currentColor = e.target.value;
+            colorHex.value = currentColor;
+            
+            // Update active color in palette
+            document.querySelectorAll('.color-swatch').forEach(swatch => {
+                swatch.classList.remove('active');
+                if (swatch.dataset.color === currentColor) {
+                    swatch.classList.add('active');
+                }
+            });
+        });
+        
+        colorHex.addEventListener('change', (e) => {
+            const hex = e.target.value;
+            if (/^#[0-9A-F]{6}$/i.test(hex)) {
+                currentColor = hex;
+                colorPicker.value = hex;
+                
+                // Update active color in palette
+                document.querySelectorAll('.color-swatch').forEach(swatch => {
+                    swatch.classList.remove('active');
+                    if (swatch.dataset.color === hex) {
+                        swatch.classList.add('active');
+                    }
+                });
+            }
+        });
+        
+        // Brush properties
+        brushSizeSlider.addEventListener('input', (e) => {
+            brushSize = parseInt(e.target.value);
+            brushSizeValue.textContent = `${brushSize}px`;
+        });
+        
+        opacitySlider.addEventListener('input', (e) => {
+            brushOpacity = parseInt(e.target.value);
+            opacityValue.textContent = `${brushOpacity}%`;
+        });
+        
+        hardnessSlider.addEventListener('input', (e) => {
+            brushHardness = parseInt(e.target.value);
+            hardnessValue.textContent = `${brushHardness}%`;
+        });
+        
+        // Layer properties
+        layerOpacitySlider.addEventListener('input', (e) => {
+            const opacity = parseInt(e.target.value);
+            layerOpacityValue.textContent = `${opacity}%`;
+            frames[currentFrameIndex].opacity = opacity;
+            ctx.globalAlpha = opacity / 100;
+        });
+        
+        blendModeSelect.addEventListener('change', (e) => {
+            frames[currentFrameIndex].blendMode = e.target.value;
+            ctx.globalCompositeOperation = e.target.value;
+        });
+        
+        // Frame controls
+        addFrameBtn.addEventListener('click', addFrame);
+        clearFrameBtn.addEventListener('click', clearFrame);
+        duplicateFrameBtn.addEventListener('click', duplicateFrame);
+        
+        // Animation controls
+        playBtn.addEventListener('click', toggleAnimation);
+        
+        // FPS control
+        fpsSlider.addEventListener('input', (e) => {
+            fps = parseInt(e.target.value);
+            fpsValue.textContent = fps;
+            fpsDisplay.textContent = fps;
+            
+            // Update duration display
+            const duration = frames.length / fps;
+            durationDisplay.textContent = duration.toFixed(2) + 's';
+            
+            // If animation is playing, update interval
+            if (isPlaying) {
+                clearInterval(animationInterval);
+                toggleAnimation();
+                toggleAnimation();
+            }
+        });
+        
+        // Export modal
+        exportModalBtn.addEventListener('click', () => {
+            exportModal.style.display = 'flex';
+        });
+        
+        closeExportModal.addEventListener('click', () => {
+            exportModal.style.display = 'none';
+        });
+        
+        window.addEventListener('click', (e) => {
+            if (e.target === exportModal) {
+                exportModal.style.display = 'none';
+            }
+            if (e.target === loadingModal) {
+                // Don't hide loading modal when clicking on it
+                e.preventDefault();
+            }
+        });
+        
+        // Export buttons
+        document.getElementById('export-png-btn').addEventListener('click', exportFrameAsPNG);
+        document.getElementById('export-gif-btn').addEventListener('click', exportAsGIF);
+        document.getElementById('export-mp4-btn').addEventListener('click', exportAsMP4);
+        document.getElementById('export-frames-png').addEventListener('click', exportAllFramesAsPNG);
+        document.getElementById('export-animation-gif').addEventListener('click', exportAsGIF);
+        document.getElementById('export-animation-mp4').addEventListener('click', exportAsMP4);
+        document.getElementById('export-json-btn').addEventListener('click', exportAsJSON);
+        document.getElementById('export-json-modal-btn').addEventListener('click', exportAsJSON);
+        
+        // Onion skin controls
+        onionSkinToggle.addEventListener('change', (e) => {
+            onionSkinEnabled = e.target.checked;
+            drawOnionSkin();
+        });
+        
+        onionOpacitySlider.addEventListener('input', (e) => {
+            onionOpacity = parseInt(e.target.value);
+            onionOpacityValue.textContent = `${onionOpacity}%`;
+            drawOnionSkin();
+        });
+        
+        onionBeforeSlider.addEventListener('input', (e) => {
+            onionBefore = parseInt(e.target.value);
+            onionBeforeValue.textContent = onionBefore;
+            drawOnionSkin();
+        });
+        
+        onionAfterSlider.addEventListener('input', (e) => {
+            onionAfter = parseInt(e.target.value);
+            onionAfterValue.textContent = onionAfter;
+            drawOnionSkin();
+        });
+        
+        // Background color
+        bgColorPicker.addEventListener('input', (e) => {
+            // Update the background color for new frames
+        });
+        
+        // Canvas controls
+        zoomInBtn.addEventListener('click', () => zoomCanvas(0.2));
+        zoomOutBtn.addEventListener('click', () => zoomCanvas(-0.2));
+        resetViewBtn.addEventListener('click', resetCanvasView);
+        gridToggleBtn.addEventListener('click', () => {
+            showGrid = !showGrid;
+            loadFrame(currentFrameIndex); // This will redraw with/without grid
+        });
+        
+        // Resize canvas
+        resizeCanvasBtn.addEventListener('click', () => {
+            const newWidth = parseInt(canvasWidthInput.value);
+            const newHeight = parseInt(canvasHeightInput.value);
+            
+            if (newWidth < 100 || newWidth > 2000 || newHeight < 100 || newHeight > 2000) {
+                alert('Canvas size must be between 100x100 and 2000x2000 pixels.');
+                return;
+            }
+            
+            // Save current frames data
+            const oldFrames = frames.map(frame => frame.canvasData);
+            
+            // Resize the main canvas and overlay
+            mainCanvas.width = newWidth;
+            mainCanvas.height = newHeight;
+            overlayCanvas.width = newWidth;
+            overlayCanvas.height = newHeight;
+            
+            // Clear with new background
+            ctx.fillStyle = bgColorPicker.value;
+            ctx.fillRect(0, 0, newWidth, newHeight);
+            
+            // Recreate frames with new dimensions
+            frames = oldFrames.map((frameData, index) => {
+                // Create a temporary canvas to resize the frame data
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = frameData.width;
+                tempCanvas.height = frameData.height;
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCtx.putImageData(frameData, 0, 0);
+                
+                // Create a new canvas with the new dimensions
+                const newCanvas = document.createElement('canvas');
+                newCanvas.width = newWidth;
+                newCanvas.height = newHeight;
+                const newCtx = newCanvas.getContext('2d');
+                
+                // Fill with background color
+                newCtx.fillStyle = bgColorPicker.value;
+                newCtx.fillRect(0, 0, newWidth, newHeight);
+                
+                // Draw the old frame centered
+                const xOffset = (newWidth - frameData.width) / 2;
+                const yOffset = (newHeight - frameData.height) / 2;
+                newCtx.drawImage(tempCanvas, xOffset, yOffset);
+                
+                return {
+                    id: index + 1,
+                    canvasData: newCtx.getImageData(0, 0, newWidth, newHeight),
+                    opacity: frames[index].opacity,
+                    blendMode: frames[index].blendMode
+                };
+            });
+            
+            // Load current frame
+            loadFrame(currentFrameIndex);
+            updateFramesDisplay();
+            updateSelectionHandles();
+            
+            alert(`Canvas resized to ${newWidth}x${newHeight} pixels.`);
+        });
+        
+        // Initialize the application
+        function initApp() {
+            initColorPalette();
+            updateFramesDisplay();
+            drawOnionSkin();
+            drawGrid();
+            applyCanvasTransform();
+            
+            // Set initial brush size display
+            brushSizeValue.textContent = `${brushSize}px`;
+            opacityValue.textContent = `${brushOpacity}%`;
+            hardnessValue.textContent = `${brushHardness}%`;
+            onionOpacityValue.textContent = `${onionOpacity}%`;
+            onionBeforeValue.textContent = onionBefore;
+            onionAfterValue.textContent = onionAfter;
+            layerOpacityValue.textContent = `${layerOpacitySlider.value}%`;
+            
+            // Set initial FPS display
+            fpsValue.textContent = fps;
+            fpsDisplay.textContent = fps;
+            
+            // Set initial cursor
+            mainCanvas.style.cursor = getCursorForTool();
+        }
+        
+        // Start the application
+        initApp();
+        
+        // Add sample frames for demonstration
+        setTimeout(() => {
+            // Add a second frame for demonstration
+            addFrame();
+            
+            // Draw something on the second frame
+            ctx.strokeStyle = '#ff5500';
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            ctx.ellipse(200, 250, 80, 60, 0, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            saveCurrentFrame();
+            updateFramesDisplay();
+            
+            // Go back to first frame
+            currentFrameIndex = 0;
+            loadFrame(currentFrameIndex);
+            updateFramesDisplay();
+            
+            // Create a sample selection
+            selection.active = true;
+            selection.x = 100;
+            selection.y = 100;
+            selection.width = 200;
+            selection.height = 150;
+            drawSelection();
+        }, 500);
+    </script>
+</body>
+</html>

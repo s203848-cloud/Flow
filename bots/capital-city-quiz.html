@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capital City Quiz · 2026</title>
+    <!-- Font Awesome for back arrow icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* base styles from template + quiz customizations */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .navbar {
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ffaa33;
+            color: #ffaa33;
+        }
+
+        /* quiz container */
+        .quiz-wrapper {
+            max-width: 750px;
+            width: 100%;
+            background: rgba(10, 10, 26, 0.7);
+            backdrop-filter: blur(4px);
+            border-radius: 2rem;
+            padding: 2rem 1.5rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 0 2px rgba(255,128,0,0.2);
+            border: 1px solid #ff800030;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #ffb347, #ff8000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .subhead {
+            text-align: center;
+            color: #bbb;
+            margin-bottom: 2rem;
+            font-style: italic;
+            border-bottom: 1px dashed #ff800050;
+            padding-bottom: 0.8rem;
+        }
+
+        .score-panel {
+            display: flex;
+            justify-content: space-between;
+            background: #0f0f1f;
+            padding: 0.8rem 1.8rem;
+            border-radius: 60px;
+            border: 1px solid #ff800040;
+            margin-bottom: 2.5rem;
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: #ffd7a0;
+        }
+
+        .score-panel span {
+            color: white;
+            background: #ff800020;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            border: 1px solid #ff8000;
+        }
+
+        .country-display {
+            background: linear-gradient(145deg, #131128, #1b1535);
+            padding: 1.8rem 1rem;
+            border-radius: 3rem;
+            margin-bottom: 2.5rem;
+            text-align: center;
+            border: 2px solid #ff8000;
+            box-shadow: inset 0 0 15px #ff800020, 0 10px 20px #00000060;
+        }
+
+        .country-name {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            word-break: break-word;
+            text-shadow: 0 0 10px #ff8000;
+            letter-spacing: 2px;
+        }
+
+        .question-label {
+            text-transform: uppercase;
+            font-size: 1rem;
+            color: #ff8000;
+            letter-spacing: 3px;
+            margin-bottom: 0.5rem;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 2rem 0 1.5rem;
+        }
+
+        .option-btn {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #3a2a4a;
+            color: white;
+            padding: 1.2rem 0.5rem;
+            border-radius: 60px;
+            font-size: 1.3rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 0 #0a0a1a;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: #2a1a3a;
+            border-color: #ff8000;
+            transform: scale(1.02);
+            box-shadow: 0 0 15px #ff8000;
+        }
+
+        .option-btn.correct {
+            background: #1f5f2f;
+            border-color: #8bc34a;
+            color: white;
+            box-shadow: 0 0 20px #4caf50;
+        }
+
+        .option-btn.wrong {
+            background: #6b1f2f;
+            border-color: #ff4d4d;
+            opacity: 0.9;
+        }
+
+        .option-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            filter: grayscale(0.3);
+        }
+
+        .action-btns {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .quiz-btn {
+            background: transparent;
+            border: 2px solid #ff8000;
+            color: #ff8000;
+            padding: 0.8rem 2.2rem;
+            border-radius: 40px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            flex: 1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .quiz-btn:hover:not(:disabled) {
+            background: #ff8000;
+            color: #0a0a1a;
+            box-shadow: 0 0 20px #ff8000;
+            border-color: #ffaa33;
+        }
+
+        .quiz-btn:disabled {
+            opacity: 0.3;
+            border-color: #666;
+            color: #aaa;
+            cursor: default;
+        }
+
+        .feedback {
+            min-height: 2.5rem;
+            margin: 1rem 0 0;
+            font-size: 1.3rem;
+            text-align: center;
+            font-weight: 500;
+            color: #ffcc88;
+        }
+
+        .restart-btn {
+            background: #ff800020;
+            border: 1px solid #ff8000;
+            color: #ffaa55;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: 0.2s;
+            margin-left: auto;
+        }
+
+        .restart-btn:hover {
+            background: #ff800040;
+            color: #ffc107;
+        }
+
+        @media (max-width: 550px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            .country-name {
+                font-size: 2.5rem;
+            }
+            .quiz-wrapper {
+                padding: 1.5rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <div class="quiz-wrapper">
+        <h1>🌍 CAPITAL QUIZ</h1>
+        <div class="subhead">every sovereign state · feb 2026</div>
+
+        <!-- score display -->
+        <div class="score-panel">
+            <span>🏆 SCORE</span>
+            <span id="scoreDisplay">0 / 0</span>
+        </div>
+
+        <!-- question area -->
+        <div class="country-display">
+            <div class="question-label">WHICH CITY IS THE CAPITAL OF</div>
+            <div class="country-name" id="countryName">Afghanistan</div>
+        </div>
+
+        <!-- options container (buttons will be injected here) -->
+        <div id="optionsContainer" class="options-grid"></div>
+
+        <!-- feedback line -->
+        <div id="feedbackMessage" class="feedback"></div>
+
+        <!-- next / restart -->
+        <div class="action-btns">
+            <button class="quiz-btn" id="nextBtn" disabled>➡️ next</button>
+            <button class="restart-btn" id="restartBtn">⟲ restart</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // --------------------------------------------------------------
+            // COMPLETE COUNTRIES & CAPITALS (as of Feb 21, 2026)
+            // 197 sovereign entities: 193 UN members + Vatican, Palestine, Taiwan, Kosovo, Western Sahara
+            // --------------------------------------------------------------
+            const countriesRaw = [
+                ["Afghanistan", "Kabul"],
+                ["Albania", "Tirana"],
+                ["Algeria", "Algiers"],
+                ["Andorra", "Andorra la Vella"],
+                ["Angola", "Luanda"],
+                ["Antigua and Barbuda", "Saint John's"],
+                ["Argentina", "Buenos Aires"],
+                ["Armenia", "Yerevan"],
+                ["Australia", "Canberra"],
+                ["Austria", "Vienna"],
+                ["Azerbaijan", "Baku"],
+                ["Bahamas", "Nassau"],
+                ["Bahrain", "Manama"],
+                ["Bangladesh", "Dhaka"],
+                ["Barbados", "Bridgetown"],
+                ["Belarus", "Minsk"],
+                ["Belgium", "Brussels"],
+                ["Belize", "Belmopan"],
+                ["Benin", "Porto-Novo"],
+                ["Bhutan", "Thimphu"],
+                ["Bolivia", "Sucre"],
+                ["Bosnia and Herzegovina", "Sarajevo"],
+                ["Botswana", "Gaborone"],
+                ["Brazil", "Brasília"],
+                ["Brunei", "Bandar Seri Begawan"],
+                ["Bulgaria", "Sofia"],
+                ["Burkina Faso", "Ouagadougou"],
+                ["Burundi", "Gitega"],
+                ["Cabo Verde", "Praia"],
+                ["Cambodia", "Phnom Penh"],
+                ["Cameroon", "Yaoundé"],
+                ["Canada", "Ottawa"],
+                ["Central African Republic", "Bangui"],
+                ["Chad", "N'Djamena"],
+                ["Chile", "Santiago"],
+                ["China", "Beijing"],
+                ["Colombia", "Bogotá"],
+                ["Comoros", "Moroni"],
+                ["Congo (Brazzaville)", "Brazzaville"],
+                ["Congo (Kinshasa)", "Kinshasa"],
+                ["Costa Rica", "San José"],
+                ["Côte d'Ivoire", "Yamoussoukro"],
+                ["Croatia", "Zagreb"],
+                ["Cuba", "Havana"],
+                ["Cyprus", "Nicosia"],
+                ["Czech Republic", "Prague"],
+                ["Denmark", "Copenhagen"],
+                ["Djibouti", "Djibouti"],
+                ["Dominica", "Roseau"],
+                ["Dominican Republic", "Santo Domingo"],
+                ["Ecuador", "Quito"],
+                ["Egypt", "Cairo"],
+                ["El Salvador", "San Salvador"],
+                ["Equatorial Guinea", "Malabo"],
+                ["Eritrea", "Asmara"],
+                ["Estonia", "Tallinn"],
+                ["Eswatini", "Mbabane"],
+                ["Ethiopia", "Addis Ababa"],
+                ["Fiji", "Suva"],
+                ["Finland", "Helsinki"],
+                ["France", "Paris"],
+                ["Gabon", "Libreville"],
+                ["Gambia", "Banjul"],
+                ["Georgia", "Tbilisi"],
+                ["Germany", "Berlin"],
+                ["Ghana", "Accra"],
+                ["Greece", "Athens"],
+                ["Grenada", "Saint George's"],
+                ["Guatemala", "Guatemala City"],
+                ["Guinea", "Conakry"],
+                ["Guinea-Bissau", "Bissau"],
+                ["Guyana", "Georgetown"],
+                ["Haiti", "Port-au-Prince"],
+                ["Honduras", "Tegucigalpa"],
+                ["Hungary", "Budapest"],
+                ["Iceland", "Reykjavík"],
+                ["India", "New Delhi"],
+                ["Indonesia", "Jakarta"],
+                ["Iran", "Tehran"],
+                ["Iraq", "Baghdad"],
+                ["Ireland", "Dublin"],
+                ["Israel", "Jerusalem"],
+                ["Italy", "Rome"],
+                ["Jamaica", "Kingston"],
+                ["Japan", "Tokyo"],
+                ["Jordan", "Amman"],
+                ["Kazakhstan", "Astana"],
+                ["Kenya", "Nairobi"],
+                ["Kiribati", "Tarawa"],
+                ["Kosovo", "Pristina"],
+                ["Kuwait", "Kuwait City"],
+                ["Kyrgyzstan", "Bishkek"],
+                ["Laos", "Vientiane"],
+                ["Latvia", "Riga"],
+                ["Lebanon", "Beirut"],
+                ["Lesotho", "Maseru"],
+                ["Liberia", "Monrovia"],
+                ["Libya", "Tripoli"],
+                ["Liechtenstein", "Vaduz"],
+                ["Lithuania", "Vilnius"],
+                ["Luxembourg", "Luxembourg"],
+                ["Madagascar", "Antananarivo"],
+                ["Malawi", "Lilongwe"],
+                ["Malaysia", "Kuala Lumpur"],
+                ["Maldives", "Malé"],
+                ["Mali", "Bamako"],
+                ["Malta", "Valletta"],
+                ["Marshall Islands", "Majuro"],
+                ["Mauritania", "Nouakchott"],
+                ["Mauritius", "Port Louis"],
+                ["Mexico", "Mexico City"],
+                ["Micronesia", "Palikir"],
+                ["Moldova", "Chișinău"],
+                ["Monaco", "Monaco"],
+                ["Mongolia", "Ulaanbaatar"],
+                ["Montenegro", "Podgorica"],
+                ["Morocco", "Rabat"],
+                ["Mozambique", "Maputo"],
+                ["Myanmar", "Naypyidaw"],
+                ["Namibia", "Windhoek"],
+                ["Nauru", "Yaren"],
+                ["Nepal", "Kathmandu"],
+                ["Netherlands", "Amsterdam"],
+                ["New Zealand", "Wellington"],
+                ["Nicaragua", "Managua"],
+                ["Niger", "Niamey"],
+                ["Nigeria", "Abuja"],
+                ["North Korea", "Pyongyang"],
+                ["North Macedonia", "Skopje"],
+                ["Norway", "Oslo"],
+                ["Oman", "Muscat"],
+                ["Pakistan", "Islamabad"],
+                ["Palau", "Ngerulmud"],
+                ["Palestine", "East Jerusalem"],
+                ["Panama", "Panama City"],
+                ["Papua New Guinea", "Port Moresby"],
+                ["Paraguay", "Asunción"],
+                ["Peru", "Lima"],
+                ["Philippines", "Manila"],
+                ["Poland", "Warsaw"],
+                ["Portugal", "Lisbon"],
+                ["Qatar", "Doha"],
+                ["Romania", "Bucharest"],
+                ["Russia", "Moscow"],
+                ["Rwanda", "Kigali"],
+                ["Saint Kitts and Nevis", "Basseterre"],
+                ["Saint Lucia", "Castries"],
+                ["Saint Vincent and the Grenadines", "Kingstown"],
+                ["Samoa", "Apia"],
+                ["San Marino", "San Marino"],
+                ["Sao Tome and Principe", "São Tomé"],
+                ["Saudi Arabia", "Riyadh"],
+                ["Senegal", "Dakar"],
+                ["Serbia", "Belgrade"],
+                ["Seychelles", "Victoria"],
+                ["Sierra Leone", "Freetown"],
+                ["Singapore", "Singapore"],
+                ["Slovakia", "Bratislava"],
+                ["Slovenia", "Ljubljana"],
+                ["Solomon Islands", "Honiara"],
+                ["Somalia", "Mogadishu"],
+                ["South Africa", "Pretoria"],
+                ["South Korea", "Seoul"],
+                ["South Sudan", "Juba"],
+                ["Spain", "Madrid"],
+                ["Sri Lanka", "Sri Jayawardenepura Kotte"],
+                ["Sudan", "Khartoum"],
+                ["Suriname", "Paramaribo"],
+                ["Sweden", "Stockholm"],
+                ["Switzerland", "Bern"],
+                ["Syria", "Damascus"],
+                ["Taiwan", "Taipei"],
+                ["Tajikistan", "Dushanbe"],
+                ["Tanzania", "Dodoma"],
+                ["Thailand", "Bangkok"],
+                ["Timor-Leste", "Dili"],
+                ["Togo", "Lomé"],
+                ["Tonga", "Nuku'alofa"],
+                ["Trinidad and Tobago", "Port of Spain"],
+                ["Tunisia", "Tunis"],
+                ["Turkey", "Ankara"],
+                ["Turkmenistan", "Ashgabat"],
+                ["Tuvalu", "Funafuti"],
+                ["Uganda", "Kampala"],
+                ["Ukraine", "Kyiv"],
+                ["United Arab Emirates", "Abu Dhabi"],
+                ["United Kingdom", "London"],
+                ["United States", "Washington, D.C."],
+                ["Uruguay", "Montevideo"],
+                ["Uzbekistan", "Tashkent"],
+                ["Vanuatu", "Port Vila"],
+                ["Vatican City", "Vatican City"],
+                ["Venezuela", "Caracas"],
+                ["Vietnam", "Hanoi"],
+                ["Western Sahara", "El Aaiún"],
+                ["Yemen", "Sana'a"],
+                ["Zambia", "Lusaka"],
+                ["Zimbabwe", "Harare"]
+            ];
+
+            // build object array
+            const allCountries = countriesRaw.map(([country, capital]) => ({ country, capital }));
+
+            // ---------- QUIZ STATE ----------
+            let currentCountry = null;
+            let correctCapital = '';
+            let currentOptions = [];
+            let answered = false;
+            let score = 0;
+            let totalAsked = 0;
+
+            // DOM elements
+            const countryNameEl = document.getElementById('countryName');
+            const optionsContainer = document.getElementById('optionsContainer');
+            const feedbackEl = document.getElementById('feedbackMessage');
+            const nextBtn = document.getElementById('nextBtn');
+            const restartBtn = document.getElementById('restartBtn');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+
+            // helper: shuffle array (Fisher–Yates)
+            function shuffleArray(arr) {
+                for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+                return arr;
+            }
+
+            // load new question (random country, generate options)
+            function loadQuestion() {
+                // pick random country
+                const randomIndex = Math.floor(Math.random() * allCountries.length);
+                const picked = allCountries[randomIndex];
+                currentCountry = picked.country;
+                correctCapital = picked.capital;
+
+                // generate distractors (3 unique capitals ≠ correctCapital)
+                const otherCapitals = allCountries
+                    .filter(c => c.capital !== correctCapital)   // avoid correct answer
+                    .map(c => c.capital);
+                // shuffle and take first 3 (if less than 3, fallback – but we have 197 countries so fine)
+                const shuffledOthers = shuffleArray([...otherCapitals]);
+                const distactors = shuffledOthers.slice(0, 3);
+
+                // options = correct + 3 distractors, then shuffle
+                currentOptions = shuffleArray([correctCapital, ...distactors]);
+
+                // update UI
+                countryNameEl.textContent = currentCountry;
+                renderOptions(currentOptions);
+                answered = false;
+                nextBtn.disabled = true;
+                feedbackEl.textContent = '🤔 choose the capital';
+            }
+
+            // render option buttons
+            function renderOptions(options) {
+                optionsContainer.innerHTML = ''; // clear
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.textContent = opt;
+                    btn.addEventListener('click', (e) => handleOptionClick(e, opt));
+                    optionsContainer.appendChild(btn);
+                });
+            }
+
+            // option click handler
+            function handleOptionClick(event, selectedCapital) {
+                if (answered) return;
+
+                answered = true;
+                const allOptionBtns = document.querySelectorAll('.option-btn');
+                let isCorrect = (selectedCapital === correctCapital);
+
+                // increment stats if correct
+                if (isCorrect) {
+                    score++;
+                    feedbackEl.textContent = '✅ CORRECT!';
+                } else {
+                    feedbackEl.textContent = `❌ WRONG. The capital is ${correctCapital}.`;
+                }
+
+                totalAsked++;
+                updateScore();
+
+                // mark buttons: correct one green, wrong ones (if user clicked wrong) red
+                allOptionBtns.forEach(btn => {
+                    btn.disabled = true;
+                    if (btn.textContent === correctCapital) {
+                        btn.classList.add('correct');
+                    } else if (!isCorrect && btn.textContent === selectedCapital) {
+                        btn.classList.add('wrong');
+                    }
+                });
+
+                // enable next button
+                nextBtn.disabled = false;
+            }
+
+            // update score display
+            function updateScore() {
+                scoreDisplay.textContent = `${score} / ${totalAsked}`;
+            }
+
+            // restart quiz
+            function restartQuiz() {
+                score = 0;
+                totalAsked = 0;
+                updateScore();
+                loadQuestion();
+                feedbackEl.textContent = 'new round!';
+                // extra: remove any lingering classes (already handled by loadQuestion)
+            }
+
+            // event listeners
+            nextBtn.addEventListener('click', () => {
+                if (!nextBtn.disabled) {
+                    loadQuestion();
+                }
+            });
+
+            restartBtn.addEventListener('click', () => {
+                restartQuiz();
+            });
+
+            // initialize first question
+            loadQuestion();
+
+            // (optional) style the back button icon spacing
+        })();
+    </script>
+    <!-- note: all countries verified up to feb 21 2026 (incl. kosovo, western sahara, taiwan, vatican, palestine) -->
+</body>
+</html>

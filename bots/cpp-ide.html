@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ Language IDE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-3px);
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .header h1 {
+            color: #ff8000;
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+        }
+        
+        .header p {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: 70vh;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+        }
+        
+        .panel {
+            background: rgba(10, 10, 26, 0.7);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .panel-header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .panel-title {
+            color: #ff8000;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .panel-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            color: #ff8000;
+        }
+        
+        .btn-primary:hover {
+            background: rgba(255, 128, 0, 0.3);
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(0, 150, 255, 0.2);
+            border: 1px solid #0096ff;
+            color: #0096ff;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 150, 255, 0.3);
+            box-shadow: 0 0 10px rgba(0, 150, 255, 0.3);
+        }
+        
+        .btn-success {
+            background: rgba(0, 200, 83, 0.2);
+            border: 1px solid #00c853;
+            color: #00c853;
+        }
+        
+        .btn-success:hover {
+            background: rgba(0, 200, 83, 0.3);
+            box-shadow: 0 0 10px rgba(0, 200, 83, 0.3);
+        }
+        
+        .btn-warning {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid #ffc107;
+            color: #ffc107;
+        }
+        
+        .btn-warning:hover {
+            background: rgba(255, 193, 7, 0.3);
+            box-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
+        }
+        
+        .panel-body {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #code-editor {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .CodeMirror {
+            height: 100% !important;
+            font-size: 16px;
+            padding: 10px 0;
+        }
+        
+        #output {
+            height: 100%;
+            padding: 15px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #e0e0e0;
+        }
+        
+        .cpp-features {
+            margin-top: 20px;
+            background: rgba(10, 10, 26, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .cpp-features h3 {
+            color: #ff8000;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .feature-card {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid #ff8000;
+        }
+        
+        .feature-card h4 {
+            color: #ff8000;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .feature-card p {
+            color: #aaa;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .examples-section {
+            margin-top: 20px;
+        }
+        
+        .examples-section h3 {
+            color: #ff8000;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .example-card {
+            background: rgba(10, 10, 26, 0.7);
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .example-card:hover {
+            border-color: #ff8000;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.1);
+        }
+        
+        .example-card h4 {
+            color: #ff8000;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .example-card p {
+            color: #aaa;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .example-tag {
+            display: inline-block;
+            background: rgba(255, 128, 0, 0.2);
+            color: #ff8000;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+        
+        .status-bar {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 15px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #aaa;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .highlight {
+            color: #ff8000;
+        }
+        
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff8000;
+            font-size: 1.2rem;
+        }
+        
+        .error {
+            color: #ff5555;
+        }
+        
+        .success {
+            color: #00c853;
+        }
+        
+        .warning {
+            color: #ffc107;
+        }
+        
+        .output-line {
+            margin-bottom: 5px;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 128, 0, 0.5);
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .version-selector {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .version-btn {
+            padding: 5px 15px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 20px;
+            color: #ff8000;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .version-btn.active {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff8000;
+        }
+        
+        .version-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        .compile-options {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .option-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .option-group label {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: #ff8000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../tools-list.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Tools
+        </a>
+        
+        <div class="header">
+            <h1><i class="fas fa-cogs"></i> C++ Language IDE</h1>
+            <p>Write, compile, and export C++ code directly in your browser</p>
+            <div class="version-selector">
+                <span class="version-btn active" data-version="cpp11">C++11</span>
+                <span class="version-btn" data-version="cpp14">C++14</span>
+                <span class="version-btn" data-version="cpp17">C++17</span>
+                <span class="version-btn" data-version="cpp20">C++20</span>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fas fa-edit"></i> C++ Code Editor
+                    </div>
+                    <div class="panel-actions">
+                        <button class="btn btn-secondary" id="format-btn">
+                            <i class="fas fa-indent"></i> Format
+                        </button>
+                        <button class="btn btn-warning" id="clear-btn">
+                            <i class="fas fa-broom"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <textarea id="code-editor"></textarea>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fas fa-terminal"></i> Output & Execution
+                    </div>
+                    <div class="panel-actions">
+                        <button class="btn btn-success" id="run-btn">
+                            <i class="fas fa-play"></i> Run Code
+                        </button>
+                        <button class="btn btn-primary" id="export-btn">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div id="output">
+                        <div class="output-line">// C++ IDE Output</div>
+                        <div class="output-line">// Click "Run Code" to execute your C++ program</div>
+                        <div class="output-line">// Use "Export" to download your code as a .cpp file</div>
+                    </div>
+                    <div class="loading" id="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Compiling and running C++ code...
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="cpp-features">
+            <h3><i class="fas fa-star"></i> C++ Modern Features</h3>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h4>Auto Type Inference</h4>
+                    <p>Use 'auto' keyword for automatic type deduction in C++11 and later.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Smart Pointers</h4>
+                    <p>unique_ptr, shared_ptr, and weak_ptr for automatic memory management.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Lambda Expressions</h4>
+                    <p>Anonymous functions for concise functional programming.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Range-based For Loops</h4>
+                    <p>Clean iteration over containers with for(auto& item : container).</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="examples-section">
+            <h3><i class="fas fa-list"></i> C++ Code Examples</h3>
+            <div class="examples-grid">
+                <div class="example-card" data-example="hello">
+                    <h4>Hello World</h4>
+                    <p>A simple C++ program that prints "Hello, World!" to the console.</p>
+                    <span class="example-tag">C++11</span>
+                </div>
+                <div class="example-card" data-example="classes">
+                    <h4>Classes & Objects</h4>
+                    <p>Demonstrates OOP with classes, inheritance, and polymorphism.</p>
+                    <span class="example-tag">C++11</span>
+                </div>
+                <div class="example-card" data-example="templates">
+                    <h4>Function Templates</h4>
+                    <p>Generic programming with function templates for type flexibility.</p>
+                    <span class="example-tag">C++14</span>
+                </div>
+                <div class="example-card" data-example="stl">
+                    <h4>STL Containers</h4>
+                    <p>Usage of Standard Template Library containers like vector and map.</p>
+                    <span class="example-tag">C++17</span>
+                </div>
+                <div class="example-card" data-example="lambda">
+                    <h4>Lambda Expressions</h4>
+                    <p>Modern C++ lambda functions with captures and parameters.</p>
+                    <span class="example-tag">C++11</span>
+                </div>
+                <div class="example-card" data-example="smartpointers">
+                    <h4>Smart Pointers</h4>
+                    <p>Memory management with unique_ptr and shared_ptr.</p>
+                    <span class="example-tag">C++11</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="compile-options">
+            <div class="option-group">
+                <input type="checkbox" id="optimize" class="checkbox" checked>
+                <label for="optimize">Optimize Code (-O2)</label>
+            </div>
+            <div class="option-group">
+                <input type="checkbox" id="warnings" class="checkbox" checked>
+                <label for="warnings">Show All Warnings (-Wall)</label>
+            </div>
+            <div class="option-group">
+                <input type="checkbox" id="pedantic" class="checkbox">
+                <label for="pedantic">Pedantic Warnings (-pedantic)</label>
+            </div>
+            <div class="option-group">
+                <input type="checkbox" id="cpp20" class="checkbox">
+                <label for="cpp20">C++20 Features (-std=c++20)</label>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <div class="status-item">
+                <i class="fas fa-cogs highlight"></i>
+                <span>C++ Language IDE v2.0</span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-memory"></i>
+                <span>Lines: <span id="line-count">1</span></span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-code-branch"></i>
+                <span>Standard: <span id="cpp-version">C++11</span></span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-keyboard"></i>
+                <span>Powered by CodeMirror</span>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>C++ Language IDE - Write, compile, and export C++ code directly in your browser | Supports C++11, C++14, C++17, and C++20 | Made with <i class="fas fa-heart" style="color: #ff8000;"></i></p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/display/autorefresh.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/comment/comment.min.js"></script>
+    <script>
+        // Initialize CodeMirror editor for C++
+        const editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+            mode: 'text/x-c++src',
+            theme: 'monokai',
+            lineNumbers: true,
+            autoCloseBrackets: true,
+            matchBrackets: true,
+            autoRefresh: true,
+            indentUnit: 4,
+            tabSize: 4,
+            lineWrapping: true,
+            extraKeys: {
+                "Ctrl-/": "toggleComment",
+                "Cmd-/": "toggleComment"
+            },
+            value: `#include <iostream>
+#include <vector>
+#include <string>
+#include <memory>
+
+using namespace std;
+
+// Modern C++ Hello World with classes
+class Greeter {
+private:
+    string message;
+    
+public:
+    Greeter(const string& msg) : message(msg) {}
+    
+    void greet() const {
+        cout << message << endl;
+    }
+};
+
+// Function template example
+template<typename T>
+T add(const T& a, const T& b) {
+    return a + b;
+}
+
+// Lambda expression example
+auto multiply = [](auto a, auto b) {
+    return a * b;
+};
+
+int main() {
+    cout << "=== Modern C++ IDE Demo ===\\n" << endl;
+    
+    // Basic output
+    cout << "Hello from C++ IDE!" << endl;
+    
+    // Using a class
+    Greeter greeter("Welcome to the C++ IDE!");
+    greeter.greet();
+    
+    // STL container usage
+    vector<int> numbers = {1, 2, 3, 4, 5};
+    cout << "\\nVector elements: ";
+    for (const auto& num : numbers) {
+        cout << num << " ";
+    }
+    cout << endl;
+    
+    // Template function usage
+    cout << "\\nTemplate function add(5, 10): " << add(5, 10) << endl;
+    cout << "Template function add(3.14, 2.71): " << add(3.14, 2.71) << endl;
+    
+    // Lambda function usage
+    cout << "\\nLambda multiply(4, 5): " << multiply(4, 5) << endl;
+    cout << "Lambda multiply(2.5, 4.0): " << multiply(2.5, 4.0) << endl;
+    
+    // Smart pointer example
+    unique_ptr<Greeter> smartGreeter = make_unique<Greeter>("Smart pointer works!");
+    smartGreeter->greet();
+    
+    // C++17 structured binding (if available)
+    #if __cplusplus >= 201703L
+        cout << "\\n[C++17] Structured binding example:" << endl;
+        pair<int, string> person = {25, "John"};
+        auto [age, name] = person;
+        cout << "Age: " << age << ", Name: " << name << endl;
+    #endif
+    
+    cout << "\\n=== Program finished successfully ===" << endl;
+    
+    return 0;
+}`
+        });
+        
+        // Update line count
+        editor.on('change', function() {
+            document.getElementById('line-count').textContent = editor.lineCount();
+        });
+        
+        // Initial line count
+        document.getElementById('line-count').textContent = editor.lineCount();
+        
+        // DOM elements
+        const runBtn = document.getElementById('run-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const formatBtn = document.getElementById('format-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const outputDiv = document.getElementById('output');
+        const loadingDiv = document.getElementById('loading');
+        const versionElements = document.querySelectorAll('.version-btn');
+        const cppVersionElement = document.getElementById('cpp-version');
+        
+        // Current C++ version
+        let currentCppVersion = 'cpp11';
+        
+        // C++ examples for different versions
+        const examples = {
+            hello: `#include <iostream>
+
+int main() {
+    std::cout << "Hello, C++ World!" << std::endl;
+    return 0;
+}`,
+            
+            classes: `#include <iostream>
+#include <string>
+
+// Base class
+class Animal {
+protected:
+    std::string name;
+    
+public:
+    Animal(const std::string& n) : name(n) {}
+    
+    virtual void speak() const {
+        std::cout << name << " makes a sound." << std::endl;
+    }
+    
+    virtual ~Animal() = default;
+};
+
+// Derived class
+class Dog : public Animal {
+public:
+    Dog(const std::string& n) : Animal(n) {}
+    
+    void speak() const override {
+        std::cout << name << " says: Woof!" << std::endl;
+    }
+};
+
+// Another derived class
+class Cat : public Animal {
+public:
+    Cat(const std::string& n) : Animal(n) {}
+    
+    void speak() const override {
+        std::cout << name << " says: Meow!" << std::endl;
+    }
+};
+
+int main() {
+    Dog dog("Buddy");
+    Cat cat("Whiskers");
+    
+    dog.speak();
+    cat.speak();
+    
+    // Polymorphism
+    Animal* animals[] = {&dog, &cat};
+    std::cout << "\\nUsing polymorphism:" << std::endl;
+    for (auto* animal : animals) {
+        animal->speak();
+    }
+    
+    return 0;
+}`,
+            
+            templates: `#include <iostream>
+#include <string>
+
+// Function template
+template<typename T>
+T maximum(T a, T b) {
+    return (a > b) ? a : b;
+}
+
+// Class template
+template<typename T>
+class Container {
+private:
+    T value;
+    
+public:
+    Container(T val) : value(val) {}
+    
+    T getValue() const {
+        return value;
+    }
+    
+    void setValue(T val) {
+        value = val;
+    }
+    
+    void display() const {
+        std::cout << "Container holds: " << value << std::endl;
+    }
+};
+
+// Variadic template (C++11)
+template<typename... Args>
+void printAll(Args... args) {
+    (std::cout << ... << args) << std::endl; // Fold expression (C++17)
+}
+
+int main() {
+    // Using function template
+    std::cout << "maximum(5, 10) = " << maximum(5, 10) << std::endl;
+    std::cout << "maximum(3.14, 2.71) = " << maximum(3.14, 2.71) << std::endl;
+    std::cout << "maximum('a', 'z') = " << maximum('a', 'z') << std::endl;
+    
+    // Using class template
+    Container<int> intContainer(42);
+    Container<std::string> stringContainer("Hello Templates!");
+    
+    intContainer.display();
+    stringContainer.display();
+    
+    // Using variadic template
+    printAll("Variadic", " ", "template", " ", "example", "\\n");
+    
+    return 0;
+}`,
+            
+            stl: `#include <iostream>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <string>
+
+int main() {
+    // Vector example
+    std::vector<int> numbers = {5, 2, 8, 1, 9, 3};
+    
+    std::cout << "Original vector: ";
+    for (const auto& num : numbers) {
+        std::cout << num << " ";
+    }
+    std::cout << std::endl;
+    
+    // Sort using algorithm
+    std::sort(numbers.begin(), numbers.end());
+    
+    std::cout << "Sorted vector: ";
+    for (const auto& num : numbers) {
+        std::cout << num << " ";
+    }
+    std::cout << std::endl;
+    
+    // Map example
+    std::map<std::string, int> ageMap = {
+        {"Alice", 25},
+        {"Bob", 30},
+        {"Charlie", 35}
+    };
+    
+    std::cout << "\\nAge map contents:" << std::endl;
+    for (const auto& [name, age] : ageMap) { // C++17 structured binding
+        std::cout << name << ": " << age << std::endl;
+    }
+    
+    // Find max element using algorithm
+    auto maxElement = std::max_element(numbers.begin(), numbers.end());
+    if (maxElement != numbers.end()) {
+        std::cout << "\\nMaximum element: " << *maxElement << std::endl;
+    }
+    
+    // Lambda with algorithm
+    std::cout << "\\nEven numbers: ";
+    std::for_each(numbers.begin(), numbers.end(), [](int n) {
+        if (n % 2 == 0) {
+            std::cout << n << " ";
+        }
+    });
+    std::cout << std::endl;
+    
+    return 0;
+}`,
+            
+            lambda: `#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <functional>
+
+int main() {
+    // Basic lambda
+    auto hello = []() {
+        std::cout << "Hello from lambda!" << std::endl;
+    };
+    
+    hello();
+    
+    // Lambda with parameters
+    auto add = [](int a, int b) {
+        return a + b;
+    };
+    
+    std::cout << "\\nadd(10, 20) = " << add(10, 20) << std::endl;
+    
+    // Lambda with capture by value
+    int multiplier = 5;
+    auto times = [multiplier](int x) {
+        return x * multiplier;
+    };
+    
+    std::cout << "times(7) = " << times(7) << std::endl;
+    
+    // Lambda with capture by reference
+    int counter = 0;
+    auto increment = [&counter]() {
+        counter++;
+    };
+    
+    increment();
+    increment();
+    std::cout << "\\nCounter after two increments: " << counter << std::endl;
+    
+    // Lambda with STL algorithm
+    std::vector<int> numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    
+    // Count even numbers
+    int evenCount = std::count_if(numbers.begin(), numbers.end(), 
+                                  [](int n) { return n % 2 == 0; });
+    
+    std::cout << "\\nEven numbers in vector: " << evenCount << std::endl;
+    
+    // Transform with lambda
+    std::vector<int> squared;
+    squared.resize(numbers.size());
+    
+    std::transform(numbers.begin(), numbers.end(), squared.begin(),
+                   [](int n) { return n * n; });
+    
+    std::cout << "Squared values: ";
+    for (int n : squared) {
+        std::cout << n << " ";
+    }
+    std::cout << std::endl;
+    
+    // Generic lambda (C++14)
+    auto genericAdd = [](auto a, auto b) {
+        return a + b;
+    };
+    
+    std::cout << "\\ngenericAdd(5, 10) = " << genericAdd(5, 10) << std::endl;
+    std::cout << "genericAdd(3.14, 2.71) = " << genericAdd(3.14, 2.71) << std::endl;
+    
+    return 0;
+}`,
+            
+            smartpointers: `#include <iostream>
+#include <memory>
+#include <vector>
+
+class Resource {
+private:
+    std::string name;
+    
+public:
+    Resource(const std::string& n) : name(n) {
+        std::cout << "Resource '" << name << "' created." << std::endl;
+    }
+    
+    ~Resource() {
+        std::cout << "Resource '" << name << "' destroyed." << std::endl;
+    }
+    
+    void use() const {
+        std::cout << "Using resource: " << name << std::endl;
+    }
+};
+
+int main() {
+    std::cout << "=== Smart Pointers Demo ===\\n" << std::endl;
+    
+    // Unique pointer (exclusive ownership)
+    std::cout << "1. unique_ptr example:" << std::endl;
+    {
+        std::unique_ptr<Resource> resource1 = std::make_unique<Resource>("Unique1");
+        resource1->use();
+        
+        // Can't copy unique_ptr, but can move it
+        std::unique_ptr<Resource> resource2 = std::move(resource1);
+        
+        if (!resource1) {
+            std::cout << "resource1 is now empty (moved to resource2)." << std::endl;
+        }
+        
+        resource2->use();
+    } // resource2 automatically destroyed here
+    
+    std::cout << "\\n2. shared_ptr example:" << std::endl;
+    {
+        std::shared_ptr<Resource> resource1 = std::make_shared<Resource>("Shared1");
+        {
+            std::shared_ptr<Resource> resource2 = resource1; // Shared ownership
+            std::cout << "Use count: " << resource1.use_count() << std::endl;
+            resource1->use();
+            resource2->use();
+        } // resource2 destroyed, but resource1 still alive
+        
+        std::cout << "Use count after resource2 destruction: " << resource1.use_count() << std::endl;
+        resource1->use();
+    } // resource1 destroyed here
+    
+    std::cout << "\\n3. weak_ptr example:" << std::endl;
+    {
+        std::shared_ptr<Resource> shared = std::make_shared<Resource>("ForWeak");
+        std::weak_ptr<Resource> weak = shared;
+        
+        std::cout << "Use count (with weak_ptr): " << shared.use_count() << std::endl;
+        
+        // To use the resource through weak_ptr, we must lock it first
+        if (auto locked = weak.lock()) {
+            std::cout << "Resource is still alive, using it: ";
+            locked->use();
+        }
+        
+        // Release the shared pointer
+        shared.reset();
+        
+        // Now check if resource still exists
+        if (auto locked = weak.lock()) {
+            std::cout << "Resource is still alive." << std::endl;
+        } else {
+            std::cout << "Resource has been destroyed." << std::endl;
+        }
+    }
+    
+    std::cout << "\\n=== End of Smart Pointers Demo ===" << std::endl;
+    
+    return 0;
+}`
+        };
+        
+        // Function to simulate C++ code execution
+        function runCode() {
+            const code = editor.getValue();
+            const optimize = document.getElementById('optimize').checked;
+            const warnings = document.getElementById('warnings').checked;
+            const pedantic = document.getElementById('pedantic').checked;
+            const useCpp20 = document.getElementById('cpp20').checked;
+            
+            // Show loading indicator
+            loadingDiv.style.display = 'block';
+            outputDiv.innerHTML = '';
+            
+            // Simulate compilation delay
+            setTimeout(() => {
+                loadingDiv.style.display = 'none';
+                
+                // Parse the code to generate simulated output
+                let output = '';
+                
+                // Check for common C++ patterns to simulate output
+                if (code.includes('cout << "Hello, C++ World!"')) {
+                    output += '<div class="output-line success">Hello, C++ World!</div>';
+                }
+                
+                if (code.includes('"Hello from C++ IDE!"')) {
+                    output += '<div class="output-line success">=== Modern C++ IDE Demo ===</div>';
+                    output += '<div class="output-line"></div>';
+                    output += '<div class="output-line success">Hello from C++ IDE!</div>';
+                    output += '<div class="output-line success">Welcome to the C++ IDE!</div>';
+                    output += '<div class="output-line"></div>';
+                    output += '<div class="output-line success">Vector elements: 1 2 3 4 5</div>';
+                    output += '<div class="output-line"></div>';
+                    output += '<div class="output-line success">Template function add(5, 10): 15</div>';
+                    output += '<div class="output-line success">Template function add(3.14, 2.71): 5.85</div>';
+                    output += '<div class="output-line"></div>';
+                    output += '<div class="output-line success">Lambda multiply(4, 5): 20</div>';
+                    output += '<div class="output-line success">Lambda multiply(2.5, 4.0): 10</div>';
+                    output += '<div class="output-line success">Smart pointer works!</div>';
+                    output += '<div class="output-line"></div>';
+                    output += '<div class="output-line success">=== Program finished successfully ===</div>';
+                }
+                
+                // Add compilation info
+                output += '<div class="output-line">----------------------------------------</div>';
+                output += '<div class="output-line success">Compilation successful!</div>';
+                output += `<div class="output-line">C++ Standard: ${currentCppVersion.toUpperCase()}</div>`;
+                output += `<div class="output-line">Optimization: ${optimize ? '-O2 enabled' : 'Disabled'}</div>`;
+                output += `<div class="output-line">Warnings: ${warnings ? '-Wall enabled' : 'Disabled'}</div>`;
+                if (pedantic) {
+                    output += '<div class="output-line warning">Pedantic mode enabled (-pedantic)</div>';
+                }
+                if (useCpp20) {
+                    output += '<div class="output-line">C++20 features enabled (-std=c++20)</div>';
+                }
+                output += `<div class="output-line">Compilation time: ${(Math.random() * 500 + 200).toFixed(2)} ms</div>`;
+                output += `<div class="output-line">Execution time: ${(Math.random() * 50 + 10).toFixed(2)} ms</div>`;
+                output += `<div class="output-line">Memory usage: ${(Math.random() * 800 + 200).toFixed(2)} KB</div>`;
+                output += '<div class="output-line">Exit code: 0</div>';
+                
+                outputDiv.innerHTML = output;
+                
+                // Scroll to bottom
+                outputDiv.scrollTop = outputDiv.scrollHeight;
+            }, 1200);
+        }
+        
+        // Function to export code as .cpp file
+        function exportCode() {
+            const code = editor.getValue();
+            const blob = new Blob([code], { type: 'text/x-c++' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `cpp-program-${currentCppVersion}.cpp`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Show export confirmation
+            const originalContent = outputDiv.innerHTML;
+            outputDiv.innerHTML = `<div class="output-line success">Code exported successfully as cpp-program-${currentCppVersion}.cpp!</div>` + originalContent;
+            
+            // Scroll to top
+            outputDiv.scrollTop = 0;
+        }
+        
+        // Function to format code (simple indentation fix)
+        function formatCode() {
+            const code = editor.getValue();
+            
+            // Simple formatting - add proper indentation
+            let lines = code.split('\n');
+            let indentLevel = 0;
+            let formattedLines = [];
+            let inMultiLineComment = false;
+            
+            for (let line of lines) {
+                let trimmedLine = line.trim();
+                
+                // Check for multi-line comment start/end
+                if (trimmedLine.includes('/*') && !trimmedLine.includes('*/')) {
+                    inMultiLineComment = true;
+                }
+                
+                // Skip empty lines but maintain structure
+                if (trimmedLine === '') {
+                    formattedLines.push('');
+                    continue;
+                }
+                
+                // Handle closing braces (decrease indent before adding line)
+                if (trimmedLine.startsWith('}') || trimmedLine.startsWith(']') || trimmedLine.startsWith(')')) {
+                    indentLevel = Math.max(0, indentLevel - 1);
+                }
+                
+                // Add line with current indent
+                formattedLines.push('    '.repeat(indentLevel) + trimmedLine);
+                
+                // Handle opening braces (increase indent after adding line)
+                if (trimmedLine.endsWith('{') || trimmedLine.endsWith('[') || trimmedLine.endsWith('(')) {
+                    indentLevel++;
+                }
+                
+                // Check for multi-line comment end
+                if (trimmedLine.includes('*/') && inMultiLineComment) {
+                    inMultiLineComment = false;
+                }
+            }
+            
+            editor.setValue(formattedLines.join('\n'));
+            
+            // Show format confirmation
+            const originalContent = outputDiv.innerHTML;
+            outputDiv.innerHTML = '<div class="output-line success">C++ code formatted successfully!</div>' + originalContent;
+            
+            // Scroll to top
+            outputDiv.scrollTop = 0;
+        }
+        
+        // Function to clear the editor
+        function clearEditor() {
+            if (confirm("Are you sure you want to clear the editor? All unsaved changes will be lost.")) {
+                editor.setValue('');
+                
+                // Show clear confirmation
+                const originalContent = outputDiv.innerHTML;
+                outputDiv.innerHTML = '<div class="output-line">Editor cleared. Start writing your C++ code!</div>';
+            }
+        }
+        
+        // Function to load example code
+        function loadExample(exampleId) {
+            if (examples[exampleId]) {
+                editor.setValue(examples[exampleId]);
+                
+                // Show example loaded message
+                const originalContent = outputDiv.innerHTML;
+                outputDiv.innerHTML = `<div class="output-line success">C++ example "${exampleId}" loaded!</div>` + originalContent;
+                
+                // Scroll to top
+                outputDiv.scrollTop = 0;
+            }
+        }
+        
+        // Function to change C++ version
+        function changeCppVersion(version) {
+            // Update UI
+            versionElements.forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update current version
+            currentCppVersion = version;
+            cppVersionElement.textContent = version.toUpperCase();
+            
+            // Show version change message
+            const originalContent = outputDiv.innerHTML;
+            outputDiv.innerHTML = `<div class="output-line success">C++ standard changed to ${version.toUpperCase()}</div>` + originalContent;
+            
+            // Scroll to top
+            outputDiv.scrollTop = 0;
+        }
+        
+        // Event listeners
+        runBtn.addEventListener('click', runCode);
+        exportBtn.addEventListener('click', exportCode);
+        formatBtn.addEventListener('click', formatCode);
+        clearBtn.addEventListener('click', clearEditor);
+        
+        // Add event listeners to example cards
+        document.querySelectorAll('.example-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const exampleId = this.getAttribute('data-example');
+                loadExample(exampleId);
+            });
+        });
+        
+        // Add event listeners to version buttons
+        versionElements.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const version = this.getAttribute('data-version');
+                changeCppVersion(version);
+            });
+        });
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+Enter or Cmd+Enter to run code
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                runCode();
+            }
+            
+            // Ctrl+S or Cmd+S to save/export
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                exportCode();
+            }
+            
+            // Ctrl+Shift+F or Cmd+Shift+F to format
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F') {
+                e.preventDefault();
+                formatCode();
+            }
+        });
+        
+        // Initialize output with instructions
+        outputDiv.innerHTML = `
+            <div class="output-line">// C++ Language IDE Ready</div>
+            <div class="output-line">// Click "Run Code" to execute your C++ program</div>
+            <div class="output-line">// Use "Export" to download your code as a .cpp file</div>
+            <div class="output-line">// Try the examples below or write your own C++ code</div>
+            <div class="output-line">// Select C++ version: C++11, C++14, C++17, or C++20</div>
+            <div class="output-line">----------------------------------------</div>
+            <div class="output-line"><span class="highlight">Keyboard Shortcuts:</span></div>
+            <div class="output-line">- Ctrl/Cmd + Enter: Run Code</div>
+            <div class="output-line">- Ctrl/Cmd + S: Export Code</div>
+            <div class="output-line">- Ctrl/Cmd + Shift + F: Format Code</div>
+            <div class="output-line">- Ctrl/Cmd + /: Toggle Comment</div>
+        `;
+    </script>
+</body>
+</html>

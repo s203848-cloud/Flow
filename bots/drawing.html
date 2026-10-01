@@ -1,0 +1,2600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flow Draw</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 26, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            color: #ff8000;
+            font-size: 1.5rem;
+        }
+
+        /* Project Setup Modal */
+        .project-setup-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 26, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .project-setup-content {
+            background: linear-gradient(135deg, #1a1a2e, #0a0a1a);
+            border: 2px solid rgba(255, 128, 0, 0.3);
+            border-radius: 15px;
+            padding: 40px;
+            width: 90%;
+            max-width: 700px;
+            color: #fff;
+            box-shadow: 0 10px 40px rgba(255, 128, 0, 0.1);
+        }
+
+        .project-setup-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .project-setup-title {
+            color: #ff8000;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .project-setup-subtitle {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+
+        .project-setup-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ff8000;
+            font-weight: 600;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.2);
+        }
+
+        .unit-selector {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .unit-btn {
+            padding: 8px 15px;
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 6px;
+            color: #aaa;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .unit-btn.active {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+            color: #ff8000;
+        }
+
+        .color-picker-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .color-preview {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 128, 0, 0.5);
+            cursor: pointer;
+        }
+
+        .project-setup-actions {
+            grid-column: span 2;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 180px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff8000, #ff5500);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #ff5500, #ff3300);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 128, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            color: #ff8000;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 128, 0, 0.1);
+            border-color: #ff8000;
+        }
+
+        /* Main Application (Hidden by Default) */
+        .main-app {
+            display: none;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Top Menu Bar */
+        .menu-bar {
+            display: flex;
+            background: rgba(20, 20, 35, 0.9);
+            border-bottom: 1px solid rgba(255, 69, 0, 0.3);
+            height: 40px;
+            z-index: 100;
+        }
+
+        .menu-item {
+            position: relative;
+            padding: 0 20px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            color: #ff8000;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 128, 0, 0.1);
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: rgba(30, 30, 45, 0.95);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            min-width: 250px;
+            z-index: 1000;
+            display: none;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 20px;
+            color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 128, 0, 0.15);
+            color: #ff8000;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: rgba(255, 128, 0, 0.2);
+            margin: 5px 0;
+        }
+
+        .submenu {
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background: rgba(30, 30, 45, 0.95);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            min-width: 200px;
+            display: none;
+        }
+
+        .dropdown-item:hover .submenu {
+            display: block;
+        }
+
+        /* Main Container */
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Left Toolbar */
+        .toolbar {
+            width: 60px;
+            background: rgba(20, 20, 35, 0.7);
+            border-right: 1px solid rgba(255, 69, 0, 0.2);
+            padding: 10px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            z-index: 10;
+        }
+
+        .tool-btn {
+            width: 44px;
+            height: 44px;
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 6px;
+            color: #ff8000;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover, .tool-btn.active {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+            transform: scale(1.05);
+        }
+
+        .tool-separator {
+            width: 80%;
+            height: 1px;
+            background: rgba(255, 128, 0, 0.1);
+            margin: 5px 0;
+        }
+
+        /* Main Workspace */
+        .workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Tool Options Bar */
+        .tool-options {
+            height: 40px;
+            background: rgba(30, 30, 45, 0.8);
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            gap: 20px;
+            z-index: 5;
+        }
+
+        .tool-option-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tool-option-label {
+            color: #aaa;
+            font-size: 0.85rem;
+        }
+
+        .tool-option-select, .tool-option-input {
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 4px;
+            color: #ff8000;
+            padding: 4px 8px;
+            min-width: 120px;
+        }
+
+        .tool-option-range {
+            width: 120px;
+            -webkit-appearance: none;
+            appearance: unset;
+            height: 4px;
+            background: rgba(255, 128, 0, 0.3);
+            border-radius: 2px;
+        }
+
+        .tool-option-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ff8000;
+            cursor: pointer;
+        }
+
+        /* Canvas Area */
+        .canvas-area {
+            flex: 1;
+            position: relative;
+            overflow: auto;
+            background: #1a1a2e;
+        }
+
+        #drawing-canvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            cursor: crosshair;
+        }
+
+        /* Right Panels */
+        .panels {
+            width: 300px;
+            background: rgba(20, 20, 35, 0.7);
+            border-left: 1px solid rgba(255, 69, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-tabs {
+            display: flex;
+            background: rgba(30, 30, 45, 0.9);
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+        }
+
+        .panel-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            background: rgba(40, 40, 60, 0.5);
+            color: #aaa;
+            border-right: 1px solid rgba(255, 69, 0, 0.1);
+            transition: all 0.2s;
+        }
+
+        .panel-tab.active {
+            background: rgba(255, 128, 0, 0.15);
+            color: #ff8000;
+            border-bottom: 2px solid #ff8000;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        /* Layers Panel */
+        .layer {
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .layer.active {
+            border-color: #ff8000;
+            background: rgba(255, 128, 0, 0.1);
+        }
+
+        .layer:hover {
+            border-color: rgba(255, 128, 0, 0.5);
+        }
+
+        .layer-visibility {
+            margin-right: 10px;
+            color: #ff8000;
+            cursor: pointer;
+        }
+
+        .layer-name {
+            flex: 1;
+            color: #ddd;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 25px;
+            background: rgba(20, 20, 35, 0.9);
+            border-top: 1px solid rgba(255, 69, 0, 0.2);
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            font-size: 0.8rem;
+            color: #aaa;
+            justify-content: space-between;
+        }
+
+        /* Modals for different features */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e, #0a0a1a);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 10px;
+            padding: 30px;
+            min-width: 500px;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+        }
+
+        .modal-title {
+            color: #ff8000;
+            font-size: 1.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #ff8000;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Adjustments Modal */
+        .adjustment-group {
+            margin-bottom: 25px;
+        }
+
+        .adjustment-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #aaa;
+        }
+
+        .adjustment-value {
+            color: #ff8000;
+        }
+
+        /* Color Picker Modal */
+        .color-picker-modal {
+            min-width: 400px;
+        }
+
+        .color-picker-area {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .color-swatch {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.1);
+        }
+
+        .color-swatch.active {
+            border-color: #ff8000;
+        }
+
+        /* Animation Timeline */
+        .animation-timeline {
+            height: 120px;
+            background: rgba(30, 30, 45, 0.8);
+            border-top: 1px solid rgba(255, 69, 0, 0.2);
+            display: none;
+            overflow-x: auto;
+            padding: 10px;
+        }
+
+        .timeline-frames {
+            display: flex;
+            gap: 10px;
+            height: 100%;
+        }
+
+        .timeline-frame {
+            width: 100px;
+            height: 100%;
+            background: rgba(50, 50, 70, 0.4);
+            border: 2px solid rgba(255, 128, 0, 0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timeline-frame.active {
+            border-color: #ff8000;
+        }
+
+        .frame-number {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #ff8000;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+
+        /* Export Options */
+        .export-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .export-option {
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .export-option:hover {
+            background: rgba(255, 128, 0, 0.15);
+            border-color: #ff8000;
+        }
+
+        .export-option i {
+            font-size: 2.5rem;
+            color: #ff8000;
+            margin-bottom: 10px;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background: rgba(30, 30, 45, 0.95);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: #ff8000;
+            font-size: 0.85rem;
+            z-index: 1000;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div style="text-align: center;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 3rem; margin-bottom: 20px;"></i>
+            <div>Loading Flow Draw...</div>
+        </div>
+    </div>
+
+    <!-- Project Setup Modal -->
+    <div class="project-setup-modal" id="project-setup-modal">
+        <div class="project-setup-content">
+            <div class="project-setup-header">
+                <h1 class="project-setup-title"><i class="fas fa-fire"></i> Flow Draw</h1>
+                <p class="project-setup-subtitle">Start your creative journey with a new project</p>
+            </div>
+            
+            <form id="project-setup-form" class="project-setup-form">
+                <div class="form-group">
+                    <label for="project-name"><i class="fas fa-file-signature"></i> Project Name</label>
+                    <input type="text" id="project-name" class="form-input" value="Untitled Project" required>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-ruler"></i> Dimensions</label>
+                    <div style="display: flex; gap: 15px;">
+                        <div style="flex: 1;">
+                            <input type="number" id="width" class="form-input" value="1200" min="1" required>
+                            <div class="unit-selector">
+                                <div class="unit-btn active" data-unit="px">px</div>
+                                <div class="unit-btn" data-unit="%">%</div>
+                                <div class="unit-btn" data-unit="cm">cm</div>
+                                <div class="unit-btn" data-unit="mm">mm</div>
+                                <div class="unit-btn" data-unit="in">in</div>
+                            </div>
+                        </div>
+                        <div style="flex: 1;">
+                            <input type="number" id="height" class="form-input" value="800" min="1" required>
+                            <div class="unit-selector">
+                                <div class="unit-btn active" data-unit="px">px</div>
+                                <div class="unit-btn" data-unit="%">%</div>
+                                <div class="unit-btn" data-unit="cm">cm</div>
+                                <div class="unit-btn" data-unit="mm">mm</div>
+                                <div class="unit-btn" data-unit="in">in</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-palette"></i> Background Color</label>
+                    <div class="color-picker-group">
+                        <div class="color-preview" id="bg-color-preview" style="background: #ffffff;"></div>
+                        <input type="color" id="bg-color" class="form-input" value="#ffffff" style="flex: 1; height: 50px; padding: 5px;">
+                        <input type="text" id="bg-color-hex" class="form-input" value="#ffffff" placeholder="#RRGGBB" style="width: 120px;">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-layer-group"></i> Color Mode</label>
+                    <select id="color-mode" class="form-input">
+                        <option value="rgb">RGB (Screen)</option>
+                        <option value="cmyk">CMYK (Print)</option>
+                        <option value="grayscale">Grayscale</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-drafting-compass"></i> Resolution</label>
+                    <select id="resolution" class="form-input">
+                        <option value="72">72 PPI (Web)</option>
+                        <option value="150">150 PPI (Good Print)</option>
+                        <option value="300" selected>300 PPI (High Quality Print)</option>
+                        <option value="600">600 PPI (Professional Print)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-th-large"></i> Presets</label>
+                    <select id="presets" class="form-input">
+                        <option value="custom">Custom</option>
+                        <option value="web">Web (1920x1080)</option>
+                        <option value="mobile">Mobile (1080x1920)</option>
+                        <option value="a4">A4 Paper (210x297mm)</option>
+                        <option value="letter">Letter Paper (8.5x11in)</option>
+                        <option value="instagram">Instagram Post (1080x1080)</option>
+                        <option value="facebook">Facebook Cover (820x312)</option>
+                    </select>
+                </div>
+                
+                <div class="project-setup-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-project">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="create-project">
+                        <i class="fas fa-plus-circle"></i> Create Project
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div class="main-app" id="main-app">
+        <!-- Top Menu Bar -->
+        <div class="menu-bar">
+            <!-- File Menu -->
+            <div class="menu-item" id="file-menu">
+                <i class="fas fa-file"></i> File
+                <div class="dropdown" id="file-dropdown">
+                    <div class="dropdown-item" id="file-new">
+                        <i class="fas fa-file-alt"></i> New
+                        <div class="submenu">
+                            <div class="dropdown-item" data-action="new-canvas"><i class="fas fa-paint-brush"></i> Canvas</div>
+                            <div class="dropdown-item" data-action="new-web"><i class="fas fa-globe"></i> Web Template</div>
+                            <div class="dropdown-item" data-action="new-print"><i class="fas fa-print"></i> Print Template</div>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" id="file-open">
+                        <i class="fas fa-folder-open"></i> Open
+                    </div>
+                    <div class="dropdown-item" id="file-open-place">
+                        <i class="fas fa-file-import"></i> Open & Place
+                    </div>
+                    <div class="dropdown-item" id="file-open-url">
+                        <i class="fas fa-link"></i> Open URL
+                    </div>
+                    <div class="dropdown-item" id="file-open-url-place">
+                        <i class="fas fa-external-link-alt"></i> Open URL & Place
+                    </div>
+                    <div class="dropdown-item" id="file-take-picture">
+                        <i class="fas fa-camera"></i> Take a Picture
+                    </div>
+                    <div class="dropdown-item" id="file-take-picture-place">
+                        <i class="fas fa-camera-retro"></i> Take a Picture & Place
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" id="file-export">
+                        <i class="fas fa-file-export"></i> Export as
+                        <div class="submenu">
+                            <div class="dropdown-item" data-format="png"><i class="fas fa-file-image"></i> PNG</div>
+                            <div class="dropdown-item" data-format="jpg"><i class="fas fa-file-image"></i> JPG</div>
+                            <div class="dropdown-item" data-format="jpeg"><i class="fas fa-file-image"></i> JPEG</div>
+                            <div class="dropdown-item" data-format="pdf"><i class="fas fa-file-pdf"></i> PDF</div>
+                            <div class="dropdown-item" data-format="svg"><i class="fas fa-file-code"></i> SVG</div>
+                            <div class="dropdown-item" data-format="webp"><i class="fas fa-file-image"></i> WebP</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Edit Menu -->
+            <div class="menu-item" id="edit-menu">
+                <i class="fas fa-edit"></i> Edit
+                <div class="dropdown" id="edit-dropdown">
+                    <div class="dropdown-item" id="edit-undo">
+                        <i class="fas fa-undo"></i> Undo
+                        <span style="color: #aaa; margin-left: auto;">Ctrl+Z</span>
+                    </div>
+                    <div class="dropdown-item" id="edit-redo">
+                        <i class="fas fa-redo"></i> Redo
+                        <span style="color: #aaa; margin-left: auto;">Ctrl+Y</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" id="edit-cut">
+                        <i class="fas fa-cut"></i> Cut
+                        <span style="color: #aaa; margin-left: auto;">Ctrl+X</span>
+                    </div>
+                    <div class="dropdown-item" id="edit-copy">
+                        <i class="fas fa-copy"></i> Copy
+                        <span style="color: #aaa; margin-left: auto;">Ctrl+C</span>
+                    </div>
+                    <div class="dropdown-item" id="edit-paste">
+                        <i class="fas fa-paste"></i> Paste
+                        <span style="color: #aaa; margin-left: auto;">Ctrl+V</span>
+                    </div>
+                    <div class="dropdown-item" id="edit-delete">
+                        <i class="fas fa-trash"></i> Delete
+                        <span style="color: #aaa; margin-left: auto;">Del</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" id="edit-transform">
+                        <i class="fas fa-expand-arrows-alt"></i> Transform
+                        <div class="submenu">
+                            <div class="dropdown-item" data-transform="again"><i class="fas fa-redo-alt"></i> Again</div>
+                            <div class="dropdown-item" data-transform="rotate-90"><i class="fas fa-redo"></i> Rotate 90°</div>
+                            <div class="dropdown-item" data-transform="rotate--90"><i class="fas fa-undo"></i> Rotate -90°</div>
+                            <div class="dropdown-item" data-transform="rotate-180"><i class="fas fa-sync-alt"></i> Rotate 180°</div>
+                            <div class="dropdown-item" data-transform="flip-vertical"><i class="fas fa-arrows-alt-v"></i> Flip Vertically</div>
+                            <div class="dropdown-item" data-transform="flip-horizontal"><i class="fas fa-arrows-alt-h"></i> Flip Horizontally</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Image Menu -->
+            <div class="menu-item" id="image-menu">
+                <i class="fas fa-image"></i> Image
+                <div class="dropdown" id="image-dropdown">
+                    <div class="dropdown-item" id="image-adjustments">
+                        <i class="fas fa-sliders-h"></i> Adjustments
+                        <div class="submenu">
+                            <div class="dropdown-item" data-adjustment="brightness"><i class="fas fa-sun"></i> Brightness/Contrast</div>
+                            <div class="dropdown-item" data-adjustment="levels"><i class="fas fa-chart-bar"></i> Levels</div>
+                            <div class="dropdown-item" data-adjustment="exposure"><i class="fas fa-adjust"></i> Exposure</div>
+                            <div class="dropdown-item" data-adjustment="vibrance"><i class="fas fa-palette"></i> Vibrance</div>
+                            <div class="dropdown-item" data-adjustment="hue"><i class="fas fa-fill-drip"></i> Hue/Saturation</div>
+                            <div class="dropdown-item" data-adjustment="color-lookup"><i class="fas fa-search"></i> Color Lookup</div>
+                            <div class="dropdown-item" data-adjustment="replace-color"><i class="fas fa-exchange-alt"></i> Replace Color</div>
+                        </div>
+                    </div>
+                    <div class="dropdown-item" id="image-duplicate">
+                        <i class="fas fa-clone"></i> Duplicate
+                        <span style="color: #aaa; margin-left: auto;">Ctrl+D</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Layer Menu -->
+            <div class="menu-item" id="layer-menu">
+                <i class="fas fa-layer-group"></i> Layer
+                <div class="dropdown" id="layer-dropdown">
+                    <div class="dropdown-item" id="layer-new">
+                        <i class="fas fa-plus"></i> New Layer
+                        <span style="color: #aaa; margin-left: auto;">Ctrl+Shift+N</span>
+                    </div>
+                    <div class="dropdown-item" id="layer-duplicate">
+                        <i class="fas fa-copy"></i> Duplicate Layer
+                        <span style="color: #aaa; margin-left: auto;">Ctrl+J</span>
+                    </div>
+                    <div class="dropdown-item" id="layer-delete">
+                        <i class="fas fa-trash"></i> Delete Layer
+                        <span style="color: #aaa; margin-left: auto;">Ctrl+Shift+D</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" id="layer-style">
+                        <i class="fas fa-paint-brush"></i> Layer Style
+                        <div class="submenu">
+                            <div class="dropdown-item" data-style="color-overlay"><i class="fas fa-fill"></i> Color Overlay</div>
+                            <div class="dropdown-item" data-style="gradient-overlay"><i class="fas fa-gradient"></i> Gradient Overlay</div>
+                            <div class="dropdown-item" data-style="pattern-overlay"><i class="fas fa-th"></i> Pattern Overlay</div>
+                            <div class="dropdown-item" data-style="3d"><i class="fas fa-cube"></i> 3D Effect</div>
+                        </div>
+                    </div>
+                    <div class="dropdown-item" id="layer-arrange">
+                        <i class="fas fa-layer-group"></i> Arrange
+                        <div class="submenu">
+                            <div class="dropdown-item" data-arrange="front"><i class="fas fa-arrow-to-top"></i> Bring to Front</div>
+                            <div class="dropdown-item" data-arrange="forward"><i class="fas fa-arrow-up"></i> Bring Forward</div>
+                            <div class="dropdown-item" data-arrange="backward"><i class="fas fa-arrow-down"></i> Send Backward</div>
+                            <div class="dropdown-item" data-arrange="back"><i class="fas fa-arrow-to-bottom"></i> Send to Back</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Animation Menu -->
+            <div class="menu-item" id="animation-menu">
+                <i class="fas fa-play-circle"></i> Animation
+                <div class="dropdown" id="animation-dropdown">
+                    <div class="dropdown-item" id="animation-add-frame">
+                        <i class="fas fa-plus-circle"></i> Add Frame
+                    </div>
+                    <div class="dropdown-item" id="animation-delete-frame">
+                        <i class="fas fa-minus-circle"></i> Delete Frame
+                    </div>
+                    <div class="dropdown-item" id="animation-merge-frame">
+                        <i class="fas fa-compress-arrows-alt"></i> Merge Frames
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" id="animation-toggle-timeline">
+                        <i class="fas fa-film"></i> Show Timeline
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right-aligned buttons -->
+            <div style="margin-left: auto; display: flex; align-items: center; padding-right: 20px;">
+                <div class="menu-item" id="save-project">
+                    <i class="fas fa-save"></i> Save
+                </div>
+                <div class="menu-item" id="export-project">
+                    <i class="fas fa-file-export"></i> Export
+                </div>
+                <div class="menu-item" id="help-btn">
+                    <a href="../tools-list.html" style="cursor: pointer; color: #ff8000; display: flex; align-items: center; text-decoration: none;">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Container -->
+        <div class="container">
+            <!-- Left Toolbar -->
+            <div class="toolbar">
+                <!-- Selection Tools -->
+                <div class="tool-btn active" title="Move Tool (V)" data-tool="move">
+                    <i class="fas fa-arrows-alt"></i>
+                </div>
+                <div class="tool-btn" title="Rectangular Marquee (M)" data-tool="rect-select">
+                    <i class="fas fa-vector-square"></i>
+                </div>
+                <div class="tool-btn" title="Lasso Tool (L)" data-tool="lasso">
+                    <i class="fas fa-lasso-sparkles"></i>
+                </div>
+                <div class="tool-btn" title="Magic Wand (W)" data-tool="magic-wand">
+                    <i class="fas fa-magic"></i>
+                </div>
+                
+                <div class="tool-separator"></div>
+                
+                <!-- Brush Tools -->
+                <div class="tool-btn" title="Brush Tool (B)" data-tool="brush">
+                    <i class="fas fa-paintbrush"></i>
+                </div>
+                <div class="tool-btn" title="Pencil Tool (N)" data-tool="pencil">
+                    <i class="fas fa-pencil-alt"></i>
+                </div>
+                <div class="tool-btn" title="Airbrush (J)" data-tool="airbrush">
+                    <i class="fas fa-spray-can"></i>
+                </div>
+                <div class="tool-btn" title="Eraser Tool (E)" data-tool="eraser">
+                    <i class="fas fa-eraser"></i>
+                </div>
+                
+                <div class="tool-separator"></div>
+                
+                <!-- Painting Tools -->
+                <div class="tool-btn" title="Smudge Tool (R)" data-tool="smudge">
+                    <i class="fas fa-hand-paper"></i>
+                </div>
+                <div class="tool-btn" title="Blur Tool" data-tool="blur">
+                    <i class="fas fa-tint"></i>
+                </div>
+                <div class="tool-btn" title="Sharpen Tool" data-tool="sharpen">
+                    <i class="fas fa-cut"></i>
+                </div>
+                
+                <div class="tool-separator"></div>
+                
+                <!-- Shape & Text Tools -->
+                <div class="tool-btn" title="Rectangle Tool (U)" data-tool="rectangle">
+                    <i class="far fa-square"></i>
+                </div>
+                <div class="tool-btn" title="Ellipse Tool" data-tool="ellipse">
+                    <i class="far fa-circle"></i>
+                </div>
+                <div class="tool-btn" title="Line Tool" data-tool="line">
+                    <i class="fas fa-slash"></i>
+                </div>
+                <div class="tool-btn" title="Text Tool (T)" data-tool="text">
+                    <i class="fas fa-font"></i>
+                </div>
+                
+                <div class="tool-separator"></div>
+                
+                <!-- Color Tools -->
+                <div class="tool-btn" title="Eyedropper (I)" data-tool="eyedropper">
+                    <i class="fas fa-eye-dropper"></i>
+                </div>
+                <div class="tool-btn" title="Gradient Tool (G)" data-tool="gradient">
+                    <i class="fas fa-fill-drip"></i>
+                </div>
+                
+                <div class="tool-separator"></div>
+                
+                <!-- Transform Tools -->
+                <div class="tool-btn" title="Crop Tool (C)" data-tool="crop">
+                    <i class="fas fa-crop-alt"></i>
+                </div>
+                <div class="tool-btn" title="Rotate Tool (O)" data-tool="rotate">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+            </div>
+
+            <!-- Main Workspace -->
+            <div class="workspace">
+                <!-- Tool Options Bar -->
+                <div class="tool-options">
+                    <div class="tool-option-group" id="brush-options">
+                        <span class="tool-option-label">Brush:</span>
+                        <select class="tool-option-select" id="brush-type">
+                            <option value="round">Round</option>
+                            <option value="pencil">Pencil</option>
+                            <option value="airbrush">Airbrush</option>
+                            <option value="textured">Textured</option>
+                            <option value="calligraphy">Calligraphy</option>
+                        </select>
+                    </div>
+                    
+                    <div class="tool-option-group">
+                        <span class="tool-option-label">Size:</span>
+                        <input type="range" class="tool-option-range" id="brush-size" min="1" max="200" value="10">
+                        <span class="tool-option-label" id="brush-size-value">10px</span>
+                    </div>
+                    
+                    <div class="tool-option-group">
+                        <span class="tool-option-label">Opacity:</span>
+                        <input type="range" class="tool-option-range" id="brush-opacity" min="1" max="100" value="100">
+                        <span class="tool-option-label" id="brush-opacity-value">100%</span>
+                    </div>
+                    
+                    <div class="tool-option-group">
+                        <span class="tool-option-label">Flow:</span>
+                        <input type="range" class="tool-option-range" id="brush-flow" min="1" max="100" value="100">
+                        <span class="tool-option-label" id="brush-flow-value">100%</span>
+                    </div>
+                    
+                    <div class="tool-option-group">
+                        <span class="tool-option-label">Color:</span>
+                        <div id="current-color" style="width: 30px; height: 30px; background: #ff8000; border: 1px solid rgba(255,128,0,0.5); border-radius: 4px; cursor: pointer;"></div>
+                    </div>
+                </div>
+
+                <!-- Canvas Area -->
+                <div class="canvas-area" id="canvas-area">
+                    <canvas id="drawing-canvas"></canvas>
+                </div>
+
+                <!-- Animation Timeline -->
+                <div class="animation-timeline" id="animation-timeline">
+                    <div class="timeline-frames" id="timeline-frames">
+                        <!-- Frames will be added here -->
+                    </div>
+                </div>
+
+                <!-- Status Bar -->
+                <div class="status-bar">
+                    <div id="status-message">Ready</div>
+                    <div>X: <span id="mouse-x">0</span> | Y: <span id="mouse-y">0</span></div>
+                    <div>Zoom: <span id="zoom-level">100%</span></div>
+                    <div>Tool: <span id="current-tool">Move Tool</span></div>
+                    <div>Project: <span id="project-name-display">Untitled</span></div>
+                </div>
+            </div>
+
+            <!-- Right Panels -->
+            <div class="panels">
+                <!-- Panel Tabs -->
+                <div class="panel-tabs">
+                    <div class="panel-tab active" data-panel="layers">Layers</div>
+                    <div class="panel-tab" data-panel="colors">Colors</div>
+                    <div class="panel-tab" data-panel="history">History</div>
+                    <div class="panel-tab" data-panel="animations">Animations</div>
+                </div>
+
+                <!-- Layers Panel -->
+                <div class="panel-content" id="layers-panel">
+                    <div style="margin-bottom: 15px;">
+                        <button class="menu-item" id="new-layer-btn" style="width: 100%; margin-bottom: 5px;">
+                            <i class="fas fa-plus"></i> New Layer
+                        </button>
+                        <button class="menu-item" id="delete-layer-btn" style="width: 100%;">
+                            <i class="fas fa-trash"></i> Delete Layer
+                        </button>
+                    </div>
+                    
+                    <div id="layers-list">
+                        <!-- Layers will be added dynamically -->
+                    </div>
+                </div>
+
+                <!-- Colors Panel -->
+                <div class="panel-content" id="colors-panel" style="display: none;">
+                    <div class="color-picker-group" style="margin-bottom: 20px;">
+                        <div class="color-preview" id="foreground-color" style="background: #ff8000; width: 60px; height: 60px;"></div>
+                        <div class="color-preview" id="background-color" style="background: #1a1a2e; width: 60px; height: 60px;"></div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <button class="menu-item" id="swap-colors-btn" style="width: 100%;">
+                            <i class="fas fa-exchange-alt"></i> Swap Colors
+                        </button>
+                    </div>
+                    
+                    <h4 style="color: #ff8000; margin-bottom: 10px;">Color Presets</h4>
+                    <div class="color-palette" id="color-palette">
+                        <!-- Color presets will be added by JavaScript -->
+                    </div>
+                    
+                    <h4 style="color: #ff8000; margin-top: 20px; margin-bottom: 10px;">Custom Color</h4>
+                    <input type="color" id="custom-color" value="#ff8000" style="width: 100%; height: 40px; cursor: pointer;">
+                    <input type="text" id="hex-color" placeholder="#RRGGBB" class="form-input" style="margin-top: 10px;" value="#ff8000">
+                </div>
+
+                <!-- History Panel -->
+                <div class="panel-content" id="history-panel" style="display: none;">
+                    <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+                        <button class="menu-item" id="undo-btn" style="flex: 1;">
+                            <i class="fas fa-undo"></i> Undo
+                        </button>
+                        <button class="menu-item" id="redo-btn" style="flex: 1;">
+                            <i class="fas fa-redo"></i> Redo
+                        </button>
+                    </div>
+                    
+                    <div id="history-list" style="max-height: 300px; overflow-y: auto;">
+                        <!-- History items will be added dynamically -->
+                    </div>
+                </div>
+
+                <!-- Animations Panel -->
+                <div class="panel-content" id="animations-panel" style="display: none;">
+                    <h4 style="color: #ff8000; margin-bottom: 15px;">Animation Frames</h4>
+                    <div id="animation-frames-list">
+                        <!-- Animation frames will be added dynamically -->
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <button class="menu-item" id="add-animation-frame" style="width: 100%; margin-bottom: 10px;">
+                            <i class="fas fa-plus"></i> Add Frame
+                        </button>
+                        <button class="menu-item" id="play-animation" style="width: 100%;">
+                            <i class="fas fa-play"></i> Play Animation
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals for various features -->
+    
+    <!-- Brightness/Contrast Modal -->
+    <div class="modal" id="brightness-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-sun"></i> Brightness & Contrast</h2>
+                <button class="modal-close" data-modal="brightness-modal">&times;</button>
+            </div>
+            <div class="adjustment-group">
+                <div class="adjustment-label">
+                    <span>Brightness</span>
+                    <span class="adjustment-value" id="brightness-value">0</span>
+                </div>
+                <input type="range" class="tool-option-range" id="brightness-slider" min="-100" max="100" value="0" style="width: 100%;">
+            </div>
+            <div class="adjustment-group">
+                <div class="adjustment-label">
+                    <span>Contrast</span>
+                    <span class="adjustment-value" id="contrast-value">0</span>
+                </div>
+                <input type="range" class="tool-option-range" id="contrast-slider" min="-100" max="100" value="0" style="width: 100%;">
+            </div>
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-secondary" data-modal="brightness-modal" style="margin-right: 10px;">Cancel</button>
+                <button class="btn btn-primary" id="apply-brightness">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hue/Saturation Modal -->
+    <div class="modal" id="hue-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-fill-drip"></i> Hue & Saturation</h2>
+                <button class="modal-close" data-modal="hue-modal">&times;</button>
+            </div>
+            <div class="adjustment-group">
+                <div class="adjustment-label">
+                    <span>Hue</span>
+                    <span class="adjustment-value" id="hue-value">0</span>
+                </div>
+                <input type="range" class="tool-option-range" id="hue-slider" min="-180" max="180" value="0" style="width: 100%;">
+            </div>
+            <div class="adjustment-group">
+                <div class="adjustment-label">
+                    <span>Saturation</span>
+                    <span class="adjustment-value" id="saturation-value">0</span>
+                </div>
+                <input type="range" class="tool-option-range" id="saturation-slider" min="-100" max="100" value="0" style="width: 100%;">
+            </div>
+            <div class="adjustment-group">
+                <div class="adjustment-label">
+                    <span>Lightness</span>
+                    <span class="adjustment-value" id="lightness-value">0</span>
+                </div>
+                <input type="range" class="tool-option-range" id="lightness-slider" min="-100" max="100" value="0" style="width: 100%;">
+            </div>
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-secondary" data-modal="hue-modal" style="margin-right: 10px;">Cancel</button>
+                <button class="btn btn-primary" id="apply-hue">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Color Picker Modal -->
+    <div class="modal color-picker-modal" id="color-picker-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-eye-dropper"></i> Color Picker</h2>
+                <button class="modal-close" data-modal="color-picker-modal">&times;</button>
+            </div>
+            <div class="color-picker-area">
+                <div style="flex: 1;">
+                    <div id="color-wheel" style="width: 200px; height: 200px; border-radius: 50%; background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red); margin: 0 auto; cursor: crosshair;"></div>
+                </div>
+                <div style="flex: 1;">
+                    <div id="color-preview-large" style="width: 100px; height: 100px; background: #ff8000; border-radius: 10px; margin: 0 auto 20px;"></div>
+                    <input type="text" id="color-hex-input" class="form-input" value="#ff8000" placeholder="#RRGGBB" style="margin-bottom: 10px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <input type="number" id="color-r" class="form-input" placeholder="R" min="0" max="255" value="255">
+                        <input type="number" id="color-g" class="form-input" placeholder="G" min="0" max="255" value="128">
+                        <input type="number" id="color-b" class="form-input" placeholder="B" min="0" max="255" value="0">
+                        <input type="number" id="color-a" class="form-input" placeholder="A" min="0" max="100" value="100">
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-primary" id="apply-color">Apply Color</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal" id="export-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-file-export"></i> Export Image</h2>
+                <button class="modal-close" data-modal="export-modal">&times;</button>
+            </div>
+            <div class="export-options">
+                <div class="export-option" data-format="png">
+                    <i class="fas fa-file-image"></i>
+                    <div>PNG</div>
+                    <small>High Quality</small>
+                </div>
+                
+                <div class="export-option" data-format="jpg">
+                    <i class="fas fa-file-image"></i>
+                    <div>JPG</div>
+                    <small>Compressed</small>
+                </div>
+                
+                <div class="export-option" data-format="jpeg">
+                    <i class="fas fa-file-image"></i>
+                    <div>JPEG</div>
+                    <small>Compressed</small>
+                </div>
+                
+                <div class="export-option" data-format="pdf">
+                    <i class="fas fa-file-pdf"></i>
+                    <div>PDF</div>
+                    <small>Document</small>
+                </div>
+                
+                <div class="export-option" data-format="svg">
+                    <i class="fas fa-file-code"></i>
+                    <div>SVG</div>
+                    <small>Vector</small>
+                </div>
+                
+                <div class="export-option" data-format="webp">
+                    <i class="fas fa-file-image"></i>
+                    <div>WebP</div>
+                    <small>Modern Format</small>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <label style="display: block; margin-bottom: 5px; color: #aaa;">Quality</label>
+                <input type="range" class="tool-option-range" id="export-quality" min="1" max="100" value="90" style="width: 100%;">
+                <div style="text-align: center; margin-top: 5px; color: #ff8000;" id="export-quality-value">90%</div>
+            </div>
+            
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="btn btn-secondary" data-modal="export-modal" style="margin-right: 10px;">Cancel</button>
+                <button class="btn btn-primary" id="export-confirm">Export</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layer Style Modal -->
+    <div class="modal" id="layer-style-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-paint-brush"></i> Layer Style</h2>
+                <button class="modal-close" data-modal="layer-style-modal">&times;</button>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <h4 style="color: #ff8000; margin-bottom: 10px;">Style Type</h4>
+                <select id="layer-style-type" class="form-input">
+                    <option value="color-overlay">Color Overlay</option>
+                    <option value="gradient-overlay">Gradient Overlay</option>
+                    <option value="pattern-overlay">Pattern Overlay</option>
+                    <option value="3d">3D Effect</option>
+                </select>
+            </div>
+            
+            <div id="color-overlay-options">
+                <h4 style="color: #ff8000; margin-bottom: 10px;">Color Overlay</h4>
+                <div class="color-picker-group">
+                    <div class="color-preview" id="overlay-color" style="background: #ff8000;"></div>
+                    <input type="color" id="overlay-color-picker" class="form-input" value="#ff8000" style="flex: 1; height: 40px;">
+                </div>
+                <div class="adjustment-group">
+                    <div class="adjustment-label">
+                        <span>Opacity</span>
+                        <span class="adjustment-value" id="overlay-opacity-value">50%</span>
+                    </div>
+                    <input type="range" class="tool-option-range" id="overlay-opacity" min="0" max="100" value="50" style="width: 100%;">
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-secondary" data-modal="layer-style-modal" style="margin-right: 10px;">Cancel</button>
+                <button class="btn btn-primary" id="apply-layer-style">Apply Style</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // Main Application Class
+        class PhoenixDraw {
+            constructor() {
+                this.canvas = null;
+                this.ctx = null;
+                this.project = {
+                    name: 'Untitled',
+                    width: 1200,
+                    height: 800,
+                    unit: 'px',
+                    bgColor: '#ffffff',
+                    colorMode: 'rgb',
+                    resolution: 300
+                };
+                
+                this.state = {
+                    currentTool: 'brush',
+                    isDrawing: false,
+                    lastX: 0,
+                    lastY: 0,
+                    zoom: 1,
+                    offsetX: 0,
+                    offsetY: 0,
+                    selection: null,
+                    transform: null
+                };
+                
+                this.brush = {
+                    size: 10,
+                    opacity: 1.0,
+                    flow: 1.0,
+                    type: 'round',
+                    color: '#ff8000',
+                    spacing: 0.1,
+                    hardness: 1.0
+                };
+                
+                this.colors = {
+                    foreground: '#ff8000',
+                    background: '#1a1a2e'
+                };
+                
+                this.layers = [];
+                this.activeLayerIndex = 0;
+                this.frames = [];
+                this.activeFrameIndex = 0;
+                this.history = [];
+                this.historyIndex = -1;
+                
+                this.init();
+            }
+            
+            init() {
+                // Hide loading overlay
+                setTimeout(() => {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                }, 1000);
+                
+                // Initialize event listeners
+                this.initEventListeners();
+                this.initColorPalette();
+                this.initPresets();
+            }
+            
+            initEventListeners() {
+                // Project Setup Form
+                document.getElementById('create-project').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.createProject();
+                });
+                
+                document.getElementById('cancel-project').addEventListener('click', () => {
+                    // Can't cancel - this is the starting screen
+                    // In a real app, you might redirect or show options
+                });
+                
+                // Unit selection
+                document.querySelectorAll('.unit-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.project.unit = btn.dataset.unit;
+                    });
+                });
+                
+                // Color preview update
+                document.getElementById('bg-color').addEventListener('input', (e) => {
+                    document.getElementById('bg-color-preview').style.background = e.target.value;
+                    document.getElementById('bg-color-hex').value = e.target.value;
+                });
+                
+                document.getElementById('bg-color-hex').addEventListener('input', (e) => {
+                    if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                        document.getElementById('bg-color-preview').style.background = e.target.value;
+                        document.getElementById('bg-color').value = e.target.value;
+                    }
+                });
+                
+                // Presets selection
+                document.getElementById('presets').addEventListener('change', (e) => {
+                    const preset = e.target.value;
+                    const presets = {
+                        'web': { width: 1920, height: 1080, unit: 'px', resolution: 72 },
+                        'mobile': { width: 1080, height: 1920, unit: 'px', resolution: 72 },
+                        'a4': { width: 210, height: 297, unit: 'mm', resolution: 300 },
+                        'letter': { width: 8.5, height: 11, unit: 'in', resolution: 300 },
+                        'instagram': { width: 1080, height: 1080, unit: 'px', resolution: 72 },
+                        'facebook': { width: 820, height: 312, unit: 'px', resolution: 72 },
+                        'custom': null
+                    };
+                    
+                    if (preset !== 'custom' && presets[preset]) {
+                        const p = presets[preset];
+                        document.getElementById('width').value = p.width;
+                        document.getElementById('height').value = p.height;
+                        document.getElementById('resolution').value = p.resolution;
+                        
+                        // Update unit buttons
+                        document.querySelectorAll('.unit-btn').forEach(btn => {
+                            btn.classList.toggle('active', btn.dataset.unit === p.unit);
+                        });
+                        this.project.unit = p.unit;
+                    }
+                });
+                
+                // Menu dropdowns
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        if (item.querySelector('.dropdown')) {
+                            e.stopPropagation();
+                            const dropdown = item.querySelector('.dropdown');
+                            dropdown.classList.toggle('show');
+                            
+                            // Close other dropdowns
+                            document.querySelectorAll('.dropdown').forEach(d => {
+                                if (d !== dropdown) d.classList.remove('show');
+                            });
+                        }
+                    });
+                });
+                
+                // Close dropdowns when clicking outside
+                document.addEventListener('click', () => {
+                    document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('show'));
+                });
+                
+                // File menu actions
+                document.getElementById('file-new').addEventListener('click', () => {
+                    this.showProjectSetup();
+                });
+                
+                document.getElementById('file-open').addEventListener('click', () => {
+                    this.openImageFile();
+                });
+                
+                document.getElementById('file-export').addEventListener('click', () => {
+                    this.showExportModal();
+                });
+                
+                // Edit menu actions
+                document.getElementById('edit-undo').addEventListener('click', () => this.undo());
+                document.getElementById('edit-redo').addEventListener('click', () => this.redo());
+                document.getElementById('edit-cut').addEventListener('click', () => this.cut());
+                document.getElementById('edit-copy').addEventListener('click', () => this.copy());
+                document.getElementById('edit-paste').addEventListener('click', () => this.paste());
+                document.getElementById('edit-delete').addEventListener('click', () => this.deleteSelection());
+                
+                // Transform actions
+                document.querySelectorAll('[data-transform]').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const transform = e.currentTarget.dataset.transform;
+                        this.applyTransform(transform);
+                    });
+                });
+                
+                // Image menu actions
+                document.querySelectorAll('[data-adjustment]').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const adjustment = e.currentTarget.dataset.adjustment;
+                        this.showAdjustmentModal(adjustment);
+                    });
+                });
+                
+                document.getElementById('image-duplicate').addEventListener('click', () => {
+                    this.duplicateLayer();
+                });
+                
+                // Layer menu actions
+                document.getElementById('layer-new').addEventListener('click', () => {
+                    this.createLayer();
+                });
+                
+                document.getElementById('layer-duplicate').addEventListener('click', () => {
+                    this.duplicateLayer();
+                });
+                
+                document.getElementById('layer-delete').addEventListener('click', () => {
+                    this.deleteLayer();
+                });
+                
+                document.querySelectorAll('[data-style]').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const style = e.currentTarget.dataset.style;
+                        this.showLayerStyleModal(style);
+                    });
+                });
+                
+                document.querySelectorAll('[data-arrange]').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const arrange = e.currentTarget.dataset.arrange;
+                        this.arrangeLayer(arrange);
+                    });
+                });
+                
+                // Animation menu actions
+                document.getElementById('animation-add-frame').addEventListener('click', () => {
+                    this.addAnimationFrame();
+                });
+                
+                document.getElementById('animation-delete-frame').addEventListener('click', () => {
+                    this.deleteAnimationFrame();
+                });
+                
+                document.getElementById('animation-merge-frame').addEventListener('click', () => {
+                    this.mergeAnimationFrames();
+                });
+                
+                document.getElementById('animation-toggle-timeline').addEventListener('click', () => {
+                    this.toggleTimeline();
+                });
+                
+                // Export modal
+                document.getElementById('export-confirm').addEventListener('click', () => {
+                    this.exportImage();
+                });
+                
+                // Close modals
+                document.querySelectorAll('.modal-close, .btn-secondary[data-modal]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const modal = btn.dataset.modal || btn.closest('.modal').id;
+                        document.getElementById(modal).style.display = 'none';
+                    });
+                });
+                
+                // Color picker
+                document.getElementById('current-color').addEventListener('click', () => {
+                    this.showColorPicker();
+                });
+                
+                // Tool selection
+                document.querySelectorAll('.tool-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.state.currentTool = btn.dataset.tool;
+                        this.updateToolUI();
+                    });
+                });
+            }
+            
+            initColorPalette() {
+                const palette = [
+                    '#ff8000', '#ff0000', '#ff00ff', '#8000ff', '#0080ff',
+                    '#00ffff', '#00ff80', '#80ff00', '#ffff00', '#ff0080',
+                    '#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff',
+                    '#8b0000', '#006400', '#00008b', '#4b0082', '#ff4500',
+                    '#daa520', '#7cfc00', '#00ced1', '#9370db', '#ff69b4'
+                ];
+                
+                const container = document.getElementById('color-palette');
+                palette.forEach(color => {
+                    const swatch = document.createElement('div');
+                    swatch.className = 'color-swatch';
+                    swatch.style.background = color;
+                    swatch.title = color;
+                    
+                    swatch.addEventListener('click', () => {
+                        this.colors.foreground = color;
+                        this.brush.color = color;
+                        document.getElementById('current-color').style.background = color;
+                        document.getElementById('foreground-color').style.background = color;
+                        document.getElementById('custom-color').value = color;
+                        document.getElementById('hex-color').value = color;
+                    });
+                    
+                    container.appendChild(swatch);
+                });
+            }
+            
+            initPresets() {
+                // Set default unit to px
+                this.project.unit = 'px';
+            }
+            
+            createProject() {
+                // Get form values
+                this.project.name = document.getElementById('project-name').value || 'Untitled';
+                this.project.width = parseInt(document.getElementById('width').value) || 1200;
+                this.project.height = parseInt(document.getElementById('height').value) || 800;
+                this.project.bgColor = document.getElementById('bg-color').value || '#ffffff';
+                this.project.colorMode = document.getElementById('color-mode').value;
+                this.project.resolution = parseInt(document.getElementById('resolution').value) || 300;
+                
+                // Hide project setup modal
+                document.getElementById('project-setup-modal').style.display = 'none';
+                
+                // Show main application
+                document.getElementById('main-app').style.display = 'flex';
+                
+                // Initialize canvas
+                this.initCanvas();
+                
+                // Update UI
+                this.updateProjectInfo();
+            }
+            
+            showProjectSetup() {
+                document.getElementById('project-setup-modal').style.display = 'flex';
+                document.getElementById('main-app').style.display = 'none';
+            }
+            
+            initCanvas() {
+                // Create canvas element if it doesn't exist
+                if (!this.canvas) {
+                    this.canvas = document.getElementById('drawing-canvas');
+                    this.ctx = this.canvas.getContext('2d');
+                }
+                
+                // Set canvas dimensions based on project settings
+                let width = this.project.width;
+                let height = this.project.height;
+                
+                // Convert units to pixels (simplified conversion)
+                if (this.project.unit === 'cm') {
+                    width = width * 37.7952755906; // 1cm = 37.7952755906px
+                    height = height * 37.7952755906;
+                } else if (this.project.unit === 'mm') {
+                    width = width * 3.77952755906; // 1mm = 3.77952755906px
+                    height = height * 3.77952755906;
+                } else if (this.project.unit === 'in') {
+                    width = width * 96; // 1in = 96px
+                    height = height * 96;
+                } else if (this.project.unit === '%') {
+                    // Percentage of viewport
+                    const canvasArea = document.getElementById('canvas-area');
+                    width = (canvasArea.clientWidth * width) / 100;
+                    height = (canvasArea.clientHeight * height) / 100;
+                }
+                
+                // Set canvas dimensions
+                this.canvas.width = Math.round(width);
+                this.canvas.height = Math.round(height);
+                
+                // Set background color
+                this.ctx.fillStyle = this.project.bgColor;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Create initial layer
+                this.createLayer('Background');
+                
+                // Initialize drawing events
+                this.initDrawingEvents();
+            }
+            
+            initDrawingEvents() {
+                this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
+                this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
+                this.canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
+                this.canvas.addEventListener('mouseout', this.handleMouseUp.bind(this));
+                
+                // Mouse position tracking
+                this.canvas.addEventListener('mousemove', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = Math.round((e.clientX - rect.left) / this.state.zoom);
+                    const y = Math.round((e.clientY - rect.top) / this.state.zoom);
+                    
+                    document.getElementById('mouse-x').textContent = x;
+                    document.getElementById('mouse-y').textContent = y;
+                });
+                
+                // Brush controls
+                document.getElementById('brush-size').addEventListener('input', (e) => {
+                    this.brush.size = parseInt(e.target.value);
+                    document.getElementById('brush-size-value').textContent = `${this.brush.size}px`;
+                });
+                
+                document.getElementById('brush-opacity').addEventListener('input', (e) => {
+                    this.brush.opacity = parseInt(e.target.value) / 100;
+                    document.getElementById('brush-opacity-value').textContent = `${e.target.value}%`;
+                });
+                
+                document.getElementById('brush-flow').addEventListener('input', (e) => {
+                    this.brush.flow = parseInt(e.target.value) / 100;
+                    document.getElementById('brush-flow-value').textContent = `${e.target.value}%`;
+                });
+                
+                document.getElementById('brush-type').addEventListener('change', (e) => {
+                    this.brush.type = e.target.value;
+                });
+                
+                // Color controls
+                document.getElementById('custom-color').addEventListener('input', (e) => {
+                    this.colors.foreground = e.target.value;
+                    this.brush.color = e.target.value;
+                    document.getElementById('current-color').style.background = e.target.value;
+                    document.getElementById('foreground-color').style.background = e.target.value;
+                    document.getElementById('hex-color').value = e.target.value;
+                });
+                
+                document.getElementById('hex-color').addEventListener('input', (e) => {
+                    if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                        this.colors.foreground = e.target.value;
+                        this.brush.color = e.target.value;
+                        document.getElementById('current-color').style.background = e.target.value;
+                        document.getElementById('foreground-color').style.background = e.target.value;
+                        document.getElementById('custom-color').value = e.target.value;
+                    }
+                });
+                
+                document.getElementById('swap-colors-btn').addEventListener('click', () => {
+                    const temp = this.colors.foreground;
+                    this.colors.foreground = this.colors.background;
+                    this.colors.background = temp;
+                    
+                    document.getElementById('current-color').style.background = this.colors.foreground;
+                    document.getElementById('foreground-color').style.background = this.colors.foreground;
+                    document.getElementById('background-color').style.background = this.colors.background;
+                    document.getElementById('custom-color').value = this.colors.foreground;
+                    document.getElementById('hex-color').value = this.colors.foreground;
+                    
+                    this.brush.color = this.colors.foreground;
+                });
+                
+                // Panel tabs
+                document.querySelectorAll('.panel-tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        
+                        document.querySelectorAll('.panel-content').forEach(content => {
+                            content.style.display = 'none';
+                        });
+                        
+                        document.getElementById(`${tab.dataset.panel}-panel`).style.display = 'block';
+                    });
+                });
+                
+                // Layer controls
+                document.getElementById('new-layer-btn').addEventListener('click', () => {
+                    this.createLayer();
+                });
+                
+                document.getElementById('delete-layer-btn').addEventListener('click', () => {
+                    this.deleteLayer();
+                });
+                
+                // Undo/Redo buttons
+                document.getElementById('undo-btn').addEventListener('click', () => this.undo());
+                document.getElementById('redo-btn').addEventListener('click', () => this.redo());
+            }
+            
+            handleMouseDown(e) {
+                e.preventDefault();
+                
+                const rect = this.canvas.getBoundingClientRect();
+                const scaleX = this.canvas.width / rect.width;
+                const scaleY = this.canvas.height / rect.height;
+                
+                this.state.isDrawing = true;
+                this.state.lastX = (e.clientX - rect.left) * scaleX;
+                this.state.lastY = (e.clientY - rect.top) * scaleY;
+                
+                // Save state for undo
+                this.saveState();
+                
+                // Draw initial point
+                this.drawPoint(this.state.lastX, this.state.lastY);
+            }
+            
+            handleMouseMove(e) {
+                if (!this.state.isDrawing) return;
+                
+                const rect = this.canvas.getBoundingClientRect();
+                const scaleX = this.canvas.width / rect.width;
+                const scaleY = this.canvas.height / rect.height;
+                
+                const x = (e.clientX - rect.left) * scaleX;
+                const y = (e.clientY - rect.top) * scaleY;
+                
+                this.drawLine(this.state.lastX, this.state.lastY, x, y);
+                this.state.lastX = x;
+                this.state.lastY = y;
+            }
+            
+            handleMouseUp() {
+                this.state.isDrawing = false;
+            }
+            
+            drawPoint(x, y) {
+                const layer = this.layers[this.activeLayerIndex];
+                if (!layer || layer.locked) return;
+                
+                const ctx = layer.canvas.getContext('2d');
+                ctx.save();
+                
+                // Set brush properties
+                ctx.globalAlpha = this.brush.opacity;
+                ctx.fillStyle = this.brush.color;
+                
+                // Draw based on brush type
+                switch(this.brush.type) {
+                    case 'round':
+                        ctx.beginPath();
+                        ctx.arc(x, y, this.brush.size / 2, 0, Math.PI * 2);
+                        ctx.fill();
+                        break;
+                    case 'pencil':
+                        ctx.lineWidth = 1;
+                        ctx.strokeStyle = this.brush.color;
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(x + 0.5, y + 0.5);
+                        ctx.stroke();
+                        break;
+                    case 'airbrush':
+                        // Simulate airbrush with multiple dots
+                        for (let i = 0; i < 5; i++) {
+                            const offsetX = (Math.random() - 0.5) * this.brush.size;
+                            const offsetY = (Math.random() - 0.5) * this.brush.size;
+                            ctx.globalAlpha = this.brush.opacity * 0.3;
+                            ctx.beginPath();
+                            ctx.arc(x + offsetX, y + offsetY, this.brush.size / 4, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                        break;
+                    case 'textured':
+                        // Textured brush effect
+                        ctx.beginPath();
+                        ctx.arc(x, y, this.brush.size / 2, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Add some texture
+                        for (let i = 0; i < 3; i++) {
+                            const angle = Math.random() * Math.PI * 2;
+                            const distance = Math.random() * this.brush.size / 2;
+                            const texX = x + Math.cos(angle) * distance;
+                            const texY = y + Math.sin(angle) * distance;
+                            ctx.globalAlpha = this.brush.opacity * 0.5;
+                            ctx.beginPath();
+                            ctx.arc(texX, texY, this.brush.size / 6, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                        break;
+                    case 'calligraphy':
+                        // Calligraphy brush effect
+                        ctx.save();
+                        ctx.translate(x, y);
+                        ctx.rotate(Math.PI / 4);
+                        ctx.beginPath();
+                        ctx.ellipse(0, 0, this.brush.size / 2, this.brush.size / 4, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.restore();
+                        break;
+                }
+                
+                ctx.restore();
+                this.redrawCanvas();
+            }
+            
+            drawLine(x1, y1, x2, y2) {
+                const distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                const steps = Math.max(1, Math.floor(distance / (this.brush.size * this.brush.spacing)));
+                
+                for (let i = 0; i <= steps; i++) {
+                    const t = i / steps;
+                    const x = x1 + (x2 - x1) * t;
+                    const y = y1 + (y2 - y1) * t;
+                    this.drawPoint(x, y);
+                }
+            }
+            
+            createLayer(name = `Layer ${this.layers.length + 1}`) {
+                const layer = {
+                    id: this.layers.length,
+                    name: name,
+                    visible: true,
+                    locked: false,
+                    opacity: 1.0,
+                    canvas: document.createElement('canvas'),
+                    data: []
+                };
+                
+                layer.canvas.width = this.canvas.width;
+                layer.canvas.height = this.canvas.height;
+                
+                this.layers.push(layer);
+                this.activeLayerIndex = this.layers.length - 1;
+                
+                this.updateLayersPanel();
+                this.redrawCanvas();
+            }
+            
+            duplicateLayer() {
+                if (this.layers.length === 0) return;
+                
+                const activeLayer = this.layers[this.activeLayerIndex];
+                const newLayer = {
+                    id: this.layers.length,
+                    name: `${activeLayer.name} copy`,
+                    visible: true,
+                    locked: false,
+                    opacity: activeLayer.opacity,
+                    canvas: document.createElement('canvas'),
+                    data: []
+                };
+                
+                newLayer.canvas.width = this.canvas.width;
+                newLayer.canvas.height = this.canvas.height;
+                
+                // Copy the content
+                const ctx = newLayer.canvas.getContext('2d');
+                ctx.drawImage(activeLayer.canvas, 0, 0);
+                
+                this.layers.push(newLayer);
+                this.activeLayerIndex = this.layers.length - 1;
+                
+                this.updateLayersPanel();
+                this.redrawCanvas();
+            }
+            
+            deleteLayer() {
+                if (this.layers.length > 1) {
+                    this.layers.splice(this.activeLayerIndex, 1);
+                    this.activeLayerIndex = Math.max(0, this.activeLayerIndex - 1);
+                    this.updateLayersPanel();
+                    this.redrawCanvas();
+                }
+            }
+            
+            updateLayersPanel() {
+                const layersList = document.getElementById('layers-list');
+                layersList.innerHTML = '';
+                
+                this.layers.forEach((layer, index) => {
+                    const layerElement = document.createElement('div');
+                    layerElement.className = `layer ${index === this.activeLayerIndex ? 'active' : ''}`;
+                    layerElement.innerHTML = `
+                        <div class="layer-visibility" data-index="${index}">
+                            <i class="fas fa-${layer.visible ? 'eye' : 'eye-slash'}"></i>
+                        </div>
+                        <div class="layer-name">${layer.name}</div>
+                        <div><i class="fas fa-${layer.locked ? 'lock' : 'lock-open'}"></i></div>
+                    `;
+                    
+                    layerElement.addEventListener('click', (e) => {
+                        if (!e.target.closest('.layer-visibility')) {
+                            this.activeLayerIndex = index;
+                            this.updateLayersPanel();
+                        }
+                    });
+                    
+                    // Toggle visibility
+                    const visibilityBtn = layerElement.querySelector('.layer-visibility');
+                    visibilityBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        layer.visible = !layer.visible;
+                        this.updateLayersPanel();
+                        this.redrawCanvas();
+                    });
+                    
+                    layersList.appendChild(layerElement);
+                });
+            }
+            
+            redrawCanvas() {
+                // Clear main canvas
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw background
+                this.ctx.fillStyle = this.project.bgColor;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw all visible layers
+                this.layers.forEach(layer => {
+                    if (layer.visible) {
+                        this.ctx.globalAlpha = layer.opacity;
+                        this.ctx.drawImage(layer.canvas, 0, 0);
+                    }
+                });
+                
+                this.ctx.globalAlpha = 1.0;
+            }
+            
+            saveState() {
+                // Save current state of all layers
+                const state = this.layers.map(layer => ({
+                    ...layer,
+                    canvasData: layer.canvas.toDataURL()
+                }));
+                
+                this.history.push(state);
+                this.historyIndex++;
+                
+                // Limit history size
+                if (this.history.length > 50) {
+                    this.history.shift();
+                    this.historyIndex--;
+                }
+                
+                this.updateHistoryPanel();
+            }
+            
+            undo() {
+                if (this.historyIndex > 0) {
+                    this.historyIndex--;
+                    this.restoreState();
+                }
+            }
+            
+            redo() {
+                if (this.historyIndex < this.history.length - 1) {
+                    this.historyIndex++;
+                    this.restoreState();
+                }
+            }
+            
+            restoreState() {
+                const state = this.history[this.historyIndex];
+                
+                // Restore each layer
+                state.forEach((layerState, index) => {
+                    const layer = this.layers[index];
+                    if (layer) {
+                        const img = new Image();
+                        img.onload = () => {
+                            const ctx = layer.canvas.getContext('2d');
+                            ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
+                            ctx.drawImage(img, 0, 0);
+                            
+                            if (index === state.length - 1) {
+                                this.redrawCanvas();
+                            }
+                        };
+                        img.src = layerState.canvasData;
+                    }
+                });
+                
+                this.updateHistoryPanel();
+            }
+            
+            updateHistoryPanel() {
+                const historyList = document.getElementById('history-list');
+                historyList.innerHTML = '';
+                
+                // Add recent history items
+                const start = Math.max(0, this.historyIndex - 5);
+                const end = this.historyIndex + 1;
+                
+                for (let i = start; i < end; i++) {
+                    const item = document.createElement('div');
+                    item.style.padding = '8px';
+                    item.style.borderBottom = '1px solid rgba(255,128,0,0.1)';
+                    item.style.cursor = 'pointer';
+                    item.style.opacity = i === this.historyIndex ? '1' : '0.6';
+                    
+                    item.innerHTML = `
+                        <i class="fas fa-history" style="color: #ff8000; margin-right: 8px;"></i>
+                        <span>Action ${i + 1}</span>
+                        ${i === this.historyIndex ? '<span style="float: right; color: #ff8000;">Current</span>' : ''}
+                    `;
+                    
+                    item.addEventListener('click', () => {
+                        this.historyIndex = i;
+                        this.restoreState();
+                    });
+                    
+                    historyList.appendChild(item);
+                }
+            }
+            
+            updateProjectInfo() {
+                document.getElementById('project-name-display').textContent = this.project.name;
+                document.getElementById('status-message').textContent = `Project: ${this.project.name}`;
+            }
+            
+            updateToolUI() {
+                const toolNames = {
+                    'move': 'Move Tool',
+                    'rect-select': 'Rectangular Marquee',
+                    'lasso': 'Lasso Tool',
+                    'magic-wand': 'Magic Wand',
+                    'brush': 'Brush Tool',
+                    'pencil': 'Pencil Tool',
+                    'airbrush': 'Airbrush Tool',
+                    'eraser': 'Eraser Tool',
+                    'smudge': 'Smudge Tool',
+                    'blur': 'Blur Tool',
+                    'sharpen': 'Sharpen Tool',
+                    'rectangle': 'Rectangle Tool',
+                    'ellipse': 'Ellipse Tool',
+                    'line': 'Line Tool',
+                    'text': 'Text Tool',
+                    'eyedropper': 'Eyedropper Tool',
+                    'gradient': 'Gradient Tool',
+                    'crop': 'Crop Tool',
+                    'rotate': 'Rotate Tool'
+                };
+                
+                document.getElementById('current-tool').textContent = toolNames[this.state.currentTool] || this.state.currentTool;
+                
+                // Update cursor
+                switch(this.state.currentTool) {
+                    case 'brush':
+                    case 'pencil':
+                    case 'airbrush':
+                    case 'eraser':
+                        this.canvas.style.cursor = 'crosshair';
+                        break;
+                    case 'move':
+                        this.canvas.style.cursor = 'move';
+                        break;
+                    case 'eyedropper':
+                        this.canvas.style.cursor = 'cell';
+                        break;
+                    default:
+                        this.canvas.style.cursor = 'default';
+                }
+            }
+            
+            showExportModal() {
+                document.getElementById('export-modal').style.display = 'flex';
+            }
+            
+            exportImage() {
+                const selectedFormat = document.querySelector('.export-option[style*="background"]')?.dataset.format || 'png';
+                const quality = parseInt(document.getElementById('export-quality').value) / 100;
+                
+                // Create temporary canvas
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = this.canvas.width;
+                tempCanvas.height = this.canvas.height;
+                
+                // Draw background
+                tempCtx.fillStyle = this.project.bgColor;
+                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                
+                // Draw all visible layers
+                this.layers.forEach(layer => {
+                    if (layer.visible) {
+                        tempCtx.globalAlpha = layer.opacity;
+                        tempCtx.drawImage(layer.canvas, 0, 0);
+                    }
+                });
+                
+                tempCtx.globalAlpha = 1.0;
+                
+                // Create download link
+                const link = document.createElement('a');
+                let mimeType, extension;
+                
+                switch(selectedFormat) {
+                    case 'png':
+                        mimeType = 'image/png';
+                        extension = 'png';
+                        break;
+                    case 'jpg':
+                    case 'jpeg':
+                        mimeType = 'image/jpeg';
+                        extension = 'jpg';
+                        break;
+                    case 'webp':
+                        mimeType = 'image/webp';
+                        extension = 'webp';
+                        break;
+                    case 'svg':
+                        // SVG would require different implementation
+                        alert('SVG export requires vector conversion. Exporting as PNG instead.');
+                        mimeType = 'image/png';
+                        extension = 'png';
+                        break;
+                    case 'pdf':
+                        // PDF would require PDF library
+                        alert('PDF export requires PDF.js library. Exporting as PNG instead.');
+                        mimeType = 'image/png';
+                        extension = 'png';
+                        break;
+                }
+                
+                link.download = `${this.project.name}.${extension}`;
+                link.href = tempCanvas.toDataURL(mimeType, quality);
+                link.click();
+                
+                // Close modal
+                document.getElementById('export-modal').style.display = 'none';
+            }
+            
+            showAdjustmentModal(adjustment) {
+                switch(adjustment) {
+                    case 'brightness':
+                        document.getElementById('brightness-modal').style.display = 'flex';
+                        break;
+                    case 'hue':
+                        document.getElementById('hue-modal').style.display = 'flex';
+                        break;
+                    default:
+                        alert(`${adjustment} adjustment is not fully implemented yet.`);
+                }
+            }
+            
+            showColorPicker() {
+                document.getElementById('color-picker-modal').style.display = 'flex';
+            }
+            
+            showLayerStyleModal(style) {
+                document.getElementById('layer-style-modal').style.display = 'flex';
+                document.getElementById('layer-style-type').value = style;
+            }
+            
+            openImageFile() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            const img = new Image();
+                            img.onload = () => {
+                                // Create a new layer with the image
+                                this.createLayer('Imported Image');
+                                const layer = this.layers[this.activeLayerIndex];
+                                const ctx = layer.canvas.getContext('2d');
+                                
+                                // Draw image centered on canvas
+                                const x = (this.canvas.width - img.width) / 2;
+                                const y = (this.canvas.height - img.height) / 2;
+                                ctx.drawImage(img, x, y);
+                                
+                                this.redrawCanvas();
+                            };
+                            img.src = event.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                };
+                
+                input.click();
+            }
+            
+            cut() {
+                // Implementation would require selection system
+                alert('Cut functionality requires selection system implementation.');
+            }
+            
+            copy() {
+                // Implementation would require selection system
+                alert('Copy functionality requires selection system implementation.');
+            }
+            
+            paste() {
+                // Implementation would require clipboard access
+                alert('Paste functionality requires clipboard access.');
+            }
+            
+            deleteSelection() {
+                if (this.layers[this.activeLayerIndex]) {
+                    const ctx = this.layers[this.activeLayerIndex].canvas.getContext('2d');
+                    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    this.redrawCanvas();
+                    this.saveState();
+                }
+            }
+            
+            applyTransform(transform) {
+                const layer = this.layers[this.activeLayerIndex];
+                if (!layer) return;
+                
+                const ctx = layer.canvas.getContext('2d');
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = this.canvas.width;
+                tempCanvas.height = this.canvas.height;
+                
+                // Copy current layer to temp canvas
+                tempCtx.drawImage(layer.canvas, 0, 0);
+                
+                // Clear layer
+                ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Apply transform
+                ctx.save();
+                
+                switch(transform) {
+                    case 'rotate-90':
+                        ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+                        ctx.rotate(Math.PI / 2);
+                        ctx.drawImage(tempCanvas, -this.canvas.height / 2, -this.canvas.width / 2);
+                        break;
+                    case 'rotate--90':
+                        ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+                        ctx.rotate(-Math.PI / 2);
+                        ctx.drawImage(tempCanvas, -this.canvas.height / 2, -this.canvas.width / 2);
+                        break;
+                    case 'rotate-180':
+                        ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+                        ctx.rotate(Math.PI);
+                        ctx.drawImage(tempCanvas, -this.canvas.width / 2, -this.canvas.height / 2);
+                        break;
+                    case 'flip-vertical':
+                        ctx.translate(0, this.canvas.height);
+                        ctx.scale(1, -1);
+                        ctx.drawImage(tempCanvas, 0, 0);
+                        break;
+                    case 'flip-horizontal':
+                        ctx.translate(this.canvas.width, 0);
+                        ctx.scale(-1, 1);
+                        ctx.drawImage(tempCanvas, 0, 0);
+                        break;
+                }
+                
+                ctx.restore();
+                this.redrawCanvas();
+                this.saveState();
+            }
+            
+            arrangeLayer(arrange) {
+                if (this.layers.length <= 1) return;
+                
+                const currentIndex = this.activeLayerIndex;
+                let newIndex;
+                
+                switch(arrange) {
+                    case 'front':
+                        newIndex = this.layers.length - 1;
+                        break;
+                    case 'forward':
+                        newIndex = Math.min(this.layers.length - 1, currentIndex + 1);
+                        break;
+                    case 'backward':
+                        newIndex = Math.max(0, currentIndex - 1);
+                        break;
+                    case 'back':
+                        newIndex = 0;
+                        break;
+                }
+                
+                // Rearrange layers
+                const layer = this.layers.splice(currentIndex, 1)[0];
+                this.layers.splice(newIndex, 0, layer);
+                this.activeLayerIndex = newIndex;
+                
+                this.updateLayersPanel();
+                this.redrawCanvas();
+            }
+            
+            addAnimationFrame() {
+                // Create a copy of current canvas state as a new frame
+                const frameCanvas = document.createElement('canvas');
+                frameCanvas.width = this.canvas.width;
+                frameCanvas.height = this.canvas.height;
+                const ctx = frameCanvas.getContext('2d');
+                
+                // Draw current state
+                ctx.fillStyle = this.project.bgColor;
+                ctx.fillRect(0, 0, frameCanvas.width, frameCanvas.height);
+                
+                this.layers.forEach(layer => {
+                    if (layer.visible) {
+                        ctx.globalAlpha = layer.opacity;
+                        ctx.drawImage(layer.canvas, 0, 0);
+                    }
+                });
+                
+                this.frames.push({
+                    id: this.frames.length,
+                    canvas: frameCanvas,
+                    duration: 100 // ms
+                });
+                
+                this.activeFrameIndex = this.frames.length - 1;
+                this.updateAnimationPanel();
+                this.showTimeline();
+            }
+            
+            deleteAnimationFrame() {
+                if (this.frames.length > 1) {
+                    this.frames.splice(this.activeFrameIndex, 1);
+                    this.activeFrameIndex = Math.max(0, this.activeFrameIndex - 1);
+                    this.updateAnimationPanel();
+                }
+            }
+            
+            mergeAnimationFrames() {
+                if (this.frames.length < 2) return;
+                
+                // Merge active frame with next frame
+                if (this.activeFrameIndex < this.frames.length - 1) {
+                    const ctx = this.frames[this.activeFrameIndex].canvas.getContext('2d');
+                    ctx.drawImage(this.frames[this.activeFrameIndex + 1].canvas, 0, 0);
+                    
+                    this.frames.splice(this.activeFrameIndex + 1, 1);
+                    this.updateAnimationPanel();
+                }
+            }
+            
+            toggleTimeline() {
+                const timeline = document.getElementById('animation-timeline');
+                timeline.style.display = timeline.style.display === 'none' ? 'block' : 'none';
+            }
+            
+            showTimeline() {
+                document.getElementById('animation-timeline').style.display = 'block';
+            }
+            
+            updateAnimationPanel() {
+                const framesList = document.getElementById('animation-frames-list');
+                const timelineFrames = document.getElementById('timeline-frames');
+                
+                framesList.innerHTML = '';
+                timelineFrames.innerHTML = '';
+                
+                this.frames.forEach((frame, index) => {
+                    // Add to frames list
+                    const frameItem = document.createElement('div');
+                    frameItem.className = 'layer';
+                    frameItem.innerHTML = `
+                        <div class="layer-visibility">
+                            <i class="fas fa-film"></i>
+                        </div>
+                        <div class="layer-name">Frame ${index + 1}</div>
+                        <div>${frame.duration}ms</div>
+                    `;
+                    
+                    if (index === this.activeFrameIndex) {
+                        frameItem.classList.add('active');
+                    }
+                    
+                    frameItem.addEventListener('click', () => {
+                        this.activeFrameIndex = index;
+                        this.loadFrame(index);
+                        this.updateAnimationPanel();
+                    });
+                    
+                    framesList.appendChild(frameItem);
+                    
+                    // Add to timeline
+                    const timelineFrame = document.createElement('div');
+                    timelineFrame.className = `timeline-frame ${index === this.activeFrameIndex ? 'active' : ''}`;
+                    
+                    // Create thumbnail
+                    const thumbnail = document.createElement('canvas');
+                    thumbnail.width = 100;
+                    thumbnail.height = 100;
+                    const thumbCtx = thumbnail.getContext('2d');
+                    
+                    // Scale down the frame for thumbnail
+                    thumbCtx.drawImage(frame.canvas, 0, 0, thumbnail.width, thumbnail.height);
+                    
+                    timelineFrame.appendChild(thumbnail);
+                    
+                    const frameNumber = document.createElement('div');
+                    frameNumber.className = 'frame-number';
+                    frameNumber.textContent = index + 1;
+                    timelineFrame.appendChild(frameNumber);
+                    
+                    timelineFrame.addEventListener('click', () => {
+                        this.activeFrameIndex = index;
+                        this.loadFrame(index);
+                        this.updateAnimationPanel();
+                    });
+                    
+                    timelineFrames.appendChild(timelineFrame);
+                });
+            }
+            
+            loadFrame(index) {
+                if (index >= 0 && index < this.frames.length) {
+                    const frame = this.frames[index];
+                    
+                    // Clear all layers
+                    this.layers.forEach(layer => {
+                        const ctx = layer.canvas.getContext('2d');
+                        ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
+                    });
+                    
+                    // Create a single layer for the frame
+                    if (this.layers.length === 0) {
+                        this.createLayer('Frame');
+                    } else {
+                        // Clear existing layers and use first layer
+                        const layer = this.layers[0];
+                        layer.name = 'Frame';
+                        const ctx = layer.canvas.getContext('2d');
+                        ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
+                        ctx.drawImage(frame.canvas, 0, 0);
+                        
+                        // Remove other layers
+                        this.layers = this.layers.slice(0, 1);
+                        this.activeLayerIndex = 0;
+                    }
+                    
+                    this.updateLayersPanel();
+                    this.redrawCanvas();
+                }
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            window.app = new PhoenixDraw();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>American Law Guide</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 10px 18px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-3px);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            color: #ff8000;
+            margin-bottom: 10px;
+            font-size: 2.8rem;
+            text-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+        }
+        
+        .subtitle {
+            color: #b0b0d0;
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .search-container {
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .search-box {
+            width: 100%;
+            max-width: 600px;
+            padding: 14px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 128, 0, 0.4);
+            background: rgba(10, 10, 26, 0.8);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        .search-box:focus {
+            border-color: #ff8000;
+            box-shadow: 0 0 12px rgba(255, 128, 0, 0.3);
+        }
+        
+        .search-box::placeholder {
+            color: #aaa;
+        }
+        
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        
+        .category-card {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 10px;
+            padding: 25px;
+            border-left: 5px solid #ff8000;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            border-left-width: 8px;
+        }
+        
+        .category-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            color: #ff8000;
+            font-size: 1.5rem;
+        }
+        
+        .category-icon {
+            font-size: 1.8rem;
+        }
+        
+        .laws-list {
+            list-style-type: none;
+        }
+        
+        .law-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: rgba(30, 30, 60, 0.5);
+            border-radius: 6px;
+            border-left: 3px solid rgba(255, 128, 0, 0.5);
+            transition: all 0.2s;
+        }
+        
+        .law-item:hover {
+            background: rgba(40, 40, 80, 0.7);
+            border-left-color: #ff8000;
+            transform: translateX(5px);
+        }
+        
+        .law-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #e0e0ff;
+        }
+        
+        .law-desc {
+            font-size: 0.9rem;
+            color: #b0b0d0;
+        }
+        
+        .law-code {
+            font-size: 0.85rem;
+            color: #ff8000;
+            margin-top: 5px;
+            font-family: monospace;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            grid-column: 1 / -1;
+            color: #b0b0d0;
+            font-size: 1.2rem;
+        }
+        
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.3);
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            background: rgba(255, 128, 0, 0.1);
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .category-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Tools
+            </a>
+            <div class="logo">
+                <i class="fas fa-balance-scale" style="color: #ff8000; font-size: 1.5rem;"></i>
+            </div>
+        </div>
+        
+        <div class="header">
+            <h1><i class="fas fa-gavel"></i> American Law Guide</h1>
+            <p class="subtitle">A comprehensive directory of U.S. laws organized by category. Explore federal statutes, regulations, and legal principles that shape American jurisprudence.</p>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-box" placeholder="Search for specific laws or categories...">
+        </div>
+        
+        <div class="categories-grid" id="categoriesContainer">
+            <!-- Categories will be populated by JavaScript -->
+        </div>
+        
+        <div class="footer">
+            <p>This guide provides an overview of significant U.S. federal laws. It is for informational purposes only and does not constitute legal advice.</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <i class="fas fa-book"></i> <span id="totalLaws">0</span> Laws Listed
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-layer-group"></i> <span id="totalCategories">0</span> Categories
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-landmark"></i> U.S. Federal Statutes
+                </div>
+            </div>
+            <p style="margin-top: 20px;">Last updated: January 2023 | Data Source: United States Code, Code of Federal Regulations</p>
+        </div>
+    </div>
+
+    <script>
+        // Law data organized by category
+        const lawCategories = [
+            {
+                id: 1,
+                name: "Constitutional Law",
+                icon: "fas fa-landmark",
+                laws: [
+                    { name: "First Amendment", desc: "Freedom of speech, religion, press, assembly, and petition", code: "U.S. Const. amend. I" },
+                    { name: "Second Amendment", desc: "Right to keep and bear arms", code: "U.S. Const. amend. II" },
+                    { name: "Fourth Amendment", desc: "Protection against unreasonable search and seizure", code: "U.S. Const. amend. IV" },
+                    { name: "Fifth Amendment", desc: "Due process, double jeopardy, self-incrimination, eminent domain", code: "U.S. Const. amend. V" },
+                    { name: "Fourteenth Amendment", desc: "Equal protection and due process clauses", code: "U.S. Const. amend. XIV" },
+                    { name: "Commerce Clause", desc: "Congress's power to regulate interstate commerce", code: "U.S. Const. art. I, § 8" }
+                ]
+            },
+            {
+                id: 2,
+                name: "Criminal Law",
+                icon: "fas fa-handcuffs",
+                laws: [
+                    { name: "Racketeer Influenced and Corrupt Organizations Act", desc: "RICO - laws against organized crime", code: "18 U.S.C. §§ 1961-1968" },
+                    { name: "Comprehensive Drug Abuse Prevention and Control Act", desc: "Controlled Substances Act - regulates drugs", code: "21 U.S.C. §§ 801-904" },
+                    { name: "Hobbs Act", desc: "Prohibits robbery or extortion affecting interstate commerce", code: "18 U.S.C. § 1951" },
+                    { name: "Money Laundering Control Act", desc: "Prohibits financial transactions involving illicit proceeds", code: "18 U.S.C. § 1956" },
+                    { name: "Armed Career Criminal Act", desc: "Enhanced penalties for felons with firearms", code: "18 U.S.C. § 924(e)" },
+                    { name: "Violent Crime Control and Law Enforcement Act", desc: "1994 crime bill with assault weapons ban", code: "Pub. L. 103-322" }
+                ]
+            },
+            {
+                id: 3,
+                name: "Civil Rights",
+                icon: "fas fa-scale-balanced",
+                laws: [
+                    { name: "Civil Rights Act of 1964", desc: "Prohibits discrimination based on race, color, religion, sex, or national origin", code: "42 U.S.C. § 2000a et seq." },
+                    { name: "Voting Rights Act of 1965", desc: "Prohibits racial discrimination in voting", code: "52 U.S.C. §§ 10101-10702" },
+                    { name: "Americans with Disabilities Act", desc: "Prohibits discrimination against individuals with disabilities", code: "42 U.S.C. § 12101 et seq." },
+                    { name: "Age Discrimination in Employment Act", desc: "Prohibits employment discrimination against persons 40 or older", code: "29 U.S.C. § 621 et seq." },
+                    { name: "Fair Housing Act", desc: "Prohibits discrimination in housing", code: "42 U.S.C. §§ 3601-3619" },
+                    { name: "Civil Rights Act of 1968", desc: "Fair Housing Act and anti-riot provisions", code: "18 U.S.C. § 245, 42 U.S.C. § 3601" }
+                ]
+            },
+            {
+                id: 4,
+                name: "Environmental Law",
+                icon: "fas fa-leaf",
+                laws: [
+                    { name: "Clean Air Act", desc: "Regulates air emissions from stationary and mobile sources", code: "42 U.S.C. § 7401 et seq." },
+                    { name: "Clean Water Act", desc: "Regulates discharges of pollutants into U.S. waters", code: "33 U.S.C. § 1251 et seq." },
+                    { name: "Endangered Species Act", desc: "Protects endangered and threatened species", code: "16 U.S.C. § 1531 et seq." },
+                    { name: "National Environmental Policy Act", desc: "Requires environmental impact statements for federal actions", code: "42 U.S.C. § 4321 et seq." },
+                    { name: "Comprehensive Environmental Response, Compensation, and Liability Act", desc: "CERCLA/Superfund - addresses hazardous waste sites", code: "42 U.S.C. § 9601 et seq." },
+                    { name: "Resource Conservation and Recovery Act", desc: "Governs disposal of solid and hazardous waste", code: "42 U.S.C. § 6901 et seq." }
+                ]
+            },
+            {
+                id: 5,
+                name: "Labor & Employment",
+                icon: "fas fa-briefcase",
+                laws: [
+                    { name: "Fair Labor Standards Act", desc: "Establishes minimum wage, overtime pay, child labor standards", code: "29 U.S.C. § 201 et seq." },
+                    { name: "National Labor Relations Act", desc: "Protects rights of employees and employers, encourages collective bargaining", code: "29 U.S.C. §§ 151-169" },
+                    { name: "Occupational Safety and Health Act", desc: "Ensures safe and healthful working conditions", code: "29 U.S.C. § 651 et seq." },
+                    { name: "Family and Medical Leave Act", desc: "Provides unpaid, job-protected leave for family and medical reasons", code: "29 U.S.C. § 2601 et seq." },
+                    { name: "Employee Retirement Income Security Act", desc: "Sets minimum standards for pension plans", code: "29 U.S.C. § 1001 et seq." },
+                    { name: "Equal Pay Act", desc: "Prohibits sex-based wage discrimination", code: "29 U.S.C. § 206(d)" }
+                ]
+            },
+            {
+                id: 6,
+                name: "Intellectual Property",
+                icon: "fas fa-copyright",
+                laws: [
+                    { name: "Copyright Act", desc: "Protects original works of authorship", code: "17 U.S.C. §§ 101-810" },
+                    { name: "Patent Act", desc: "Governs patent law for inventions", code: "35 U.S.C. §§ 1-390" },
+                    { name: "Lanham Act", desc: "Governs trademarks, service marks, and unfair competition", code: "15 U.S.C. §§ 1051-1141n" },
+                    { name: "Digital Millennium Copyright Act", desc: "Updates copyright law for the digital age", code: "17 U.S.C. § 512, 1201-1205" },
+                    { name: "Defend Trade Secrets Act", desc: "Federal civil remedy for trade secret misappropriation", code: "18 U.S.C. § 1836 et seq." },
+                    { name: "America Invents Act", desc: "Major reform of U.S. patent law", code: "35 U.S.C. § 100 note" }
+                ]
+            },
+            {
+                id: 7,
+                name: "Tax Law",
+                icon: "fas fa-file-invoice-dollar",
+                laws: [
+                    { name: "Internal Revenue Code", desc: "Primary statutory basis of federal tax law", code: "26 U.S.C." },
+                    { name: "Tax Cuts and Jobs Act", desc: "2017 major reform of tax code", code: "Pub. L. 115-97" },
+                    { name: "Affordable Care Act Individual Mandate", desc: "Requirement to have health insurance or pay penalty", code: "26 U.S.C. § 5000A" },
+                    { name: "Estate Tax", desc: "Tax on transfer of estate after death", code: "26 U.S.C. §§ 2001-2801" },
+                    { name: "Foreign Account Tax Compliance Act", desc: "Targets non-compliance by U.S. taxpayers using foreign accounts", code: "26 U.S.C. §§ 1471-1474" }
+                ]
+            },
+            {
+                id: 8,
+                name: "Healthcare Law",
+                icon: "fas fa-heartbeat",
+                laws: [
+                    { name: "Affordable Care Act", desc: "Comprehensive healthcare reform (Obamacare)", code: "Pub. L. 111-148, 124 Stat. 119" },
+                    { name: "Health Insurance Portability and Accountability Act", desc: "HIPAA - protects health insurance coverage and privacy", code: "42 U.S.C. § 300gg, 29 U.S.C. § 1181" },
+                    { name: "Emergency Medical Treatment and Labor Act", desc: "Requires emergency treatment regardless of ability to pay", code: "42 U.S.C. § 1395dd" },
+                    { name: "Medicare Act", desc: "Federal health insurance for people 65+ and younger with disabilities", code: "42 U.S.C. §§ 1395-1395kkk" },
+                    { name: "Mental Health Parity and Addiction Equity Act", desc: "Requires equal coverage for mental health and substance use disorder", code: "29 U.S.C. § 1185a" }
+                ]
+            },
+            {
+                id: 9,
+                name: "Immigration Law",
+                icon: "fas fa-passport",
+                laws: [
+                    { name: "Immigration and Nationality Act", desc: "Comprehensive immigration law, basis of current system", code: "8 U.S.C. §§ 1101-1537" },
+                    { name: "Refugee Act", desc: "Established procedures for admitting refugees", code: "8 U.S.C. § 1521 et seq." },
+                    { name: "Illegal Immigration Reform and Immigrant Responsibility Act", desc: "Enhanced border enforcement and restrictions", code: "Pub. L. 104-208" },
+                    { name: "Dream Act", desc: "Provides path to citizenship for certain undocumented immigrants", code: "Various proposed bills" },
+                    { name: "Secure Fence Act", desc: "Authorized fencing along U.S.-Mexico border", code: "Pub. L. 109-367" }
+                ]
+            },
+            {
+                id: 10,
+                name: "Business & Corporate",
+                icon: "fas fa-building",
+                laws: [
+                    { name: "Securities Act of 1933", desc: "Requires registration of securities and disclosure", code: "15 U.S.C. §§ 77a-77aa" },
+                    { name: "Securities Exchange Act of 1934", desc: "Created SEC and governs securities transactions", code: "15 U.S.C. §§ 78a-78pp" },
+                    { name: "Sarbanes-Oxley Act", desc: "Enhances corporate responsibility and financial disclosures", code: "15 U.S.C. § 7201 et seq." },
+                    { name: "Dodd-Frank Wall Street Reform Act", desc: "Comprehensive financial regulation reform", code: "Pub. L. 111-203, 124 Stat. 1376" },
+                    { name: "Sherman Antitrust Act", desc: "Prohibits anticompetitive agreements and monopolization", code: "15 U.S.C. §§ 1-7" },
+                    { name: "Clayton Antitrust Act", desc: "Supplements Sherman Act, addresses anticompetitive practices", code: "15 U.S.C. §§ 12-27" }
+                ]
+            }
+        ];
+
+        // Function to render categories and laws
+        function renderCategories(categories) {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = '';
+            
+            if (categories.length === 0) {
+                container.innerHTML = '<div class="no-results"><i class="fas fa-search"></i><h3>No laws or categories found matching your search</h3><p>Try different keywords or browse all categories</p></div>';
+                return;
+            }
+            
+            categories.forEach(category => {
+                const categoryCard = document.createElement('div');
+                categoryCard.className = 'category-card';
+                
+                let lawsHTML = '';
+                category.laws.forEach(law => {
+                    lawsHTML += `
+                        <li class="law-item">
+                            <div class="law-name">${law.name}</div>
+                            <div class="law-desc">${law.desc}</div>
+                            <div class="law-code">${law.code}</div>
+                        </li>
+                    `;
+                });
+                
+                categoryCard.innerHTML = `
+                    <div class="category-title">
+                        <i class="${category.icon} category-icon"></i>
+                        <h3>${category.name}</h3>
+                    </div>
+                    <ul class="laws-list">
+                        ${lawsHTML}
+                    </ul>
+                `;
+                
+                container.appendChild(categoryCard);
+            });
+            
+            // Update stats
+            updateStats(categories);
+        }
+
+        // Function to update statistics
+        function updateStats(categories) {
+            let totalLaws = 0;
+            categories.forEach(category => {
+                totalLaws += category.laws.length;
+            });
+            
+            document.getElementById('totalLaws').textContent = totalLaws;
+            document.getElementById('totalCategories').textContent = categories.length;
+        }
+
+        // Function to filter laws based on search input
+        function filterLaws(searchTerm) {
+            if (!searchTerm.trim()) {
+                return lawCategories;
+            }
+            
+            const filteredCategories = [];
+            const lowerSearchTerm = searchTerm.toLowerCase();
+            
+            lawCategories.forEach(category => {
+                // Check if category name matches
+                const categoryMatches = category.name.toLowerCase().includes(lowerSearchTerm);
+                
+                // Filter laws within category
+                const filteredLaws = category.laws.filter(law => 
+                    law.name.toLowerCase().includes(lowerSearchTerm) ||
+                    law.desc.toLowerCase().includes(lowerSearchTerm) ||
+                    law.code.toLowerCase().includes(lowerSearchTerm)
+                );
+                
+                // If category matches or has matching laws, include it
+                if (categoryMatches || filteredLaws.length > 0) {
+                    filteredCategories.push({
+                        ...category,
+                        laws: categoryMatches ? category.laws : filteredLaws
+                    });
+                }
+            });
+            
+            return filteredCategories;
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Render all categories initially
+            renderCategories(lawCategories);
+            
+            // Set up search functionality
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', function() {
+                const filteredCategories = filterLaws(this.value);
+                renderCategories(filteredCategories);
+            });
+            
+            // Add a little animation to cards on load
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.category-card');
+                cards.forEach((card, index) => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    
+                    setTimeout(() => {
+                        card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+            }, 300);
+        });
+    </script>
+</body>
+</html>

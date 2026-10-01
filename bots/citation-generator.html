@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citation Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+    color: #fff;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background: rgba(20, 20, 35, 0.8);
+    border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+    margin-bottom: 30px;
+    border-radius: 10px;
+}
+
+.back-btn {
+    padding: 8px 15px;
+    background: rgba(255, 128, 0, 0.2);
+    border: 1px solid #ff8000;
+    border-radius: 5px;
+    color: #ff8000;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    background: rgba(255, 128, 0, 0.2);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    border-radius: 5px;
+    color: #ff8000;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tab-btn.active {
+    background: linear-gradient(to right, #ff7e00, #ff4500);
+    border-color: #ff8000;
+    color: white;
+}
+
+.section {
+    background: rgba(20, 20, 35, 0.5);
+    border: 1px solid rgba(255, 69, 0, 0.2);
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 25px;
+    display: none;
+}
+
+.section.active {
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #ccc;
+    font-weight: bold;
+}
+
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 10px 15px;
+    background: rgba(50, 50, 70, 0.4);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    border-radius: 5px;
+    color: #fff;
+}
+
+.form-group input::placeholder, .form-group textarea::placeholder {
+    color: #888;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.btn {
+    padding: 12px 25px;
+    background: linear-gradient(to right, #ff7e00, #ff4500);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 69, 0, 0.4);
+}
+
+.citation-output {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    font-family: 'Courier New', monospace;
+    line-height: 1.8;
+}
+
+.copy-btn {
+    padding: 10px 20px;
+    background: rgba(255, 128, 0, 0.2);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    border-radius: 5px;
+    color: #ff8000;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.3s;
+}
+
+.copy-btn:hover {
+    background: rgba(255, 128, 0, 0.3);
+}
+
+@media (max-width: 600px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .tabs {
+        flex-direction: column;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold;">Citation Generator</span>
+        <div style="width: 60px;"></div>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchStyle('mla')">MLA</button>
+            <button class="tab-btn" onclick="switchStyle('apa')">APA</button>
+            <button class="tab-btn" onclick="switchStyle('chicago')">Chicago</button>
+        </div>
+
+        <!-- MLA -->
+        <div id="mla" class="section active">
+            <h2 style="margin-bottom: 20px;"><i class="fas fa-file-alt"></i> MLA Citation</h2>
+            <div class="form-group">
+                <label>Author(s)</label>
+                <input type="text" id="mla-author" placeholder="Last name, First name">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Book/Article Title</label>
+                    <input type="text" id="mla-title" placeholder="Title">
+                </div>
+                <div class="form-group">
+                    <label>Publisher</label>
+                    <input type="text" id="mla-publisher" placeholder="Publisher name">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Publication Year</label>
+                    <input type="number" id="mla-year" placeholder="2024">
+                </div>
+                <div class="form-group">
+                    <label>Website (Optional)</label>
+                    <input type="text" id="mla-website" placeholder="Website name">
+                </div>
+            </div>
+            <button class="btn" onclick="generateMLA()"><i class="fas fa-magic"></i> Generate MLA Citation</button>
+            <div class="citation-output" id="mla-output" style="display: none;"></div>
+        </div>
+
+        <!-- APA -->
+        <div id="apa" class="section">
+            <h2 style="margin-bottom: 20px;"><i class="fas fa-file-alt"></i> APA Citation</h2>
+            <div class="form-group">
+                <label>Author(s)</label>
+                <input type="text" id="apa-author" placeholder="Last name, First initial.">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Publication Year</label>
+                    <input type="number" id="apa-year" placeholder="2024">
+                </div>
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="apa-title" placeholder="Title of work">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Publisher</label>
+                    <input type="text" id="apa-publisher" placeholder="Publisher">
+                </div>
+                <div class="form-group">
+                    <label>URL (Optional)</label>
+                    <input type="text" id="apa-url" placeholder="https://example.com">
+                </div>
+            </div>
+            <button class="btn" onclick="generateAPA()"><i class="fas fa-magic"></i> Generate APA Citation</button>
+            <div class="citation-output" id="apa-output" style="display: none;"></div>
+        </div>
+
+        <!-- Chicago -->
+        <div id="chicago" class="section">
+            <h2 style="margin-bottom: 20px;"><i class="fas fa-file-alt"></i> Chicago Citation</h2>
+            <div class="form-group">
+                <label>Author(s)</label>
+                <input type="text" id="chicago-author" placeholder="First name Last name">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="chicago-title" placeholder="Title of book">
+                </div>
+                <div class="form-group">
+                    <label>Publisher</label>
+                    <input type="text" id="chicago-publisher" placeholder="Publisher">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Publication Year</label>
+                    <input type="number" id="chicago-year" placeholder="2024">
+                </div>
+                <div class="form-group">
+                    <label>Publication Place</label>
+                    <input type="text" id="chicago-place" placeholder="City">
+                </div>
+            </div>
+            <button class="btn" onclick="generateChicago()"><i class="fas fa-magic"></i> Generate Chicago Citation</button>
+            <div class="citation-output" id="chicago-output" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        function switchStyle(style) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(style).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function generateMLA() {
+            const author = document.getElementById('mla-author').value || 'Unknown Author';
+            const title = document.getElementById('mla-title').value || 'Title';
+            const publisher = document.getElementById('mla-publisher').value || 'Publisher';
+            const year = document.getElementById('mla-year').value || 'n.d.';
+            const website = document.getElementById('mla-website').value || 'Website';
+
+            const citation = `${author}. "${title}." ${website}, ${year}.`;
+            showOutput('mla-output', citation);
+        }
+
+        function generateAPA() {
+            const author = document.getElementById('apa-author').value || 'Unknown Author';
+            const year = document.getElementById('apa-year').value || 'n.d.';
+            const title = document.getElementById('apa-title').value || 'Title';
+            const publisher = document.getElementById('apa-publisher').value || 'Publisher';
+            const url = document.getElementById('apa-url').value;
+
+            let citation = `${author} (${year}). ${title}. ${publisher}.`;
+            if (url) citation += ` Retrieved from ${url}`;
+
+            showOutput('apa-output', citation);
+        }
+
+        function generateChicago() {
+            const author = document.getElementById('chicago-author').value || 'Unknown Author';
+            const title = document.getElementById('chicago-title').value || 'Title';
+            const place = document.getElementById('chicago-place').value || 'Place';
+            const publisher = document.getElementById('chicago-publisher').value || 'Publisher';
+            const year = document.getElementById('chicago-year').value || 'n.d.';
+
+            const citation = `${author}. ${title}. ${place}: ${publisher}, ${year}.`;
+            showOutput('chicago-output', citation);
+        }
+
+        function showOutput(elementId, citation) {
+            const output = document.getElementById(elementId);
+            output.innerHTML = `<strong>Generated Citation:</strong><br><br>${citation}<br><br><button class="copy-btn" onclick="copyCitation('${citation}')"><i class="fas fa-copy"></i> Copy</button>`;
+            output.style.display = 'block';
+        }
+
+        function copyCitation(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Citation copied to clipboard! 📋');
+            });
+        }
+    </script>
+</body>
+</html>

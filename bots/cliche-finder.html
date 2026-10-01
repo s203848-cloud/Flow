@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliché Finder · repetition radar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #f0eaff;
+            min-height: 100vh;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .navbar {
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            padding: 8px 18px;
+            background: rgba(255, 128, 0, 0.15);
+            border: 1px solid #ff8000;
+            border-radius: 40px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ffaa33;
+            color: #fff0d0;
+            transform: translateX(-2px);
+        }
+
+        .back-btn i {
+            font-size: 0.9rem;
+        }
+
+        .finder-card {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(10, 10, 26, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 32px;
+            padding: 36px 32px;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 128, 0, 0.1) inset;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        h1 span {
+            background: rgba(255,128,0,0.2);
+            color: #ffb366;
+            font-size: 1rem;
+            padding: 4px 14px;
+            border-radius: 40px;
+            border: 1px solid #ff8000;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+        }
+
+        .sub {
+            color: #b0a0d0;
+            margin-bottom: 32px;
+            border-left: 3px solid #ff8000;
+            padding-left: 18px;
+            font-size: 1.05rem;
+        }
+
+        .input-section {
+            margin-bottom: 32px;
+        }
+
+        .textarea-wrapper {
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            padding: 4px;
+            transition: border 0.2s;
+        }
+        .textarea-wrapper:focus-within {
+            border-color: #ff8000;
+            box-shadow: 0 0 0 3px rgba(255,128,0,0.15);
+        }
+
+        textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: none;
+            border-radius: 20px;
+            padding: 20px 22px;
+            color: white;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+            font-family: 'Segoe UI', monospace;
+        }
+
+        textarea::placeholder {
+            color: #6a5a7a;
+            font-style: italic;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 16px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+
+        .primary-btn, .secondary-btn {
+            padding: 12px 32px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            transition: 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .primary-btn {
+            background: #ff8000;
+            color: #0a0a1a;
+            box-shadow: 0 8px 18px rgba(255,128,0,0.3);
+        }
+        .primary-btn:hover {
+            background: #ff9933;
+            transform: scale(1.02);
+            box-shadow: 0 10px 22px rgba(255,128,0,0.5);
+        }
+
+        .secondary-btn {
+            background: rgba(255,128,0,0.08);
+            color: #ffb366;
+            border: 1px solid rgba(255,128,0,0.5);
+            backdrop-filter: blur(4px);
+        }
+        .secondary-btn:hover {
+            background: rgba(255,128,0,0.2);
+            border-color: #ff8000;
+            color: white;
+        }
+
+        .stats-panel {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 18px 24px;
+            margin: 28px 0 24px 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid rgba(255,128,0,0.25);
+            backdrop-filter: blur(5px);
+        }
+
+        .total-badge {
+            background: rgba(255,128,0,0.18);
+            padding: 8px 18px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            border: 1px solid #ff8000;
+        }
+        .total-badge strong {
+            color: #ffaa33;
+            font-size: 1.6rem;
+            margin-right: 6px;
+        }
+
+        .repeated-list-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 20px;
+            color: #bbadd9;
+        }
+        .repeated-tag {
+            background: rgba(255,128,0,0.1);
+            border-radius: 30px;
+            padding: 4px 15px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255,128,0,0.3);
+            color: #ffb366;
+        }
+        .repeated-tag span {
+            color: white;
+            font-weight: 700;
+            margin-left: 6px;
+            background: rgba(255,128,0,0.3);
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .output-title {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            color: #d0c0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .output-box {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 24px;
+            padding: 28px;
+            border: 1px solid rgba(255,128,0,0.4);
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.7;
+            font-size: 1.05rem;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: inset 0 8px 20px rgba(0,0,0,0.6);
+        }
+
+        .repeated-word {
+            background: rgba(255, 128, 0, 0.25);
+            color: #ffffff;
+            border-bottom: 2px solid #ff8000;
+            padding: 2px 4px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .repeated-word:hover {
+            background: rgba(255, 128, 0, 0.5);
+            cursor: help;
+        }
+
+        .empty-message {
+            color: #7a6b92;
+            font-style: italic;
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        footer {
+            margin-top: 32px;
+            font-size: 0.85rem;
+            color: #5a4a72;
+        }
+
+        @media (max-width: 600px) {
+            .finder-card { padding: 24px 18px; }
+            h1 { font-size: 1.8rem; flex-wrap: wrap; }
+            .stats-panel { flex-direction: column; align-items: start; gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to tools</a>
+    </div>
+
+    <div class="finder-card">
+        <h1>
+            🔁 Cliché Finder
+            <span>repetition‑based</span>
+        </h1>
+        <div class="sub">Flags every word that appears more than once – because overusing any word is a cliché.</div>
+
+        <div class="input-section">
+            <div class="textarea-wrapper">
+                <textarea id="inputText" rows="7" placeholder="Paste your text...">I am cool and human and also the best at Minecraft and Roblox and fortnite which does not work because there is a bunch of ands</textarea>
+            </div>
+            <div class="button-group">
+                <button class="primary-btn" id="findBtn"><i class="fas fa-search"></i> Find repeats</button>
+                <button class="secondary-btn" id="clearBtn"><i class="fas fa-eraser"></i> Clear</button>
+                <button class="secondary-btn" id="sampleBtn"><i class="fas fa-file-alt"></i> Reload sample</button>
+            </div>
+        </div>
+
+        <div class="stats-panel" id="statsPanel">
+            <div class="total-badge">
+                <strong id="totalCount">0</strong> repeated words
+            </div>
+            <div class="repeated-list-preview" id="repeatedTags">
+                <span class="repeated-tag">✨ repeated words will appear here</span>
+            </div>
+        </div>
+
+        <div class="output-title">
+            <i class="fas fa-highlighter" style="color:#ff8000;"></i> Highlighted text (repeated words in orange)
+        </div>
+        <div class="output-box" id="outputArea">
+            <div class="empty-message">⬆️ Click "Find repeats" to see overused words</div>
+        </div>
+        <footer>— every word that shows up more than once gets a highlight —</footer>
+    </div>
+
+    <script>
+        (function() {
+            const inputEl = document.getElementById('inputText');
+            const findBtn = document.getElementById('findBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const sampleBtn = document.getElementById('sampleBtn');
+            const outputArea = document.getElementById('outputArea');
+            const totalSpan = document.getElementById('totalCount');
+            const repeatedTagsDiv = document.getElementById('repeatedTags');
+
+            const SAMPLE_TEXT = inputEl.value; // keep the initial sample
+
+            // Helper: escape HTML special chars
+            function escapeHtml(unsafe) {
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            // Core analysis: find repeated words (case‑insensitive, alphabetic only)
+            function analyzeRepetition() {
+                const rawText = inputEl.value;
+                if (!rawText.trim()) {
+                    outputArea.innerHTML = `<div class="empty-message">📭 Empty text — nothing to analyze</div>`;
+                    totalSpan.innerText = '0';
+                    repeatedTagsDiv.innerHTML = `<span class="repeated-tag">✨ no words</span>`;
+                    return;
+                }
+
+                // 1. Extract words: sequences of letters a-z (ignore numbers, underscores, etc.)
+                //    Use a regex that matches letters, optionally with an apostrophe for contractions (e.g., "don't")
+                const wordRegex = /[a-zA-Z]+(?:'[a-zA-Z]+)?/g;
+                const words = rawText.match(wordRegex) || [];
+
+                // 2. Count frequencies (case‑insensitive)
+                const freq = new Map();          // lowercase word -> count
+                words.forEach(w => {
+                    const lower = w.toLowerCase();
+                    freq.set(lower, (freq.get(lower) || 0) + 1);
+                });
+
+                // 3. Determine which words are repeated (count > 1)
+                const repeatedSet = new Set();
+                for (let [word, count] of freq.entries()) {
+                    if (count > 1) repeatedSet.add(word);
+                }
+
+                // 4. Total occurrences of repeated words (for stats)
+                let totalRepeatedOccurrences = 0;
+                const repeatedWordsWithCounts = new Map(); // lowercase -> count (only repeated)
+                for (let [word, count] of freq.entries()) {
+                    if (count > 1) {
+                        repeatedWordsWithCounts.set(word, count);
+                        totalRepeatedOccurrences += count;
+                    }
+                }
+
+                // 5. Prepare highlighted HTML
+                const escapedText = escapeHtml(rawText);
+
+                // We need to wrap each occurrence of a repeated word with <span class="repeated-word">.
+                // We'll use a replacement function that checks if the matched word (lowercase) is in repeatedSet.
+                // But we must apply it on the escaped text, matching the same word pattern.
+                const highlightRegex = /[a-zA-Z]+(?:'[a-zA-Z]+)?/g;
+                const highlightedHtml = escapedText.replace(highlightRegex, (match) => {
+                    const lowerMatch = match.toLowerCase();
+                    if (repeatedSet.has(lowerMatch)) {
+                        return `<span class="repeated-word" title="🔁 appears ${repeatedWordsWithCounts.get(lowerMatch)} times">${match}</span>`;
+                    } else {
+                        return match; // unchanged
+                    }
+                });
+
+                // If no repeated words, show plain text with a note
+                if (repeatedSet.size === 0) {
+                    outputArea.innerHTML = escapedText || '<div class="empty-message">✨ No repeated words – every word is unique!</div>';
+                } else {
+                    outputArea.innerHTML = highlightedHtml;
+                }
+
+                // 6. Update total count badge
+                totalSpan.innerText = totalRepeatedOccurrences;
+
+                // 7. Render tags for repeated words (sorted by frequency)
+                if (repeatedWordsWithCounts.size === 0) {
+                    repeatedTagsDiv.innerHTML = `<span class="repeated-tag">🔎 no repeats</span>`;
+                } else {
+                    const sorted = Array.from(repeatedWordsWithCounts.entries()).sort((a, b) => b[1] - a[1]);
+                    let tagsHtml = '';
+                    sorted.forEach(([word, cnt]) => {
+                        // Truncate if too long
+                        const displayWord = word.length > 22 ? word.slice(0, 18) + '…' : word;
+                        tagsHtml += `<span class="repeated-tag">${displayWord} <span>${cnt}</span></span>`;
+                    });
+                    repeatedTagsDiv.innerHTML = tagsHtml;
+                }
+            }
+
+            // Event listeners
+            findBtn.addEventListener('click', analyzeRepetition);
+
+            clearBtn.addEventListener('click', () => {
+                inputEl.value = '';
+                outputArea.innerHTML = '<div class="empty-message">⬆️ Type something and click "Find repeats"</div>';
+                totalSpan.innerText = '0';
+                repeatedTagsDiv.innerHTML = `<span class="repeated-tag">✨ cleared</span>`;
+            });
+
+            sampleBtn.addEventListener('click', () => {
+                inputEl.value = SAMPLE_TEXT;
+                analyzeRepetition();
+            });
+
+            // Run on page load to show initial highlight
+            window.addEventListener('DOMContentLoaded', () => {
+                setTimeout(analyzeRepetition, 20);
+            });
+
+            // Ctrl+Enter shortcut
+            inputEl.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                    analyzeRepetition();
+                }
+            });
+        })();
+    </script>
+
+    <style>
+        .repeated-word[title] {
+            cursor: help;
+        }
+        .repeated-tag:hover {
+            background: rgba(255,128,0,0.25);
+            transform: translateY(-1px);
+        }
+    </style>
+</body>
+</html>

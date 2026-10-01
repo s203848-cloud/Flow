@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborative Story Board</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-5px);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        h1 {
+            color: #ff8000;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 128, 0, 0.5);
+        }
+        
+        .subtitle {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .story-section {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .section-title {
+            color: #ff8000;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            font-size: 1.3rem;
+        }
+        
+        .story-container {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .story-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .story-container::-webkit-scrollbar-track {
+            background: rgba(255, 128, 0, 0.1);
+            border-radius: 10px;
+        }
+        
+        .story-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 128, 0, 0.5);
+            border-radius: 10px;
+        }
+        
+        .story-entry {
+            background: rgba(30, 30, 60, 0.7);
+            border-left: 4px solid #ff8000;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            transition: transform 0.2s ease;
+        }
+        
+        .story-entry:hover {
+            transform: translateX(5px);
+        }
+        
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .writer-name {
+            color: #ff8000;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .entry-time {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .entry-text {
+            line-height: 1.6;
+            color: #e0e0ff;
+        }
+        
+        .contributors-section {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .contributors-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .contributor {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            background: rgba(30, 30, 60, 0.7);
+            border-radius: 8px;
+        }
+        
+        .contributor-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #ff8000, #ffaa00);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .contributor-info h4 {
+            color: #ffaa00;
+            margin-bottom: 5px;
+        }
+        
+        .contributor-info p {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .add-contribution-section {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffaa00;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(30, 30, 60, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 0 2px rgba(255, 128, 0, 0.2);
+        }
+        
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            background: rgba(255, 128, 0, 0.8);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1rem;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 128, 0, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.3);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            color: #ff8000;
+            font-size: 2.2rem;
+            font-weight: bold;
+        }
+        
+        .stat-label {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.3);
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #444;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 128, 0, 0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .char-count {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        
+        .warning {
+            color: #ff8000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../tools-list.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Tools
+        </a>
+        
+        <header>
+            <h1>Collaborative Story Board</h1>
+            <p class="subtitle">Multiple writers contributing to one evolving story. Add your paragraph and watch the narrative grow!</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="story-section">
+                <h2 class="section-title"><i class="fas fa-book-open"></i> The Story So Far</h2>
+                <div class="story-container" id="storyContainer">
+                    <!-- Story entries will be added here dynamically -->
+                    <div class="empty-state">
+                        <i class="fas fa-pen-fancy"></i>
+                        <h3>No story entries yet</h3>
+                        <p>Be the first to contribute to this collaborative story!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contributors-section">
+                <h2 class="section-title"><i class="fas fa-users"></i> Active Writers</h2>
+                <div class="contributors-list" id="contributorsList">
+                    <!-- Contributors will be added here dynamically -->
+                    <div class="contributor">
+                        <div class="contributor-avatar">JD</div>
+                        <div class="contributor-info">
+                            <h4>Jane Doe</h4>
+                            <p>Started the story</p>
+                        </div>
+                    </div>
+                    <div class="contributor">
+                        <div class="contributor-avatar">AS</div>
+                        <div class="contributor-info">
+                            <h4>Alex Smith</h4>
+                            <p>2 contributions</p>
+                        </div>
+                    </div>
+                    <div class="contributor">
+                        <div class="contributor-avatar">MJ</div>
+                        <div class="contributor-info">
+                            <h4>Morgan Jade</h4>
+                            <p>1 contribution</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="add-contribution-section">
+            <h2 class="section-title"><i class="fas fa-plus-circle"></i> Add Your Contribution</h2>
+            <form id="contributionForm">
+                <div class="form-group">
+                    <label for="writerName"><i class="fas fa-user"></i> Your Name</label>
+                    <input type="text" id="writerName" placeholder="Enter your name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="contributionText"><i class="fas fa-edit"></i> Your Story Contribution</label>
+                    <textarea id="contributionText" placeholder="Continue the story with your own paragraph..." required maxlength="1000"></textarea>
+                    <div class="char-count">Characters: <span id="charCount">0</span>/1000</div>
+                </div>
+                
+                <button type="submit" class="btn">
+                    <i class="fas fa-paper-plane"></i> Add to Story
+                </button>
+            </form>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="totalContributions">3</div>
+                <div class="stat-label">Story Entries</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalWriters">3</div>
+                <div class="stat-label">Writers</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalWords">245</div>
+                <div class="stat-label">Total Words</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="storyDays">1</div>
+                <div class="stat-label">Days Active</div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Collaborative Story Board &copy; 2023 | All contributions become part of the shared story</p>
+            <p>Note: This story is saved locally in your browser. For true collaboration, connect with others on the same network.</p>
+        </footer>
+    </div>
+    
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i> Your contribution has been added to the story!
+    </div>
+    
+    <script>
+        // Sample initial story entries
+        const initialStoryEntries = [
+            {
+                writer: "Jane Doe",
+                text: "The old lighthouse stood defiant against the raging storm, its beam cutting through the darkness like a sword of light. For centuries it had guided sailors safely to shore, but tonight felt different. The waves crashed with unusual fury, and the wind carried whispers of forgotten tales.",
+                time: "2 days ago"
+            },
+            {
+                writer: "Alex Smith",
+                text: "As the keeper adjusted the lantern, a sudden chill ran down his spine. He wasn't alone. In the corner of the room, shadows seemed to coalesce into a human form—a sailor from another time, drenched and weary, with eyes that held the depth of the ocean itself.",
+                time: "1 day ago"
+            },
+            {
+                writer: "Morgan Jade",
+                text: "The spectral sailor spoke not with words, but with memories that flooded the keeper's mind. Visions of a shipwreck from two hundred years past, a treasure lost to the depths, and a curse that bound his spirit to the lighthouse until the sea returned what it had taken.",
+                time: "Today, 10:24 AM"
+            }
+        ];
+        
+        // Sample contributors
+        const contributors = [
+            { name: "Jane Doe", contributions: 1, avatar: "JD" },
+            { name: "Alex Smith", contributions: 2, avatar: "AS" },
+            { name: "Morgan Jade", contributions: 1, avatar: "MJ" }
+        ];
+        
+        // DOM Elements
+        const storyContainer = document.getElementById('storyContainer');
+        const contributorsList = document.getElementById('contributorsList');
+        const contributionForm = document.getElementById('contributionForm');
+        const writerNameInput = document.getElementById('writerName');
+        const contributionTextInput = document.getElementById('contributionText');
+        const charCountElement = document.getElementById('charCount');
+        const notification = document.getElementById('notification');
+        
+        // Stats elements
+        const totalContributionsElement = document.getElementById('totalContributions');
+        const totalWritersElement = document.getElementById('totalWriters');
+        const totalWordsElement = document.getElementById('totalWords');
+        const storyDaysElement = document.getElementById('storyDays');
+        
+        // Initialize the story board
+        function initStoryBoard() {
+            // Load story entries from localStorage or use initial data
+            let storyEntries = JSON.parse(localStorage.getItem('storyEntries')) || initialStoryEntries;
+            let allContributors = JSON.parse(localStorage.getItem('contributors')) || contributors;
+            
+            // Render story entries
+            renderStoryEntries(storyEntries);
+            
+            // Render contributors
+            renderContributors(allContributors);
+            
+            // Update stats
+            updateStats(storyEntries, allContributors);
+            
+            // Set up character counter
+            contributionTextInput.addEventListener('input', updateCharCount);
+            updateCharCount();
+        }
+        
+        // Render story entries
+        function renderStoryEntries(entries) {
+            storyContainer.innerHTML = '';
+            
+            if (entries.length === 0) {
+                storyContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-pen-fancy"></i>
+                        <h3>No story entries yet</h3>
+                        <p>Be the first to contribute to this collaborative story!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            entries.forEach(entry => {
+                const entryElement = document.createElement('div');
+                entryElement.className = 'story-entry';
+                entryElement.innerHTML = `
+                    <div class="entry-header">
+                        <div class="writer-name">${entry.writer}</div>
+                        <div class="entry-time">${entry.time}</div>
+                    </div>
+                    <div class="entry-text">${entry.text}</div>
+                `;
+                storyContainer.appendChild(entryElement);
+            });
+            
+            // Scroll to the bottom to show latest entry
+            storyContainer.scrollTop = storyContainer.scrollHeight;
+        }
+        
+        // Render contributors
+        function renderContributors(contributors) {
+            contributorsList.innerHTML = '';
+            
+            contributors.forEach(contributor => {
+                const contributorElement = document.createElement('div');
+                contributorElement.className = 'contributor';
+                contributorElement.innerHTML = `
+                    <div class="contributor-avatar">${contributor.avatar}</div>
+                    <div class="contributor-info">
+                        <h4>${contributor.name}</h4>
+                        <p>${contributor.contributions} contribution${contributor.contributions !== 1 ? 's' : ''}</p>
+                    </div>
+                `;
+                contributorsList.appendChild(contributorElement);
+            });
+        }
+        
+        // Update statistics
+        function updateStats(storyEntries, contributors) {
+            // Calculate total words
+            const totalWords = storyEntries.reduce((total, entry) => {
+                return total + entry.text.split(/\s+/).length;
+            }, 0);
+            
+            // Update DOM elements
+            totalContributionsElement.textContent = storyEntries.length;
+            totalWritersElement.textContent = contributors.length;
+            totalWordsElement.textContent = totalWords;
+            
+            // Calculate days since first entry (simplified)
+            const storyDays = Math.min(storyEntries.length + 1, 30);
+            storyDaysElement.textContent = storyDays;
+        }
+        
+        // Update character count
+        function updateCharCount() {
+            const charCount = contributionTextInput.value.length;
+            charCountElement.textContent = charCount;
+            
+            if (charCount > 900) {
+                charCountElement.classList.add('warning');
+            } else {
+                charCountElement.classList.remove('warning');
+            }
+        }
+        
+        // Show notification
+        function showNotification(message) {
+            notification.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Format current time
+        function getCurrentTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            return `Today, ${hours}:${minutes}`;
+        }
+        
+        // Generate avatar initials from name
+        function generateAvatar(name) {
+            return name.split(' ').map(part => part[0]).join('').toUpperCase().substring(0, 2);
+        }
+        
+        // Handle form submission
+        contributionForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const writerName = writerNameInput.value.trim();
+            const contributionText = contributionTextInput.value.trim();
+            
+            if (!writerName || !contributionText) {
+                alert('Please fill in both your name and story contribution.');
+                return;
+            }
+            
+            // Get existing data from localStorage
+            let storyEntries = JSON.parse(localStorage.getItem('storyEntries')) || initialStoryEntries;
+            let contributors = JSON.parse(localStorage.getItem('contributors')) || [];
+            
+            // Create new story entry
+            const newEntry = {
+                writer: writerName,
+                text: contributionText,
+                time: getCurrentTime()
+            };
+            
+            // Add to story entries
+            storyEntries.push(newEntry);
+            
+            // Update or add contributor
+            const existingContributorIndex = contributors.findIndex(c => c.name === writerName);
+            
+            if (existingContributorIndex >= 0) {
+                contributors[existingContributorIndex].contributions += 1;
+            } else {
+                contributors.push({
+                    name: writerName,
+                    contributions: 1,
+                    avatar: generateAvatar(writerName)
+                });
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('storyEntries', JSON.stringify(storyEntries));
+            localStorage.setItem('contributors', JSON.stringify(contributors));
+            
+            // Update the UI
+            renderStoryEntries(storyEntries);
+            renderContributors(contributors);
+            updateStats(storyEntries, contributors);
+            
+            // Reset form
+            writerNameInput.value = '';
+            contributionTextInput.value = '';
+            updateCharCount();
+            
+            // Show notification
+            showNotification('Your contribution has been added to the story!');
+        });
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', initStoryBoard);
+        
+        // Add some interactivity to the story entries
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.story-entry')) {
+                const entry = e.target.closest('.story-entry');
+                entry.style.transform = 'translateX(0)';
+                
+                // Add a temporary highlight
+                entry.style.backgroundColor = 'rgba(255, 128, 0, 0.1)';
+                setTimeout(() => {
+                    entry.style.backgroundColor = '';
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

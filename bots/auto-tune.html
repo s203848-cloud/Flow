@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto-Tune Lab | Pitch Correction Simulator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .back-btn {
+            padding: 10px 20px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.2);
+        }
+        
+        .app-title {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .app-title h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #ff8000, #ffcc00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .app-title p {
+            color: #aaa;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .panel {
+            background: rgba(30, 20, 60, 0.7);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .panel-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ffcc00;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .panel-title i {
+            color: #ff8000;
+        }
+        
+        .control-group {
+            margin-bottom: 25px;
+        }
+        
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .control-label span {
+            font-weight: 600;
+            color: #ddd;
+        }
+        
+        .value-display {
+            color: #ff8000;
+            font-weight: 600;
+        }
+        
+        /* Knob styling */
+        .knob-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 15px 0;
+        }
+        
+        .knob {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2a1b5e, #0d0830);
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            border: 2px solid #ff8000;
+        }
+        
+        .knob-inner {
+            position: absolute;
+            width: 10px;
+            height: 30px;
+            background: #ffcc00;
+            top: 5px;
+            left: 50%;
+            transform-origin: bottom center;
+            transform: translateX(-50%);
+            border-radius: 5px;
+        }
+        
+        /* Piano roll styling */
+        .piano-roll {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            margin-top: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .key {
+            width: 40px;
+            height: 60px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+            font-size: 14px;
+            user-select: none;
+        }
+        
+        .white-key {
+            background: linear-gradient(to bottom, #fff, #f0f0f0);
+            color: #333;
+            border: 1px solid #ccc;
+        }
+        
+        .black-key {
+            background: linear-gradient(to bottom, #333, #000);
+            color: #fff;
+            height: 40px;
+            width: 30px;
+            margin-left: -15px;
+            margin-right: -15px;
+            z-index: 2;
+            position: relative;
+        }
+        
+        .key.selected {
+            box-shadow: 0 0 10px #ff8000;
+            border-color: #ff8000;
+            transform: translateY(-5px);
+        }
+        
+        .scale-selector {
+            margin-top: 15px;
+        }
+        
+        .scale-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .scale-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ffcc00;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .scale-btn.active, .scale-btn:hover {
+            background: rgba(255, 128, 0, 0.5);
+        }
+        
+        /* Preset buttons */
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .preset-btn {
+            padding: 15px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            color: white;
+        }
+        
+        .preset-btn i {
+            font-size: 20px;
+        }
+        
+        .preset-1 {
+            background: linear-gradient(90deg, #ff0080, #8000ff);
+        }
+        
+        .preset-2 {
+            background: linear-gradient(90deg, #00ccff, #0066ff);
+        }
+        
+        .preset-3 {
+            background: linear-gradient(90deg, #00ff88, #00cc66);
+        }
+        
+        .preset-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Visualization */
+        .visualization-container {
+            height: 200px;
+            background: rgba(10, 10, 30, 0.5);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        
+        .waveform {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: rgba(0, 100, 255, 0.1);
+        }
+        
+        .pitch-display {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: rgba(255, 0, 128, 0.1);
+        }
+        
+        .pitch-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: #00ff88;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: all 0.1s;
+        }
+        
+        .raw-pitch {
+            position: absolute;
+            width: 3px;
+            height: 20px;
+            background: #ff8000;
+            border-radius: 2px;
+            transition: left 0.1s;
+        }
+        
+        /* Recording controls */
+        .recording-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .mic-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+        }
+        
+        .mic-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 0, 0, 0.4);
+        }
+        
+        .mic-btn.recording {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 0, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+        }
+        
+        .record-status {
+            font-size: 18px;
+            color: #ff8000;
+            font-weight: 600;
+        }
+        
+        /* Export section */
+        .export-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .export-btn {
+            padding: 12px 25px;
+            background: linear-gradient(90deg, #ff8000, #ffcc00);
+            border: none;
+            border-radius: 5px;
+            color: #0a0a1a;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 auto;
+            transition: all 0.3s;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(255, 128, 0, 0.3);
+        }
+        
+        .instructions {
+            background: rgba(255, 128, 0, 0.1);
+            border-left: 4px solid #ff8000;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .instructions h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 1100px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .panel {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .app-title h1 {
+                font-size: 2rem;
+            }
+            
+            .piano-roll {
+                justify-content: center;
+            }
+            
+            .key {
+                width: 30px;
+                height: 50px;
+                font-size: 12px;
+            }
+            
+            .black-key {
+                width: 20px;
+                height: 35px;
+                margin-left: -10px;
+                margin-right: -10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        <div class="logo">AUTO-TUNE LAB</div>
+    </div>
+    
+    <div class="app-title">
+        <h1>Auto-Tune Lab</h1>
+        <p>An educational tool that simulates professional pitch correction. Experiment with real-time vocal processing and understand how autotune works.</p>
+    </div>
+    
+    <div class="container">
+        <!-- Left Panel: Controls -->
+        <div class="panel">
+            <h2 class="panel-title"><i class="fas fa-sliders-h"></i> Controls</h2>
+            
+            <div class="control-group">
+                <div class="control-label">
+                    <span>Correction Speed</span>
+                    <span class="value-display" id="speedValue">50 ms</span>
+                </div>
+                <div class="knob-container">
+                    <div class="knob" id="speedKnob">
+                        <div class="knob-inner" id="knobPointer"></div>
+                    </div>
+                    <div style="margin-top: 10px; display: flex; justify-content: space-between; width: 100%; max-width: 200px;">
+                        <span style="color: #aaa; font-size: 14px;">Natural</span>
+                        <span style="color: #aaa; font-size: 14px;">Robotic</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <div class="control-label">
+                    <span>Musical Key & Scale</span>
+                </div>
+                <div class="piano-roll" id="pianoRoll">
+                    <!-- Piano keys will be generated by JavaScript -->
+                </div>
+                <div class="scale-selector">
+                    <div class="control-label">
+                        <span>Scale Type</span>
+                    </div>
+                    <div class="scale-buttons">
+                        <div class="scale-btn active" data-scale="major">Major</div>
+                        <div class="scale-btn" data-scale="minor">Minor</div>
+                        <div class="scale-btn" data-scale="chromatic">Chromatic</div>
+                        <div class="scale-btn" data-scale="pentatonic">Pentatonic</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <div class="control-label">
+                    <span>Preset Examples</span>
+                </div>
+                <div class="preset-buttons">
+                    <button class="preset-btn preset-1" id="presetCher">
+                        <i class="fas fa-robot"></i> Cher/T-Pain Effect
+                    </button>
+                    <button class="preset-btn preset-2" id="presetPop">
+                        <i class="fas fa-music"></i> Modern Pop
+                    </button>
+                    <button class="preset-btn preset-3" id="presetNatural">
+                        <i class="fas fa-leaf"></i> Natural Correction
+                    </button>
+                </div>
+            </div>
+            
+            <div class="export-section">
+                <button class="export-btn" id="exportBtn">
+                    <i class="fas fa-download"></i> Export Processed Audio
+                </button>
+                <p style="text-align: center; margin-top: 10px; color: #aaa; font-size: 14px;">Export functionality simulated for demo</p>
+            </div>
+        </div>
+        
+        <!-- Right Panel: Visualization & Recording -->
+        <div class="panel">
+            <h2 class="panel-title"><i class="fas fa-wave-square"></i> Visualization</h2>
+            
+            <div class="visualization-container" id="visualization">
+                <div class="waveform" id="waveform"></div>
+                <div class="pitch-display" id="pitchDisplay">
+                    <div class="pitch-line" id="targetPitch"></div>
+                    <div class="raw-pitch" id="rawPitch"></div>
+                </div>
+            </div>
+            
+            <div class="control-label" style="margin-top: 20px;">
+                <span>Current Pitch: <span id="currentPitch">--</span></span>
+                <span>Target Note: <span id="targetNote">--</span></span>
+            </div>
+            
+            <div class="instructions">
+                <h3>How Auto-Tune Works</h3>
+                <p>Auto-tune detects the pitch of your voice and adjusts it to the nearest note in the selected musical scale. The <strong>Correction Speed</strong> controls how quickly pitch adjustments happen. Slow speeds create natural-sounding corrections, while fast speeds create the robotic "T-Pain effect".</p>
+            </div>
+            
+            <h2 class="panel-title" style="margin-top: 30px;"><i class="fas fa-microphone"></i> Live Input</h2>
+            
+            <div class="recording-controls">
+                <button class="mic-btn" id="micButton">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <div class="record-status" id="recordStatus">Click to start recording</div>
+                <div style="color: #aaa; text-align: center; max-width: 400px;">
+                    <p>Sing or speak into your microphone to hear real-time pitch correction. Select a musical key above to constrain corrections to specific notes.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const speedKnob = document.getElementById('speedKnob');
+        const knobPointer = document.getElementById('knobPointer');
+        const speedValue = document.getElementById('speedValue');
+        const pianoRoll = document.getElementById('pianoRoll');
+        const scaleButtons = document.querySelectorAll('.scale-btn');
+        const presetButtons = document.querySelectorAll('.preset-btn');
+        const micButton = document.getElementById('micButton');
+        const recordStatus = document.getElementById('recordStatus');
+        const visualization = document.getElementById('visualization');
+        const targetPitch = document.getElementById('targetPitch');
+        const rawPitch = document.getElementById('rawPitch');
+        const currentPitchElement = document.getElementById('currentPitch');
+        const targetNoteElement = document.getElementById('targetNote');
+        const exportBtn = document.getElementById('exportBtn');
+        
+        // App State
+        let isRecording = false;
+        let correctionSpeed = 50; // ms
+        let selectedKey = 'C';
+        let selectedScale = 'major';
+        let animationId = null;
+        let currentRawPitch = 0;
+        let currentTargetPitch = 0;
+        
+        // Musical notes
+        const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const scales = {
+            major: [0, 2, 4, 5, 7, 9, 11],
+            minor: [0, 2, 3, 5, 7, 8, 10],
+            chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+            pentatonic: [0, 2, 4, 7, 9]
+        };
+        
+        // Initialize the piano roll
+        function initPianoRoll() {
+            pianoRoll.innerHTML = '';
+            
+            // Create piano keys (C to B)
+            for (let i = 0; i < 12; i++) {
+                const note = notes[i];
+                const isBlackKey = note.includes('#');
+                const keyElement = document.createElement('div');
+                keyElement.className = `key ${isBlackKey ? 'black-key' : 'white-key'}`;
+                keyElement.textContent = note;
+                keyElement.dataset.note = note;
+                keyElement.dataset.index = i;
+                
+                // Mark selected key
+                if (note === selectedKey) {
+                    keyElement.classList.add('selected');
+                }
+                
+                keyElement.addEventListener('click', () => selectKey(note));
+                pianoRoll.appendChild(keyElement);
+            }
+        }
+        
+        // Select a key
+        function selectKey(key) {
+            selectedKey = key;
+            
+            // Update UI
+            const keys = document.querySelectorAll('.key');
+            keys.forEach(k => {
+                if (k.dataset.note === key) {
+                    k.classList.add('selected');
+                } else {
+                    k.classList.remove('selected');
+                }
+            });
+            
+            updateVisualization();
+        }
+        
+        // Select a scale
+        function selectScale(scale) {
+            selectedScale = scale;
+            
+            // Update UI
+            scaleButtons.forEach(btn => {
+                if (btn.dataset.scale === scale) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            updateVisualization();
+        }
+        
+        // Apply preset
+        function applyPreset(preset) {
+            switch(preset) {
+                case 'cher':
+                    correctionSpeed = 0;
+                    speedValue.textContent = '0 ms';
+                    knobPointer.style.transform = 'translateX(-50%) rotate(0deg)';
+                    selectScale('chromatic');
+                    break;
+                case 'pop':
+                    correctionSpeed = 30;
+                    speedValue.textContent = '30 ms';
+                    knobPointer.style.transform = 'translateX(-50%) rotate(120deg)';
+                    selectScale('major');
+                    break;
+                case 'natural':
+                    correctionSpeed = 100;
+                    speedValue.textContent = '100 ms';
+                    knobPointer.style.transform = 'translateX(-50%) rotate(240deg)';
+                    selectScale('major');
+                    break;
+            }
+            
+            // Update visualization
+            updateVisualization();
+        }
+        
+        // Update visualization with simulated pitch data
+        function updateVisualization() {
+            // In a real app, this would use actual pitch detection
+            // For simulation, we'll generate random pitch data
+            if (!isRecording) return;
+            
+            // Clear previous animation
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            // Get scale notes
+            const keyIndex = notes.indexOf(selectedKey);
+            const scaleNotes = scales[selectedScale].map(offset => (keyIndex + offset) % 12);
+            
+            // Start animation
+            function animate() {
+                // Generate random raw pitch
+                const rawPitchValue = Math.sin(Date.now() / 500) * 0.4 + 0.5;
+                currentRawPitch = rawPitchValue;
+                
+                // Find nearest note in scale
+                const noteIndex = Math.floor(rawPitchValue * scaleNotes.length);
+                const targetNoteIndex = scaleNotes[noteIndex % scaleNotes.length];
+                const targetPitchValue = targetNoteIndex / 11;
+                currentTargetPitch = targetPitchValue;
+                
+                // Apply correction speed (simulated)
+                const correctedPitch = correctionSpeed === 0 
+                    ? targetPitchValue 
+                    : rawPitchValue + (targetPitchValue - rawPitchValue) * (1 / (correctionSpeed / 10));
+                
+                // Update visualization elements
+                const visualizationWidth = visualization.clientWidth;
+                const visualizationHeight = visualization.clientHeight;
+                
+                // Raw pitch indicator
+                rawPitch.style.left = `${rawPitchValue * 100}%`;
+                rawPitch.style.top = `${50 - (rawPitchValue * 40)}%`;
+                
+                // Target pitch line
+                targetPitch.style.top = `${50 - (targetPitchValue * 40)}%`;
+                
+                // Update pitch displays
+                currentPitchElement.textContent = notes[Math.floor(rawPitchValue * 12)];
+                targetNoteElement.textContent = notes[Math.floor(targetPitchValue * 12)];
+                
+                // Generate waveform visualization
+                const waveform = document.getElementById('waveform');
+                waveform.innerHTML = '';
+                
+                // Create waveform bars
+                for (let i = 0; i < 50; i++) {
+                    const bar = document.createElement('div');
+                    const height = Math.sin(i * 0.3 + Date.now() / 200) * 20 + 25;
+                    bar.style.position = 'absolute';
+                    bar.style.width = '2px';
+                    bar.style.height = `${height}px`;
+                    bar.style.left = `${i * (visualizationWidth / 50)}px`;
+                    bar.style.top = `${(visualizationHeight / 4) - (height / 2)}px`;
+                    bar.style.backgroundColor = i % 2 === 0 ? '#00ccff' : '#0066ff';
+                    bar.style.opacity = '0.7';
+                    waveform.appendChild(bar);
+                }
+                
+                animationId = requestAnimationFrame(animate);
+            }
+            
+            animate();
+        }
+        
+        // Toggle recording
+        function toggleRecording() {
+            isRecording = !isRecording;
+            
+            if (isRecording) {
+                micButton.classList.add('recording');
+                micButton.innerHTML = '<i class="fas fa-stop"></i>';
+                recordStatus.textContent = 'Recording... Sing into your microphone';
+                recordStatus.style.color = '#ff5555';
+                
+                // Start visualization
+                updateVisualization();
+                
+                // Simulate pitch detection for demo
+                setTimeout(() => {
+                    if (isRecording) {
+                        recordStatus.innerHTML = 'Auto-tune active! Try changing settings while singing.';
+                    }
+                }, 1000);
+            } else {
+                micButton.classList.remove('recording');
+                micButton.innerHTML = '<i class="fas fa-microphone"></i>';
+                recordStatus.textContent = 'Click to start recording';
+                recordStatus.style.color = '#ff8000';
+                
+                // Stop visualization
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                
+                // Clear visualization
+                currentPitchElement.textContent = '--';
+                targetNoteElement.textContent = '--';
+                rawPitch.style.left = '50%';
+                targetPitch.style.top = '50%';
+            }
+        }
+        
+        // Initialize knob interaction
+        function initKnob() {
+            let isDragging = false;
+            let startAngle = 0;
+            let currentAngle = 120; // Start at 120 degrees (medium speed)
+            
+            speedKnob.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+            
+            speedKnob.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                startDrag(e.touches[0]);
+            });
+            document.addEventListener('touchmove', (e) => {
+                if (isDragging) {
+                    e.preventDefault();
+                    drag(e.touches[0]);
+                }
+            });
+            document.addEventListener('touchend', stopDrag);
+            
+            function startDrag(e) {
+                isDragging = true;
+                const rect = speedKnob.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                startAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * 180 / Math.PI;
+            }
+            
+            function drag(e) {
+                if (!isDragging) return;
+                
+                const rect = speedKnob.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * 180 / Math.PI;
+                
+                let delta = angle - startAngle;
+                if (delta > 180) delta -= 360;
+                if (delta < -180) delta += 360;
+                
+                currentAngle += delta;
+                currentAngle = Math.max(0, Math.min(270, currentAngle));
+                
+                knobPointer.style.transform = `translateX(-50%) rotate(${currentAngle}deg)`;
+                
+                // Convert angle to speed (0-270 degrees = 0-200ms)
+                correctionSpeed = Math.round((currentAngle / 270) * 200);
+                speedValue.textContent = `${correctionSpeed} ms`;
+                
+                startAngle = angle;
+            }
+            
+            function stopDrag() {
+                isDragging = false;
+            }
+        }
+        
+        // Export functionality (simulated)
+        function simulateExport() {
+            exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+            exportBtn.disabled = true;
+            
+            setTimeout(() => {
+                exportBtn.innerHTML = '<i class="fas fa-check"></i> Exported!';
+                exportBtn.style.background = 'linear-gradient(90deg, #00cc66, #009944)';
+                
+                setTimeout(() => {
+                    exportBtn.innerHTML = '<i class="fas fa-download"></i> Export Processed Audio';
+                    exportBtn.style.background = 'linear-gradient(90deg, #ff8000, #ffcc00)';
+                    exportBtn.disabled = false;
+                }, 2000);
+            }, 1500);
+        }
+        
+        // Initialize the app
+        function initApp() {
+            // Initialize piano roll
+            initPianoRoll();
+            
+            // Initialize knob
+            initKnob();
+            
+            // Set up scale buttons
+            scaleButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectScale(btn.dataset.scale);
+                });
+            });
+            
+            // Set up preset buttons
+            document.getElementById('presetCher').addEventListener('click', () => applyPreset('cher'));
+            document.getElementById('presetPop').addEventListener('click', () => applyPreset('pop'));
+            document.getElementById('presetNatural').addEventListener('click', () => applyPreset('natural'));
+            
+            // Set up microphone button
+            micButton.addEventListener('click', toggleRecording);
+            
+            // Set up export button
+            exportBtn.addEventListener('click', simulateExport);
+            
+            // Initial visualization setup
+            updateVisualization();
+        }
+        
+        // Start the app when page loads
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

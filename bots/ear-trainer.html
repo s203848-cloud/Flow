@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interval Ear Trainer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            margin-bottom: 30px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #ff8000, #ffcc00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-box {
+            background: rgba(30, 15, 50, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            min-width: 150px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ff8000;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .quiz-area {
+            background: rgba(30, 15, 50, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 15px 25px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 8px;
+            color: #ff8000;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .interval-display {
+            text-align: center;
+            padding: 20px;
+            background: rgba(10, 10, 30, 0.7);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed rgba(255, 128, 0, 0.3);
+        }
+        
+        .interval-name {
+            font-size: 2.2rem;
+            color: #ffcc00;
+            font-weight: bold;
+        }
+        
+        .interval-description {
+            font-size: 1rem;
+            color: #aaa;
+            margin-top: 10px;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .interval-option {
+            padding: 18px;
+            background: rgba(40, 20, 70, 0.7);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 8px;
+            color: #ddd;
+            cursor: pointer;
+            text-align: center;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .interval-option:hover {
+            background: rgba(255, 128, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .interval-option.correct {
+            background: rgba(0, 200, 0, 0.3);
+            border-color: #00cc00;
+            color: #fff;
+        }
+        
+        .interval-option.incorrect {
+            background: rgba(255, 50, 50, 0.3);
+            border-color: #ff3333;
+            color: #fff;
+        }
+        
+        .interval-option.selected {
+            border-width: 2px;
+            border-color: #ff8000;
+        }
+        
+        .feedback {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .feedback.correct {
+            background: rgba(0, 200, 0, 0.2);
+            color: #00ff00;
+            border: 1px solid #00cc00;
+        }
+        
+        .feedback.incorrect {
+            background: rgba(255, 50, 50, 0.2);
+            color: #ff6666;
+            border: 1px solid #ff3333;
+        }
+        
+        .action-btn {
+            display: block;
+            margin: 0 auto;
+            padding: 15px 40px;
+            background: linear-gradient(90deg, #ff8000, #ffcc00);
+            border: none;
+            border-radius: 8px;
+            color: #0a0a1a;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.4);
+        }
+        
+        .instructions {
+            background: rgba(30, 15, 50, 0.7);
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 40px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .instructions h3 {
+            color: #ff8000;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            line-height: 1.6;
+            color: #ccc;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .interval-reference {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .reference-item {
+            background: rgba(20, 10, 40, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ff8000;
+        }
+        
+        .reference-interval {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .reference-example {
+            font-style: italic;
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .stats {
+                gap: 15px;
+            }
+            
+            .stat-box {
+                min-width: 120px;
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .options-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1>Interval Ear Trainer</h1>
+            <p class="subtitle">Test your musical ear by identifying intervals between two notes</p>
+        </header>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">Score</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="streak">0</div>
+                <div class="stat-label">Current Streak</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="accuracy">0%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="remaining">10</div>
+                <div class="stat-label">Questions Left</div>
+            </div>
+        </div>
+        
+        <div class="quiz-area">
+            <div class="controls">
+                <button class="control-btn" id="playInterval">
+                    <i class="fas fa-play"></i> Play Interval
+                </button>
+                <button class="control-btn" id="playNotesSeparately">
+                    <i class="fas fa-volume-up"></i> Play Notes Separately
+                </button>
+                <button class="control-btn" id="repeatBtn">
+                    <i class="fas fa-redo"></i> Repeat Interval
+                </button>
+            </div>
+            
+            <div class="interval-display">
+                <div>
+                    <div class="interval-name" id="intervalToGuess">?</div>
+                    <div class="interval-description">Listen to the interval and select the correct answer below</div>
+                </div>
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="options-grid" id="optionsContainer">
+                <!-- Interval options will be generated here -->
+            </div>
+            
+            <button class="action-btn" id="nextBtn">Next Interval <i class="fas fa-arrow-right"></i></button>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> How to Use This Trainer</h3>
+            <ul>
+                <li>Click "Play Interval" to hear two notes played sequentially</li>
+                <li>Identify the musical interval between the two notes</li>
+                <li>Select your answer from the options below</li>
+                <li>Use "Play Notes Separately" to hear each note individually</li>
+                <li>Try to achieve a high accuracy score and streak</li>
+                <li>Complete all 10 questions to finish the quiz</li>
+            </ul>
+            
+            <h3 style="margin-top: 25px;"><i class="fas fa-music"></i> Interval Reference</h3>
+            <div class="interval-reference">
+                <div class="reference-item">
+                    <div class="reference-interval">Minor 2nd (1 semitone)</div>
+                    <div class="reference-example">Example: Jaws theme (E to F)</div>
+                </div>
+                <div class="reference-item">
+                    <div class="reference-interval">Major 2nd (2 semitones)</div>
+                    <div class="reference-example">Example: Happy Birthday (C to D)</div>
+                </div>
+                <div class="reference-item">
+                    <div class="reference-interval">Minor 3rd (3 semitones)</div>
+                    <div class="reference-example">Example: Greensleeves (first two notes)</div>
+                </div>
+                <div class="reference-item">
+                    <div class="reference-interval">Major 3rd (4 semitones)</div>
+                    <div class="reference-example">Example: When the Saints Go Marching In</div>
+                </div>
+                <div class="reference-item">
+                    <div class="reference-interval">Perfect 4th (5 semitones)</div>
+                    <div class="reference-example">Example: Here Comes the Bride (first two notes)</div>
+                </div>
+                <div class="reference-item">
+                    <div class="reference-interval">Tritone (6 semitones)</div>
+                    <div class="reference-example">Example: The Simpsons theme (first two notes)</div>
+                </div>
+                <div class="reference-item">
+                    <div class="reference-interval">Perfect 5th (7 semitones)</div>
+                    <div class="reference-example">Example: Twinkle Twinkle Little Star (first two notes)</div>
+                </div>
+                <div class="reference-item">
+                    <div class="reference-interval">Minor 6th (8 semitones)</div>
+                    <div class="reference-example">Example: The Entertainer (first interval)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Define musical intervals with their properties
+        const intervals = [
+            { name: "Unison", semitones: 0, description: "Same note" },
+            { name: "Minor 2nd", semitones: 1, description: "1 semitone" },
+            { name: "Major 2nd", semitones: 2, description: "2 semitones" },
+            { name: "Minor 3rd", semitones: 3, description: "3 semitones" },
+            { name: "Major 3rd", semitones: 4, description: "4 semitones" },
+            { name: "Perfect 4th", semitones: 5, description: "5 semitones" },
+            { name: "Tritone", semitones: 6, description: "6 semitones" },
+            { name: "Perfect 5th", semitones: 7, description: "7 semitones" },
+            { name: "Minor 6th", semitones: 8, description: "8 semitones" },
+            { name: "Major 6th", semitones: 9, description: "9 semitones" },
+            { name: "Minor 7th", semitones: 10, description: "10 semitones" },
+            { name: "Major 7th", semitones: 11, description: "11 semitones" },
+            { name: "Octave", semitones: 12, description: "12 semitones" }
+        ];
+        
+        // Audio context for generating sounds
+        let audioContext;
+        let currentInterval = null;
+        let selectedOption = null;
+        let correctAnswer = null;
+        let score = 0;
+        let streak = 0;
+        let totalQuestions = 0;
+        let correctAnswers = 0;
+        let questionsRemaining = 10;
+        let gameActive = true;
+        
+        // DOM elements
+        const scoreElement = document.getElementById('score');
+        const streakElement = document.getElementById('streak');
+        const accuracyElement = document.getElementById('accuracy');
+        const remainingElement = document.getElementById('remaining');
+        const intervalToGuessElement = document.getElementById('intervalToGuess');
+        const feedbackElement = document.getElementById('feedback');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const nextBtn = document.getElementById('nextBtn');
+        const playIntervalBtn = document.getElementById('playInterval');
+        const playNotesSeparatelyBtn = document.getElementById('playNotesSeparately');
+        const repeatBtn = document.getElementById('repeatBtn');
+        
+        // Initialize the quiz
+        function initQuiz() {
+            createOptions();
+            generateNewInterval();
+            updateStats();
+            
+            // Set up audio context on first user interaction
+            document.addEventListener('click', function initAudio() {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                document.removeEventListener('click', initAudio);
+            });
+        }
+        
+        // Create interval option buttons
+        function createOptions() {
+            optionsContainer.innerHTML = '';
+            
+            // Select 8 random intervals for the options
+            const shuffledIntervals = [...intervals].sort(() => 0.5 - Math.random()).slice(0, 8);
+            
+            shuffledIntervals.forEach(interval => {
+                const option = document.createElement('div');
+                option.className = 'interval-option';
+                option.textContent = interval.name;
+                option.dataset.interval = interval.name;
+                option.addEventListener('click', () => selectOption(option, interval.name));
+                optionsContainer.appendChild(option);
+            });
+        }
+        
+        // Generate a new random interval for the user to identify
+        function generateNewInterval() {
+            if (!gameActive) return;
+            
+            // Reset UI state
+            feedbackElement.textContent = '';
+            feedbackElement.className = 'feedback';
+            selectedOption = null;
+            nextBtn.disabled = true;
+            nextBtn.style.opacity = '0.6';
+            
+            // Select a random interval from the available options
+            const optionElements = document.querySelectorAll('.interval-option');
+            const randomOptionIndex = Math.floor(Math.random() * optionElements.length);
+            correctAnswer = optionElements[randomOptionIndex].dataset.interval;
+            
+            // Find the interval object
+            currentInterval = intervals.find(interval => interval.name === correctAnswer);
+            
+            // Update display
+            intervalToGuessElement.textContent = '?';
+            intervalToGuessElement.style.color = '#ffcc00';
+            
+            // Play the interval after a short delay
+            setTimeout(playInterval, 500);
+        }
+        
+        // Select an interval option
+        function selectOption(optionElement, intervalName) {
+            if (!gameActive || selectedOption) return;
+            
+            // Remove previous selection
+            document.querySelectorAll('.interval-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Mark selected option
+            optionElement.classList.add('selected');
+            selectedOption = intervalName;
+            
+            // Check answer
+            const isCorrect = intervalName === correctAnswer;
+            
+            // Update UI based on answer
+            if (isCorrect) {
+                optionElement.classList.add('correct');
+                feedbackElement.textContent = `Correct! It's a ${correctAnswer}`;
+                feedbackElement.className = 'feedback correct';
+                
+                score += 10;
+                streak++;
+                correctAnswers++;
+                
+                // Show the correct interval name
+                intervalToGuessElement.textContent = correctAnswer;
+                intervalToGuessElement.style.color = '#00ff00';
+            } else {
+                optionElement.classList.add('incorrect');
+                feedbackElement.textContent = `Incorrect. It was a ${correctAnswer}`;
+                feedbackElement.className = 'feedback incorrect';
+                
+                streak = 0;
+                
+                // Highlight correct option
+                document.querySelectorAll('.interval-option').forEach(opt => {
+                    if (opt.dataset.interval === correctAnswer) {
+                        opt.classList.add('correct');
+                    }
+                });
+                
+                // Show the correct interval name
+                intervalToGuessElement.textContent = correctAnswer;
+                intervalToGuessElement.style.color = '#ff6666';
+            }
+            
+            totalQuestions++;
+            questionsRemaining--;
+            
+            // Update stats
+            updateStats();
+            
+            // Enable next button
+            nextBtn.disabled = false;
+            nextBtn.style.opacity = '1';
+            
+            // Check if quiz is complete
+            if (questionsRemaining <= 0) {
+                endQuiz();
+            }
+        }
+        
+        // Update score and stats display
+        function updateStats() {
+            scoreElement.textContent = score;
+            streakElement.textContent = streak;
+            
+            const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+            accuracyElement.textContent = `${accuracy}%`;
+            
+            remainingElement.textContent = questionsRemaining;
+        }
+        
+        // Play the current interval
+        function playInterval() {
+            if (!currentInterval || !audioContext) return;
+            
+            // Generate two notes with the interval between them
+            const rootFrequency = 261.63; // C4 (middle C)
+            const intervalFrequency = rootFrequency * Math.pow(2, currentInterval.semitones / 12);
+            
+            playNote(rootFrequency, 0, 0.5);
+            playNote(intervalFrequency, 0.6, 0.5);
+        }
+        
+        // Play notes separately (one at a time)
+        function playNotesSeparately() {
+            if (!currentInterval || !audioContext) return;
+            
+            const rootFrequency = 261.63; // C4 (middle C)
+            const intervalFrequency = rootFrequency * Math.pow(2, currentInterval.semitones / 12);
+            
+            playNote(rootFrequency, 0, 0.8);
+            setTimeout(() => {
+                playNote(intervalFrequency, 0, 0.8);
+            }, 1000);
+        }
+        
+        // Play a single note
+        function playNote(frequency, startTime, duration) {
+            if (!audioContext) return;
+            
+            // Create oscillator
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Configure oscillator
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            // Configure volume envelope
+            const now = audioContext.currentTime;
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.3, now + 0.05);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
+            
+            // Start and stop oscillator
+            oscillator.start(now + startTime);
+            oscillator.stop(now + startTime + duration);
+        }
+        
+        // End the quiz
+        function endQuiz() {
+            gameActive = false;
+            
+            // Show final score
+            const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+            feedbackElement.innerHTML = `
+                <div>
+                    <div style="font-size: 1.5rem; margin-bottom: 10px;">Quiz Complete!</div>
+                    <div>Final Score: ${score}</div>
+                    <div>Accuracy: ${accuracy}%</div>
+                    <div style="margin-top: 15px;">
+                        <button id="restartBtn" style="padding: 10px 20px; background: #ff8000; color: #0a0a1a; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                            Restart Quiz
+                        </button>
+                    </div>
+                </div>
+            `;
+            feedbackElement.className = 'feedback correct';
+            
+            // Add event listener to restart button
+            setTimeout(() => {
+                const restartBtn = document.getElementById('restartBtn');
+                if (restartBtn) {
+                    restartBtn.addEventListener('click', restartQuiz);
+                }
+            }, 100);
+        }
+        
+        // Restart the quiz
+        function restartQuiz() {
+            // Reset game state
+            score = 0;
+            streak = 0;
+            totalQuestions = 0;
+            correctAnswers = 0;
+            questionsRemaining = 10;
+            gameActive = true;
+            
+            // Reset UI
+            feedbackElement.textContent = '';
+            feedbackElement.className = 'feedback';
+            
+            // Create new options and generate new interval
+            createOptions();
+            generateNewInterval();
+            updateStats();
+        }
+        
+        // Event listeners
+        playIntervalBtn.addEventListener('click', playInterval);
+        playNotesSeparatelyBtn.addEventListener('click', playNotesSeparately);
+        repeatBtn.addEventListener('click', playInterval);
+        
+        nextBtn.addEventListener('click', () => {
+            if (selectedOption && gameActive) {
+                generateNewInterval();
+            }
+        });
+        
+        // Initialize the quiz when page loads
+        window.addEventListener('DOMContentLoaded', initQuiz);
+        
+        // Ensure audio context is resumed after user interaction
+        document.addEventListener('click', function() {
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        });
+    </script>
+</body>
+</html>

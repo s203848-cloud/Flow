@@ -1,0 +1,3333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Circuit Simulator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, .9);
+            margin-bottom: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 69, 0, .2);
+        }
+
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, .2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, .4);
+        }
+
+        .app-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff8000;
+        }
+
+        .app-title i {
+            margin-right: 10px;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 5px;
+            background: rgba(30, 30, 50, 0.5);
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .mode-btn {
+            padding: 8px 15px;
+            background: transparent;
+            border: none;
+            border-radius: 5px;
+            color: #aaa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .mode-btn:hover {
+            background: rgba(255, 69, 0, .2);
+            color: #fff;
+        }
+
+        .mode-btn.active {
+            background: rgba(255, 69, 0, .5);
+            color: #ff8000;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 160px);
+        }
+
+        .parts-panel {
+            width: 280px;
+            background: rgba(20, 20, 35, .8);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(255, 69, 0, .2);
+            overflow-y: auto;
+        }
+
+        .parts-search {
+            margin-bottom: 15px;
+        }
+
+        .parts-search input {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(50, 50, 70, .5);
+            border: 1px solid rgba(255, 69, 0, .3);
+            border-radius: 5px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .parts-category {
+            margin-bottom: 15px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 5px;
+            cursor: pointer;
+            color: #aaa;
+            border-bottom: 1px solid rgba(255, 255, 255, .1);
+        }
+
+        .category-header:hover {
+            color: #ff8000;
+        }
+
+        .category-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .part-item {
+            background: rgba(50, 50, 70, .5);
+            padding: 12px;
+            border-radius: 6px;
+            cursor: grab;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .part-item:hover {
+            background: rgba(80, 80, 100, .6);
+            border-color: rgba(255, 69, 0, .3);
+            transform: translateY(-2px);
+        }
+
+        .part-item.dragging {
+            opacity: 0.5;
+        }
+
+        .part-icon {
+            font-size: 1.5rem;
+            color: #ff8000;
+            margin-bottom: 5px;
+        }
+
+        .part-name {
+            font-size: 0.8rem;
+            color: #ddd;
+            margin-bottom: 2px;
+        }
+
+        .part-specs {
+            font-size: 0.7rem;
+            color: #aaa;
+        }
+
+        .simulation-area {
+            flex: 1;
+            background: rgba(10, 10, 25, .8);
+            border-radius: 10px;
+            border: 2px solid rgba(255, 69, 0, .3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #circuitCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: rgba(10, 10, 20, .6);
+        }
+
+        .properties-panel {
+            width: 320px;
+            background: rgba(20, 20, 35, .8);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(255, 69, 0, .2);
+            overflow-y: auto;
+        }
+
+        .panel-section {
+            background: rgba(50, 50, 70, .5);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .panel-section h4 {
+            color: #ff8000;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .property-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+        }
+
+        .property-label {
+            color: #ccc;
+        }
+
+        .property-value {
+            color: #ff8000;
+            font-weight: bold;
+        }
+
+        .slider-container {
+            margin: 15px 0;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, .1);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #ff8000;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #0a0a1a;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 69, 0, .3);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: rgba(255, 128, 0, .8);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .status-bar {
+            background: rgba(20, 20, 35, .9);
+            padding: 10px 20px;
+            margin-top: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 69, 0, .2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .mode-indicator {
+            padding: 5px 10px;
+            border-radius: 5px;
+            background: rgba(255, 69, 0, .2);
+            color: #ff8000;
+        }
+
+        .task-info {
+            color: #00ffaa;
+        }
+
+        /* Component styles */
+        .component {
+            position: absolute;
+            z-index: 10;
+            cursor: move;
+            transition: transform 0.2s ease;
+        }
+
+        .component:hover .edit-menu {
+            display: flex;
+        }
+
+        .component.selected {
+            outline: 2px solid #ff8000;
+            outline-offset: 2px;
+            border-radius: 5px;
+        }
+
+        .component-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 5px;
+        }
+
+        .component-icon {
+            font-size: 1.8rem;
+            color: #ff8000;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 3px rgba(255, 128, 0, 0.3));
+        }
+
+        .component-label {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-top: 3px;
+            white-space: nowrap;
+        }
+
+        .connection-point {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00aaff;
+            border: 2px solid #0a0a1a;
+            cursor: crosshair;
+            z-index: 15;
+            transition: all 0.2s ease;
+        }
+
+        .connection-point:hover {
+            background: #ff4500;
+            transform: scale(1.3);
+            box-shadow: 0 0 10px #ff4500;
+        }
+
+        .connection-point.active {
+            background: #ff8000;
+            transform: scale(1.3);
+            box-shadow: 0 0 15px #ff8000;
+        }
+
+        /* Special component styles */
+        .battery-level {
+            position: absolute;
+            bottom: 0;
+            left: 10%;
+            width: 80%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .battery-level-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #ffff00, #ff8000);
+            transition: width 0.5s ease;
+        }
+
+        .led-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .led-lit .led-glow {
+            opacity: 0.7;
+            animation: ledPulse 1.5s infinite;
+        }
+
+        @keyframes ledPulse {
+            0% { box-shadow: 0 0 8px #ff0000, 0 0 16px #ff0000; }
+            50% { box-shadow: 0 0 16px #ff0000, 0 0 24px #ff0000; }
+            100% { box-shadow: 0 0 8px #ff0000, 0 0 16px #ff0000; }
+        }
+
+        .bulb-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .bulb-lit .bulb-glow {
+            opacity: 0.6;
+            animation: bulbPulse 2s infinite;
+        }
+
+        @keyframes bulbPulse {
+            0% { box-shadow: 0 0 12px #ffff00, 0 0 20px #ffff00; }
+            50% { box-shadow: 0 0 20px #ffff00, 0 0 30px #ffff00; }
+            100% { box-shadow: 0 0 12px #ffff00, 0 0 20px #ffff00; }
+        }
+
+        .solar-panel {
+            position: relative;
+            width: 50px;
+            height: 25px;
+            background: linear-gradient(45deg, #1a3c6e, #2a5c9e);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .solar-cell {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .wire {
+            position: absolute;
+            pointer-events: none;
+            z-index: 5;
+            transform-origin: 0 0;
+        }
+
+        .wire-dragging {
+            z-index: 20;
+        }
+
+        .electron {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background-color: #00aaff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 6;
+            box-shadow: 0 0 8px #00aaff;
+        }
+
+        /* Edit Menu */
+        .edit-menu {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 30, 50, 0.95);
+            border: 1px solid rgba(255, 69, 0, .5);
+            border-radius: 5px;
+            padding: 5px;
+            display: none;
+            gap: 5px;
+            z-index: 100;
+        }
+
+        .edit-btn {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 69, 0, .3);
+            border: none;
+            border-radius: 3px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .edit-btn:hover {
+            background: rgba(255, 69, 0, .6);
+        }
+
+        /* Wall/Obstacle */
+        .wall {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            z-index: 7;
+            cursor: move;
+        }
+
+        .wall:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Task Panel */
+        .task-panel {
+            background: rgba(30, 30, 60, 0.9);
+            border: 2px solid #00ffaa;
+            border-radius: 10px;
+            padding: 20px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            display: none;
+            width: 500px;
+            max-width: 90%;
+        }
+
+        .task-header {
+            color: #00ffaa;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-content {
+            margin-bottom: 20px;
+        }
+
+        .task-objective {
+            background: rgba(0, 255, 170, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .task-reward {
+            color: #ffd700;
+            margin-top: 10px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: rgba(20, 20, 35, .95);
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 69, 0, .5);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal h3 {
+            color: #ff8000;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .modal-close {
+            background: rgba(255, 128, 0, .2);
+            border: 1px solid #ff8000;
+            color: #ff8000;
+            padding: 10px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 128, 0, .4);
+        }
+
+        /* Context Menu */
+        .context-menu {
+            position: absolute;
+            background: rgba(30, 30, 50, 0.95);
+            border: 1px solid rgba(255, 69, 0, .5);
+            border-radius: 5px;
+            padding: 5px;
+            z-index: 1000;
+            display: none;
+            min-width: 150px;
+        }
+
+        .context-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .context-item:hover {
+            background: rgba(255, 69, 0, .3);
+        }
+
+        /* Wire styling */
+        .wire-path {
+            stroke-width: 3;
+            stroke-linecap: round;
+            fill: none;
+        }
+
+        .wire-connected {
+            stroke: #ff8000;
+        }
+
+        .wire-disconnected {
+            stroke: #666;
+        }
+
+        .wire-dragging-path {
+            stroke: #ff8000;
+            stroke-dasharray: 5,5;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        /* Drop zone indicator */
+        .drop-zone {
+            position: absolute;
+            border: 2px dashed #ff8000;
+            border-radius: 10px;
+            background: rgba(255, 128, 0, 0.1);
+            display: none;
+            z-index: 5;
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff8000, #ff4500);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background: rgba(30, 30, 50, 0.95);
+            border: 1px solid rgba(255, 69, 0, .5);
+            border-radius: 5px;
+            padding: 8px 12px;
+            z-index: 1000;
+            font-size: 0.8rem;
+            max-width: 200px;
+            pointer-events: none;
+            display: none;
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                flex-direction: column;
+                height: auto;
+            }
+            .parts-panel, .properties-panel {
+                width: 100%;
+            }
+            .simulation-area {
+                min-height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <div class="app-title">
+            <i class="fas fa-microchip"></i> Ultimate Circuit Simulator
+        </div>
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="sandbox">
+                <i class="fas fa-play-circle"></i> Sandbox
+            </button>
+            <button class="mode-btn" data-mode="tasks">
+                <i class="fas fa-tasks"></i> Tasks
+            </button>
+            <button class="mode-btn" data-mode="modeling">
+                <i class="fas fa-drafting-compass"></i> Modeling
+            </button>
+            <button class="mode-btn" data-mode="challenge">
+                <i class="fas fa-trophy"></i> Challenge
+            </button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="parts-panel">
+            <div class="parts-search">
+                <input type="text" id="partsSearch" placeholder="Search components...">
+                <div class="mode-indicator" id="currentMode">Mode: Sandbox</div>
+            </div>
+            
+            <div class="parts-category">
+                <div class="category-header" onclick="toggleCategory('power')">
+                    <span><i class="fas fa-bolt"></i> Power Sources</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="category-content" id="category-power">
+                    <div class="part-item" data-component="battery" data-voltage="1.5">
+                        <div class="part-icon"><i class="fas fa-battery-empty"></i></div>
+                        <div class="part-name">AA Battery</div>
+                        <div class="part-specs">1.5V</div>
+                    </div>
+                    <div class="part-item" data-component="battery" data-voltage="3">
+                        <div class="part-icon"><i class="fas fa-battery-quarter"></i></div>
+                        <div class="part-name">AAA Battery</div>
+                        <div class="part-specs">3V</div>
+                    </div>
+                    <div class="part-item" data-component="battery" data-voltage="9">
+                        <div class="part-icon"><i class="fas fa-battery-half"></i></div>
+                        <div class="part-name">9V Battery</div>
+                        <div class="part-specs">9V</div>
+                    </div>
+                    <div class="part-item" data-component="battery" data-voltage="12">
+                        <div class="part-icon"><i class="fas fa-battery-full"></i></div>
+                        <div class="part-name">12V Battery</div>
+                        <div class="part-specs">12V</div>
+                    </div>
+                    <div class="part-item" data-component="battery" data-voltage="24">
+                        <div class="part-icon"><i class="fas fa-battery-three-quarters"></i></div>
+                        <div class="part-name">Car Battery</div>
+                        <div class="part-specs">24V</div>
+                    </div>
+                    <div class="part-item" data-component="solar">
+                        <div class="part-icon"><i class="fas fa-solar-panel"></i></div>
+                        <div class="part-name">Solar Panel</div>
+                        <div class="part-specs">5-12V</div>
+                    </div>
+                    <div class="part-item" data-component="generator">
+                        <div class="part-icon"><i class="fas fa-wind"></i></div>
+                        <div class="part-name">Generator</div>
+                        <div class="part-specs">AC 120V</div>
+                    </div>
+                    <div class="part-item" data-component="outlet">
+                        <div class="part-icon"><i class="fas fa-plug"></i></div>
+                        <div class="part-name">Power Outlet</div>
+                        <div class="part-specs">AC 220V</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="parts-category">
+                <div class="category-header" onclick="toggleCategory('output')">
+                    <span><i class="fas fa-lightbulb"></i> Output Devices</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="category-content" id="category-output">
+                    <div class="part-item" data-component="led">
+                        <div class="part-icon"><i class="fas fa-circle"></i></div>
+                        <div class="part-name">LED (Red)</div>
+                        <div class="part-specs">2V 20mA</div>
+                    </div>
+                    <div class="part-item" data-component="led-blue">
+                        <div class="part-icon"><i class="fas fa-circle"></i></div>
+                        <div class="part-name">LED (Blue)</div>
+                        <div class="part-specs">3.3V 20mA</div>
+                    </div>
+                    <div class="part-item" data-component="led-green">
+                        <div class="part-icon"><i class="fas fa-circle"></i></div>
+                        <div class="part-name">LED (Green)</div>
+                        <div class="part-specs">2.2V 20mA</div>
+                    </div>
+                    <div class="part-item" data-component="bulb">
+                        <div class="part-icon"><i class="fas fa-lightbulb"></i></div>
+                        <div class="part-name">Incandescent</div>
+                        <div class="part-specs">6V 0.5A</div>
+                    </div>
+                    <div class="part-item" data-component="bulb-led">
+                        <div class="part-icon"><i class="fas fa-lightbulb"></i></div>
+                        <div class="part-name">LED Bulb</div>
+                        <div class="part-specs">12V 1W</div>
+                    </div>
+                    <div class="part-item" data-component="buzzer">
+                        <div class="part-icon"><i class="fas fa-volume-up"></i></div>
+                        <div class="part-name">Buzzer</div>
+                        <div class="part-specs">5V 30mA</div>
+                    </div>
+                    <div class="part-item" data-component="motor">
+                        <div class="part-icon"><i class="fas fa-cog"></i></div>
+                        <div class="part-name">DC Motor</div>
+                        <div class="part-specs">3-12V</div>
+                    </div>
+                    <div class="part-item" data-component="servo">
+                        <div class="part-icon"><i class="fas fa-compact-disc"></i></div>
+                        <div class="part-name">Servo Motor</div>
+                        <div class="part-specs">5V</div>
+                    </div>
+                    <div class="part-item" data-component="speaker">
+                        <div class="part-icon"><i class="fas fa-volume-up"></i></div>
+                        <div class="part-name">Speaker</div>
+                        <div class="part-specs">8Ω 1W</div>
+                    </div>
+                    <div class="part-item" data-component="relay">
+                        <div class="part-icon"><i class="fas fa-exchange-alt"></i></div>
+                        <div class="part-name">Relay</div>
+                        <div class="part-specs">5V 30mA</div>
+                    </div>
+                    <div class="part-item" data-component="heater">
+                        <div class="part-icon"><i class="fas fa-fire"></i></div>
+                        <div class="part-name">Heater</div>
+                        <div class="part-specs">12V 10W</div>
+                    </div>
+                    <div class="part-item" data-component="fan">
+                        <div class="part-icon"><i class="fas fa-fan"></i></div>
+                        <div class="part-name">Cooling Fan</div>
+                        <div class="part-specs">12V 0.2A</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="parts-category">
+                <div class="category-header" onclick="toggleCategory('resistors')">
+                    <span><i class="fas fa-resistor"></i> Resistors</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="category-content" id="category-resistors">
+                    <div class="part-item" data-component="resistor" data-resistance="10">
+                        <div class="part-icon"><i class="fas fa-resistor"></i></div>
+                        <div class="part-name">10Ω</div>
+                        <div class="part-specs">Brown Black Black</div>
+                    </div>
+                    <div class="part-item" data-component="resistor" data-resistance="100">
+                        <div class="part-icon"><i class="fas fa-resistor"></i></div>
+                        <div class="part-name">100Ω</div>
+                        <div class="part-specs">Brown Black Brown</div>
+                    </div>
+                    <div class="part-item" data-component="resistor" data-resistance="1000">
+                        <div class="part-icon"><i class="fas fa-resistor"></i></div>
+                        <div class="part-name">1KΩ</div>
+                        <div class="part-specs">Brown Black Red</div>
+                    </div>
+                    <div class="part-item" data-component="resistor" data-resistance="10000">
+                        <div class="part-icon"><i class="fas fa-resistor"></i></div>
+                        <div class="part-name">10KΩ</div>
+                        <div class="part-specs">Brown Black Orange</div>
+                    </div>
+                    <div class="part-item" data-component="potentiometer">
+                        <div class="part-icon"><i class="fas fa-sliders-h"></i></div>
+                        <div class="part-name">Potentiometer</div>
+                        <div class="part-specs">10KΩ Variable</div>
+                    </div>
+                    <div class="part-item" data-component="thermistor">
+                        <div class="part-icon"><i class="fas fa-thermometer-half"></i></div>
+                        <div class="part-name">Thermistor</div>
+                        <div class="part-specs">10KΩ NTC</div>
+                    </div>
+                    <div class="part-item" data-component="ldr">
+                        <div class="part-icon"><i class="fas fa-sun"></i></div>
+                        <div class="part-name">LDR</div>
+                        <div class="part-specs">Light Dependent</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="parts-category">
+                <div class="category-header" onclick="toggleCategory('active')">
+                    <span><i class="fas fa-microchip"></i> Active Components</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="category-content" id="category-active">
+                    <div class="part-item" data-component="diode">
+                        <div class="part-icon"><i class="fas fa-arrow-right"></i></div>
+                        <div class="part-name">Diode</div>
+                        <div class="part-specs">1N4007</div>
+                    </div>
+                    <div class="part-item" data-component="zener">
+                        <div class="part-icon"><i class="fas fa-arrow-right"></i></div>
+                        <div class="part-name">Zener Diode</div>
+                        <div class="part-specs">5.1V</div>
+                    </div>
+                    <div class="part-item" data-component="transistor-npn">
+                        <div class="part-icon"><i class="fas fa-microchip"></i></div>
+                        <div class="part-name">NPN Transistor</div>
+                        <div class="part-specs">BC547</div>
+                    </div>
+                    <div class="part-item" data-component="transistor-pnp">
+                        <div class="part-icon"><i class="fas fa-microchip"></i></div>
+                        <div class="part-name">PNP Transistor</div>
+                        <div class="part-specs">BC557</div>
+                    </div>
+                    <div class="part-item" data-component="mosfet-n">
+                        <div class="part-icon"><i class="fas fa-microchip"></i></div>
+                        <div class="part-name">N-MOSFET</div>
+                        <div class="part-specs">IRF540</div>
+                    </div>
+                    <div class="part-item" data-component="mosfet-p">
+                        <div class="part-icon"><i class="fas fa-microchip"></i></div>
+                        <div class="part-name">P-MOSFET</div>
+                        <div class="part-specs">IRF9540</div>
+                    </div>
+                    <div class="part-item" data-component="opamp">
+                        <div class="part-icon"><i class="fas fa-project-diagram"></i></div>
+                        <div class="part-name">Op-Amp</div>
+                        <div class="part-specs">LM358</div>
+                    </div>
+                    <div class="part-item" data-component="555">
+                        <div class="part-icon"><i class="fas fa-clock"></i></div>
+                        <div class="part-name">555 Timer</div>
+                        <div class="part-specs">NE555</div>
+                    </div>
+                    <div class="part-item" data-component="voltage-regulator">
+                        <div class="part-icon"><i class="fas fa-tachometer-alt"></i></div>
+                        <div class="part-name">Voltage Reg.</div>
+                        <div class="part-specs">LM7805</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="parts-category">
+                <div class="category-header" onclick="toggleCategory('passive')">
+                    <span><i class="fas fa-shapes"></i> Passive Components</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="category-content" id="category-passive">
+                    <div class="part-item" data-component="capacitor">
+                        <div class="part-icon"><i class="fas fa-capacitor"></i></div>
+                        <div class="part-name">Capacitor</div>
+                        <div class="part-specs">100μF 25V</div>
+                    </div>
+                    <div class="part-item" data-component="capacitor-electrolytic">
+                        <div class="part-icon"><i class="fas fa-capacitor"></i></div>
+                        <div class="part-name">Electrolytic</div>
+                        <div class="part-specs">1000μF 16V</div>
+                    </div>
+                    <div class="part-item" data-component="inductor">
+                        <div class="part-icon"><i class="fas fa-coil"></i></div>
+                        <div class="part-name">Inductor</div>
+                        <div class="part-specs">100μH</div>
+                    </div>
+                    <div class="part-item" data-component="transformer">
+                        <div class="part-icon"><i class="fas fa-bolt"></i></div>
+                        <div class="part-name">Transformer</div>
+                        <div class="part-specs">12V to 5V</div>
+                    </div>
+                    <div class="part-item" data-component="crystal">
+                        <div class="part-icon"><i class="fas fa-gem"></i></div>
+                        <div class="part-name">Crystal</div>
+                        <div class="part-specs">16MHz</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="parts-category">
+                <div class="category-header" onclick="toggleCategory('switches')">
+                    <span><i class="fas fa-toggle-on"></i> Switches & Controls</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="category-content" id="category-switches">
+                    <div class="part-item" data-component="switch">
+                        <div class="part-icon"><i class="fas fa-toggle-on"></i></div>
+                        <div class="part-name">Toggle Switch</div>
+                        <div class="part-specs">SPST</div>
+                    </div>
+                    <div class="part-item" data-component="switch-spdt">
+                        <div class="part-icon"><i class="fas fa-toggle-on"></i></div>
+                        <div class="part-name">SPDT Switch</div>
+                    </div>
+                    <div class="part-item" data-component="pushbutton">
+                        <div class="part-icon"><i class="fas fa-square"></i></div>
+                        <div class="part-name">Push Button</div>
+                    </div>
+                    <div class="part-item" data-component="dipswitch">
+                        <div class="part-icon"><i class="fas fa-th"></i></div>
+                        <div class="part-name">DIP Switch</div>
+                        <div class="part-specs">4 Position</div>
+                    </div>
+                    <div class="part-item" data-component="relay-switch">
+                        <div class="part-icon"><i class="fas fa-exchange-alt"></i></div>
+                        <div class="part-name">Relay</div>
+                        <div class="part-specs">5V DC</div>
+                    </div>
+                    <div class="part-item" data-component="fuse">
+                        <div class="part-icon"><i class="fas fa-fire-extinguisher"></i></div>
+                        <div class="part-name">Fuse</div>
+                        <div class="part-specs">1A</div>
+                    </div>
+                    <div class="part-item" data-component="breaker">
+                        <div class="part-icon"><i class="fas fa-ban"></i></div>
+                        <div class="part-name">Circuit Breaker</div>
+                        <div class="part-specs">10A</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="parts-category">
+                <div class="category-header" onclick="toggleCategory('sensors')">
+                    <span><i class="fas fa-rss"></i> Sensors</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="category-content" id="category-sensors">
+                    <div class="part-item" data-component="temp-sensor">
+                        <div class="part-icon"><i class="fas fa-thermometer-half"></i></div>
+                        <div class="part-name">Temp Sensor</div>
+                        <div class="part-specs">LM35</div>
+                    </div>
+                    <div class="part-item" data-component="light-sensor">
+                        <div class="part-icon"><i class="fas fa-sun"></i></div>
+                        <div class="part-name">Light Sensor</div>
+                    </div>
+                    <div class="part-item" data-component="motion-sensor">
+                        <div class="part-icon"><i class="fas fa-running"></i></div>
+                        <div class="part-name">Motion Sensor</div>
+                    </div>
+                    <div class="part-item" data-component="humidity-sensor">
+                        <div class="part-icon"><i class="fas fa-tint"></i></div>
+                        <div class="part-name">Humidity</div>
+                        <div class="part-specs">DHT11</div>
+                    </div>
+                    <div class="part-item" data-component="pressure-sensor">
+                        <div class="part-icon"><i class="fas fa-weight"></i></div>
+                        <div class="part-name">Pressure</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="parts-category">
+                <div class="category-header" onclick="toggleCategory('meters')">
+                    <span><i class="fas fa-tachometer-alt"></i> Meters & Displays</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="category-content" id="category-meters">
+                    <div class="part-item" data-component="voltmeter">
+                        <div class="part-icon"><i class="fas fa-bolt"></i></div>
+                        <div class="part-name">Voltmeter</div>
+                    </div>
+                    <div class="part-item" data-component="ammeter">
+                        <div class="part-icon"><i class="fas fa-tachometer-alt"></i></div>
+                        <div class="part-name">Ammeter</div>
+                    </div>
+                    <div class="part-item" data-component="multimeter">
+                        <div class="part-icon"><i class="fas fa-ruler-combined"></i></div>
+                        <div class="part-name">Multimeter</div>
+                    </div>
+                    <div class="part-item" data-component="oscilloscope">
+                        <div class="part-icon"><i class="fas fa-wave-square"></i></div>
+                        <div class="part-name">Oscilloscope</div>
+                    </div>
+                    <div class="part-item" data-component="lcd">
+                        <div class="part-icon"><i class="fas fa-tablet-alt"></i></div>
+                        <div class="part-name">LCD Display</div>
+                        <div class="part-specs">16x2</div>
+                    </div>
+                    <div class="part-item" data-component="seven-segment">
+                        <div class="part-icon"><i class="fas fa-hashtag"></i></div>
+                        <div class="part-name">7-Segment</div>
+                    </div>
+                    <div class="part-item" data-component="led-matrix">
+                        <div class="part-icon"><i class="fas fa-th-large"></i></div>
+                        <div class="part-name">LED Matrix</div>
+                        <div class="part-specs">8x8</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="parts-category">
+                <div class="category-header" onclick="toggleCategory('wiring')">
+                    <span><i class="fas fa-plug"></i> Wiring</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="category-content" id="category-wiring">
+                    <div class="part-item" data-component="wire-red">
+                        <div class="part-icon"><i class="fas fa-bolt"></i></div>
+                        <div class="part-name">Red Wire</div>
+                    </div>
+                    <div class="part-item" data-component="wire-black">
+                        <div class="part-icon"><i class="fas fa-bolt"></i></div>
+                        <div class="part-name">Black Wire</div>
+                    </div>
+                    <div class="part-item" data-component="wire-blue">
+                        <div class="part-icon"><i class="fas fa-bolt"></i></div>
+                        <div class="part-name">Blue Wire</div>
+                    </div>
+                    <div class="part-item" data-component="wire-green">
+                        <div class="part-icon"><i class="fas fa-bolt"></i></div>
+                        <div class="part-name">Green Wire</div>
+                    </div>
+                    <div class="part-item" data-component="breadboard">
+                        <div class="part-icon"><i class="fas fa-th"></i></div>
+                        <div class="part-name">Breadboard</div>
+                    </div>
+                    <div class="part-item" data-component="terminal">
+                        <div class="part-icon"><i class="fas fa-terminal"></i></div>
+                        <div class="part-name">Terminal Block</div>
+                    </div>
+                    <div class="part-item" data-component="ground">
+                        <div class="part-icon"><i class="fas fa-ground"></i></div>
+                        <div class="part-name">Ground</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="parts-category">
+                <div class="category-header" onclick="toggleCategory('misc')">
+                    <span><i class="fas fa-star"></i> Miscellaneous</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="category-content" id="category-misc">
+                    <div class="part-item" data-component="antenna">
+                        <div class="part-icon"><i class="fas fa-satellite"></i></div>
+                        <div class="part-name">Antenna</div>
+                    </div>
+                    <div class="part-item" data-component="microphone">
+                        <div class="part-icon"><i class="fas fa-microphone"></i></div>
+                        <div class="part-name">Microphone</div>
+                    </div>
+                    <div class="part-item" data-component="buzzer-piezo">
+                        <div class="part-icon"><i class="fas fa-bell"></i></div>
+                        <div class="part-name">Piezo Buzzer</div>
+                    </div>
+                    <div class="part-item" data-component="coin-cell">
+                        <div class="part-icon"><i class="fas fa-battery-quarter"></i></div>
+                        <div class="part-name">Coin Cell</div>
+                        <div class="part-specs">3V</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="simulation-area" id="simulationArea">
+            <canvas id="circuitCanvas"></canvas>
+            <div class="drop-zone" id="dropZone"></div>
+            <div class="task-panel" id="taskPanel">
+                <div class="task-header">
+                    <h3><i class="fas fa-tasks"></i> Circuit Challenge</h3>
+                    <button class="edit-btn" onclick="closeTaskPanel()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="task-content">
+                    <div class="task-objective" id="taskObjective">
+                        Build a circuit that lights up an LED with a 9V battery and a 220Ω resistor.
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="taskProgress" style="width: 0%"></div>
+                    </div>
+                    <div class="task-reward" id="taskReward">
+                        Reward: 100 points
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeTaskPanel()">Continue</button>
+            </div>
+        </div>
+
+        <div class="properties-panel">
+            <div class="panel-section">
+                <h4><i class="fas fa-sliders-h"></i> Simulation Controls</h4>
+                
+                <div class="toggle-container">
+                    <span class="property-label">Circuit Power</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="powerToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="toggle-container">
+                    <span class="property-label">Show Electrons</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="electronToggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span class="property-label">Simulation Speed</span>
+                        <span class="property-value" id="simSpeedValue">1x</span>
+                    </div>
+                    <input type="range" id="simSpeed" min="0.1" max="5" step="0.1" value="1">
+                </div>
+                
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span class="property-label">Sun Intensity</span>
+                        <span class="property-value" id="sunIntensityValue">50%</span>
+                    </div>
+                    <input type="range" id="sunIntensity" min="0" max="100" value="50">
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="control-btn" id="clearBtn" style="flex: 1;">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                    <button class="control-btn" id="saveBtn" style="flex: 1;">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    <button class="control-btn" id="loadBtn" style="flex: 1;">
+                        <i class="fas fa-folder-open"></i> Load
+                    </button>
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <h4><i class="fas fa-info-circle"></i> Selected Component</h4>
+                <div class="property-row">
+                    <div class="property-label">Type:</div>
+                    <div class="property-value" id="selectedType">None</div>
+                </div>
+                <div class="property-row">
+                    <div class="property-label">Voltage:</div>
+                    <div class="property-value" id="selectedVoltage">-</div>
+                </div>
+                <div class="property-row">
+                    <div class="property-label">Current:</div>
+                    <div class="property-value" id="selectedCurrent">-</div>
+                </div>
+                <div class="property-row">
+                    <div class="property-label">Resistance:</div>
+                    <div class="property-value" id="selectedResistance">-</div>
+                </div>
+                <div class="property-row">
+                    <div class="property-label">Power:</div>
+                    <div class="property-value" id="selectedPower">-</div>
+                </div>
+                
+                <div id="componentControls">
+                    <!-- Dynamic controls will appear here -->
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <h4><i class="fas fa-chart-line"></i> Circuit Status</h4>
+                <div class="property-row">
+                    <div class="property-label">Total Voltage:</div>
+                    <div class="property-value" id="totalVoltage">0V</div>
+                </div>
+                <div class="property-row">
+                    <div class="property-label">Total Current:</div>
+                    <div class="property-value" id="totalCurrent">0A</div>
+                </div>
+                <div class="property-row">
+                    <div class="property-label">Total Resistance:</div>
+                    <div class="property-value" id="totalResistance">0Ω</div>
+                </div>
+                <div class="property-row">
+                    <div class="property-label">Total Power:</div>
+                    <div class="property-value" id="totalPower">0W</div>
+                </div>
+                <div class="property-row">
+                    <div class="property-label">Circuit Status:</div>
+                    <div class="property-value" id="circuitStatus">Open</div>
+                </div>
+                <div class="property-row">
+                    <div class="property-label">Efficiency:</div>
+                    <div class="property-value" id="circuitEfficiency">0%</div>
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <h4><i class="fas fa-history"></i> Recent Activity</h4>
+                <div id="activityLog" style="max-height: 150px; overflow-y: auto; font-size: 0.8rem; color: #aaa;">
+                    <div>Welcome to Ultimate Circuit Simulator</div>
+                    <div>Drag components from the left panel</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="mode-indicator" id="modeIndicator">
+            <i class="fas fa-mouse-pointer"></i>
+            <span>Mode: Select</span>
+        </div>
+        <div class="task-info" id="taskInfo" style="display: none;">
+            <i class="fas fa-tasks"></i>
+            <span>Task: <span id="currentTaskName">None</span></span>
+            <span style="margin-left: 10px;">Progress: <span id="taskProgressText">0%</span></span>
+        </div>
+        <div id="statusMessage">Ready - Drag components from the left panel</div>
+        <div>
+            <span>Components: <span id="componentCount">0</span></span>
+            <span style="margin-left: 10px;">Wires: <span id="wireCount">0</span></span>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu"></div>
+    
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip"></div>
+    
+    <!-- Modal -->
+    <div class="modal" id="helpModal">
+        <div class="modal-content">
+            <h3><i class="fas fa-question-circle"></i> Ultimate Circuit Simulator Guide</h3>
+            
+            <h4>Getting Started:</h4>
+            <p>1. <strong>Drag components</strong> from the left panel to the simulation area</p>
+            <p>2. <strong>Click connection points</strong> (blue dots) to create wires between components</p>
+            <p>3. <strong>Right-click components</strong> for more options (delete, change voltage, etc.)</p>
+            <p>4. <strong>Use different modes</strong> for different experiences</p>
+            
+            <h4>Modes:</h4>
+            <p><strong>Sandbox:</strong> Free building with all components</p>
+            <p><strong>Tasks:</strong> Complete circuit challenges for points</p>
+            <p><strong>Modeling:</strong> Create custom wire paths and add obstacles</p>
+            <p><strong>Challenge:</strong> Race against time to build circuits</p>
+            
+            <h4>Tips:</h4>
+            <p>• Create closed loops for current to flow<br>
+               • Hover over components to see edit menu<br>
+               • Adjust component properties in the right panel<br>
+               • Save your circuits for later use</p>
+            
+            <button class="modal-close" id="closeModal">Got it!</button>
+        </div>
+    </div>
+
+    <script>
+        // Ultimate Circuit Simulator with all features
+        const componentTypes = {
+            // Power Sources
+            'battery': { name: "Battery", icon: "fas fa-battery-full", color: "#FFD700", voltage: 9, resistance: 0.1, charge: 100 },
+            'solar': { name: "Solar Panel", icon: "fas fa-solar-panel", color: "#1E90FF", voltage: 5, resistance: 5, efficiency: 0.8 },
+            'generator': { name: "Generator", icon: "fas fa-wind", color: "#32CD32", voltage: 120, resistance: 1, ac: true },
+            'outlet': { name: "Power Outlet", icon: "fas fa-plug", color: "#FF6347", voltage: 220, resistance: 0.5, ac: true },
+            
+            // Output Devices
+            'led': { name: "Red LED", icon: "fas fa-circle", color: "#FF4500", voltage: 2, resistance: 20 },
+            'led-blue': { name: "Blue LED", icon: "fas fa-circle", color: "#4169E1", voltage: 3.3, resistance: 30 },
+            'led-green': { name: "Green LED", icon: "fas fa-circle", color: "#32CD32", voltage: 2.2, resistance: 25 },
+            'bulb': { name: "Incandescent Bulb", icon: "fas fa-lightbulb", color: "#FFFF00", voltage: 6, resistance: 12 },
+            'bulb-led': { name: "LED Bulb", icon: "fas fa-lightbulb", color: "#FFFFFF", voltage: 12, resistance: 144 },
+            'buzzer': { name: "Buzzer", icon: "fas fa-volume-up", color: "#9370DB", resistance: 30, voltage: 5 },
+            'motor': { name: "DC Motor", icon: "fas fa-cog", color: "#708090", resistance: 50, voltage: 6 },
+            'servo': { name: "Servo Motor", icon: "fas fa-compact-disc", color: "#FF69B4", resistance: 100, voltage: 5 },
+            'speaker': { name: "Speaker", icon: "fas fa-volume-up", color: "#8B4513", resistance: 8, voltage: 3 },
+            'relay': { name: "Relay", icon: "fas fa-exchange-alt", color: "#20B2AA", resistance: 200, voltage: 5 },
+            'heater': { name: "Heater", icon: "fas fa-fire", color: "#FF4500", resistance: 14.4, voltage: 12 },
+            'fan': { name: "Cooling Fan", icon: "fas fa-fan", color: "#00CED1", resistance: 60, voltage: 12 },
+            
+            // Resistors
+            'resistor': { name: "Resistor", icon: "fas fa-resistor", color: "#8B4513", resistance: 100 },
+            'potentiometer': { name: "Potentiometer", icon: "fas fa-sliders-h", color: "#A0522D", resistance: 500, minResistance: 10, maxResistance: 1000 },
+            'thermistor': { name: "Thermistor", icon: "fas fa-thermometer-half", color: "#FF6347", resistance: 10000, temperature: 25 },
+            'ldr': { name: "LDR", icon: "fas fa-sun", color: "#FFD700", resistance: 1000, lightLevel: 50 },
+            
+            // Active Components
+            'diode': { name: "Diode", icon: "fas fa-arrow-right", color: "#00CED1", resistance: 10, forwardVoltage: 0.7 },
+            'zener': { name: "Zener Diode", icon: "fas fa-arrow-right", color: "#9370DB", resistance: 15, zenerVoltage: 5.1 },
+            'transistor-npn': { name: "NPN Transistor", icon: "fas fa-microchip", color: "#4169E1", resistance: 100 },
+            'transistor-pnp': { name: "PNP Transistor", icon: "fas fa-microchip", color: "#FF69B4", resistance: 100 },
+            'mosfet-n': { name: "N-MOSFET", icon: "fas fa-microchip", color: "#32CD32", resistance: 0.1 },
+            'mosfet-p': { name: "P-MOSFET", icon: "fas fa-microchip", color: "#FF4500", resistance: 0.1 },
+            'opamp': { name: "Op-Amp", icon: "fas fa-project-diagram", color: "#FFD700", resistance: 1000000 },
+            '555': { name: "555 Timer", icon: "fas fa-clock", color: "#8B4513", resistance: 100 },
+            'voltage-regulator': { name: "Voltage Regulator", icon: "fas fa-tachometer-alt", color: "#708090", resistance: 5, outputVoltage: 5 },
+            
+            // Passive Components
+            'capacitor': { name: "Capacitor", icon: "fas fa-capacitor", color: "#32CD32", resistance: 1000, capacitance: 100 },
+            'capacitor-electrolytic': { name: "Electrolytic Capacitor", icon: "fas fa-capacitor", color: "#4169E1", resistance: 50, capacitance: 1000 },
+            'inductor': { name: "Inductor", icon: "fas fa-coil", color: "#9370DB", resistance: 50, inductance: 100 },
+            'transformer': { name: "Transformer", icon: "fas fa-bolt", color: "#8B4513", resistance: 10, turnsRatio: 2.4 },
+            'crystal': { name: "Crystal", icon: "fas fa-gem", color: "#00CED1", resistance: 100, frequency: 16000000 },
+            
+            // Switches & Controls
+            'switch': { name: "Toggle Switch", icon: "fas fa-toggle-on", color: "#808080", resistance: 0.1, isClosed: true },
+            'switch-spdt': { name: "SPDT Switch", icon: "fas fa-toggle-on", color: "#A9A9A9", resistance: 0.1, isClosed: true },
+            'pushbutton': { name: "Push Button", icon: "fas fa-square", color: "#FF6347", resistance: 0.1, isClosed: false },
+            'dipswitch': { name: "DIP Switch", icon: "fas fa-th", color: "#708090", resistance: 0.1, positions: 4 },
+            'relay-switch': { name: "Relay", icon: "fas fa-exchange-alt", color: "#20B2AA", resistance: 100, isClosed: false },
+            'fuse': { name: "Fuse", icon: "fas fa-fire-extinguisher", color: "#FF6347", resistance: 0.05, maxCurrent: 1 },
+            'breaker': { name: "Circuit Breaker", icon: "fas fa-ban", color: "#FF4500", resistance: 0.1, maxCurrent: 10 },
+            
+            // Sensors
+            'temp-sensor': { name: "Temperature Sensor", icon: "fas fa-thermometer-half", color: "#FF6347", resistance: 1000, temperature: 25 },
+            'light-sensor': { name: "Light Sensor", icon: "fas fa-sun", color: "#FFD700", resistance: 1000, lightLevel: 50 },
+            'motion-sensor': { name: "Motion Sensor", icon: "fas fa-running", color: "#32CD32", resistance: 1000 },
+            'humidity-sensor': { name: "Humidity Sensor", icon: "fas fa-tint", color: "#00CED1", resistance: 1000, humidity: 50 },
+            'pressure-sensor': { name: "Pressure Sensor", icon: "fas fa-weight", color: "#9370DB", resistance: 1000 },
+            
+            // Meters & Displays
+            'voltmeter': { name: "Voltmeter", icon: "fas fa-bolt", color: "#00FF7F", resistance: 10000 },
+            'ammeter': { name: "Ammeter", icon: "fas fa-tachometer-alt", color: "#FFA500", resistance: 0.01 },
+            'multimeter': { name: "Multimeter", icon: "fas fa-ruler-combined", color: "#20B2AA", resistance: 1000 },
+            'oscilloscope': { name: "Oscilloscope", icon: "fas fa-wave-square", color: "#9370DB", resistance: 1000000 },
+            'lcd': { name: "LCD Display", icon: "fas fa-tablet-alt", color: "#000000", resistance: 100, voltage: 5 },
+            'seven-segment': { name: "7-Segment Display", icon: "fas fa-hashtag", color: "#FF4500", resistance: 100, voltage: 5 },
+            'led-matrix': { name: "LED Matrix", icon: "fas fa-th-large", color: "#4169E1", resistance: 50, voltage: 5 },
+            
+            // Wiring
+            'wire-red': { name: "Red Wire", icon: "fas fa-bolt", color: "#FF4500", isWire: true },
+            'wire-black': { name: "Black Wire", icon: "fas fa-bolt", color: "#000000", isWire: true },
+            'wire-blue': { name: "Blue Wire", icon: "fas fa-bolt", color: "#4169E1", isWire: true },
+            'wire-green': { name: "Green Wire", icon: "fas fa-bolt", color: "#32CD32", isWire: true },
+            'breadboard': { name: "Breadboard", icon: "fas fa-th", color: "#FFFFFF", resistance: 0 },
+            'terminal': { name: "Terminal Block", icon: "fas fa-terminal", color: "#708090", resistance: 0.1 },
+            'ground': { name: "Ground", icon: "fas fa-ground", color: "#A9A9A9", resistance: 0 },
+            
+            // Miscellaneous
+            'antenna': { name: "Antenna", icon: "fas fa-satellite", color: "#9370DB", resistance: 50 },
+            'microphone': { name: "Microphone", icon: "fas fa-microphone", color: "#4169E1", resistance: 1000 },
+            'buzzer-piezo': { name: "Piezo Buzzer", icon: "fas fa-bell", color: "#FFD700", resistance: 100, voltage: 5 },
+            'coin-cell': { name: "Coin Cell", icon: "fas fa-battery-quarter", color: "#708090", voltage: 3, resistance: 10, charge: 100 }
+        };
+
+        // Global state
+        let components = [];
+        let wires = [];
+        let walls = [];
+        let electrons = [];
+        let selectedComponent = null;
+        let selectedWire = null;
+        let selectedWall = null;
+        let isWireMode = false;
+        let isModelingMode = false;
+        let isTaskMode = false;
+        let isChallengeMode = false;
+        let isDraggingWire = false;
+        let wireStartPoint = null;
+        let wireTempPoints = [];
+        let isDraggingComponent = false;
+        let isDraggingWall = false;
+        let dragOffset = {x: 0, y: 0};
+        let isPowerOn = false;
+        let showElectrons = true;
+        let simSpeed = 1;
+        let sunIntensity = 50;
+        let nextId = 1;
+        let canvas, ctx;
+        let currentMode = 'sandbox';
+        let currentTask = null;
+        let userScore = 0;
+        let dragSource = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Setup canvas
+            canvas = document.getElementById('circuitCanvas');
+            ctx = canvas.getContext('2d');
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Initialize UI
+            initUI();
+            
+            // Start animation loop
+            requestAnimationFrame(animate);
+            
+            // Create initial components for visibility
+            setTimeout(() => {
+                createDemoComponents();
+                updateActivity("Welcome to Ultimate Circuit Simulator!");
+            }, 100);
+        });
+
+        // Resize canvas
+        function resizeCanvas() {
+            const container = document.getElementById('simulationArea');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            draw();
+        }
+
+        // Initialize UI
+        function initUI() {
+            // Mode buttons
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    setMode(this.dataset.mode);
+                });
+            });
+            
+            // Control buttons
+            document.getElementById('clearBtn').addEventListener('click', clearAll);
+            document.getElementById('saveBtn').addEventListener('click', saveCircuit);
+            document.getElementById('loadBtn').addEventListener('click', loadCircuit);
+            
+            // Toggles and sliders
+            document.getElementById('powerToggle').addEventListener('change', function() {
+                isPowerOn = this.checked;
+                updateActivity(`Power ${isPowerOn ? 'ON' : 'OFF'}`);
+                updateCircuitCalculations();
+                if (isPowerOn && showElectrons) generateElectrons();
+                else electrons = [];
+            });
+            
+            document.getElementById('electronToggle').addEventListener('change', function() {
+                showElectrons = this.checked;
+                if (isPowerOn && showElectrons) generateElectrons();
+                else electrons = [];
+            });
+            
+            document.getElementById('simSpeed').addEventListener('input', function() {
+                simSpeed = parseFloat(this.value);
+                document.getElementById('simSpeedValue').textContent = simSpeed.toFixed(1) + 'x';
+            });
+            
+            document.getElementById('sunIntensity').addEventListener('input', function() {
+                sunIntensity = parseInt(this.value);
+                document.getElementById('sunIntensityValue').textContent = sunIntensity + '%';
+                updateSolarPanels();
+                updateCircuitCalculations();
+            });
+            
+            // Parts search
+            document.getElementById('partsSearch').addEventListener('input', function() {
+                filterParts(this.value);
+            });
+            
+            // Make component items draggable
+            document.querySelectorAll('.part-item').forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    this.classList.add('dragging');
+                    dragSource = this;
+                    const type = this.dataset.component;
+                    const voltage = this.dataset.voltage || "";
+                    const resistance = this.dataset.resistance || "";
+                    e.dataTransfer.setData('componentType', type);
+                    e.dataTransfer.setData('voltage', voltage);
+                    e.dataTransfer.setData('resistance', resistance);
+                    e.dataTransfer.effectAllowed = 'copy';
+                    
+                    // Show drop zone
+                    showDropZone();
+                });
+                
+                item.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                    hideDropZone();
+                    dragSource = null;
+                });
+            });
+            
+            // Allow dropping components
+            canvas.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+                updateDropZone(e.clientX, e.clientY);
+            });
+            
+            canvas.addEventListener('drop', function(e) {
+                e.preventDefault();
+                hideDropZone();
+                
+                if (dragSource) {
+                    const rect = canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const type = dragSource.dataset.component;
+                    const voltage = parseFloat(dragSource.dataset.voltage) || componentTypes[type]?.voltage || 9;
+                    const resistance = parseFloat(dragSource.dataset.resistance) || componentTypes[type]?.resistance || 100;
+                    
+                    if (type) {
+                        addComponent(type, x, y, voltage, resistance);
+                        updateActivity(`Added ${componentTypes[type].name}`);
+                    }
+                }
+            });
+            
+            // Canvas mouse events
+            canvas.addEventListener('mousedown', handleCanvasMouseDown);
+            canvas.addEventListener('mousemove', handleCanvasMouseMove);
+            canvas.addEventListener('mouseup', handleCanvasMouseUp);
+            canvas.addEventListener('contextmenu', handleCanvasRightClick);
+            canvas.addEventListener('click', handleCanvasClick);
+            
+            // Close help modal
+            document.getElementById('closeModal').addEventListener('click', function() {
+                document.getElementById('helpModal').style.display = 'none';
+            });
+            
+            // Initialize in sandbox mode
+            setMode('sandbox');
+        }
+
+        // Set current mode
+        function setMode(mode) {
+            currentMode = mode;
+            
+            // Update UI
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            
+            document.getElementById('currentMode').textContent = `Mode: ${mode.charAt(0).toUpperCase() + mode.slice(1)}`;
+            document.getElementById('modeIndicator').innerHTML = 
+                `<i class="fas fa-${getModeIcon(mode)}"></i><span>Mode: ${mode.charAt(0).toUpperCase() + mode.slice(1)}</span>`;
+            
+            // Update task info visibility
+            const taskInfo = document.getElementById('taskInfo');
+            taskInfo.style.display = mode === 'tasks' || mode === 'challenge' ? 'flex' : 'none';
+            
+            // Set mode-specific behaviors
+            isWireMode = false;
+            isModelingMode = mode === 'modeling';
+            isTaskMode = mode === 'tasks';
+            isChallengeMode = mode === 'challenge';
+            
+            // Clear selections
+            selectedComponent = null;
+            selectedWire = null;
+            selectedWall = null;
+            isDraggingWire = false;
+            wireStartPoint = null;
+            wireTempPoints = [];
+            
+            // Update status message
+            let message = '';
+            switch(mode) {
+                case 'sandbox': message = 'Free building mode - Drag components and connect them'; break;
+                case 'tasks': message = 'Task mode - Complete circuit challenges'; break;
+                case 'modeling': message = 'Modeling mode - Create custom wire paths and add walls'; break;
+                case 'challenge': message = 'Challenge mode - Race against time!'; break;
+            }
+            updateStatusMessage(message);
+            
+            // Load demo task if in task mode
+            if (mode === 'tasks') {
+                loadTask(1);
+            }
+            
+            // Show modeling tools if in modeling mode
+            if (mode === 'modeling') {
+                showModelingTools();
+            }
+            
+            draw();
+        }
+
+        // Get icon for mode
+        function getModeIcon(mode) {
+            switch(mode) {
+                case 'sandbox': return 'play-circle';
+                case 'tasks': return 'tasks';
+                case 'modeling': return 'drafting-compass';
+                case 'challenge': return 'trophy';
+                default: return 'question-circle';
+            }
+        }
+
+        // Show drop zone
+        function showDropZone() {
+            const dropZone = document.getElementById('dropZone');
+            dropZone.style.display = 'block';
+        }
+
+        // Hide drop zone
+        function hideDropZone() {
+            const dropZone = document.getElementById('dropZone');
+            dropZone.style.display = 'none';
+        }
+
+        // Update drop zone position
+        function updateDropZone(x, y) {
+            const rect = canvas.getBoundingClientRect();
+            const dropZone = document.getElementById('dropZone');
+            const size = 100;
+            
+            dropZone.style.width = size + 'px';
+            dropZone.style.height = size + 'px';
+            dropZone.style.left = (x - rect.left - size/2) + 'px';
+            dropZone.style.top = (y - rect.top - size/2) + 'px';
+        }
+
+        // Filter parts by search term
+        function filterParts(searchTerm) {
+            const items = document.querySelectorAll('.part-item');
+            const term = searchTerm.toLowerCase();
+            
+            items.forEach(item => {
+                const name = item.querySelector('.part-name').textContent.toLowerCase();
+                const specs = item.querySelector('.part-specs').textContent.toLowerCase();
+                const type = item.dataset.component;
+                
+                if (name.includes(term) || specs.includes(term) || type.includes(term)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Toggle category visibility
+        function toggleCategory(categoryId) {
+            const content = document.getElementById(`category-${categoryId}`);
+            const header = content.previousElementSibling;
+            const icon = header.querySelector('.fa-chevron-down');
+            
+            if (content.style.display === 'none' || !content.style.display) {
+                content.style.display = 'grid';
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                content.style.display = 'none';
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        }
+
+        // Handle canvas mouse down
+        function handleCanvasMouseDown(e) {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Check for connection point click
+            const connection = findConnectionAt(x, y);
+            if (connection && (currentMode === 'sandbox' || currentMode === 'tasks' || currentMode === 'challenge')) {
+                if (!isDraggingWire) {
+                    // Start a new wire
+                    wireStartPoint = connection;
+                    isDraggingWire = true;
+                    wireTempPoints = [{x, y}];
+                    updateActivity(`Started wire from ${connection.component.name}`);
+                } else {
+                    // Complete the wire
+                    if (wireStartPoint && connection !== wireStartPoint) {
+                        addWire(wireStartPoint, connection, wireTempPoints);
+                        updateActivity(`Connected wire to ${connection.component.name}`);
+                    }
+                    isDraggingWire = false;
+                    wireStartPoint = null;
+                    wireTempPoints = [];
+                }
+                return;
+            }
+            
+            // Check for component click
+            const component = findComponentAt(x, y);
+            if (component) {
+                selectedComponent = component;
+                selectedWire = null;
+                selectedWall = null;
+                updatePropertiesPanel();
+                
+                // Start dragging
+                isDraggingComponent = true;
+                dragOffset.x = x - component.x;
+                dragOffset.y = y - component.y;
+                return;
+            }
+            
+            // Check for wire click
+            const wire = findWireAt(x, y);
+            if (wire) {
+                selectedWire = wire;
+                selectedComponent = null;
+                selectedWall = null;
+                updatePropertiesPanel();
+                return;
+            }
+            
+            // Check for wall click (in modeling mode)
+            if (currentMode === 'modeling') {
+                const wall = findWallAt(x, y);
+                if (wall) {
+                    selectedWall = wall;
+                    selectedComponent = null;
+                    selectedWire = null;
+                    
+                    // Start dragging wall
+                    isDraggingWall = true;
+                    dragOffset.x = x - wall.x;
+                    dragOffset.y = y - wall.y;
+                    return;
+                }
+                
+                // Start drawing wall if not on existing wall
+                if (e.button === 0) { // Left click
+                    addWall(x, y, 100, 20);
+                    updateActivity("Added wall");
+                }
+            }
+            
+            // Click on empty space
+            selectedComponent = null;
+            selectedWire = null;
+            selectedWall = null;
+            updatePropertiesPanel();
+        }
+
+        // Handle canvas mouse move
+        function handleCanvasMouseMove(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Update tooltip position
+            updateTooltip(x, y);
+            
+            // Handle wire dragging
+            if (isDraggingWire && wireStartPoint) {
+                if (wireTempPoints.length === 0) {
+                    wireTempPoints.push({x, y});
+                } else {
+                    wireTempPoints[wireTempPoints.length - 1] = {x, y};
+                }
+            }
+            
+            // Handle component dragging
+            if (isDraggingComponent && selectedComponent) {
+                selectedComponent.x = x - dragOffset.x;
+                selectedComponent.y = y - dragOffset.y;
+                updateConnectedWires(selectedComponent);
+            }
+            
+            // Handle wall dragging
+            if (isDraggingWall && selectedWall) {
+                selectedWall.x = x - dragOffset.x;
+                selectedWall.y = y - dragOffset.y;
+            }
+            
+            // Draw in real-time
+            draw();
+        }
+
+        // Handle canvas mouse up
+        function handleCanvasMouseUp(e) {
+            isDraggingComponent = false;
+            isDraggingWall = false;
+            
+            // If dragging wire and clicked on empty space, add a waypoint
+            if (isDraggingWire && wireStartPoint && wireTempPoints.length > 0) {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Check if we're near a connection point
+                const connection = findConnectionAt(x, y);
+                if (connection && connection !== wireStartPoint) {
+                    addWire(wireStartPoint, connection, wireTempPoints);
+                    updateActivity(`Connected wire to ${connection.component.name}`);
+                } else if (currentMode === 'modeling') {
+                    // In modeling mode, add a waypoint
+                    wireTempPoints.push({x, y});
+                    updateActivity("Added wire waypoint");
+                }
+                
+                isDraggingWire = false;
+                wireStartPoint = null;
+                wireTempPoints = [];
+            }
+        }
+
+        // Handle canvas click
+        function handleCanvasClick(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Check if clicking on component to toggle switch
+            const component = findComponentAt(x, y);
+            if (component && component.type.includes('switch')) {
+                component.isClosed = !component.isClosed;
+                updateActivity(`${component.name} ${component.isClosed ? 'closed' : 'opened'}`);
+                updateCircuitCalculations();
+            }
+        }
+
+        // Handle canvas right click
+        function handleCanvasRightClick(e) {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Show context menu
+            showContextMenu(x, y, e.clientX, e.clientY);
+        }
+
+        // Show context menu
+        function showContextMenu(x, y, screenX, screenY) {
+            const contextMenu = document.getElementById('contextMenu');
+            contextMenu.innerHTML = '';
+            contextMenu.style.left = screenX + 'px';
+            contextMenu.style.top = screenY + 'px';
+            contextMenu.style.display = 'block';
+            
+            // Check what's at the click position
+            const component = findComponentAt(x, y);
+            const wire = findWireAt(x, y);
+            const wall = findWallAt(x, y);
+            
+            if (component) {
+                // Component context menu
+                contextMenu.innerHTML += `
+                    <div class="context-item" onclick="deleteComponent(${component.id})">
+                        <i class="fas fa-trash"></i> Delete
+                    </div>
+                    <div class="context-item" onclick="editComponent(${component.id})">
+                        <i class="fas fa-edit"></i> Edit Properties
+                    </div>
+                    ${component.type.includes('battery') ? `
+                    <div class="context-item" onclick="changeBatteryVoltage(${component.id})">
+                        <i class="fas fa-bolt"></i> Change Voltage
+                    </div>
+                    <div class="context-item" onclick="rechargeBattery(${component.id})">
+                        <i class="fas fa-redo"></i> Recharge
+                    </div>
+                    ` : ''}
+                    ${component.type.includes('resistor') ? `
+                    <div class="context-item" onclick="changeResistance(${component.id})">
+                        <i class="fas fa-sliders-h"></i> Change Resistance
+                    </div>
+                    ` : ''}
+                    <div class="context-item" onclick="duplicateComponent(${component.id})">
+                        <i class="fas fa-copy"></i> Duplicate
+                    </div>
+                `;
+            } else if (wire) {
+                // Wire context menu
+                contextMenu.innerHTML += `
+                    <div class="context-item" onclick="deleteWire(${wire.id})">
+                        <i class="fas fa-trash"></i> Delete Wire
+                    </div>
+                    <div class="context-item" onclick="editWire(${wire.id})">
+                        <i class="fas fa-edit"></i> Edit Wire
+                    </div>
+                    <div class="context-item" onclick="addWireWaypoint(${wire.id})">
+                        <i class="fas fa-plus-circle"></i> Add Waypoint
+                    </div>
+                `;
+            } else if (wall) {
+                // Wall context menu
+                contextMenu.innerHTML += `
+                    <div class="context-item" onclick="deleteWall(${wall.id})">
+                        <i class="fas fa-trash"></i> Delete Wall
+                    </div>
+                    <div class="context-item" onclick="resizeWall(${wall.id})">
+                        <i class="fas fa-expand-alt"></i> Resize
+                    </div>
+                `;
+            } else {
+                // Empty space context menu
+                contextMenu.innerHTML += `
+                    <div class="context-item" onclick="addComponentAt(${x}, ${y})">
+                        <i class="fas fa-plus"></i> Add Component Here
+                    </div>
+                    ${currentMode === 'modeling' ? `
+                    <div class="context-item" onclick="addWall(${x}, ${y}, 100, 20)">
+                        <i class="fas fa-square"></i> Add Wall
+                    </div>
+                    ` : ''}
+                    <div class="context-item" onclick="showHelp()">
+                        <i class="fas fa-question-circle"></i> Help
+                    </div>
+                `;
+            }
+            
+            // Hide context menu when clicking elsewhere
+            setTimeout(() => {
+                document.addEventListener('click', hideContextMenu);
+            }, 100);
+        }
+
+        // Hide context menu
+        function hideContextMenu() {
+            const contextMenu = document.getElementById('contextMenu');
+            contextMenu.style.display = 'none';
+            document.removeEventListener('click', hideContextMenu);
+        }
+
+        // Update tooltip
+        function updateTooltip(x, y) {
+            const tooltip = document.getElementById('tooltip');
+            const component = findComponentAt(x, y);
+            const wire = findWireAt(x, y);
+            
+            if (component) {
+                tooltip.innerHTML = `
+                    <strong>${component.name}</strong><br>
+                    Voltage: ${component.voltage}V<br>
+                    Resistance: ${component.resistance}Ω<br>
+                    Current: ${component.current.toFixed(3)}A
+                `;
+                tooltip.style.left = (x + 15) + 'px';
+                tooltip.style.top = (y + 15) + 'px';
+                tooltip.style.display = 'block';
+            } else if (wire) {
+                tooltip.innerHTML = `
+                    <strong>Wire</strong><br>
+                    Current: ${wire.current.toFixed(3)}A<br>
+                    Length: ${wire.length.toFixed(1)}px<br>
+                    Click to select, right-click for options
+                `;
+                tooltip.style.left = (x + 15) + 'px';
+                tooltip.style.top = (y + 15) + 'px';
+                tooltip.style.display = 'block';
+            } else {
+                tooltip.style.display = 'none';
+            }
+        }
+
+        // Find component at coordinates
+        function findComponentAt(x, y) {
+            for (let i = components.length - 1; i >= 0; i--) {
+                const comp = components[i];
+                const width = 60;
+                const height = 40;
+                if (x >= comp.x && x <= comp.x + width && 
+                    y >= comp.y && y <= comp.y + height) {
+                    return comp;
+                }
+            }
+            return null;
+        }
+
+        // Find connection point at coordinates
+        function findConnectionAt(x, y) {
+            for (const comp of components) {
+                // Left connection point
+                if (Math.abs(x - comp.x) < 10 && Math.abs(y - (comp.y + 20)) < 10) {
+                    return { component: comp, type: 'left', x: comp.x, y: comp.y + 20 };
+                }
+                
+                // Right connection point
+                if (Math.abs(x - (comp.x + 60)) < 10 && Math.abs(y - (comp.y + 20)) < 10) {
+                    return { component: comp, type: 'right', x: comp.x + 60, y: comp.y + 20 };
+                }
+            }
+            return null;
+        }
+
+        // Find wire at coordinates
+        function findWireAt(x, y) {
+            for (const wire of wires) {
+                const points = getWirePoints(wire);
+                for (let i = 0; i < points.length - 1; i++) {
+                    if (pointNearLine(x, y, points[i].x, points[i].y, points[i+1].x, points[i+1].y, 5)) {
+                        return wire;
+                    }
+                }
+            }
+            return null;
+        }
+
+        // Find wall at coordinates
+        function findWallAt(x, y) {
+            for (const wall of walls) {
+                if (x >= wall.x && x <= wall.x + wall.width && 
+                    y >= wall.y && y <= wall.y + wall.height) {
+                    return wall;
+                }
+            }
+            return null;
+        }
+
+        // Check if point is near line
+        function pointNearLine(px, py, x1, y1, x2, y2, tolerance) {
+            const A = px - x1;
+            const B = py - y1;
+            const C = x2 - x1;
+            const D = y2 - y1;
+
+            const dot = A * C + B * D;
+            const lenSq = C * C + D * D;
+            let param = -1;
+            if (lenSq !== 0) param = dot / lenSq;
+
+            let xx, yy;
+
+            if (param < 0) {
+                xx = x1;
+                yy = y1;
+            } else if (param > 1) {
+                xx = x2;
+                yy = y2;
+            } else {
+                xx = x1 + param * C;
+                yy = y1 + param * D;
+            }
+
+            const dx = px - xx;
+            const dy = py - yy;
+            return Math.sqrt(dx * dx + dy * dy) < tolerance;
+        }
+
+        // Add component at position
+        function addComponent(type, x, y, voltage, resistance) {
+            const compType = componentTypes[type];
+            if (!compType) return;
+            
+            const id = nextId++;
+            
+            const component = {
+                id,
+                type,
+                name: compType.name,
+                x: x - 30,
+                y: y - 20,
+                width: 60,
+                height: 40,
+                voltage: voltage || compType.voltage || 0,
+                resistance: resistance || compType.resistance || 100,
+                current: 0,
+                power: 0,
+                color: compType.color,
+                icon: compType.icon,
+                charge: type.includes('battery') ? 100 : null,
+                isClosed: type.includes('switch') ? true : null,
+                efficiency: type === 'solar' ? compType.efficiency : null,
+                ac: compType.ac || false
+            };
+            
+            components.push(component);
+            updateCircuitCalculations();
+            updateCounts();
+            return component;
+        }
+
+        // Add wire between connection points
+        function addWire(startConn, endConn, waypoints = []) {
+            const id = nextId++;
+            
+            const wire = {
+                id,
+                start: startConn,
+                end: endConn,
+                waypoints: [...waypoints],
+                current: 0,
+                length: calculateWireLength(startConn, endConn, waypoints),
+                color: '#ff8000'
+            };
+            
+            wires.push(wire);
+            updateCircuitCalculations();
+            updateCounts();
+            return wire;
+        }
+
+        // Add wall
+        function addWall(x, y, width, height) {
+            const id = nextId++;
+            
+            const wall = {
+                id,
+                x: x - width/2,
+                y: y - height/2,
+                width,
+                height,
+                color: 'rgba(255, 255, 255, 0.1)'
+            };
+            
+            walls.push(wall);
+            return wall;
+        }
+
+        // Calculate wire length
+        function calculateWireLength(start, end, waypoints) {
+            let length = 0;
+            let lastPoint = {x: start.x, y: start.y};
+            
+            for (const point of waypoints) {
+                length += Math.sqrt(Math.pow(point.x - lastPoint.x, 2) + Math.pow(point.y - lastPoint.y, 2));
+                lastPoint = point;
+            }
+            
+            length += Math.sqrt(Math.pow(end.x - lastPoint.x, 2) + Math.pow(end.y - lastPoint.y, 2));
+            return length;
+        }
+
+        // Get all points in a wire
+        function getWirePoints(wire) {
+            const points = [{x: wire.start.x, y: wire.start.y}];
+            points.push(...wire.waypoints);
+            points.push({x: wire.end.x, y: wire.end.y});
+            return points;
+        }
+
+        // Update connected wires when component moves
+        function updateConnectedWires(component) {
+            wires.forEach(wire => {
+                if (wire.start.component === component) {
+                    wire.start.x = wire.start.type === 'left' ? component.x : component.x + 60;
+                    wire.start.y = component.y + 20;
+                }
+                if (wire.end.component === component) {
+                    wire.end.x = wire.end.type === 'left' ? component.x : component.x + 60;
+                    wire.end.y = component.y + 20;
+                }
+                wire.length = calculateWireLength(wire.start, wire.end, wire.waypoints);
+            });
+        }
+
+        // Update circuit calculations
+        function updateCircuitCalculations() {
+            let totalVoltage = 0;
+            let totalResistance = 0;
+            let totalCurrent = 0;
+            let hasPowerSource = false;
+            let isCircuitClosed = false;
+            
+            // Reset component values
+            components.forEach(comp => {
+                comp.current = 0;
+                comp.power = 0;
+                comp.voltageDrop = 0;
+            });
+            
+            // Reset wire currents
+            wires.forEach(wire => {
+                wire.current = 0;
+            });
+            
+            // Find power sources
+            const batteries = components.filter(c => c.type.includes('battery'));
+            const solarPanels = components.filter(c => c.type === 'solar');
+            const generators = components.filter(c => c.type === 'generator' || c.type === 'outlet');
+            
+            // Calculate solar panel output based on sun intensity
+            solarPanels.forEach(panel => {
+                panel.voltage = 5 * (sunIntensity / 100);
+                totalVoltage += panel.voltage;
+                hasPowerSource = true;
+            });
+            
+            // Add battery voltages
+            batteries.forEach(battery => {
+                totalVoltage += battery.voltage;
+                hasPowerSource = true;
+                
+                // Drain battery if powered
+                if (isPowerOn && battery.charge > 0) {
+                    battery.charge = Math.max(0, battery.charge - 0.01);
+                    if (battery.charge <= 0) {
+                        battery.voltage = 0;
+                    }
+                }
+            });
+            
+            // Add generator voltages
+            generators.forEach(gen => {
+                totalVoltage += gen.voltage;
+                hasPowerSource = true;
+            });
+            
+            // Calculate total resistance in the circuit
+            components.forEach(comp => {
+                if (!comp.type.includes('battery') && comp.type !== 'solar' && 
+                    !comp.type.includes('generator') && comp.type !== 'outlet' && 
+                    comp.type !== 'voltmeter') {
+                    if (comp.type.includes('switch') && !comp.isClosed) {
+                        totalResistance += 1000000; // Very high resistance for open switch
+                    } else {
+                        totalResistance += comp.resistance;
+                    }
+                }
+            });
+            
+            // Add wire resistance (approx 0.1Ω per 100px)
+            wires.forEach(wire => {
+                totalResistance += wire.length * 0.001;
+            });
+            
+            // Calculate current if there's a closed circuit with power source
+            if (hasPowerSource && wires.length >= 2 && totalResistance > 0) {
+                totalCurrent = totalVoltage / totalResistance;
+                isCircuitClosed = true;
+                
+                // Update component currents and voltages
+                components.forEach(comp => {
+                    if (!comp.type.includes('battery') && comp.type !== 'solar' && 
+                        !comp.type.includes('generator') && comp.type !== 'outlet' && 
+                        comp.type !== 'voltmeter') {
+                        comp.current = totalCurrent;
+                        comp.voltageDrop = comp.current * comp.resistance;
+                        comp.power = Math.pow(comp.current, 2) * comp.resistance;
+                    }
+                });
+                
+                // Update wire currents
+                wires.forEach(wire => {
+                    wire.current = totalCurrent;
+                });
+                
+                // Update glowing components
+                updateGlowingComponents();
+                
+                // Generate electrons if enabled
+                if (isPowerOn && showElectrons) {
+                    generateElectrons();
+                }
+                
+                // Check task completion
+                if (currentTask) {
+                    checkTaskCompletion();
+                }
+            } else {
+                // Reset glowing components
+                components.forEach(comp => {
+                    if (comp.type.includes('led') || comp.type.includes('bulb')) {
+                        comp.isLit = false;
+                    }
+                });
+                electrons = [];
+            }
+            
+            // Update UI
+            const totalPower = totalVoltage * totalCurrent;
+            const efficiency = totalResistance > 0 ? (totalPower / (totalVoltage * totalCurrent + 0.0001)) * 100 : 0;
+            
+            updateCircuitStats(totalVoltage, totalCurrent, totalResistance, totalPower, efficiency, isCircuitClosed);
+            updatePropertiesPanel();
+            updateCounts();
+        }
+
+        // Update glowing components
+        function updateGlowingComponents() {
+            components.forEach(comp => {
+                if ((comp.type.includes('led') || comp.type.includes('bulb')) && comp.current > 0) {
+                    const minCurrent = comp.type.includes('led') ? 0.005 : 0.05;
+                    comp.isLit = comp.current >= minCurrent;
+                    
+                    // Calculate brightness based on current
+                    const brightness = Math.min(1, comp.current / (minCurrent * 2));
+                    comp.brightness = brightness;
+                } else {
+                    comp.isLit = false;
+                    comp.brightness = 0;
+                }
+            });
+        }
+
+        // Update solar panels
+        function updateSolarPanels() {
+            components.forEach(comp => {
+                if (comp.type === 'solar') {
+                    comp.voltage = 5 * (sunIntensity / 100);
+                }
+            });
+        }
+
+        // Generate electrons for visualization
+        function generateElectrons() {
+            if (!isPowerOn || !showElectrons) return;
+            
+            electrons = [];
+            
+            wires.forEach(wire => {
+                if (wire.current > 0) {
+                    const points = getWirePoints(wire);
+                    const totalLength = wire.length;
+                    const electronCount = Math.max(3, Math.floor(totalLength / 30));
+                    
+                    for (let i = 0; i < electronCount; i++) {
+                        electrons.push({
+                            wireId: wire.id,
+                            progress: i / electronCount,
+                            speed: 0.001 * simSpeed,
+                            size: 4 + Math.random() * 3
+                        });
+                    }
+                }
+            });
+        }
+
+        // Update circuit statistics
+        function updateCircuitStats(voltage, current, resistance, power, efficiency, isClosed) {
+            document.getElementById('totalVoltage').textContent = voltage.toFixed(2) + 'V';
+            document.getElementById('totalCurrent').textContent = current.toFixed(3) + 'A';
+            document.getElementById('totalResistance').textContent = resistance.toFixed(1) + 'Ω';
+            document.getElementById('totalPower').textContent = power.toFixed(3) + 'W';
+            document.getElementById('circuitEfficiency').textContent = efficiency.toFixed(1) + '%';
+            document.getElementById('circuitStatus').textContent = isClosed ? 'Closed' : 'Open';
+            document.getElementById('circuitStatus').style.color = isClosed ? '#00FF00' : '#FF4500';
+        }
+
+        // Update properties panel
+        function updatePropertiesPanel() {
+            if (selectedComponent) {
+                document.getElementById('selectedType').textContent = selectedComponent.name;
+                document.getElementById('selectedVoltage').textContent = selectedComponent.voltage.toFixed(2) + 'V';
+                document.getElementById('selectedCurrent').textContent = selectedComponent.current.toFixed(3) + 'A';
+                document.getElementById('selectedResistance').textContent = selectedComponent.resistance.toFixed(1) + 'Ω';
+                document.getElementById('selectedPower').textContent = selectedComponent.power.toFixed(3) + 'W';
+                
+                // Update component controls
+                updateComponentControls(selectedComponent);
+            } else if (selectedWire) {
+                document.getElementById('selectedType').textContent = 'Wire';
+                document.getElementById('selectedVoltage').textContent = '-';
+                document.getElementById('selectedCurrent').textContent = selectedWire.current.toFixed(3) + 'A';
+                document.getElementById('selectedResistance').textContent = '-';
+                document.getElementById('selectedPower').textContent = '-';
+            } else {
+                document.getElementById('selectedType').textContent = 'None';
+                document.getElementById('selectedVoltage').textContent = '-';
+                document.getElementById('selectedCurrent').textContent = '-';
+                document.getElementById('selectedResistance').textContent = '-';
+                document.getElementById('selectedPower').textContent = '-';
+            }
+        }
+
+        // Update component controls
+        function updateComponentControls(component) {
+            const controlsDiv = document.getElementById('componentControls');
+            controlsDiv.innerHTML = '';
+            
+            let controlsHTML = '';
+            
+            if (component.type.includes('battery')) {
+                controlsHTML += `
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span class="property-label">Voltage</span>
+                            <span class="property-value" id="batteryVoltageValue">${component.voltage}V</span>
+                        </div>
+                        <input type="range" id="batteryVoltage" min="1" max="24" value="${component.voltage}" 
+                               oninput="updateBatteryVoltage(${component.id}, this.value)">
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span class="property-label">Charge</span>
+                            <span class="property-value">${component.charge ? component.charge.toFixed(0) + '%' : 'N/A'}</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (component.type.includes('resistor') || component.type === 'potentiometer') {
+                const maxResistance = component.type === 'potentiometer' ? 1000 : 10000;
+                controlsHTML += `
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span class="property-label">Resistance</span>
+                            <span class="property-value" id="resistanceValue">${component.resistance}Ω</span>
+                        </div>
+                        <input type="range" id="resistanceControl" min="1" max="${maxResistance}" value="${component.resistance}" 
+                               oninput="updateResistance(${component.id}, this.value)">
+                    </div>
+                `;
+            }
+            
+            if (component.type.includes('switch')) {
+                controlsHTML += `
+                    <div class="toggle-container">
+                        <span class="property-label">Switch State</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" ${component.isClosed ? 'checked' : ''} 
+                                   onchange="toggleSwitch(${component.id}, this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                `;
+            }
+            
+            controlsDiv.innerHTML = controlsHTML;
+        }
+
+        // Update battery voltage
+        function updateBatteryVoltage(id, voltage) {
+            const battery = components.find(c => c.id === id);
+            if (battery) {
+                battery.voltage = parseFloat(voltage);
+                document.getElementById('batteryVoltageValue').textContent = voltage + 'V';
+                updateCircuitCalculations();
+                updateActivity(`Changed ${battery.name} voltage to ${voltage}V`);
+            }
+        }
+
+        // Update resistance
+        function updateResistance(id, resistance) {
+            const component = components.find(c => c.id === id);
+            if (component) {
+                component.resistance = parseFloat(resistance);
+                document.getElementById('resistanceValue').textContent = resistance + 'Ω';
+                updateCircuitCalculations();
+                updateActivity(`Changed ${component.name} resistance to ${resistance}Ω`);
+            }
+        }
+
+        // Toggle switch
+        function toggleSwitch(id, isClosed) {
+            const switchComp = components.find(c => c.id === id);
+            if (switchComp) {
+                switchComp.isClosed = isClosed;
+                updateCircuitCalculations();
+                updateActivity(`${switchComp.name} ${isClosed ? 'closed' : 'opened'}`);
+            }
+        }
+
+        // Update counts
+        function updateCounts() {
+            document.getElementById('componentCount').textContent = components.length;
+            document.getElementById('wireCount').textContent = wires.length;
+        }
+
+        // Update status message
+        function updateStatusMessage(message) {
+            document.getElementById('statusMessage').textContent = message;
+        }
+
+        // Update activity log
+        function updateActivity(message) {
+            const log = document.getElementById('activityLog');
+            const entry = document.createElement('div');
+            const now = new Date();
+            const time = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            entry.textContent = `[${time}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Delete component
+        function deleteComponent(id) {
+            const component = components.find(c => c.id === id);
+            if (component) {
+                // Remove connected wires
+                wires = wires.filter(wire => 
+                    wire.start.component.id !== id && wire.end.component.id !== id);
+                
+                // Remove component
+                components = components.filter(c => c.id !== id);
+                
+                updateActivity(`Deleted ${component.name}`);
+                updateCircuitCalculations();
+                updateCounts();
+                hideContextMenu();
+                
+                if (selectedComponent && selectedComponent.id === id) {
+                    selectedComponent = null;
+                    updatePropertiesPanel();
+                }
+            }
+        }
+
+        // Delete wire
+        function deleteWire(id) {
+            const wire = wires.find(w => w.id === id);
+            if (wire) {
+                wires = wires.filter(w => w.id !== id);
+                updateActivity("Deleted wire");
+                updateCircuitCalculations();
+                updateCounts();
+                hideContextMenu();
+                
+                if (selectedWire && selectedWire.id === id) {
+                    selectedWire = null;
+                    updatePropertiesPanel();
+                }
+            }
+        }
+
+        // Delete wall
+        function deleteWall(id) {
+            walls = walls.filter(w => w.id !== id);
+            updateActivity("Deleted wall");
+            hideContextMenu();
+            
+            if (selectedWall && selectedWall.id === id) {
+                selectedWall = null;
+            }
+        }
+
+        // Edit component
+        function editComponent(id) {
+            const component = components.find(c => c.id === id);
+            if (component) {
+                selectedComponent = component;
+                updatePropertiesPanel();
+                hideContextMenu();
+                
+                // Show edit dialog
+                const newVoltage = prompt(`Enter new voltage for ${component.name}:`, component.voltage);
+                if (newVoltage !== null) {
+                    const voltage = parseFloat(newVoltage);
+                    if (!isNaN(voltage)) {
+                        component.voltage = voltage;
+                        updateCircuitCalculations();
+                        updateActivity(`Changed ${component.name} voltage to ${voltage}V`);
+                    }
+                }
+            }
+        }
+
+        // Edit wire
+        function editWire(id) {
+            const wire = wires.find(w => w.id === id);
+            if (wire) {
+                selectedWire = wire;
+                updatePropertiesPanel();
+                hideContextMenu();
+                
+                // Show color picker
+                const newColor = prompt("Enter wire color (hex or name):", wire.color);
+                if (newColor) {
+                    wire.color = newColor;
+                    updateActivity("Changed wire color");
+                }
+            }
+        }
+
+        // Add wire waypoint
+        function addWireWaypoint(id) {
+            const wire = wires.find(w => w.id === id);
+            if (wire) {
+                const points = getWirePoints(wire);
+                const midIndex = Math.floor(points.length / 2);
+                const midPoint = {
+                    x: (points[midIndex].x + points[midIndex + 1].x) / 2,
+                    y: (points[midIndex].y + points[midIndex + 1].y) / 2
+                };
+                
+                wire.waypoints.push(midPoint);
+                wire.length = calculateWireLength(wire.start, wire.end, wire.waypoints);
+                updateActivity("Added wire waypoint");
+                hideContextMenu();
+            }
+        }
+
+        // Resize wall
+        function resizeWall(id) {
+            const wall = walls.find(w => w.id === id);
+            if (wall) {
+                const newWidth = prompt("Enter new width:", wall.width);
+                const newHeight = prompt("Enter new height:", wall.height);
+                
+                if (newWidth && newHeight) {
+                    wall.width = parseInt(newWidth);
+                    wall.height = parseInt(newHeight);
+                    updateActivity("Resized wall");
+                }
+                hideContextMenu();
+            }
+        }
+
+        // Change battery voltage
+        function changeBatteryVoltage(id) {
+            const battery = components.find(c => c.id === id && c.type.includes('battery'));
+            if (battery) {
+                const newVoltage = prompt("Enter new voltage:", battery.voltage);
+                if (newVoltage !== null) {
+                    const voltage = parseFloat(newVoltage);
+                    if (!isNaN(voltage)) {
+                        battery.voltage = voltage;
+                        updateCircuitCalculations();
+                        updateActivity(`Changed ${battery.name} voltage to ${voltage}V`);
+                    }
+                }
+                hideContextMenu();
+            }
+        }
+
+        // Recharge battery
+        function rechargeBattery(id) {
+            const battery = components.find(c => c.id === id && c.type.includes('battery'));
+            if (battery) {
+                battery.charge = 100;
+                updateActivity(`Recharged ${battery.name}`);
+                hideContextMenu();
+            }
+        }
+
+        // Change resistance
+        function changeResistance(id) {
+            const component = components.find(c => c.id === id && 
+                (c.type.includes('resistor') || c.type === 'potentiometer'));
+            if (component) {
+                const newResistance = prompt("Enter new resistance (Ω):", component.resistance);
+                if (newResistance !== null) {
+                    const resistance = parseFloat(newResistance);
+                    if (!isNaN(resistance) && resistance > 0) {
+                        component.resistance = resistance;
+                        updateCircuitCalculations();
+                        updateActivity(`Changed ${component.name} resistance to ${resistance}Ω`);
+                    }
+                }
+                hideContextMenu();
+            }
+        }
+
+        // Duplicate component
+        function duplicateComponent(id) {
+            const component = components.find(c => c.id === id);
+            if (component) {
+                const newComponent = {...component, id: nextId++};
+                newComponent.x += 80;
+                newComponent.y += 0;
+                components.push(newComponent);
+                updateActivity(`Duplicated ${component.name}`);
+                updateCircuitCalculations();
+                updateCounts();
+                hideContextMenu();
+            }
+        }
+
+        // Add component at position
+        function addComponentAt(x, y) {
+            const type = prompt("Enter component type (e.g., 'battery', 'led', 'resistor'):");
+            if (type && componentTypes[type]) {
+                addComponent(type, x, y);
+                hideContextMenu();
+            }
+        }
+
+        // Show help
+        function showHelp() {
+            document.getElementById('helpModal').style.display = 'flex';
+            hideContextMenu();
+        }
+
+        // Show modeling tools
+        function showModelingTools() {
+            updateActivity("Modeling mode enabled - Click to add walls, right-click for options");
+        }
+
+        // Load task
+        function loadTask(taskNumber) {
+            const tasks = [
+                {
+                    name: "Simple LED Circuit",
+                    objective: "Build a circuit that lights up an LED using a 9V battery and a 220Ω resistor",
+                    requirements: {
+                        hasLED: true,
+                        hasBattery: true,
+                        hasResistor: true,
+                        circuitClosed: true,
+                        ledLit: true
+                    },
+                    reward: 100
+                },
+                {
+                    name: "Series Circuit",
+                    objective: "Build a series circuit with 2 LEDs and a resistor",
+                    requirements: {
+                        ledCount: 2,
+                        hasResistor: true,
+                        circuitClosed: true,
+                        allLEDsLit: true
+                    },
+                    reward: 150
+                },
+                {
+                    name: "Parallel Circuit",
+                    objective: "Build a parallel circuit with 2 LEDs",
+                    requirements: {
+                        ledCount: 2,
+                        parallelLEDs: true,
+                        circuitClosed: true,
+                        allLEDsLit: true
+                    },
+                    reward: 200
+                }
+            ];
+            
+            if (taskNumber <= tasks.length) {
+                currentTask = tasks[taskNumber - 1];
+                document.getElementById('currentTaskName').textContent = currentTask.name;
+                document.getElementById('taskObjective').textContent = currentTask.objective;
+                document.getElementById('taskReward').textContent = `Reward: ${currentTask.reward} points`;
+                
+                updateActivity(`Task loaded: ${currentTask.name}`);
+            }
+        }
+
+        // Check task completion
+        function checkTaskCompletion() {
+            if (!currentTask) return;
+            
+            let completed = true;
+            const requirements = currentTask.requirements;
+            
+            // Check requirements
+            if (requirements.hasLED) {
+                const hasLED = components.some(c => c.type.includes('led'));
+                completed = completed && hasLED;
+            }
+            
+            if (requirements.hasBattery) {
+                const hasBattery = components.some(c => c.type.includes('battery'));
+                completed = completed && hasBattery;
+            }
+            
+            if (requirements.hasResistor) {
+                const hasResistor = components.some(c => c.type.includes('resistor'));
+                completed = completed && hasResistor;
+            }
+            
+            if (requirements.circuitClosed) {
+                const totalCurrent = parseFloat(document.getElementById('totalCurrent').textContent);
+                completed = completed && totalCurrent > 0;
+            }
+            
+            if (requirements.ledLit) {
+                const led = components.find(c => c.type.includes('led'));
+                completed = completed && led && led.current > 0.005;
+            }
+            
+            if (requirements.ledCount) {
+                const ledCount = components.filter(c => c.type.includes('led')).length;
+                completed = completed && ledCount >= requirements.ledCount;
+            }
+            
+            if (requirements.allLEDsLit) {
+                const leds = components.filter(c => c.type.includes('led'));
+                const allLit = leds.every(led => led.current > 0.005);
+                completed = completed && allLit;
+            }
+            
+            // Update progress
+            const progress = completed ? 100 : Math.floor(Math.random() * 30) + 10;
+            document.getElementById('taskProgress').style.width = progress + '%';
+            document.getElementById('taskProgressText').textContent = progress + '%';
+            
+            // If completed, show reward
+            if (completed) {
+                userScore += currentTask.reward;
+                updateActivity(`Task completed! +${currentTask.reward} points. Total: ${userScore}`);
+                document.getElementById('taskPanel').style.display = 'block';
+                currentTask = null;
+            }
+        }
+
+        // Close task panel
+        function closeTaskPanel() {
+            document.getElementById('taskPanel').style.display = 'none';
+            if (currentMode === 'tasks') {
+                loadTask(2); // Load next task
+            }
+        }
+
+        // Clear all
+        function clearAll() {
+            if (confirm("Are you sure you want to clear everything?")) {
+                components = [];
+                wires = [];
+                walls = [];
+                electrons = [];
+                selectedComponent = null;
+                selectedWire = null;
+                selectedWall = null;
+                updatePropertiesPanel();
+                updateCircuitCalculations();
+                updateCounts();
+                updateActivity("Cleared everything");
+            }
+        }
+
+        // Save circuit
+        function saveCircuit() {
+            const circuitData = {
+                components: components,
+                wires: wires,
+                walls: walls,
+                mode: currentMode
+            };
+            
+            localStorage.setItem('circuitSave', JSON.stringify(circuitData));
+            updateActivity("Circuit saved");
+        }
+
+        // Load circuit
+        function loadCircuit() {
+            const savedData = localStorage.getItem('circuitSave');
+            if (savedData) {
+                const circuitData = JSON.parse(savedData);
+                components = circuitData.components || [];
+                wires = circuitData.wires || [];
+                walls = circuitData.walls || [];
+                
+                // Update IDs
+                let maxId = 0;
+                components.forEach(comp => maxId = Math.max(maxId, comp.id));
+                wires.forEach(wire => maxId = Math.max(maxId, wire.id));
+                walls.forEach(wall => maxId = Math.max(maxId, wall.id));
+                nextId = maxId + 1;
+                
+                updatePropertiesPanel();
+                updateCircuitCalculations();
+                updateCounts();
+                updateActivity("Circuit loaded");
+            } else {
+                updateActivity("No saved circuit found");
+            }
+        }
+
+        // Create demo components for visibility
+        function createDemoComponents() {
+            // Add a battery
+            addComponent('battery', 150, 200, 9);
+            
+            // Add a resistor
+            addComponent('resistor', 300, 200, 0, 220);
+            
+            // Add an LED
+            addComponent('led', 450, 200);
+            
+            // Add a switch
+            addComponent('switch', 300, 300);
+            
+            // Add wires
+            const battery = components[0];
+            const resistor = components[1];
+            const led = components[2];
+            const switchComp = components[3];
+            
+            // Create connections
+            addWire(
+                { component: battery, type: 'right', x: battery.x + 60, y: battery.y + 20 },
+                { component: resistor, type: 'left', x: resistor.x, y: resistor.y + 20 }
+            );
+            
+            addWire(
+                { component: resistor, type: 'right', x: resistor.x + 60, y: resistor.y + 20 },
+                { component: led, type: 'left', x: led.x, y: led.y + 20 }
+            );
+            
+            addWire(
+                { component: led, type: 'right', x: led.x + 60, y: led.y + 20 },
+                { component: switchComp, type: 'right', x: switchComp.x + 60, y: switchComp.y + 20 }
+            );
+            
+            addWire(
+                { component: switchComp, type: 'left', x: switchComp.x, y: switchComp.y + 20 },
+                { component: battery, type: 'left', x: battery.x, y: battery.y + 20 }
+            );
+            
+            updateActivity("Demo circuit created");
+        }
+
+        // Draw everything
+        function draw() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid (subtle)
+            drawGrid();
+            
+            // Draw walls
+            walls.forEach(wall => {
+                ctx.fillStyle = wall.color;
+                ctx.fillRect(wall.x, wall.y, wall.width, wall.height);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.setLineDash([5, 5]);
+                ctx.strokeRect(wall.x, wall.y, wall.width, wall.height);
+                ctx.setLineDash([]);
+                
+                // Highlight selected wall
+                if (selectedWall && selectedWall.id === wall.id) {
+                    ctx.strokeStyle = '#ff8000';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(wall.x, wall.y, wall.width, wall.height);
+                }
+            });
+            
+            // Draw wires
+            wires.forEach(wire => {
+                drawWire(wire);
+            });
+            
+            // Draw temporary wire if dragging
+            if (isDraggingWire && wireStartPoint && wireTempPoints.length > 0) {
+                drawTemporaryWire(wireStartPoint, wireTempPoints);
+            }
+            
+            // Draw components
+            components.forEach(component => {
+                drawComponent(component);
+            });
+            
+            // Draw electrons
+            if (isPowerOn && showElectrons && electrons.length > 0) {
+                drawElectrons();
+            }
+            
+            // Draw connection points
+            if (!isDraggingWire) {
+                components.forEach(component => {
+                    drawConnectionPoint(component.x, component.y + 20);
+                    drawConnectionPoint(component.x + 60, component.y + 20);
+                });
+            }
+        }
+
+        // Draw grid
+        function drawGrid() {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            
+            // Vertical lines
+            for (let x = 0; x < canvas.width; x += 50) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            // Horizontal lines
+            for (let y = 0; y < canvas.height; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        // Draw component
+        function drawComponent(component) {
+            // Draw component body
+            ctx.fillStyle = component.color;
+            ctx.fillRect(component.x, component.y, 60, 40);
+            
+            // Draw component border
+            ctx.strokeStyle = selectedComponent && selectedComponent.id === component.id ? '#ff8000' : '#444';
+            ctx.lineWidth = selectedComponent && selectedComponent.id === component.id ? 3 : 2;
+            ctx.strokeRect(component.x, component.y, 60, 40);
+            
+            // Draw component icon
+            ctx.fillStyle = '#FFF';
+            ctx.font = '24px FontAwesome';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Get appropriate icon
+            let icon = ''; // Default bolt icon
+            if (component.type.includes('led')) icon = '';
+            if (component.type.includes('bulb')) icon = '';
+            if (component.type.includes('battery')) icon = '';
+            if (component.type.includes('resistor')) icon = '';
+            if (component.type.includes('switch')) icon = component.isClosed ? '' : '';
+            
+            ctx.fillText(icon, component.x + 30, component.y + 20);
+            
+            // Draw component label
+            ctx.font = '10px Arial';
+            ctx.fillText(component.name.substring(0, 10), component.x + 30, component.y + 35);
+            
+            // Draw battery charge if applicable
+            if (component.type.includes('battery') && component.charge !== null) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillRect(component.x + 10, component.y + 5, 40, 5);
+                
+                const chargeWidth = 40 * (component.charge / 100);
+                const gradient = ctx.createLinearGradient(component.x + 10, 0, component.x + 10 + chargeWidth, 0);
+                gradient.addColorStop(0, '#00ff00');
+                gradient.addColorStop(0.5, '#ffff00');
+                gradient.addColorStop(1, '#ff0000');
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(component.x + 10, component.y + 5, chargeWidth, 5);
+            }
+            
+            // Draw glowing effect for LEDs and bulbs
+            if (component.isLit && component.brightness > 0) {
+                ctx.save();
+                ctx.globalAlpha = component.brightness * 0.6;
+                
+                if (component.type.includes('led')) {
+                    const glowColor = component.type.includes('blue') ? '#4169E1' : 
+                                    component.type.includes('green') ? '#32CD32' : '#FF4500';
+                    
+                    ctx.beginPath();
+                    ctx.arc(component.x + 30, component.y + 20, 30, 0, Math.PI * 2);
+                    const gradient = ctx.createRadialGradient(
+                        component.x + 30, component.y + 20, 5,
+                        component.x + 30, component.y + 20, 30
+                    );
+                    gradient.addColorStop(0, glowColor);
+                    gradient.addColorStop(1, 'rgba(255, 69, 0, 0)');
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                } else if (component.type.includes('bulb')) {
+                    ctx.beginPath();
+                    ctx.arc(component.x + 30, component.y + 20, 35, 0, Math.PI * 2);
+                    const gradient = ctx.createRadialGradient(
+                        component.x + 30, component.y + 20, 5,
+                        component.x + 30, component.y + 20, 35
+                    );
+                    gradient.addColorStop(0, '#FFFF00');
+                    gradient.addColorStop(1, 'rgba(255, 255, 0, 0)');
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                }
+                
+                ctx.restore();
+            }
+        }
+
+        // Draw connection point
+        function drawConnectionPoint(x, y) {
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#00aaff';
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(x, y, 8, 0, Math.PI * 2);
+            ctx.strokeStyle = '#0a0a1a';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        // Draw wire
+        function drawWire(wire) {
+            const points = getWirePoints(wire);
+            
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x, points[i].y);
+            }
+            
+            // Style based on current
+            if (isPowerOn && wire.current > 0) {
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = wire.color;
+                
+                // Add glow for high current
+                if (wire.current > 0.1) {
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = wire.color;
+                }
+            } else {
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#666';
+            }
+            
+            ctx.stroke();
+            
+            // Reset shadow
+            ctx.shadowBlur = 0;
+            
+            // Highlight selected wire
+            if (selectedWire && selectedWire.id === wire.id) {
+                ctx.strokeStyle = '#ff8000';
+                ctx.lineWidth = 5;
+                ctx.globalAlpha = 0.3;
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            }
+            
+            // Draw direction arrow if powered
+            if (isPowerOn && wire.current > 0 && points.length >= 2) {
+                const midIndex = Math.floor(points.length / 2);
+                const start = points[midIndex];
+                const end = points[midIndex + 1] || points[midIndex];
+                
+                drawArrow(start.x, start.y, end.x, end.y, wire.current);
+            }
+        }
+
+        // Draw temporary wire
+        function drawTemporaryWire(startPoint, waypoints) {
+            if (!startPoint || waypoints.length === 0) return;
+            
+            ctx.beginPath();
+            ctx.moveTo(startPoint.x, startPoint.y);
+            
+            waypoints.forEach(point => {
+                ctx.lineTo(point.x, point.y);
+            });
+            
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#ff8000';
+            ctx.setLineDash([5, 5]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Draw circles at waypoints
+            waypoints.forEach(point => {
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 4, 0, Math.PI * 2);
+                ctx.fillStyle = '#ff8000';
+                ctx.fill();
+            });
+        }
+
+        // Draw arrow
+        function drawArrow(x1, y1, x2, y2, current) {
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            const size = 8 + Math.min(current * 10, 15);
+            
+            ctx.save();
+            ctx.translate(x1, y1);
+            ctx.rotate(angle);
+            
+            ctx.beginPath();
+            ctx.moveTo(-size, -size/2);
+            ctx.lineTo(0, 0);
+            ctx.lineTo(-size, size/2);
+            ctx.fillStyle = '#ff4500';
+            ctx.fill();
+            
+            ctx.restore();
+        }
+
+        // Draw electrons
+        function drawElectrons() {
+            electrons.forEach(electron => {
+                const wire = wires.find(w => w.id === electron.wireId);
+                if (!wire || wire.current <= 0) return;
+                
+                // Update electron progress
+                electron.progress += electron.speed;
+                if (electron.progress >= 1) electron.progress = 0;
+                
+                // Find position along wire
+                const points = getWirePoints(wire);
+                const totalLength = wire.length;
+                let targetLength = totalLength * electron.progress;
+                let accumulated = 0;
+                
+                let electronX, electronY;
+                
+                for (let i = 0; i < points.length - 1; i++) {
+                    const segmentLength = Math.sqrt(
+                        Math.pow(points[i+1].x - points[i].x, 2) + 
+                        Math.pow(points[i+1].y - points[i].y, 2)
+                    );
+                    
+                    if (accumulated + segmentLength >= targetLength) {
+                        const segmentProgress = (targetLength - accumulated) / segmentLength;
+                        electronX = points[i].x + (points[i+1].x - points[i].x) * segmentProgress;
+                        electronY = points[i].y + (points[i+1].y - points[i].y) * segmentProgress;
+                        break;
+                    }
+                    
+                    accumulated += segmentLength;
+                }
+                
+                if (electronX !== undefined && electronY !== undefined) {
+                    // Draw electron
+                    ctx.beginPath();
+                    ctx.arc(electronX, electronY, electron.size, 0, Math.PI * 2);
+                    
+                    const gradient = ctx.createRadialGradient(
+                        electronX, electronY, 0,
+                        electronX, electronY, electron.size
+                    );
+                    gradient.addColorStop(0, '#00AAFF');
+                    gradient.addColorStop(1, '#0088CC');
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                    
+                    // Add glow
+                    ctx.beginPath();
+                    ctx.arc(electronX, electronY, electron.size * 2, 0, Math.PI * 2);
+                    const glowGradient = ctx.createRadialGradient(
+                        electronX, electronY, electron.size,
+                        electronX, electronY, electron.size * 2
+                    );
+                    glowGradient.addColorStop(0, 'rgba(0, 170, 255, 0.5)');
+                    glowGradient.addColorStop(1, 'rgba(0, 170, 255, 0)');
+                    ctx.fillStyle = glowGradient;
+                    ctx.fill();
+                }
+            });
+        }
+
+        // Animation loop
+        function animate() {
+            draw();
+            requestAnimationFrame(animate);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country Comparison Tool</title>
+    <!-- Font Awesome 6 (free) for back arrow & remove icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 24px 20px;
+        }
+
+        /* exactly the back button style from template */
+        .back-btn {
+            padding: 8px 18px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 40px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff9933;
+            color: #ff9933;
+        }
+
+        .navbar {
+            margin-bottom: 30px;
+        }
+
+        /* main heading */
+        .tool-header {
+            margin: 20px 0 30px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .tool-header h1 {
+            font-weight: 500;
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #fff 30%, #ffb05c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .add-country-btn {
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px dashed #ff8000;
+            color: #ff8000;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .add-country-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+        }
+
+        .add-country-btn i {
+            font-size: 1rem;
+        }
+
+        /* selectors row */
+        .selectors-panel {
+            background: rgba(10, 10, 30, 0.6);
+            backdrop-filter: blur(4px);
+            border-radius: 32px;
+            padding: 25px 20px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 128, 0, 0.15);
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.7);
+        }
+
+        .selectors-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-end;
+        }
+
+        .country-selector {
+            flex: 1 1 200px;
+            min-width: 180px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 12px 16px;
+            border-radius: 28px;
+            border: 1px solid rgba(255, 128, 0, 0.25);
+            backdrop-filter: blur(2px);
+            transition: 0.15s;
+        }
+
+        .country-selector:hover {
+            border-color: #ff8000;
+            background: rgba(255, 128, 0, 0.05);
+        }
+
+        .selector-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #ffb05c;
+            font-weight: 500;
+        }
+
+        .selector-label .remove-btn {
+            background: none;
+            border: none;
+            color: #ff6666;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 2px 8px;
+            border-radius: 30px;
+            transition: 0.1s;
+            opacity: 0.8;
+        }
+
+        .selector-label .remove-btn:hover {
+            opacity: 1;
+            background: rgba(255, 100, 100, 0.2);
+            color: #ff8888;
+        }
+
+        .selector-label .remove-btn:disabled {
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        .country-selector select {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #333366;
+            color: white;
+            padding: 10px 12px;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            outline: none;
+            transition: 0.15s;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff8000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+
+        .country-selector select:focus {
+            border-color: #ff8000;
+            box-shadow: 0 0 0 2px rgba(255, 128, 0, 0.3);
+        }
+
+        .country-selector select option {
+            background: #1a1a2e;
+            color: #eee;
+        }
+
+        /* comparison cards */
+        .cards-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .country-card {
+            background: rgba(20, 15, 40, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 36px;
+            padding: 26px 20px 20px 20px;
+            flex: 1 1 260px;
+            max-width: 300px;
+            box-shadow: 0 25px 40px -12px #000000cc;
+            transition: transform 0.2s, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .country-card:hover {
+            border-color: #ff8000;
+            transform: translateY(-6px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            padding-bottom: 14px;
+        }
+
+        .card-header img {
+            width: 52px;
+            height: 39px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px black;
+            border: 1px solid #ff8000;
+        }
+
+        .card-header h2 {
+            font-size: 1.6rem;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        .card-header .capital {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        .stat-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px dashed rgba(255, 128, 0, 0.2);
+            padding-bottom: 6px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #b0b0d0;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            font-size: 1.3rem;
+            color: #ffd7a5;
+            text-align: right;
+        }
+
+        .stat-unit {
+            font-size: 0.7rem;
+            color: #ffb05c;
+            margin-left: 4px;
+            font-weight: 400;
+        }
+
+        .gdp-note {
+            font-size: 0.7rem;
+            color: #a0a0c0;
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        .empty-state {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 60px;
+            padding: 50px 30px;
+            text-align: center;
+            color: #a0a0c0;
+            font-size: 1.2rem;
+            border: 1px dashed #ff8000;
+            width: 100%;
+        }
+
+        .footer-note {
+            margin-top: 40px;
+            text-align: center;
+            color: #6a6a8b;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- exactly the back button from template (with FontAwesome icon) -->
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <div class="tool-header">
+        <h1><i class="fas fa-scale-balanced" style="color: #ff8000; margin-right: 12px;"></i>Country comparison</h1>
+        <button class="add-country-btn" id="addCountryBtn"><i class="fas fa-plus-circle"></i> Add country</button>
+    </div>
+
+    <!-- dynamic selectors will be injected here -->
+    <div class="selectors-panel" id="selectorsPanel">
+        <div class="selectors-wrapper" id="selectorsWrapper"></div>
+    </div>
+
+    <!-- cards container -->
+    <div id="cardsContainer" class="cards-grid"></div>
+    <div class="footer-note">🌍 area · population · GDP (nominal) — real‑world estimates</div>
+
+    <script>
+        (function() {
+            // ---------- HIGH QUALITY DATASET (30 major countries, sorted by name) ----------
+            const countryData = [
+                { name: "Argentina", code: "ar", area: 2780400, population: 45600000, gdp: 640.5, capital: "Buenos Aires", region: "South America" },
+                { name: "Australia", code: "au", area: 7692024, population: 26000000, gdp: 1680.0, capital: "Canberra", region: "Oceania" },
+                { name: "Bangladesh", code: "bd", area: 147570, population: 172000000, gdp: 460.2, capital: "Dhaka", region: "Asia" },
+                { name: "Brazil", code: "br", area: 8515767, population: 215000000, gdp: 2130.0, capital: "Brasília", region: "South America" },
+                { name: "Canada", code: "ca", area: 9984670, population: 39000000, gdp: 2200.0, capital: "Ottawa", region: "North America" },
+                { name: "China", code: "cn", area: 9596960, population: 1441000000, gdp: 17734.0, capital: "Beijing", region: "Asia" },
+                { name: "Egypt", code: "eg", area: 1002450, population: 111000000, gdp: 470.0, capital: "Cairo", region: "Africa" },
+                { name: "France", code: "fr", area: 551695, population: 68000000, gdp: 2980.0, capital: "Paris", region: "Europe" },
+                { name: "Germany", code: "de", area: 357022, population: 84000000, gdp: 4260.0, capital: "Berlin", region: "Europe" },
+                { name: "India", code: "in", area: 3287263, population: 1400000000, gdp: 3730.0, capital: "New Delhi", region: "Asia" },
+                { name: "Indonesia", code: "id", area: 1904569, population: 277000000, gdp: 1310.0, capital: "Jakarta", region: "Asia" },
+                { name: "Iran", code: "ir", area: 1648195, population: 86000000, gdp: 350.0, capital: "Tehran", region: "Asia" },
+                { name: "Italy", code: "it", area: 301340, population: 59000000, gdp: 2100.0, capital: "Rome", region: "Europe" },
+                { name: "Japan", code: "jp", area: 377975, population: 125000000, gdp: 4910.0, capital: "Tokyo", region: "Asia" },
+                { name: "Mexico", code: "mx", area: 1964375, population: 130000000, gdp: 1410.0, capital: "Mexico City", region: "North America" },
+                { name: "Nigeria", code: "ng", area: 923768, population: 218000000, gdp: 510.0, capital: "Abuja", region: "Africa" },
+                { name: "Pakistan", code: "pk", area: 796095, population: 235000000, gdp: 350.0, capital: "Islamabad", region: "Asia" },
+                { name: "Philippines", code: "ph", area: 300000, population: 115000000, gdp: 440.0, capital: "Manila", region: "Asia" },
+                { name: "Poland", code: "pl", area: 312696, population: 38000000, gdp: 750.0, capital: "Warsaw", region: "Europe" },
+                { name: "Russia", code: "ru", area: 17098242, population: 144000000, gdp: 2010.0, capital: "Moscow", region: "Europe/Asia" },
+                { name: "Saudi Arabia", code: "sa", area: 2149690, population: 36000000, gdp: 1060.0, capital: "Riyadh", region: "Asia" },
+                { name: "South Africa", code: "za", area: 1221037, population: 61000000, gdp: 400.0, capital: "Pretoria", region: "Africa" },
+                { name: "South Korea", code: "kr", area: 100210, population: 52000000, gdp: 1810.0, capital: "Seoul", region: "Asia" },
+                { name: "Spain", code: "es", area: 505992, population: 47000000, gdp: 1500.0, capital: "Madrid", region: "Europe" },
+                { name: "Thailand", code: "th", area: 513120, population: 71000000, gdp: 545.0, capital: "Bangkok", region: "Asia" },
+                { name: "Turkey", code: "tr", area: 783562, population: 86000000, gdp: 1020.0, capital: "Ankara", region: "Europe/Asia" },
+                { name: "United Kingdom", code: "gb", area: 242900, population: 68000000, gdp: 3190.0, capital: "London", region: "Europe" },
+                { name: "United States", code: "us", area: 9833517, population: 334000000, gdp: 25462.7, capital: "Washington, D.C.", region: "North America" },
+                { name: "Vietnam", code: "vn", area: 331212, population: 100000000, gdp: 450.0, capital: "Hanoi", region: "Asia" }
+            ].sort((a,b) => a.name.localeCompare(b.name));
+
+            // lookup by code (fast)
+            const countryMap = Object.fromEntries(countryData.map(c => [c.code, c]));
+
+            // maximum number of selectors
+            const MAX_SELECTORS = 6;
+
+            // DOM elements
+            const wrapper = document.getElementById('selectorsWrapper');
+            const cardsContainer = document.getElementById('cardsContainer');
+            const addBtn = document.getElementById('addCountryBtn');
+
+            // Helper: format large numbers
+            function formatNumber(num) {
+                return num.toLocaleString(undefined, { maximumFractionDigits: 0 });
+            }
+
+            function formatArea(area) {
+                return formatNumber(area) + ' km²';
+            }
+
+            function formatPopulation(pop) {
+                return formatNumber(pop);
+            }
+
+            function formatGDP(gdpInBillions) {
+                if (gdpInBillions >= 1000) {
+                    return (gdpInBillions / 1000).toFixed(2) + ' trillion';
+                }
+                return gdpInBillions.toFixed(1) + ' billion';
+            }
+
+            // create a fresh select element populated with countries
+            function createSelect(selectedCode = 'us') {
+                const select = document.createElement('select');
+                select.setAttribute('aria-label', 'Select country');
+                countryData.forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country.code;
+                    option.textContent = country.name;
+                    if (country.code === selectedCode) option.selected = true;
+                    select.appendChild(option);
+                });
+                return select;
+            }
+
+            // create a selector wrapper (div with label, select, remove button)
+            function createSelectorWrapper(selectedCode = 'us', index = 0) {
+                const wrapperDiv = document.createElement('div');
+                wrapperDiv.className = 'country-selector';
+
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'selector-label';
+                labelDiv.innerHTML = `<span><i class="fas fa-map-pin" style="color:#ff8000; font-size:0.7rem;"></i> COUNTRY ${index+1}</span>`;
+
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'remove-btn';
+                removeBtn.innerHTML = '<i class="fas fa-times-circle"></i>';
+                removeBtn.setAttribute('aria-label', 'Remove country');
+                removeBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    const currentWrappers = document.querySelectorAll('.country-selector');
+                    if (currentWrappers.length <= 1) return; // keep at least one
+                    wrapperDiv.remove();
+                    updateSelectorLabels();  // renumber
+                    renderCards();
+                };
+                labelDiv.appendChild(removeBtn);
+                wrapperDiv.appendChild(labelDiv);
+
+                const select = createSelect(selectedCode);
+                select.addEventListener('change', renderCards);
+                wrapperDiv.appendChild(select);
+
+                return wrapperDiv;
+            }
+
+            // renumber labels after removal / add
+            function updateSelectorLabels() {
+                const wrappers = document.querySelectorAll('.country-selector');
+                wrappers.forEach((wrap, idx) => {
+                    const labelSpan = wrap.querySelector('.selector-label span');
+                    if (labelSpan) {
+                        labelSpan.innerHTML = `<i class="fas fa-map-pin" style="color:#ff8000; font-size:0.7rem;"></i> COUNTRY ${idx+1}`;
+                    }
+                    // hide remove button if only one remains
+                    const removeBtn = wrap.querySelector('.remove-btn');
+                    if (removeBtn) {
+                        if (wrappers.length === 1) {
+                            removeBtn.disabled = true;
+                            removeBtn.style.opacity = '0.2';
+                            removeBtn.style.pointerEvents = 'none';
+                        } else {
+                            removeBtn.disabled = false;
+                            removeBtn.style.opacity = '0.8';
+                            removeBtn.style.pointerEvents = 'auto';
+                        }
+                    }
+                });
+            }
+
+            // render comparison cards based on currently selected codes
+            function renderCards() {
+                const selects = document.querySelectorAll('.country-selector select');
+                const selectedCodes = Array.from(selects).map(s => s.value);
+                if (selectedCodes.length === 0) {
+                    cardsContainer.innerHTML = `<div class="empty-state"><i class="fas fa-globe" style="font-size:3rem; opacity:0.4;"></i><p>Add countries to compare</p></div>`;
+                    return;
+                }
+
+                let html = '';
+                selectedCodes.forEach(code => {
+                    const country = countryMap[code];
+                    if (!country) return;
+                    // flag image from flagcdn (high quality)
+                    const flagUrl = `https://flagcdn.com/w320/${code}.png`;
+
+                    // format stats
+                    const areaStr = formatArea(country.area);
+                    const popStr = formatPopulation(country.population);
+                    const gdpStr = formatGDP(country.gdp);
+                    const gdpValue = country.gdp >= 1000 ? (country.gdp/1000).toFixed(2) : country.gdp.toFixed(1);
+                    const gdpUnit = country.gdp >= 1000 ? 'trillion USD' : 'billion USD';
+
+                    html += `
+                        <div class="country-card">
+                            <div class="card-header">
+                                <img src="${flagUrl}" alt="${country.name} flag" loading="lazy" onerror="this.src='https://flagcdn.com/w320/xx.png'">
+                                <div>
+                                    <h2>${country.name}</h2>
+                                    <div class="capital"><i class="fas fa-building" style="font-size:0.7rem;"></i> ${country.capital}</div>
+                                </div>
+                            </div>
+                            <div class="stat-list">
+                                <div class="stat-item">
+                                    <span class="stat-label"><i class="fas fa-map"></i> Area</span>
+                                    <span class="stat-value">${areaStr}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label"><i class="fas fa-users"></i> Population</span>
+                                    <span class="stat-value">${popStr}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label"><i class="fas fa-chart-line"></i> GDP (nom.)</span>
+                                    <span class="stat-value">${gdpStr}</span>
+                                </div>
+                                <div class="gdp-note">${gdpValue} ${gdpUnit}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                cardsContainer.innerHTML = html || `<div class="empty-state">No countries selected</div>`;
+            }
+
+            // add a new selector (default to first country = United States)
+            function addSelector(selectedCode = 'us') {
+                const currentCount = document.querySelectorAll('.country-selector').length;
+                if (currentCount >= MAX_SELECTORS) {
+                    // optional subtle alert: but we keep silent
+                    return;
+                }
+                const newWrapper = createSelectorWrapper(selectedCode, currentCount);
+                wrapper.appendChild(newWrapper);
+                updateSelectorLabels();
+                renderCards();  // reflect default selection
+            }
+
+            // initialise with two selectors: USA and China (classic)
+            function initTool() {
+                // clear wrapper
+                wrapper.innerHTML = '';
+                // add first two selectors
+                addSelector('us');   // USA
+                addSelector('cn');   // China
+                // ensure labels are correct and remove buttons state
+                updateSelectorLabels();
+                renderCards();
+            }
+
+            // event: add button click
+            addBtn.addEventListener('click', () => {
+                const currentCount = document.querySelectorAll('.country-selector').length;
+                if (currentCount < MAX_SELECTORS) {
+                    // default to first country (alphabetical: Argentina, but we pick 'us' as reasonable)
+                    addSelector('us');
+                } else {
+                    // small visual feedback (optional)
+                    addBtn.style.borderColor = '#ff6666';
+                    addBtn.style.color = '#ffaaaa';
+                    setTimeout(() => {
+                        addBtn.style.borderColor = '#ff8000';
+                        addBtn.style.color = '#ff8000';
+                    }, 200);
+                }
+            });
+
+            // start everything
+            initTool();
+
+            // re-render when any select changes (already attached per select, but also after removal/add)
+            // we call renderCards inside add/remove, but also for safety we can observe changes? not necessary.
+
+            // also expose to window for any debug (not needed)
+        })();
+    </script>
+    <!-- subtle extra polish: ensure flag images load with https -->
+</body>
+</html>

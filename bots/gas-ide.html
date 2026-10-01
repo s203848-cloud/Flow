@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>GAS IDE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.15.2/ace.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .navbar {
+            padding: 15px 20px;
+            background: rgba(10, 10, 26, 0.9);
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-3px);
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #ff8000, #ffaa00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .ide-container {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        .editor-container {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            background: rgba(15, 15, 35, 0.8);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .editor-header {
+            padding: 15px 20px;
+            background: rgba(20, 20, 40, 0.9);
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .editor-title {
+            font-size: 16px;
+            color: #ff8000;
+        }
+        
+        #editor {
+            flex: 1;
+            min-height: 500px;
+        }
+        
+        .sidebar {
+            flex: 1;
+            background: rgba(15, 15, 35, 0.8);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .file-list {
+            flex: 1;
+        }
+        
+        .file-list h3 {
+            color: #ff8000;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .file-item {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background: rgba(40, 40, 70, 0.5);
+            border-radius: 5px;
+            border-left: 3px solid #ff8000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-item:hover {
+            background: rgba(255, 128, 0, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .file-item.active {
+            background: rgba(255, 128, 0, 0.2);
+            border-left: 3px solid #ffaa00;
+        }
+        
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 12px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ffaa00;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .output-container {
+            padding: 20px;
+        }
+        
+        .output-header {
+            color: #ff8000;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        #output {
+            background: rgba(15, 15, 35, 0.9);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 5px;
+            padding: 15px;
+            min-height: 150px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+        
+        .clear-btn {
+            padding: 8px 15px;
+            background: rgba(255, 60, 60, 0.2);
+            border: 1px solid #ff3c3c;
+            border-radius: 5px;
+            color: #ff6b6b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .clear-btn:hover {
+            background: rgba(255, 60, 60, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">GAS IDE</div>
+        <a href="../tools-list.html" class="back-btn" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+    
+    <div class="ide-container">
+        <div class="editor-container">
+            <div class="editor-header">
+                <div class="editor-title">Code.gs</div>
+                <div style="display: flex; gap: 10px;">
+                    <div class="action-btn" onclick="saveCode()">
+                        <i class="fas fa-save"></i> Save
+                    </div>
+                    <div class="action-btn" onclick="runCode()">
+                        <i class="fas fa-play"></i> Run
+                    </div>
+                </div>
+            </div>
+            <div id="editor">function myFunction() {
+  // Write your Google Apps Script code here
+  console.log('Hello, Google Apps Script!');
+  
+  // Example: Get active spreadsheet
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getActiveSheet();
+  
+  // Example: Set a value
+  sheet.getRange('A1').setValue('Hello from GAS IDE!');
+  
+  // Example: Show alert
+  SpreadsheetApp.getUi().alert('Script executed successfully!');
+  
+  return 'Execution completed';
+}</div>
+        </div>
+        
+        <div class="sidebar">
+            <div class="file-list">
+                <h3>Files</h3>
+                <div class="file-item active" onclick="selectFile('Code.gs')">
+                    <i class="fas fa-file-code"></i> Code.gs
+                </div>
+                <div class="file-item" onclick="selectFile('appsscript.json')">
+                    <i class="fas fa-cog"></i> appsscript.json
+                </div>
+                <div class="file-item" onclick="selectFile('Utils.gs')">
+                    <i class="fas fa-tools"></i> Utils.gs
+                </div>
+                <div class="file-item" onclick="selectFile('Handler.gs')">
+                    <i class="fas fa-code"></i> Handler.gs
+                </div>
+            </div>
+            
+            <div class="actions">
+                <div class="action-btn" onclick="newFile()">
+                    <i class="fas fa-plus"></i> New File
+                </div>
+                <div class="action-btn" onclick="showDocs()">
+                    <i class="fas fa-book"></i> Documentation
+                </div>
+                <div class="action-btn" onclick="showLogs()">
+                    <i class="fas fa-history"></i> View Logs
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="output-container">
+        <div class="output-header">
+            <i class="fas fa-terminal"></i> Output Console
+            <div class="clear-btn" onclick="clearOutput()">
+                <i class="fas fa-trash"></i> Clear
+            </div>
+        </div>
+        <div id="output">// Output will appear here after running your code</div>
+    </div>
+
+    <script>
+        // Initialize ACE Editor
+        const editor = ace.edit("editor");
+        editor.setTheme("ace/theme/twilight");
+        editor.session.setMode("ace/mode/javascript");
+        editor.setOptions({
+            fontSize: "14px",
+            showPrintMargin: false,
+            wrap: true,
+            enableBasicAutocompletion: true,
+            enableLiveAutocompletion: true
+        });
+        
+        // Sample file content
+        const files = {
+            'Code.gs': `function myFunction() {
+  // Write your Google Apps Script code here
+  console.log('Hello, Google Apps Script!');
+  
+  // Example: Get active spreadsheet
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getActiveSheet();
+  
+  // Example: Set a value
+  sheet.getRange('A1').setValue('Hello from GAS IDE!');
+  
+  // Example: Show alert
+  SpreadsheetApp.getUi().alert('Script executed successfully!');
+  
+  return 'Execution completed';
+}`,
+            'appsscript.json': `{
+  "timeZone": "America/New_York",
+  "dependencies": {
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/script.container.ui"
+  ]
+}`,
+            'Utils.gs': `// Utility functions for Google Apps Script
+
+function formatDate(date) {
+  return Utilities.formatDate(date, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+}
+
+function getSheetNames() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  return ss.getSheets().map(sheet => sheet.getName());
+}
+
+function clearRange(range) {
+  const sheet = SpreadsheetApp.getActiveSheet();
+  sheet.getRange(range).clear();
+}`,
+            'Handler.gs': `// Handler functions for UI interactions
+
+function onOpen() {
+  const ui = SpreadsheetApp.getUi();
+  ui.createMenu('Custom Menu')
+    .addItem('Run Script', 'myFunction')
+    .addSeparator()
+    .addSubMenu(ui.createMenu('Advanced')
+      .addItem('Option 1', 'option1')
+      .addItem('Option 2', 'option2'))
+    .addToUi();
+}
+
+function onEdit(e) {
+  // Trigger function for edit events
+  const range = e.range;
+  const value = range.getValue();
+  
+  // Your edit handling logic here
+  console.log(\`Cell \${range.getA1Notation()} edited to: \${value}\`);
+}`
+        };
+        
+        let currentFile = 'Code.gs';
+        
+        function selectFile(filename) {
+            // Update active file indicator
+            document.querySelectorAll('.file-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Update editor title
+            document.querySelector('.editor-title').textContent = filename;
+            
+            // Load file content
+            editor.setValue(files[filename] || `// New file: ${filename}\nfunction ${filename.split('.')[0].toLowerCase()}() {\n  // Your code here\n}`);
+            editor.clearSelection();
+            
+            currentFile = filename;
+        }
+        
+        function saveCode() {
+            // Save current content to the file object
+            files[currentFile] = editor.getValue();
+            
+            // Show success message
+            showOutput(`✅ File "${currentFile}" saved successfully!`, 'success');
+            
+            // In a real app, you would send this to Google Apps Script backend
+            console.log('Saved content:', files[currentFile]);
+        }
+        
+        function runCode() {
+            const code = editor.getValue();
+            showOutput('🔄 Running script...', 'info');
+            
+            // Simulate code execution
+            setTimeout(() => {
+                showOutput('✅ Script executed successfully!\n', 'success');
+                showOutput('📋 Output from execution:', 'info');
+                showOutput('• Set value in A1: "Hello from GAS IDE!"\n• Alert shown: "Script executed successfully!"\n• Return value: "Execution completed"', 'normal');
+                showOutput('\n📊 Logs: Hello, Google Apps Script!', 'log');
+            }, 1000);
+        }
+        
+        function newFile() {
+            const filename = prompt('Enter new filename (e.g., NewScript.gs):', 'NewScript.gs');
+            if (filename) {
+                files[filename] = `// New file: ${filename}\nfunction ${filename.split('.')[0].toLowerCase()}() {\n  // Your code here\n}`;
+                
+                // Add to file list
+                const fileList = document.querySelector('.file-list');
+                const newFileItem = document.createElement('div');
+                newFileItem.className = 'file-item';
+                newFileItem.innerHTML = `<i class="fas fa-file-code"></i> ${filename}`;
+                newFileItem.onclick = () => selectFile(filename);
+                fileList.appendChild(newFileItem);
+                
+                selectFile(filename);
+            }
+        }
+        
+        function showDocs() {
+            showOutput('📚 Google Apps Script Documentation:', 'info');
+            showOutput('• Spreadsheet Service: https://developers.google.com/apps-script/reference/spreadsheet\n• Document Service: https://developers.google.com/apps-script/reference/document\n• Slides Service: https://developers.google.com/apps-script/reference/slides\n• Forms Service: https://developers.google.com/apps-script/reference/forms\n• Advanced Services: https://developers.google.com/apps-script/guides/services/advanced', 'normal');
+        }
+        
+        function showLogs() {
+            showOutput('📜 Recent Logs:', 'info');
+            showOutput('• [12:30:45] Script initialized\n• [12:30:46] Function myFunction() executed\n• [12:31:20] File "Code.gs" saved\n• [12:32:15] Script ran successfully', 'log');
+        }
+        
+        function showOutput(message, type = 'normal') {
+            const output = document.getElementById('output');
+            const colors = {
+                success: '#4CAF50',
+                error: '#FF5252',
+                info: '#2196F3',
+                log: '#FF9800',
+                normal: '#FFFFFF'
+            };
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const color = colors[type] || colors.normal;
+            
+            if (output.textContent.includes('Output will appear here')) {
+                output.textContent = '';
+            }
+            
+            output.innerHTML += `<span style="color: ${color}">[${timestamp}] ${message}</span><br>`;
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function clearOutput() {
+            document.getElementById('output').textContent = '// Output cleared\n';
+        }
+    </script>
+</body>
+</html>

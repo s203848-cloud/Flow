@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AP Exam Prep - Interactive Study Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.85);
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        
+        .section {
+            background: rgba(20, 20, 35, 0.6);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+        }
+        
+        .section:hover {
+            transform: translateY(-5px);
+        }
+        
+        .exam {
+            background: rgba(50, 50, 70, 0.4);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 12px 0;
+            border-left: 3px solid #ff8000;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .exam:hover {
+            background: rgba(50, 50, 70, 0.7);
+            transform: translateX(5px);
+        }
+        
+        h2 {
+            margin-bottom: 20px;
+            color: #ff8000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        h3 {
+            margin: 15px 0 10px;
+            color: #ffb366;
+        }
+        
+        /* Practice Section */
+        .practice-section {
+            grid-column: span 2;
+        }
+        
+        .question-container {
+            background: rgba(30, 30, 50, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .question {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .option {
+            padding: 12px;
+            background: rgba(40, 40, 60, 0.8);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        
+        .option:hover {
+            background: rgba(60, 60, 80, 0.9);
+            border-color: #ff8000;
+        }
+        
+        .option.selected {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+        }
+        
+        .option.correct {
+            background: rgba(0, 200, 0, 0.2);
+            border-color: #00cc00;
+        }
+        
+        .option.incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border-color: #ff3333;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: #ff8000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background: #ff9933;
+            transform: translateY(-2px);
+        }
+        
+        button.secondary {
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+        }
+        
+        button.secondary:hover {
+            background: rgba(255, 128, 0, 0.4);
+        }
+        
+        /* Progress Tracker */
+        .progress-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: rgba(50, 50, 70, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff8000, #ffb366);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .stat-box {
+            text-align: center;
+            background: rgba(30, 30, 50, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            flex: 1;
+            margin: 0 5px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff8000;
+        }
+        
+        /* Timer Section */
+        .timer-container {
+            text-align: center;
+            padding: 15px;
+            background: rgba(30, 30, 50, 0.7);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        #timer {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ff8000;
+            margin: 10px 0;
+        }
+        
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        /* Tips Section */
+        .tips-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .tip-card {
+            background: rgba(30, 30, 50, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            border-top: 3px solid #ff8000;
+        }
+        
+        /* Exam-specific colors */
+        .biology-color {
+            border-left-color: #4CAF50;
+        }
+        
+        .chemistry-color {
+            border-left-color: #2196F3;
+        }
+        
+        .history-color {
+            border-left-color: #FF9800;
+        }
+        
+        .calculus-color {
+            border-left-color: #9C27B0;
+        }
+        
+        .biology-bg {
+            background: rgba(76, 175, 80, 0.1);
+        }
+        
+        .chemistry-bg {
+            background: rgba(33, 150, 243, 0.1);
+        }
+        
+        .history-bg {
+            background: rgba(255, 152, 0, 0.1);
+        }
+        
+        .calculus-bg {
+            background: rgba(156, 39, 176, 0.1);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .practice-section {
+                grid-column: span 1;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .result {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .result.correct {
+            background: rgba(0, 200, 0, 0.2);
+            border: 1px solid #00cc00;
+        }
+        
+        .result.incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff3333;
+        }
+        
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(30, 30, 50, 0.9);
+            border-radius: 8px;
+            border-left: 3px solid #ffb366;
+        }
+        
+        .exam-info {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        
+        .question-counter {
+            background: rgba(255, 128, 0, 0.2);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+        
+        .easy {
+            background: rgba(0, 200, 0, 0.2);
+            color: #00cc00;
+        }
+        
+        .medium {
+            background: rgba(255, 200, 0, 0.2);
+            color: #ffcc00;
+        }
+        
+        .hard {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff6666;
+        }
+        
+        /* AP Specific */
+        .ap-score-scale {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .ap-score-point {
+            flex: 1;
+            padding: 10px;
+            background: rgba(30, 30, 50, 0.7);
+            margin: 0 2px;
+            border-radius: 5px;
+        }
+        
+        .ap-score-point.active {
+            background: rgba(255, 128, 0, 0.3);
+            border: 1px solid #ff8000;
+        }
+        
+        .frq-container {
+            background: rgba(30, 30, 50, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #ff8000;
+        }
+        
+        .frq-prompt {
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+        
+        .mcq-container {
+            background: rgba(30, 30, 50, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #2196F3;
+        }
+        
+        .subject-highlights {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(30, 30, 50, 0.6);
+            border-radius: 8px;
+        }
+        
+        .highlight-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .highlight-item {
+            padding: 8px;
+            background: rgba(40, 40, 60, 0.5);
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .exam-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .exam-selector-item {
+            padding: 10px;
+            background: rgba(30, 30, 50, 0.7);
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        
+        .exam-selector-item:hover {
+            border-color: #ff8000;
+            background: rgba(30, 30, 50, 0.9);
+        }
+        
+        .exam-selector-item.active {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        <span style="font-size: 1.5rem; font-weight: bold; color: #ff8000;">AP Exam Prep Interactive</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-user-graduate"></i>
+            <span>College Board Exam Mode</span>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Study Topics Section -->
+        <div class="section">
+            <h2><i class="fas fa-star"></i> AP Exam Subjects</h2>
+            <div class="exam biology-color" onclick="loadPracticeQuestions('biology')">
+                <div>
+                    <strong><i class="fas fa-dna"></i> AP Biology:</strong> Cells, genetics, evolution, ecology
+                    <div class="exam-info">3 hours • 60 MCQs • 6 FRQs • Score: 1-5</div>
+                </div>
+                <div class="question-counter">0/5 practiced</div>
+            </div>
+            <div class="exam chemistry-color" onclick="loadPracticeQuestions('chemistry')">
+                <div>
+                    <strong><i class="fas fa-flask"></i> AP Chemistry:</strong> Atomic structure, bonding, reactions, thermodynamics
+                    <div class="exam-info">3 hours 15 min • 60 MCQs • 7 FRQs • Score: 1-5</div>
+                </div>
+                <div class="question-counter">0/5 practiced</div>
+            </div>
+            <div class="exam history-color" onclick="loadPracticeQuestions('history')">
+                <div>
+                    <strong><i class="fas fa-landmark"></i> AP U.S. History:</strong> American history, themes, periods
+                    <div class="exam-info">3 hours 15 min • 55 MCQs • 4 SAQs • 1 DBQ • 1 LEQ</div>
+                </div>
+                <div class="question-counter">0/5 practiced</div>
+            </div>
+            <div class="exam calculus-color" onclick="loadPracticeQuestions('calculus')">
+                <div>
+                    <strong><i class="fas fa-calculator"></i> AP Calculus:</strong> Limits, derivatives, integrals, series
+                    <div class="exam-info">3 hours 15 min • 45 MCQs • 6 FRQs • Score: 1-5</div>
+                </div>
+                <div class="question-counter">0/5 practiced</div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <h3><i class="fas fa-plus-circle"></i> More AP Exams</h3>
+                <div class="exam-selector">
+                    <div class="exam-selector-item" onclick="loadPracticeQuestions('physics')">AP Physics</div>
+                    <div class="exam-selector-item" onclick="loadPracticeQuestions('english')">AP English</div>
+                    <div class="exam-selector-item" onclick="loadPracticeQuestions('stats')">AP Statistics</div>
+                    <div class="exam-selector-item" onclick="loadPracticeQuestions('psych')">AP Psychology</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progress Tracker -->
+        <div class="section">
+            <h2><i class="fas fa-chart-line"></i> Your AP Progress</h2>
+            <div class="progress-container">
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>Overall Progress</span>
+                        <span id="progress-percent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-number" id="questions-answered">0</div>
+                        <div>Questions Answered</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="correct-answers">0</div>
+                        <div>Correct Answers</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="score-estimate">1</div>
+                        <div>Estimated AP Score</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <h3>Subject Performance</h3>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <div style="flex: 1; text-align: center; padding: 10px; border-radius: 5px;" class="biology-bg">
+                            <div style="font-weight: bold; color: #4CAF50;">Biology</div>
+                            <div id="biology-score">0%</div>
+                        </div>
+                        <div style="flex: 1; text-align: center; padding: 10px; border-radius: 5px;" class="chemistry-bg">
+                            <div style="font-weight: bold; color: #2196F3;">Chemistry</div>
+                            <div id="chemistry-score">0%</div>
+                        </div>
+                        <div style="flex: 1; text-align: center; padding: 10px; border-radius: 5px;" class="history-bg">
+                            <div style="font-weight: bold; color: #FF9800;">History</div>
+                            <div id="history-score">0%</div>
+                        </div>
+                        <div style="flex: 1; text-align: center; padding: 10px; border-radius: 5px;" class="calculus-bg">
+                            <div style="font-weight: bold; color: #9C27B0;">Calculus</div>
+                            <div id="calculus-score">0%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <h3>AP Score Scale</h3>
+                    <div class="ap-score-scale">
+                        <div class="ap-score-point" id="ap-score-1">1</div>
+                        <div class="ap-score-point" id="ap-score-2">2</div>
+                        <div class="ap-score-point" id="ap-score-3">3</div>
+                        <div class="ap-score-point" id="ap-score-4">4</div>
+                        <div class="ap-score-point" id="ap-score-5">5</div>
+                    </div>
+                    <div style="text-align: center; margin-top: 10px; font-size: 0.9rem; color: #aaa;">
+                        Your estimated score: <span id="current-score-display">1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Practice Section -->
+        <div class="section practice-section">
+            <h2><i class="fas fa-brain"></i> AP Practice Questions</h2>
+            
+            <!-- Timer Section -->
+            <div class="timer-container">
+                <h3>AP Exam Timer</h3>
+                <div id="timer">60:00</div>
+                <div class="timer-controls">
+                    <button onclick="startTimer()"><i class="fas fa-play"></i> Start</button>
+                    <button onclick="pauseTimer()" class="secondary"><i class="fas fa-pause"></i> Pause</button>
+                    <button onclick="resetTimer()" class="secondary"><i class="fas fa-redo"></i> Reset</button>
+                </div>
+                <div style="margin-top: 10px;">
+                    <button onclick="setTimerForSection('mcq')" class="secondary" style="padding: 5px 10px;">MCQ Section (60m)</button>
+                    <button onclick="setTimerForSection('frq')" class="secondary" style="padding: 5px 10px;">FRQ Section (90m)</button>
+                    <button onclick="setTimerForSection('full')" class="secondary" style="padding: 5px 10px;">Full Practice (3h)</button>
+                </div>
+            </div>
+            
+            <!-- Question Display -->
+            <div id="question-display">
+                <div class="question-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h3 id="section-title">Click on an AP exam to start practicing!</h3>
+                        <div id="difficulty-tag"></div>
+                    </div>
+                    
+                    <!-- MCQ Container -->
+                    <div id="mcq-container">
+                        <div class="mcq-container">
+                            <div class="question" id="question-text">Select an AP exam above to begin your practice session. Each exam has multiple-choice questions and free-response questions similar to the actual AP test.</div>
+                            <div class="options" id="options-container">
+                                <!-- Options will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FRQ Container -->
+                    <div id="frq-container" class="hidden">
+                        <div class="frq-container">
+                            <div class="frq-prompt" id="frq-prompt">Free-response question prompt will appear here.</div>
+                            <textarea id="frq-response" placeholder="Type your response here..." style="width: 100%; height: 150px; padding: 10px; background: rgba(40, 40, 60, 0.8); color: white; border: 1px solid #ff8000; border-radius: 5px; margin-bottom: 10px;"></textarea>
+                            <div style="font-size: 0.9rem; color: #aaa; margin-bottom: 10px;">
+                                <i class="fas fa-lightbulb"></i> Tip: Organize your response with clear paragraphs and specific examples.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Subject Highlights -->
+                    <div id="highlights-container" class="hidden">
+                        <div class="subject-highlights">
+                            <h4><i class="fas fa-bullseye"></i> Key Topics for <span id="current-subject">AP Biology</span>:</h4>
+                            <div class="highlight-list" id="highlight-list">
+                                <!-- Highlights will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button onclick="submitAnswer()" id="submit-btn" disabled>Submit Answer</button>
+                        <button onclick="nextQuestion()" class="secondary" id="next-btn" disabled>Next Question</button>
+                        <button onclick="showExplanation()" class="secondary" id="explain-btn" disabled>Show Explanation</button>
+                        <button onclick="toggleQuestionType()" class="secondary" id="toggle-btn"><i class="fas fa-exchange-alt"></i> Switch to FRQ</button>
+                        <button onclick="showTips()" class="secondary" id="tips-btn"><i class="fas fa-lightbulb"></i> Exam Tips</button>
+                    </div>
+                    <div id="result-container"></div>
+                </div>
+            </div>
+            
+            <!-- Tips Display -->
+            <div id="tips-display" class="hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3><i class="fas fa-lightbulb"></i> AP Exam Success Tips</h3>
+                    <button onclick="hideTips()" class="secondary" style="padding: 5px 10px;">Back to Questions</button>
+                </div>
+                <div class="tips-container">
+                    <div class="tip-card">
+                        <h4><i class="fas fa-clock"></i> Time Management</h4>
+                        <p>MCQ section: ~1 minute per question. FRQ section: Budget time for each question. Leave time to review.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4><i class="fas fa-file-alt"></i> FRQ Strategy</h4>
+                        <p>Read all questions first. Outline your response. Use specific examples and evidence. Answer all parts of the question.</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4><i class="fas fa-check-circle"></i> MCQ Strategy</h4>
+                        <p>Eliminate obviously wrong answers first. Watch for absolute language. Answer every question (no penalty for guessing).</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4><i class="fas fa-book"></i> Content Review</h4>
+                        <p>Focus on major themes and concepts. Practice with released exams. Review your mistakes to understand patterns.</p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="loadPracticeQuestions(currentTopic)"><i class="fas fa-question-circle"></i> Practice This Exam</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // AP Practice Questions Database
+        const questionBank = {
+            biology: [
+                {
+                    question: "Which of the following best describes the role of ATP in cellular processes?",
+                    options: [
+                        "ATP stores genetic information",
+                        "ATP provides structural support to cell membranes",
+                        "ATP serves as the primary energy currency of the cell",
+                        "ATP functions as an enzyme to catalyze reactions"
+                    ],
+                    correct: 2,
+                    explanation: "ATP (adenosine triphosphate) is the primary molecule that stores and transfers energy in cells, often described as the 'energy currency' of the cell.",
+                    difficulty: "medium",
+                    type: "mcq"
+                },
+                {
+                    question: "In photosynthesis, the light-dependent reactions occur in the:",
+                    options: [
+                        "Cytoplasm",
+                        "Stroma of the chloroplast",
+                        "Thylakoid membranes",
+                        "Mitochondrial matrix"
+                    ],
+                    correct: 2,
+                    explanation: "The light-dependent reactions of photosynthesis take place in the thylakoid membranes of chloroplasts, where chlorophyll captures light energy.",
+                    difficulty: "easy",
+                    type: "mcq"
+                }
+            ],
+            chemistry: [
+                {
+                    question: "According to the kinetic molecular theory, which of the following is true about gas particles?",
+                    options: [
+                        "Gas particles have significant volume compared to the container",
+                        "Gas particles exert attractive forces on each other",
+                        "Gas particles are in constant random motion",
+                        "The average kinetic energy decreases with increasing temperature"
+                    ],
+                    correct: 2,
+                    explanation: "The kinetic molecular theory states that gas particles are in constant, random, straight-line motion and collisions between particles are perfectly elastic.",
+                    difficulty: "medium",
+                    type: "mcq"
+                }
+            ],
+            history: [
+                {
+                    question: "The Monroe Doctrine (1823) primarily aimed to:",
+                    options: [
+                        "Establish American neutrality in European conflicts",
+                        "Prevent European colonization in the Western Hemisphere",
+                        "Promote American expansion into the Pacific",
+                        "Support Latin American independence movements financially"
+                    ],
+                    correct: 1,
+                    explanation: "The Monroe Doctrine declared that European powers should not interfere in the affairs of the Western Hemisphere, establishing the U.S. sphere of influence.",
+                    difficulty: "medium",
+                    type: "mcq"
+                }
+            ],
+            calculus: [
+                {
+                    question: "What is the derivative of f(x) = 3x² + 2x - 5?",
+                    options: [
+                        "6x + 2",
+                        "3x + 2",
+                        "6x² + 2",
+                        "3x² + 2"
+                    ],
+                    correct: 0,
+                    explanation: "Using the power rule: d/dx(3x²) = 6x, d/dx(2x) = 2, d/dx(-5) = 0. So f'(x) = 6x + 2.",
+                    difficulty: "easy",
+                    type: "mcq"
+                }
+            ]
+        };
+
+        // AP Free Response Questions
+        const frqBank = {
+            biology: [
+                {
+                    prompt: "Describe how natural selection can lead to evolution in a population. Include the roles of variation, inheritance, and differential reproductive success in your answer.",
+                    type: "long-essay"
+                },
+                {
+                    prompt: "Explain how enzymes function as biological catalysts. Include in your answer the effect of temperature and pH on enzyme activity.",
+                    type: "short-answer"
+                }
+            ],
+            chemistry: [
+                {
+                    prompt: "Explain the difference between ionic and covalent bonds. Provide an example of each and describe the properties of substances formed by each type of bond.",
+                    type: "long-essay"
+                }
+            ],
+            history: [
+                {
+                    prompt: "Analyze the causes and consequences of the American Civil War (1861-1865). Consider political, economic, and social factors in your response.",
+                    type: "dbq-practice"
+                }
+            ],
+            calculus: [
+                {
+                    prompt: "Find the area under the curve y = x² from x = 0 to x = 3. Show your work and explain each step of the integration process.",
+                    type: "problem-solving"
+                }
+            ]
+        };
+
+        // AP Exam Highlights by Subject
+        const subjectHighlights = {
+            biology: ["Cell Structure & Function", "Genetics & Heredity", "Evolution", "Ecology", "Cellular Energetics"],
+            chemistry: ["Atomic Structure", "Chemical Bonding", "Stoichiometry", "Thermodynamics", "Equilibrium"],
+            history: ["Colonial America", "American Revolution", "Civil War", "Industrialization", "Civil Rights Movement"],
+            calculus: ["Limits & Continuity", "Differentiation", "Integration", "Applications of Derivatives", "Series"]
+        };
+
+        // User progress tracking
+        let userProgress = {
+            questionsAnswered: 0,
+            correctAnswers: 0,
+            biology: { answered: 0, correct: 0 },
+            chemistry: { answered: 0, correct: 0 },
+            history: { answered: 0, correct: 0 },
+            calculus: { answered: 0, correct: 0 },
+            lastStudyDate: null,
+            estimatedScore: 1
+        };
+
+        // Current question state
+        let currentTopic = '';
+        let currentQuestionIndex = 0;
+        let selectedOption = null;
+        let timerInterval = null;
+        let timerSeconds = 60 * 60; // 60 minutes for MCQ section by default
+        let isTimerRunning = false;
+        let isFRQMode = false;
+
+        // DOM elements
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const submitBtn = document.getElementById('submit-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const explainBtn = document.getElementById('explain-btn');
+        const resultContainer = document.getElementById('result-container');
+        const progressFill = document.getElementById('progress-fill');
+        const progressPercent = document.getElementById('progress-percent');
+        const questionsAnswered = document.getElementById('questions-answered');
+        const correctAnswers = document.getElementById('correct-answers');
+        const scoreEstimate = document.getElementById('score-estimate');
+        const timerDisplay = document.getElementById('timer');
+        const questionDisplay = document.getElementById('question-display');
+        const tipsDisplay = document.getElementById('tips-display');
+        const sectionTitle = document.getElementById('section-title');
+        const difficultyTag = document.getElementById('difficulty-tag');
+        
+        // Containers
+        const mcqContainer = document.getElementById('mcq-container');
+        const frqContainer = document.getElementById('frq-container');
+        const frqPrompt = document.getElementById('frq-prompt');
+        const frqResponse = document.getElementById('frq-response');
+        const highlightsContainer = document.getElementById('highlights-container');
+        const highlightList = document.getElementById('highlight-list');
+        const currentSubjectDisplay = document.getElementById('current-subject');
+        const toggleBtn = document.getElementById('toggle-btn');
+        
+        // Section score displays
+        const biologyScore = document.getElementById('biology-score');
+        const chemistryScore = document.getElementById('chemistry-score');
+        const historyScore = document.getElementById('history-score');
+        const calculusScore = document.getElementById('calculus-score');
+        
+        // Score scale elements
+        const currentScoreDisplay = document.getElementById('current-score-display');
+
+        // Initialize progress from localStorage
+        function loadProgress() {
+            const savedProgress = localStorage.getItem('apPrepProgress');
+            if (savedProgress) {
+                userProgress = JSON.parse(savedProgress);
+            }
+            updateProgressDisplay();
+            updateExamCounters();
+            updateScoreScale();
+        }
+
+        // Save progress to localStorage
+        function saveProgress() {
+            localStorage.setItem('apPrepProgress', JSON.stringify(userProgress));
+        }
+
+        // Update progress display
+        function updateProgressDisplay() {
+            // Calculate progress percentage
+            const totalQuestions = 20; // Target goal
+            const progress = Math.min((userProgress.questionsAnswered / totalQuestions) * 100, 100);
+            
+            progressFill.style.width = `${progress}%`;
+            progressPercent.textContent = `${Math.round(progress)}%`;
+            
+            questionsAnswered.textContent = userProgress.questionsAnswered;
+            correctAnswers.textContent = userProgress.correctAnswers;
+            
+            // Calculate estimated AP score (1-5 scale)
+            let estimatedScore = 1;
+            if (userProgress.questionsAnswered > 0) {
+                const accuracy = userProgress.correctAnswers / userProgress.questionsAnswered;
+                estimatedScore = 1 + Math.round(accuracy * 4);
+                if (estimatedScore > 5) estimatedScore = 5;
+            }
+            scoreEstimate.textContent = estimatedScore;
+            userProgress.estimatedScore = estimatedScore;
+            
+            // Update section scores
+            updateSectionScores();
+            
+            // Update current score display
+            currentScoreDisplay.textContent = estimatedScore;
+            
+            saveProgress();
+        }
+
+        // Update section scores
+        function updateSectionScores() {
+            const subjects = ['biology', 'chemistry', 'history', 'calculus'];
+            const scoreDisplays = [biologyScore, chemistryScore, historyScore, calculusScore];
+            
+            subjects.forEach((subject, index) => {
+                const subjectData = userProgress[subject];
+                let score = "0%";
+                
+                if (subjectData.answered > 0) {
+                    const percentage = Math.round((subjectData.correct / subjectData.answered) * 100);
+                    score = `${percentage}%`;
+                }
+                
+                scoreDisplays[index].textContent = score;
+            });
+        }
+
+        // Update score scale visualization
+        function updateScoreScale() {
+            const estimatedScore = userProgress.estimatedScore;
+            const scorePoints = [1, 2, 3, 4, 5];
+            
+            scorePoints.forEach(score => {
+                const element = document.getElementById(`ap-score-${score}`);
+                if (element) {
+                    element.classList.remove('active');
+                    // Highlight the exact score
+                    if (estimatedScore === score) {
+                        element.classList.add('active');
+                    }
+                }
+            });
+        }
+
+        // Update exam question counters
+        function updateExamCounters() {
+            const exams = document.querySelectorAll('.exam');
+            exams.forEach(exam => {
+                const examText = exam.querySelector('strong').textContent.toLowerCase();
+                let subject = '';
+                
+                if (examText.includes('biology')) subject = 'biology';
+                else if (examText.includes('chemistry')) subject = 'chemistry';
+                else if (examText.includes('history')) subject = 'history';
+                else if (examText.includes('calculus')) subject = 'calculus';
+                
+                if (subject && userProgress[subject]) {
+                    const counter = exam.querySelector('.question-counter');
+                    if (counter) {
+                        counter.textContent = `${userProgress[subject].answered}/5 practiced`;
+                    }
+                }
+            });
+        }
+
+        // Load practice questions for a specific subject
+        function loadPracticeQuestions(subject) {
+            currentTopic = subject;
+            currentQuestionIndex = 0;
+            selectedOption = null;
+            isFRQMode = false;
+            
+            // Hide tips and show questions
+            tipsDisplay.classList.add('hidden');
+            questionDisplay.classList.remove('hidden');
+            
+            // Set MCQ mode by default
+            setMCQMode();
+            
+            // Update section title
+            const subjectNames = {
+                biology: "AP Biology",
+                chemistry: "AP Chemistry",
+                history: "AP U.S. History",
+                calculus: "AP Calculus",
+                physics: "AP Physics",
+                english: "AP English",
+                stats: "AP Statistics",
+                psych: "AP Psychology"
+            };
+            sectionTitle.textContent = subjectNames[subject] || "AP Exam Practice";
+            
+            // Show subject highlights
+            showSubjectHighlights(subject);
+            
+            // Update question display
+            displayQuestion();
+            
+            // Reset buttons
+            submitBtn.disabled = true;
+            nextBtn.disabled = true;
+            explainBtn.disabled = true;
+            resultContainer.innerHTML = '';
+            
+            // Update last study date
+            userProgress.lastStudyDate = new Date().toDateString();
+            updateProgressDisplay();
+            updateScoreScale();
+        }
+
+        // Display current question
+        function displayQuestion() {
+            if (isFRQMode) {
+                displayFRQ();
+                return;
+            }
+            
+            const questions = questionBank[currentTopic];
+            if (!questions || questions.length === 0) {
+                questionText.textContent = "No questions available for this subject yet. Try another AP exam!";
+                optionsContainer.innerHTML = "";
+                return;
+            }
+            
+            const question = questions[currentQuestionIndex];
+            questionText.textContent = question.question;
+            
+            // Clear previous options
+            optionsContainer.innerHTML = "";
+            
+            // Create new options
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = `${String.fromCharCode(65 + index)}. ${option}`;
+                optionElement.onclick = () => selectOption(index, optionElement);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Update difficulty tag
+            if (question.difficulty) {
+                difficultyTag.innerHTML = `<span class="difficulty ${question.difficulty}">${question.difficulty.toUpperCase()}</span>`;
+            } else {
+                difficultyTag.innerHTML = '';
+            }
+            
+            // Reset selection
+            selectedOption = null;
+        }
+
+        // Display FRQ
+        function displayFRQ() {
+            const frqs = frqBank[currentTopic];
+            if (!frqs || frqs.length === 0) {
+                frqPrompt.textContent = "No free-response questions available for this subject yet. Try another AP exam!";
+                return;
+            }
+            
+            const frq = frqs[currentQuestionIndex % frqs.length];
+            frqPrompt.textContent = frq.prompt;
+            frqResponse.value = "";
+        }
+
+        // Show subject highlights
+        function showSubjectHighlights(subject) {
+            if (!subjectHighlights[subject]) return;
+            
+            highlightsContainer.classList.remove('hidden');
+            currentSubjectDisplay.textContent = getSubjectName(subject);
+            
+            // Clear previous highlights
+            highlightList.innerHTML = "";
+            
+            // Add new highlights
+            subjectHighlights[subject].forEach(highlight => {
+                const highlightItem = document.createElement('div');
+                highlightItem.className = 'highlight-item';
+                highlightItem.textContent = highlight;
+                highlightList.appendChild(highlightItem);
+            });
+        }
+
+        // Get subject display name
+        function getSubjectName(subject) {
+            const names = {
+                biology: "AP Biology",
+                chemistry: "AP Chemistry",
+                history: "AP U.S. History",
+                calculus: "AP Calculus"
+            };
+            return names[subject] || subject;
+        }
+
+        // Set MCQ mode
+        function setMCQMode() {
+            isFRQMode = false;
+            mcqContainer.classList.remove('hidden');
+            frqContainer.classList.add('hidden');
+            toggleBtn.innerHTML = '<i class="fas fa-exchange-alt"></i> Switch to FRQ';
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Submit Answer";
+        }
+
+        // Set FRQ mode
+        function setFRQMode() {
+            isFRQMode = true;
+            mcqContainer.classList.add('hidden');
+            frqContainer.classList.remove('hidden');
+            toggleBtn.innerHTML = '<i class="fas fa-exchange-alt"></i> Switch to MCQ';
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Submit FRQ Response";
+            displayFRQ();
+        }
+
+        // Toggle between MCQ and FRQ
+        function toggleQuestionType() {
+            if (isFRQMode) {
+                setMCQMode();
+                displayQuestion();
+            } else {
+                setFRQMode();
+            }
+            
+            // Reset result container
+            resultContainer.innerHTML = '';
+            nextBtn.disabled = true;
+            explainBtn.disabled = true;
+        }
+
+        // Select an option
+        function selectOption(index, element) {
+            // Remove selected class from all options
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            element.classList.add('selected');
+            selectedOption = index;
+            
+            // Enable submit button
+            submitBtn.disabled = false;
+        }
+
+        // Submit answer or FRQ response
+        function submitAnswer() {
+            if (isFRQMode) {
+                submitFRQ();
+                return;
+            }
+            
+            if (selectedOption === null) return;
+            
+            const questions = questionBank[currentTopic];
+            const question = questions[currentQuestionIndex];
+            const isCorrect = selectedOption === question.correct;
+            
+            // Update user progress
+            userProgress.questionsAnswered++;
+            userProgress[currentTopic].answered++;
+            
+            if (isCorrect) {
+                userProgress.correctAnswers++;
+                userProgress[currentTopic].correct++;
+            }
+            
+            updateProgressDisplay();
+            updateExamCounters();
+            updateScoreScale();
+            
+            // Show result
+            resultContainer.innerHTML = '';
+            const resultElement = document.createElement('div');
+            resultElement.className = `result ${isCorrect ? 'correct' : 'incorrect'}`;
+            resultElement.innerHTML = `
+                <i class="fas fa-${isCorrect ? 'check-circle' : 'times-circle'}"></i>
+                ${isCorrect ? 'Correct!' : 'Incorrect!'}
+            `;
+            resultContainer.appendChild(resultElement);
+            
+            // Show correct answer
+            document.querySelectorAll('.option').forEach((opt, index) => {
+                if (index === question.correct) {
+                    opt.classList.add('correct');
+                } else if (index === selectedOption && !isCorrect) {
+                    opt.classList.add('incorrect');
+                }
+            });
+            
+            // Enable next and explain buttons
+            nextBtn.disabled = false;
+            explainBtn.disabled = false;
+            submitBtn.disabled = true;
+        }
+
+        // Submit FRQ response
+        function submitFRQ() {
+            if (frqResponse.value.trim() === "") {
+                alert("Please type a response before submitting.");
+                return;
+            }
+            
+            // For FRQ, we'll always consider it "correct" for progress tracking
+            // but provide feedback
+            userProgress.questionsAnswered++;
+            userProgress[currentTopic].answered++;
+            userProgress.correctAnswers++; // Count FRQ as correct for simplicity
+            userProgress[currentTopic].correct++;
+            
+            updateProgressDisplay();
+            updateExamCounters();
+            updateScoreScale();
+            
+            // Show result
+            resultContainer.innerHTML = '';
+            const resultElement = document.createElement('div');
+            resultElement.className = 'result correct';
+            resultElement.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                FRQ Response Submitted!
+            `;
+            resultContainer.appendChild(resultElement);
+            
+            // Provide FRQ feedback
+            const feedbackElement = document.createElement('div');
+            feedbackElement.className = 'explanation';
+            feedbackElement.innerHTML = `
+                <h4><i class="fas fa-lightbulb"></i> FRQ Feedback:</h4>
+                <p>Good work! For AP FRQs, focus on:</p>
+                <ul style="margin-left: 20px; margin-top: 5px;">
+                    <li>Directly addressing all parts of the prompt</li>
+                    <li>Providing specific evidence and examples</li>
+                    <li>Using clear, organized paragraphs</li>
+                    <li>Demonstrating depth of understanding</li>
+                </ul>
+                <p style="margin-top: 10px;"><strong>Your response length:</strong> ${frqResponse.value.split(' ').length} words</p>
+            `;
+            resultContainer.appendChild(feedbackElement);
+            
+            // Enable next button
+            nextBtn.disabled = false;
+            explainBtn.disabled = true; // No explanation for FRQ
+            submitBtn.disabled = true;
+        }
+
+        // Show explanation
+        function showExplanation() {
+            const questions = questionBank[currentTopic];
+            const question = questions[currentQuestionIndex];
+            
+            // Remove any existing explanation
+            const existingExplanation = document.querySelector('.explanation');
+            if (existingExplanation) {
+                existingExplanation.remove();
+            }
+            
+            // Create and append explanation
+            const explanationElement = document.createElement('div');
+            explanationElement.className = 'explanation';
+            explanationElement.innerHTML = `
+                <h4><i class="fas fa-lightbulb"></i> Explanation:</h4>
+                <p>${question.explanation}</p>
+            `;
+            resultContainer.appendChild(explanationElement);
+        }
+
+        // Move to next question
+        function nextQuestion() {
+            if (isFRQMode) {
+                // For FRQ, just cycle through available FRQs
+                currentQuestionIndex++;
+                setFRQMode();
+            } else {
+                const questions = questionBank[currentTopic];
+                currentQuestionIndex++;
+                
+                // If we've reached the end, loop back to start
+                if (currentQuestionIndex >= questions.length) {
+                    currentQuestionIndex = 0;
+                }
+                
+                // Reset for next question
+                displayQuestion();
+            }
+            
+            resultContainer.innerHTML = '';
+            nextBtn.disabled = true;
+            explainBtn.disabled = true;
+            submitBtn.disabled = isFRQMode ? false : true;
+        }
+
+        // Show tips section
+        function showTips() {
+            questionDisplay.classList.add('hidden');
+            tipsDisplay.classList.remove('hidden');
+        }
+        
+        // Hide tips section
+        function hideTips() {
+            tipsDisplay.classList.add('hidden');
+            questionDisplay.classList.remove('hidden');
+        }
+
+        // Timer functions
+        function startTimer() {
+            if (isTimerRunning) return;
+            
+            isTimerRunning = true;
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                updateTimerDisplay();
+                
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    isTimerRunning = false;
+                    timerDisplay.innerHTML = "<span style='color:#ff3333'>Time's Up!</span>";
+                    
+                    // Show completion message
+                    const resultElement = document.createElement('div');
+                    resultElement.className = 'result incorrect';
+                    resultElement.innerHTML = `
+                        <i class="fas fa-clock"></i>
+                        Time's up! Section complete.
+                    `;
+                    resultContainer.appendChild(resultElement);
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isTimerRunning = false;
+            clearInterval(timerInterval);
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            setTimerForSection('mcq');
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timerSeconds / 60);
+            const seconds = timerSeconds % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Set timer for specific AP section
+        function setTimerForSection(section) {
+            pauseTimer();
+            
+            const sectionTimes = {
+                mcq: 60 * 60,   // 60 minutes for MCQ
+                frq: 90 * 60,   // 90 minutes for FRQ
+                full: 180 * 60  // 3 hours for full practice
+            };
+            
+            timerSeconds = sectionTimes[section] || 60 * 60;
+            updateTimerDisplay();
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            loadProgress();
+            updateTimerDisplay();
+            
+            // Set up exam click events
+            document.querySelectorAll('.exam').forEach(exam => {
+                exam.style.cursor = 'pointer';
+            });
+            
+            // Set up exam selector click events
+            document.querySelectorAll('.exam-selector-item').forEach(item => {
+                item.style.cursor = 'pointer';
+            });
+            
+            // Initialize with Biology questions
+            loadPracticeQuestions('biology');
+        };
+    </script>
+</body>
+</html>

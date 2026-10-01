@@ -1,0 +1,2187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Relationship Web</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(10, 10, 26, 0.9);
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-3px);
+        }
+        
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(15, 15, 35, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .zoom-btn {
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            color: #ff8000;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .zoom-btn:hover {
+            background: rgba(255, 128, 0, 0.4);
+        }
+        
+        .zoom-level {
+            font-size: 0.9rem;
+            color: #ff8000;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .title {
+            color: #e0d6ff;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #a99bd4;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-top: 5px;
+        }
+        
+        .main-container {
+            display: flex;
+            height: calc(100vh - 80px);
+            overflow: hidden;
+        }
+        
+        .workspace-container {
+            flex: 1;
+            position: relative;
+            overflow: auto;
+            background: rgba(5, 5, 15, 0.5);
+        }
+        
+        .workspace {
+            position: relative;
+            min-width: 2000px;
+            min-height: 2000px;
+            background: 
+                linear-gradient(0deg, transparent 24%, rgba(255, 128, 0, 0.05) 25%, rgba(255, 128, 0, 0.05) 26%, transparent 27%, transparent 74%, rgba(255, 128, 0, 0.05) 75%, rgba(255, 128, 0, 0.05) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(255, 128, 0, 0.05) 25%, rgba(255, 128, 0, 0.05) 26%, transparent 27%, transparent 74%, rgba(255, 128, 0, 0.05) 75%, rgba(255, 128, 0, 0.05) 76%, transparent 77%, transparent),
+                radial-gradient(circle at center, #0a0a1a 0%, #1a0a2e 100%);
+            background-size: 50px 50px, 50px 50px, 100% 100%;
+            transform-origin: 0 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .panel {
+            width: 350px;
+            background: rgba(15, 15, 35, 0.95);
+            border-left: 1px solid rgba(255, 128, 0, 0.1);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .panel-section {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .panel-title {
+            color: #ff8000;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .character-node {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: move;
+            z-index: 10;
+            transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+            font-size: 0.8rem;
+            text-align: center;
+            padding: 5px;
+            user-select: none;
+        }
+        
+        .character-node:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 25px rgba(255, 128, 0, 0.5);
+            filter: brightness(1.2);
+        }
+        
+        .character-node.selected {
+            box-shadow: 0 0 0 4px #ff8000, 0 0 30px rgba(255, 128, 0, 0.6);
+            z-index: 20;
+        }
+        
+        .character-node.highlighted {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 128, 0, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 128, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 128, 0, 0); }
+        }
+        
+        .character-icon {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .character-name {
+            font-weight: bold;
+            margin-bottom: 2px;
+            font-size: 0.9rem;
+        }
+        
+        .character-role {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+        
+        .relationship-line {
+            stroke-width: 2;
+            stroke: rgba(255, 255, 255, 0.5);
+            marker-end: url(#arrowhead);
+            transition: stroke 0.3s, stroke-width 0.3s;
+            cursor: pointer;
+        }
+        
+        .relationship-line:hover {
+            stroke: #ff8000;
+            stroke-width: 3;
+        }
+        
+        .relationship-line.selected {
+            stroke: #ff8000;
+            stroke-width: 4;
+            filter: drop-shadow(0 0 5px rgba(255, 128, 0, 0.7));
+        }
+        
+        .relationship-label {
+            fill: #e0d6ff;
+            font-size: 12px;
+            font-weight: bold;
+            pointer-events: none;
+            user-select: none;
+            background: rgba(10, 10, 26, 0.8);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .action-btn {
+            padding: 10px;
+            background: rgba(30, 30, 50, 0.7);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: #e0d6ff;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+            transform: translateY(-3px);
+        }
+        
+        .action-btn i {
+            font-size: 1.2rem;
+            color: #ff8000;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .btn-primary {
+            background: rgba(255, 128, 0, 0.3);
+            font-weight: bold;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #e0d6ff;
+            font-size: 0.9rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            background: rgba(30, 30, 50, 0.7);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.2);
+        }
+        
+        .character-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .character-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: rgba(30, 30, 50, 0.5);
+            border-radius: 5px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .character-item:hover {
+            background: rgba(30, 30, 50, 0.8);
+            transform: translateX(5px);
+        }
+        
+        .character-item.selected {
+            background: rgba(255, 128, 0, 0.2);
+            border-left: 3px solid #ff8000;
+        }
+        
+        .character-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .relationship-history {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+            border-left: 3px solid #ff8000;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .ai-suggestion {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+            border-left: 3px solid #4dffea;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .ai-title {
+            color: #4dffea;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .timeline-container {
+            margin-top: 15px;
+        }
+        
+        .timeline-slider {
+            width: 100%;
+            margin: 10px 0;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: rgba(255, 128, 0, 0.2);
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        .timeline-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ff8000;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.5);
+        }
+        
+        .timeline-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #a99bd4;
+            margin-top: 5px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            width: 600px;
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: 10px;
+            border: 1px solid #ff8000;
+            padding: 25px;
+            position: relative;
+            overflow-y: auto;
+            box-shadow: 0 0 40px rgba(255, 128, 0, 0.2);
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: #ff8000;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .modal-title {
+            color: #ff8000;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .help-text {
+            font-size: 0.8rem;
+            color: #a99bd4;
+            margin-top: 5px;
+        }
+        
+        .minimap {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: 150px;
+            background: rgba(10, 10, 26, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            overflow: hidden;
+            z-index: 100;
+        }
+        
+        .minimap-viewport {
+            position: absolute;
+            border: 2px solid #ff8000;
+            background: rgba(255, 128, 0, 0.1);
+            pointer-events: none;
+        }
+        
+        .search-box {
+            margin-bottom: 15px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px 15px;
+            background: rgba(30, 30, 50, 0.7);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 25px;
+            color: white;
+            font-size: 0.9rem;
+            padding-left: 40px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ff8000;
+        }
+        
+        .search-container {
+            position: relative;
+        }
+        
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 10, 26, 0.9);
+            padding: 8px 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.3);
+            font-size: 0.8rem;
+            color: #a99bd4;
+            display: flex;
+            justify-content: space-between;
+            z-index: 100;
+        }
+        
+        .conflict-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .conflict-low { background: #4dff88; }
+        .conflict-medium { background: #ffcc00; }
+        .conflict-high { background: #ff4d4d; }
+        
+        .relationship-intensity {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .intensity-slider {
+            flex: 1;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 128, 0, 0.2);
+            border-radius: 2px;
+            outline: none;
+        }
+        
+        .relationship-type {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .type-tag {
+            padding: 3px 8px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .type-tag:hover, .type-tag.selected {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff8000;
+        }
+        
+        .export-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .export-btn {
+            padding: 10px;
+            background: rgba(30, 30, 50, 0.7);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: #e0d6ff;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+        }
+        
+        .export-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+        }
+        
+        .export-btn i {
+            font-size: 1.2rem;
+            color: #ff8000;
+        }
+        
+        .character-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .stat-item {
+            background: rgba(30, 30, 50, 0.5);
+            padding: 8px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ff8000;
+        }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: #a99bd4;
+            margin-top: 3px;
+        }
+        
+        @media (max-width: 1200px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .panel {
+                width: 100%;
+                max-height: 40vh;
+            }
+            
+            .workspace-container {
+                height: 60vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        
+        <div class="nav-center">
+            <h1 class="title">Character Relationship Web</h1>
+            <div class="subtitle">Drag characters, connect with lines, visualize interactions</div>
+        </div>
+        
+        <div class="nav-right">
+            <div class="zoom-controls">
+                <button class="zoom-btn" id="zoom-out"><i class="fas fa-search-minus"></i></button>
+                <div class="zoom-level" id="zoom-level">100%</div>
+                <button class="zoom-btn" id="zoom-in"><i class="fas fa-search-plus"></i></button>
+            </div>
+            <button class="btn" id="help-btn"><i class="fas fa-question-circle"></i> Help</button>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <div class="workspace-container" id="workspace-container">
+            <div class="workspace" id="workspace">
+                <!-- Character nodes will be dynamically added here -->
+                <!-- SVG for relationship lines -->
+                <svg id="relationship-svg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="rgba(255, 255, 255, 0.7)"></polygon>
+                        </marker>
+                        <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#ff4d4d"></polygon>
+                        </marker>
+                        <marker id="arrowhead-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#4dff88"></polygon>
+                        </marker>
+                    </defs>
+                </svg>
+            </div>
+            
+            <div class="minimap" id="minimap">
+                <!-- Minimap content will be generated dynamically -->
+            </div>
+        </div>
+        
+        <div class="panel">
+            <div class="panel-section">
+                <h3 class="panel-title"><i class="fas fa-search"></i> Search & Filter</h3>
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-input" placeholder="Search characters...">
+                </div>
+                
+                <div class="quick-actions">
+                    <button class="action-btn" id="add-character-btn">
+                        <i class="fas fa-user-plus"></i>
+                        Add Character
+                    </button>
+                    <button class="action-btn" id="auto-layout-btn">
+                        <i class="fas fa-project-diagram"></i>
+                        Auto Layout
+                    </button>
+                    <button class="action-btn" id="connect-btn">
+                        <i class="fas fa-link"></i>
+                        Connect
+                    </button>
+                    <button class="action-btn" id="clear-all-btn">
+                        <i class="fas fa-trash-alt"></i>
+                        Clear All
+                    </button>
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <h3 class="panel-title"><i class="fas fa-users"></i> Characters <span id="character-count">(5)</span></h3>
+                <div class="character-list" id="characters-list">
+                    <!-- Character list will be populated here -->
+                </div>
+                
+                <div class="character-stats" id="character-stats">
+                    <!-- Character stats will be populated here -->
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <h3 class="panel-title"><i class="fas fa-history"></i> Timeline</h3>
+                <input type="range" min="0" max="100" value="50" class="timeline-slider" id="timeline-slider">
+                <div class="timeline-labels">
+                    <span>Past</span>
+                    <span>Present</span>
+                    <span>Future</span>
+                </div>
+                
+                <div class="relationship-intensity">
+                    <span>Relationship Intensity:</span>
+                    <input type="range" min="1" max="10" value="5" class="intensity-slider" id="intensity-slider">
+                </div>
+                
+                <div class="relationship-type">
+                    <div class="type-tag selected" data-type="all">All</div>
+                    <div class="type-tag" data-type="friendship">Friendship</div>
+                    <div class="type-tag" data-type="rivalry">Rivalry</div>
+                    <div class="type-tag" data-type="romantic">Romantic</div>
+                    <div class="type-tag" data-type="family">Family</div>
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <h3 class="panel-title"><i class="fas fa-robot"></i> AI Insights</h3>
+                <div class="ai-suggestion" id="ai-suggestion-content">
+                    <!-- AI suggestions will appear here -->
+                </div>
+                
+                <button class="btn" id="refresh-ai-btn" style="width: 100%; margin-top: 10px;">
+                    <i class="fas fa-sync-alt"></i> Refresh AI Insights
+                </button>
+            </div>
+            
+            <div class="panel-section">
+                <h3 class="panel-title"><i class="fas fa-download"></i> Export</h3>
+                <div class="export-options">
+                    <button class="export-btn" id="export-png">
+                        <i class="fas fa-image"></i>
+                        PNG Image
+                    </button>
+                    <button class="export-btn" id="export-json">
+                        <i class="fas fa-file-code"></i>
+                        JSON Data
+                    </button>
+                    <button class="export-btn" id="export-pdf">
+                        <i class="fas fa-file-pdf"></i>
+                        PDF Report
+                    </button>
+                    <button class="export-btn" id="export-svg">
+                        <i class="fas fa-palette"></i>
+                        SVG Vector
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="status-bar">
+        <div>
+            <span id="selected-info">No selection</span>
+            | 
+            <span id="relationship-count">5 relationships</span>
+            | 
+            <span id="conflict-level">Conflict: <span class="conflict-indicator conflict-medium"></span> Medium</span>
+        </div>
+        <div>
+            <span id="workspace-position">Position: 0, 0</span>
+            | 
+            <span id="zoom-info">Zoom: 100%</span>
+        </div>
+    </div>
+    
+    <!-- Modal for editing relationship -->
+    <div class="modal" id="relationship-modal">
+        <div class="modal-content">
+            <div class="modal-close" id="close-modal">&times;</div>
+            <h3 class="modal-title" id="relationship-modal-title">Edit Relationship</h3>
+            
+            <div class="form-group">
+                <label class="form-label">Relationship Type</label>
+                <select class="form-input" id="relationship-type-select">
+                    <option value="friendship">Friendship</option>
+                    <option value="rivalry">Rivalry</option>
+                    <option value="romantic">Romantic</option>
+                    <option value="family">Family</option>
+                    <option value="mentorship">Mentorship</option>
+                    <option value="alliance">Alliance</option>
+                    <option value="enmity">Enmity</option>
+                    <option value="professional">Professional</option>
+                    <option value="complicated">Complicated</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Relationship Intensity (1-10)</label>
+                <input type="range" min="1" max="10" value="5" class="form-input" id="relationship-intensity-modal">
+                <div style="text-align: center; margin-top: 5px;">
+                    <span id="intensity-value">5 - Moderate</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Relationship History</label>
+                <textarea class="form-input" id="relationship-text" rows="8" placeholder="Describe the relationship history between these characters..."></textarea>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn" id="delete-relationship-btn">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+                <button class="btn" id="cancel-edit">Cancel</button>
+                <button class="btn btn-primary" id="save-relationship">Save Changes</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for adding/editing character -->
+    <div class="modal" id="character-modal">
+        <div class="modal-content">
+            <div class="modal-close" id="close-character-modal">&times;</div>
+            <h3 class="modal-title" id="character-modal-title">Add New Character</h3>
+            
+            <div class="form-group">
+                <label class="form-label">Character Name</label>
+                <input type="text" class="form-input" id="character-name" placeholder="Enter character name">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Character Role</label>
+                <input type="text" class="form-input" id="character-role" placeholder="e.g., Protagonist, Antagonist, Mentor">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Character Description</label>
+                <textarea class="form-input" id="character-description" rows="3" placeholder="Brief description of the character..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Character Color</label>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <input type="color" class="form-input" id="character-color" value="#ff8000" style="width: 60px; height: 40px; padding: 0;">
+                    <div style="display: flex; gap: 5px;">
+                        <div class="color-preset" style="background: #ff8000; width: 25px; height: 25px; border-radius: 3px; cursor: pointer;" data-color="#ff8000"></div>
+                        <div class="color-preset" style="background: #4dffea; width: 25px; height: 25px; border-radius: 3px; cursor: pointer;" data-color="#4dffea"></div>
+                        <div class="color-preset" style="background: #9d4dff; width: 25px; height: 25px; border-radius: 3px; cursor: pointer;" data-color="#9d4dff"></div>
+                        <div class="color-preset" style="background: #ff4d4d; width: 25px; height: 25px; border-radius: 3px; cursor: pointer;" data-color="#ff4d4d"></div>
+                        <div class="color-preset" style="background: #4dff88; width: 25px; height: 25px; border-radius: 3px; cursor: pointer;" data-color="#4dff88"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Character Icon</label>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px;">
+                    <div class="icon-option selected" data-icon="fa-user"><i class="fas fa-user"></i></div>
+                    <div class="icon-option" data-icon="fa-user-ninja"><i class="fas fa-user-ninja"></i></div>
+                    <div class="icon-option" data-icon="fa-user-tie"><i class="fas fa-user-tie"></i></div>
+                    <div class="icon-option" data-icon="fa-user-graduate"><i class="fas fa-user-graduate"></i></div>
+                    <div class="icon-option" data-icon="fa-user-md"><i class="fas fa-user-md"></i></div>
+                    <div class="icon-option" data-icon="fa-user-astronaut"><i class="fas fa-user-astronaut"></i></div>
+                    <div class="icon-option" data-icon="fa-crown"><i class="fas fa-crown"></i></div>
+                    <div class="icon-option" data-icon="fa-robot"><i class="fas fa-robot"></i></div>
+                    <div class="icon-option" data-icon="fa-dragon"><i class="fas fa-dragon"></i></div>
+                    <div class="icon-option" data-icon="fa-cat"><i class="fas fa-cat"></i></div>
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn" id="delete-character-btn" style="display: none;">
+                    <i class="fas fa-trash-alt"></i> Delete Character
+                </button>
+                <button class="btn" id="cancel-character">Cancel</button>
+                <button class="btn btn-primary" id="save-character">Save Character</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Help modal -->
+    <div class="modal" id="help-modal">
+        <div class="modal-content">
+            <div class="modal-close" id="close-help-modal">&times;</div>
+            <h3 class="modal-title"><i class="fas fa-question-circle"></i> How to Use Character Relationship Web</h3>
+            
+            <div style="margin-top: 20px;">
+                <h4 style="color: #ff8000; margin-bottom: 10px;">Getting Started</h4>
+                <ul style="margin-left: 20px; margin-bottom: 20px; line-height: 1.6;">
+                    <li><strong>Add Characters:</strong> Click "Add Character" in the panel or double-click on the workspace</li>
+                    <li><strong>Move Characters:</strong> Drag and drop character nodes anywhere on the workspace</li>
+                    <li><strong>Connect Characters:</strong> Select two characters and click "Connect" or drag from one character to another</li>
+                    <li><strong>Edit Relationships:</strong> Click on relationship lines to edit type, intensity, and history</li>
+                </ul>
+                
+                <h4 style="color: #ff8000; margin-bottom: 10px;">Workspace Navigation</h4>
+                <ul style="margin-left: 20px; margin-bottom: 20px; line-height: 1.6;">
+                    <li><strong>Zoom:</strong> Use the zoom buttons or mouse wheel to zoom in/out</li>
+                    <li><strong>Pan:</strong> Click and drag on empty workspace area to pan</li>
+                    <li><strong>Minimap:</strong> Use the minimap in the bottom-right to navigate large workspaces</li>
+                    <li><strong>Scroll:</strong> Scroll vertically and horizontally to explore large relationship maps</li>
+                </ul>
+                
+                <h4 style="color: #ff8000; margin-bottom: 10px;">Advanced Features</h4>
+                <ul style="margin-left: 20px; margin-bottom: 20px; line-height: 1.6;">
+                    <li><strong>AI Insights:</strong> Get automatic relationship suggestions based on character positions</li>
+                    <li><strong>Timeline:</strong> Use the timeline slider to visualize how relationships change over time</li>
+                    <li><strong>Search:</strong> Quickly find characters using the search bar</li>
+                    <li><strong>Filter:</strong> Filter relationships by type using the tags</li>
+                    <li><strong>Export:</strong> Export your relationship map as PNG, SVG, JSON, or PDF</li>
+                    <li><strong>Auto Layout:</strong> Automatically arrange characters for better visualization</li>
+                </ul>
+                
+                <div style="background: rgba(255, 128, 0, 0.1); padding: 15px; border-radius: 5px; margin-top: 20px; border-left: 3px solid #ff8000;">
+                    <h5 style="color: #ff8000; margin-bottom: 5px;">Tips & Tricks</h5>
+                    <p>• Characters placed closer together suggest stronger relationships</p>
+                    <p>• Use different colors to represent different factions or groups</p>
+                    <p>• Higher intensity relationships appear with thicker lines</p>
+                    <p>• Save your work regularly by exporting to JSON</p>
+                </div>
+            </div>
+            
+            <div class="modal-buttons" style="margin-top: 30px;">
+                <button class="btn btn-primary" id="close-help-btn">Got it!</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Character and relationship data
+        let characters = [
+            { id: 1, name: "Kaelen", role: "Protagonist", color: "#ff8000", icon: "fa-user", x: 300, y: 300, description: "The main hero with a mysterious past" },
+            { id: 2, name: "Mira", role: "Love Interest", color: "#4dffea", icon: "fa-user", x: 500, y: 300, description: "Skilled diplomat with hidden magical abilities" },
+            { id: 3, name: "Lord Vex", role: "Antagonist", color: "#ff4d4d", icon: "fa-user-tie", x: 300, y: 500, description: "Power-hungry noble seeking to control the kingdom" },
+            { id: 4, name: "Elara", role: "Mentor", color: "#9d4dff", icon: "fa-user-graduate", x: 500, y: 500, description: "Wise mage who guides the protagonist" },
+            { id: 5, name: "Grom", role: "Companion", color: "#4dff88", icon: "fa-dragon", x: 400, y: 400, description: "Loyal beast companion with protective instincts" }
+        ];
+        
+        let relationships = [
+            { id: 1, sourceId: 1, targetId: 2, type: "romantic", intensity: 8, label: "Romantic", history: "Kaelen and Mira met during the Festival of Lights. Their relationship has grown from tentative friendship to deep romance, though they often clash over their differing approaches to problems." },
+            { id: 2, sourceId: 1, targetId: 3, type: "rivalry", intensity: 9, label: "Rivalry", history: "Lord Vex sees Kaelen as a threat to his power. Kaelen's father was betrayed by Vex years ago, creating a deep-seated animosity between them." },
+            { id: 3, sourceId: 1, targetId: 4, type: "mentorship", intensity: 7, label: "Mentorship", history: "Elara discovered Kaelen's latent abilities and has been training him to control his powers. Their relationship is respectful but strained by Elara's secretive nature." },
+            { id: 4, sourceId: 1, targetId: 5, type: "friendship", intensity: 8, label: "Friendship", history: "Kaelen rescued Grom from a trap set by hunters. Since then, Grom has been fiercely loyal, though their communication is limited by their species difference." },
+            { id: 5, sourceId: 2, targetId: 3, type: "enmity", intensity: 6, label: "Deception", history: "Mira once worked for Lord Vex before realizing his true nature. She now fears he will discover her past betrayal." }
+        ];
+        
+        // State management
+        let selectedCharacter = null;
+        let selectedRelationship = null;
+        let isDragging = false;
+        let isPanning = false;
+        let dragOffset = { x: 0, y: 0 };
+        let timelineValue = 50;
+        let zoomLevel = 1;
+        let panOffset = { x: 0, y: 0 };
+        let lastPanPosition = { x: 0, y: 0 };
+        let connectionMode = false;
+        let connectionSource = null;
+        
+        // DOM Elements
+        const workspace = document.getElementById('workspace');
+        const workspaceContainer = document.getElementById('workspace-container');
+        const relationshipSvg = document.getElementById('relationship-svg');
+        const minimap = document.getElementById('minimap');
+        const characterCount = document.getElementById('character-count');
+        const charactersList = document.getElementById('characters-list');
+        const characterStats = document.getElementById('character-stats');
+        const searchInput = document.getElementById('search-input');
+        const aiSuggestionContent = document.getElementById('ai-suggestion-content');
+        const timelineSlider = document.getElementById('timeline-slider');
+        const intensitySlider = document.getElementById('intensity-slider');
+        const relationshipModal = document.getElementById('relationship-modal');
+        const characterModal = document.getElementById('character-modal');
+        const helpModal = document.getElementById('help-modal');
+        const zoomLevelElement = document.getElementById('zoom-level');
+        const zoomInfo = document.getElementById('zoom-info');
+        const workspacePosition = document.getElementById('workspace-position');
+        const selectedInfo = document.getElementById('selected-info');
+        const relationshipCount = document.getElementById('relationship-count');
+        const conflictLevel = document.getElementById('conflict-level');
+        
+        // Initialize the application
+        function init() {
+            renderCharacters();
+            renderRelationships();
+            updateCharacterList();
+            updateCharacterStats();
+            generateAISuggestions();
+            updateMinimap();
+            setupEventListeners();
+            updateStatusBar();
+            
+            // Set initial zoom
+            updateZoom();
+        }
+        
+        // Render character nodes
+        function renderCharacters() {
+            // Clear existing nodes
+            const existingNodes = document.querySelectorAll('.character-node');
+            existingNodes.forEach(node => node.remove());
+            
+            // Create new nodes
+            characters.forEach(character => {
+                const node = document.createElement('div');
+                node.className = 'character-node';
+                node.id = `character-${character.id}`;
+                node.style.left = `${character.x}px`;
+                node.style.top = `${character.y}px`;
+                node.style.backgroundColor = character.color;
+                node.style.boxShadow = `0 0 20px ${character.color}80`;
+                
+                node.innerHTML = `
+                    <div class="character-icon"><i class="fas ${character.icon}"></i></div>
+                    <div class="character-name">${character.name}</div>
+                    <div class="character-role">${character.role}</div>
+                `;
+                
+                workspace.appendChild(node);
+                
+                // Add event listeners
+                addCharacterEvents(node, character);
+            });
+            
+            // Update character count
+            characterCount.textContent = `(${characters.length})`;
+            relationshipCount.textContent = `${relationships.length} relationships`;
+        }
+        
+        // Add events to character nodes
+        function addCharacterEvents(node, character) {
+            // Click to select
+            node.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (connectionMode && connectionSource !== character.id) {
+                    // Create relationship between connectionSource and this character
+                    createRelationship(connectionSource, character.id);
+                    connectionMode = false;
+                    connectionSource = null;
+                    document.body.style.cursor = 'default';
+                } else {
+                    selectCharacter(character.id);
+                }
+            });
+            
+            // Double-click to edit
+            node.addEventListener('dblclick', () => {
+                openCharacterModal(character.id);
+            });
+            
+            // Drag start
+            node.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return; // Only left click
+                
+                selectCharacter(character.id);
+                isDragging = true;
+                
+                const rect = node.getBoundingClientRect();
+                const workspaceRect = workspaceContainer.getBoundingClientRect();
+                dragOffset.x = e.clientX - rect.left + workspaceContainer.scrollLeft;
+                dragOffset.y = e.clientY - rect.top + workspaceContainer.scrollTop;
+                
+                document.addEventListener('mousemove', onCharacterDrag);
+                document.addEventListener('mouseup', onCharacterDragEnd);
+                
+                e.preventDefault();
+            });
+            
+            // Context menu for quick actions
+            node.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                selectCharacter(character.id);
+                showCharacterContextMenu(e, character);
+            });
+        }
+        
+        // Handle character dragging
+        function onCharacterDrag(e) {
+            if (!isDragging || !selectedCharacter) return;
+            
+            const node = document.getElementById(`character-${selectedCharacter}`);
+            const character = characters.find(c => c.id === selectedCharacter);
+            
+            // Calculate new position
+            let newX = e.clientX - dragOffset.x + workspaceContainer.scrollLeft;
+            let newY = e.clientY - dragOffset.y + workspaceContainer.scrollTop;
+            
+            // Update node position
+            node.style.left = `${newX}px`;
+            node.style.top = `${newY}px`;
+            
+            // Update character data
+            character.x = newX;
+            character.y = newY;
+            
+            // Update relationship lines
+            renderRelationships();
+            
+            // Update minimap
+            updateMinimap();
+            
+            // Generate AI suggestions based on new positions
+            generateAISuggestions();
+        }
+        
+        function onCharacterDragEnd() {
+            isDragging = false;
+            document.removeEventListener('mousemove', onCharacterDrag);
+            document.removeEventListener('mouseup', onCharacterDragEnd);
+        }
+        
+        // Render relationship lines
+        function renderRelationships() {
+            // Clear existing lines
+            relationshipSvg.innerHTML = '<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="rgba(255, 255, 255, 0.7)"></polygon></marker><marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#ff4d4d"></polygon></marker><marker id="arrowhead-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#4dff88"></polygon></marker></defs>';
+            
+            // Get selected relationship type filter
+            const selectedType = document.querySelector('.type-tag.selected')?.dataset.type || 'all';
+            
+            // Create new lines
+            relationships.forEach(rel => {
+                // Filter by type
+                if (selectedType !== 'all' && rel.type !== selectedType) return;
+                
+                const source = characters.find(c => c.id === rel.sourceId);
+                const target = characters.find(c => c.id === rel.targetId);
+                
+                if (!source || !target) return;
+                
+                // Calculate line coordinates
+                const x1 = source.x + 45;
+                const y1 = source.y + 45;
+                const x2 = target.x + 45;
+                const y2 = target.y + 45;
+                
+                // Calculate midpoint for label
+                const midX = (x1 + x2) / 2;
+                const midY = (y1 + y2) / 2;
+                
+                // Determine line color based on type and intensity
+                let strokeColor = '#ffffff';
+                let markerId = 'arrowhead';
+                
+                if (rel.type === 'rivalry' || rel.type === 'enmity') {
+                    strokeColor = '#ff4d4d';
+                    markerId = 'arrowhead-red';
+                } else if (rel.type === 'friendship' || rel.type === 'romantic') {
+                    strokeColor = '#4dff88';
+                    markerId = 'arrowhead-green';
+                }
+                
+                // Adjust opacity based on timeline
+                let opacity = 0.7;
+                if (timelineValue < 30) opacity = 0.4;
+                else if (timelineValue > 70) opacity = 0.9;
+                
+                // Adjust stroke width based on intensity
+                const strokeWidth = 1 + (rel.intensity / 10) * 3;
+                
+                // Create line element
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', x1);
+                line.setAttribute('y1', y1);
+                line.setAttribute('x2', x2);
+                line.setAttribute('y2', y2);
+                line.setAttribute('class', 'relationship-line');
+                line.setAttribute('stroke', strokeColor);
+                line.setAttribute('stroke-opacity', opacity);
+                line.setAttribute('stroke-width', strokeWidth);
+                line.setAttribute('marker-end', `url(#${markerId})`);
+                
+                if (selectedRelationship === rel.id) {
+                    line.classList.add('selected');
+                }
+                line.setAttribute('data-id', rel.id);
+                
+                // Add click event for selecting relationship
+                line.style.pointerEvents = 'all';
+                line.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectRelationship(rel.id);
+                });
+                
+                relationshipSvg.appendChild(line);
+                
+                // Create label
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', midX);
+                label.setAttribute('y', midY - 10);
+                label.setAttribute('class', 'relationship-label');
+                label.setAttribute('text-anchor', 'middle');
+                label.setAttribute('fill', strokeColor);
+                label.textContent = rel.label;
+                relationshipSvg.appendChild(label);
+            });
+        }
+        
+        // Select a character
+        function selectCharacter(characterId) {
+            // Deselect all characters
+            document.querySelectorAll('.character-node').forEach(node => {
+                node.classList.remove('selected');
+            });
+            
+            // Select the clicked character
+            const node = document.getElementById(`character-${characterId}`);
+            if (node) {
+                node.classList.add('selected');
+                selectedCharacter = characterId;
+                
+                // Highlight connected characters
+                highlightConnectedCharacters(characterId);
+            }
+            
+            // Deselect any relationship
+            selectedRelationship = null;
+            
+            // Update character list
+            updateCharacterList();
+            updateStatusBar();
+            
+            // Update selected info
+            const character = characters.find(c => c.id === characterId);
+            selectedInfo.textContent = `Selected: ${character.name} (${character.role})`;
+            
+            // Scroll to character if needed
+            if (node) {
+                const rect = node.getBoundingClientRect();
+                const containerRect = workspaceContainer.getBoundingClientRect();
+                
+                if (rect.left < containerRect.left || rect.right > containerRect.right || 
+                    rect.top < containerRect.top || rect.bottom > containerRect.bottom) {
+                    workspaceContainer.scrollTo({
+                        left: character.x - containerRect.width / 2,
+                        top: character.y - containerRect.height / 2,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        }
+        
+        // Highlight characters connected to the selected character
+        function highlightConnectedCharacters(characterId) {
+            // Remove highlights from all characters
+            document.querySelectorAll('.character-node').forEach(node => {
+                node.classList.remove('highlighted');
+            });
+            
+            // Find relationships involving this character
+            const connectedRelationships = relationships.filter(r => 
+                r.sourceId === characterId || r.targetId === characterId
+            );
+            
+            // Highlight connected characters
+            connectedRelationships.forEach(rel => {
+                const connectedId = rel.sourceId === characterId ? rel.targetId : rel.sourceId;
+                const connectedNode = document.getElementById(`character-${connectedId}`);
+                if (connectedNode) {
+                    connectedNode.classList.add('highlighted');
+                }
+            });
+        }
+        
+        // Select a relationship
+        function selectRelationship(relationshipId) {
+            // Deselect all relationships
+            document.querySelectorAll('.relationship-line').forEach(line => {
+                line.classList.remove('selected');
+            });
+            
+            // Select the clicked relationship
+            const line = document.querySelector(`.relationship-line[data-id="${relationshipId}"]`);
+            if (line) {
+                line.classList.add('selected');
+                selectedRelationship = relationshipId;
+            }
+            
+            // Deselect any character
+            document.querySelectorAll('.character-node').forEach(node => {
+                node.classList.remove('selected');
+                node.classList.remove('highlighted');
+            });
+            selectedCharacter = null;
+            
+            // Update status
+            updateStatusBar();
+            
+            // Show relationship details
+            const relationship = relationships.find(r => r.id === relationshipId);
+            if (relationship) {
+                const source = characters.find(c => c.id === relationship.sourceId);
+                const target = characters.find(c => c.id === relationship.targetId);
+                
+                selectedInfo.textContent = `Selected: ${source.name} ↔ ${target.name} (${relationship.label})`;
+                
+                // Open relationship modal
+                openRelationshipModal(relationshipId);
+            }
+        }
+        
+        // Update character list in the panel
+        function updateCharacterList() {
+            charactersList.innerHTML = '';
+            
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            characters.forEach(character => {
+                if (searchTerm && !character.name.toLowerCase().includes(searchTerm) && 
+                    !character.role.toLowerCase().includes(searchTerm)) {
+                    return;
+                }
+                
+                const item = document.createElement('div');
+                item.className = 'character-item';
+                if (selectedCharacter === character.id) {
+                    item.classList.add('selected');
+                }
+                
+                item.innerHTML = `
+                    <div class="character-color" style="background-color: ${character.color}"></div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold;">${character.name}</div>
+                        <div style="font-size: 0.8rem; opacity: 0.8;">${character.role}</div>
+                    </div>
+                    <div style="font-size: 0.7rem; color: #ff8000;">
+                        ${getCharacterConnectionCount(character.id)} connections
+                    </div>
+                `;
+                
+                item.addEventListener('click', () => {
+                    selectCharacter(character.id);
+                });
+                
+                charactersList.appendChild(item);
+            });
+        }
+        
+        // Get connection count for a character
+        function getCharacterConnectionCount(characterId) {
+            return relationships.filter(r => r.sourceId === characterId || r.targetId === characterId).length;
+        }
+        
+        // Update character statistics
+        function updateCharacterStats() {
+            const totalConnections = relationships.length;
+            const avgConnections = characters.length > 0 ? (totalConnections / characters.length).toFixed(1) : 0;
+            const conflictCount = relationships.filter(r => r.type === 'rivalry' || r.type === 'enmity').length;
+            
+            characterStats.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${characters.length}</div>
+                    <div class="stat-label">Characters</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${totalConnections}</div>
+                    <div class="stat-label">Relationships</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${avgConnections}</div>
+                    <div class="stat-label">Avg. Connections</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${conflictCount}</div>
+                    <div class="stat-label">Conflicts</div>
+                </div>
+            `;
+        }
+        
+        // Generate AI suggestions
+        function generateAISuggestions() {
+            if (characters.length < 2) {
+                aiSuggestionContent.innerHTML = "<p>Add more characters to get AI insights about their relationships.</p>";
+                return;
+            }
+            
+            let suggestions = [];
+            
+            // Check distances between characters
+            for (let i = 0; i < characters.length; i++) {
+                for (let j = i + 1; j < characters.length; j++) {
+                    const char1 = characters[i];
+                    const char2 = characters[j];
+                    
+                    // Calculate distance
+                    const dx = char1.x - char2.x;
+                    const dy = char1.y - char2.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // Find existing relationship
+                    const existingRel = relationships.find(r => 
+                        (r.sourceId === char1.id && r.targetId === char2.id) ||
+                        (r.sourceId === char2.id && r.targetId === char1.id)
+                    );
+                    
+                    // Generate suggestion based on distance
+                    if (distance < 150 && !existingRel) {
+                        suggestions.push(`<strong>${char1.name}</strong> and <strong>${char2.name}</strong> are very close. Consider adding a close relationship like friendship or alliance.`);
+                    } else if (distance > 400 && existingRel) {
+                        suggestions.push(`<strong>${char1.name}</strong> and <strong>${char2.name}</strong> are far apart. This could represent growing distance or conflict in their relationship.`);
+                    }
+                    
+                    // Check for potential triangles (character A connected to B and C, but B and C not connected)
+                    if (existingRel) {
+                        // Find other characters connected to char1
+                        const char1Connections = relationships.filter(r => 
+                            r.sourceId === char1.id || r.targetId === char1.id
+                        );
+                        
+                        for (const conn of char1Connections) {
+                            const otherCharId = conn.sourceId === char1.id ? conn.targetId : conn.sourceId;
+                            if (otherCharId === char2.id) continue;
+                            
+                            // Check if char2 is connected to this other character
+                            const missingConnection = !relationships.some(r => 
+                                (r.sourceId === char2.id && r.targetId === otherCharId) ||
+                                (r.sourceId === otherCharId && r.targetId === char2.id)
+                            );
+                            
+                            if (missingConnection) {
+                                const otherChar = characters.find(c => c.id === otherCharId);
+                                suggestions.push(`<strong>${char2.name}</strong> and <strong>${otherChar.name}</strong> are both connected to <strong>${char1.name}</strong> but not to each other. Consider how they might interact.`);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Calculate overall conflict level
+            const conflictRelationships = relationships.filter(r => r.type === 'rivalry' || r.type === 'enmity').length;
+            const totalRelationships = relationships.length;
+            const conflictRatio = totalRelationships > 0 ? conflictRelationships / totalRelationships : 0;
+            
+            let conflictText = 'Low';
+            let conflictClass = 'conflict-low';
+            
+            if (conflictRatio > 0.6) {
+                conflictText = 'High';
+                conflictClass = 'conflict-high';
+            } else if (conflictRatio > 0.3) {
+                conflictText = 'Medium';
+                conflictClass = 'conflict-medium';
+            }
+            
+            conflictLevel.innerHTML = `Conflict: <span class="conflict-indicator ${conflictClass}"></span> ${conflictText}`;
+            
+            // If no specific suggestions, provide generic ones
+            if (suggestions.length === 0) {
+                suggestions = [
+                    "Try moving characters closer together to suggest stronger relationships.",
+                    "Position antagonists on opposite sides of the protagonist for visual conflict.",
+                    "Group allied characters together to show faction alignment.",
+                    "Use different relationship types (friendship, rivalry, romantic) to add complexity."
+                ];
+            }
+            
+            // Update AI suggestions display
+            aiSuggestionContent.innerHTML = suggestions.slice(0, 4).map(s => `<p>• ${s}</p>`).join('');
+        }
+        
+        // Update minimap
+        function updateMinimap() {
+            minimap.innerHTML = '';
+            
+            // Create minimap content
+            const minimapContent = document.createElement('div');
+            minimapContent.style.width = '100%';
+            minimapContent.style.height = '100%';
+            minimapContent.style.position = 'relative';
+            
+            // Add character dots to minimap
+            characters.forEach(character => {
+                const dot = document.createElement('div');
+                dot.style.position = 'absolute';
+                dot.style.left = `${(character.x / 2000) * 100}%`;
+                dot.style.top = `${(character.y / 2000) * 100}%`;
+                dot.style.width = '6px';
+                dot.style.height = '6px';
+                dot.style.backgroundColor = character.color;
+                dot.style.borderRadius = '50%';
+                dot.style.transform = 'translate(-50%, -50%)';
+                dot.style.cursor = 'pointer';
+                
+                dot.addEventListener('click', () => {
+                    // Center workspace on this character
+                    workspaceContainer.scrollTo({
+                        left: character.x - workspaceContainer.clientWidth / 2,
+                        top: character.y - workspaceContainer.clientHeight / 2,
+                        behavior: 'smooth'
+                    });
+                });
+                
+                minimapContent.appendChild(dot);
+            });
+            
+            // Add viewport rectangle
+            const viewport = document.createElement('div');
+            viewport.className = 'minimap-viewport';
+            updateViewportPosition(viewport);
+            minimapContent.appendChild(viewport);
+            
+            minimap.appendChild(minimapContent);
+            
+            // Update viewport position on scroll
+            workspaceContainer.addEventListener('scroll', () => {
+                updateViewportPosition(viewport);
+            });
+        }
+        
+        // Update viewport position on minimap
+        function updateViewportPosition(viewport) {
+            const scrollLeft = workspaceContainer.scrollLeft;
+            const scrollTop = workspaceContainer.scrollTop;
+            const containerWidth = workspaceContainer.clientWidth;
+            const containerHeight = workspaceContainer.clientHeight;
+            
+            const leftPercent = (scrollLeft / 2000) * 100;
+            const topPercent = (scrollTop / 2000) * 100;
+            const widthPercent = (containerWidth / 2000) * 100;
+            const heightPercent = (containerHeight / 2000) * 100;
+            
+            viewport.style.left = `${leftPercent}%`;
+            viewport.style.top = `${topPercent}%`;
+            viewport.style.width = `${widthPercent}%`;
+            viewport.style.height = `${heightPercent}%`;
+        }
+        
+        // Update zoom level
+        function updateZoom() {
+            workspace.style.transform = `scale(${zoomLevel})`;
+            zoomLevelElement.textContent = `${Math.round(zoomLevel * 100)}%`;
+            zoomInfo.textContent = `Zoom: ${Math.round(zoomLevel * 100)}%`;
+        }
+        
+        // Update status bar
+        function updateStatusBar() {
+            const scrollLeft = workspaceContainer.scrollLeft;
+            const scrollTop = workspaceContainer.scrollTop;
+            workspacePosition.textContent = `Position: ${Math.round(scrollLeft)}, ${Math.round(scrollTop)}`;
+        }
+        
+        // Create a new relationship
+        function createRelationship(sourceId, targetId) {
+            // Check if relationship already exists
+            const existingRel = relationships.find(r => 
+                (r.sourceId === sourceId && r.targetId === targetId) ||
+                (r.sourceId === targetId && r.targetId === sourceId)
+            );
+            
+            if (existingRel) {
+                alert(`A relationship already exists between these characters`);
+                return;
+            }
+            
+            // Create new relationship
+            const newId = relationships.length > 0 ? Math.max(...relationships.map(r => r.id)) + 1 : 1;
+            const labels = {
+                friendship: "Friendship",
+                rivalry: "Rivalry", 
+                romantic: "Romantic",
+                family: "Family",
+                mentorship: "Mentorship",
+                alliance: "Alliance",
+                enmity: "Enmity",
+                professional: "Professional",
+                complicated: "Complicated"
+            };
+            
+            const types = Object.keys(labels);
+            const randomType = types[Math.floor(Math.random() * types.length)];
+            
+            const source = characters.find(c => c.id === sourceId);
+            const target = characters.find(c => c.id === targetId);
+            
+            const newRelationship = {
+                id: newId,
+                sourceId: sourceId,
+                targetId: targetId,
+                type: randomType,
+                intensity: 5,
+                label: labels[randomType],
+                history: `${source.name} and ${target.name} have a ${randomType} relationship. Edit this to add more details about their history.`
+            };
+            
+            relationships.push(newRelationship);
+            renderRelationships();
+            updateCharacterStats();
+            selectRelationship(newId);
+            generateAISuggestions();
+        }
+        
+        // Open relationship modal
+        function openRelationshipModal(relationshipId) {
+            const relationship = relationships.find(r => r.id === relationshipId);
+            if (!relationship) return;
+            
+            const source = characters.find(c => c.id === relationship.sourceId);
+            const target = characters.find(c => c.id === relationship.targetId);
+            
+            document.getElementById('relationship-modal-title').textContent = `Edit Relationship: ${source.name} ↔ ${target.name}`;
+            document.getElementById('relationship-type-select').value = relationship.type;
+            document.getElementById('relationship-intensity-modal').value = relationship.intensity;
+            document.getElementById('intensity-value').textContent = `${relationship.intensity} - ${getIntensityLabel(relationship.intensity)}`;
+            document.getElementById('relationship-text').value = relationship.history;
+            
+            // Show delete button
+            document.getElementById('delete-relationship-btn').style.display = 'block';
+            
+            relationshipModal.style.display = 'flex';
+        }
+        
+        // Get intensity label
+        function getIntensityLabel(intensity) {
+            if (intensity <= 3) return 'Weak';
+            if (intensity <= 6) return 'Moderate';
+            if (intensity <= 8) return 'Strong';
+            return 'Extreme';
+        }
+        
+        // Open character modal
+        function openCharacterModal(characterId = null) {
+            if (characterId) {
+                // Edit existing character
+                const character = characters.find(c => c.id === characterId);
+                document.getElementById('character-modal-title').textContent = `Edit Character: ${character.name}`;
+                document.getElementById('character-name').value = character.name;
+                document.getElementById('character-role').value = character.role;
+                document.getElementById('character-description').value = character.description || '';
+                document.getElementById('character-color').value = character.color;
+                
+                // Select the icon
+                document.querySelectorAll('.icon-option').forEach(option => {
+                    option.classList.remove('selected');
+                    if (option.dataset.icon === character.icon) {
+                        option.classList.add('selected');
+                    }
+                });
+                
+                // Show delete button
+                document.getElementById('delete-character-btn').style.display = 'block';
+                document.getElementById('delete-character-btn').dataset.characterId = characterId;
+            } else {
+                // Add new character
+                document.getElementById('character-modal-title').textContent = 'Add New Character';
+                document.getElementById('character-name').value = '';
+                document.getElementById('character-role').value = '';
+                document.getElementById('character-description').value = '';
+                document.getElementById('character-color').value = '#ff8000';
+                
+                // Reset icon selection
+                document.querySelectorAll('.icon-option').forEach(option => {
+                    option.classList.remove('selected');
+                    if (option.dataset.icon === 'fa-user') {
+                        option.classList.add('selected');
+                    }
+                });
+                
+                // Hide delete button
+                document.getElementById('delete-character-btn').style.display = 'none';
+            }
+            
+            characterModal.style.display = 'flex';
+        }
+        
+        // Show character context menu
+        function showCharacterContextMenu(e, character) {
+            // Create context menu
+            const menu = document.createElement('div');
+            menu.style.position = 'fixed';
+            menu.style.left = `${e.clientX}px`;
+            menu.style.top = `${e.clientY}px`;
+            menu.style.background = 'rgba(15, 15, 35, 0.95)';
+            menu.style.border = '1px solid rgba(255, 128, 0, 0.3)';
+            menu.style.borderRadius = '5px';
+            menu.style.padding = '10px 0';
+            menu.style.zIndex = '2000';
+            menu.style.minWidth = '150px';
+            menu.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.5)';
+            
+            const options = [
+                { icon: 'fa-edit', text: 'Edit Character', action: () => openCharacterModal(character.id) },
+                { icon: 'fa-link', text: 'Connect to...', action: () => {
+                    connectionMode = true;
+                    connectionSource = character.id;
+                    document.body.style.cursor = 'crosshair';
+                }},
+                { icon: 'fa-trash-alt', text: 'Delete Character', action: () => deleteCharacter(character.id) }
+            ];
+            
+            options.forEach(option => {
+                const item = document.createElement('div');
+                item.style.padding = '8px 15px';
+                item.style.cursor = 'pointer';
+                item.style.display = 'flex';
+                item.style.alignItems = 'center';
+                item.style.gap = '10px';
+                item.style.transition = 'background 0.2s';
+                
+                item.innerHTML = `
+                    <i class="fas ${option.icon}" style="color: #ff8000;"></i>
+                    <span>${option.text}</span>
+                `;
+                
+                item.addEventListener('mouseenter', () => {
+                    item.style.background = 'rgba(255, 128, 0, 0.2)';
+                });
+                
+                item.addEventListener('mouseleave', () => {
+                    item.style.background = 'transparent';
+                });
+                
+                item.addEventListener('click', () => {
+                    option.action();
+                    document.body.removeChild(menu);
+                });
+                
+                menu.appendChild(item);
+            });
+            
+            document.body.appendChild(menu);
+            
+            // Close menu when clicking elsewhere
+            const closeMenu = () => {
+                if (document.body.contains(menu)) {
+                    document.body.removeChild(menu);
+                }
+                document.removeEventListener('click', closeMenu);
+            };
+            
+            setTimeout(() => {
+                document.addEventListener('click', closeMenu);
+            }, 100);
+        }
+        
+        // Delete character
+        function deleteCharacter(characterId) {
+            if (!confirm('Are you sure you want to delete this character? All relationships will also be deleted.')) {
+                return;
+            }
+            
+            // Remove character
+            characters = characters.filter(c => c.id !== characterId);
+            
+            // Remove relationships involving this character
+            relationships = relationships.filter(r => r.sourceId !== characterId && r.targetId !== characterId);
+            
+            // Update UI
+            renderCharacters();
+            renderRelationships();
+            updateCharacterList();
+            updateCharacterStats();
+            generateAISuggestions();
+            
+            // Close modal if open
+            characterModal.style.display = 'none';
+            
+            // Reset selection
+            selectedCharacter = null;
+            selectedInfo.textContent = 'No selection';
+        }
+        
+        // Auto-layout characters
+        function autoLayout() {
+            const centerX = 1000;
+            const centerY = 1000;
+            const radius = 400;
+            
+            // Position characters in a circle
+            characters.forEach((character, index) => {
+                const angle = (index / characters.length) * 2 * Math.PI;
+                character.x = centerX + radius * Math.cos(angle);
+                character.y = centerY + radius * Math.sin(angle);
+            });
+            
+            renderCharacters();
+            renderRelationships();
+            updateMinimap();
+            generateAISuggestions();
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Zoom controls
+            document.getElementById('zoom-in').addEventListener('click', () => {
+                zoomLevel = Math.min(zoomLevel + 0.1, 2);
+                updateZoom();
+            });
+            
+            document.getElementById('zoom-out').addEventListener('click', () => {
+                zoomLevel = Math.max(zoomLevel - 0.1, 0.3);
+                updateZoom();
+            });
+            
+            // Mouse wheel zoom
+            workspaceContainer.addEventListener('wheel', (e) => {
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    zoomLevel += e.deltaY > 0 ? -0.05 : 0.05;
+                    zoomLevel = Math.max(0.3, Math.min(zoomLevel, 2));
+                    updateZoom();
+                }
+            }, { passive: false });
+            
+            // Pan with mouse drag on empty space
+            workspaceContainer.addEventListener('mousedown', (e) => {
+                if (e.target === workspaceContainer || e.target === workspace || e.target.id === 'relationship-svg') {
+                    isPanning = true;
+                    lastPanPosition.x = e.clientX;
+                    lastPanPosition.y = e.clientY;
+                    workspaceContainer.style.cursor = 'grabbing';
+                }
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (isPanning) {
+                    const deltaX = e.clientX - lastPanPosition.x;
+                    const deltaY = e.clientY - lastPanPosition.y;
+                    
+                    workspaceContainer.scrollLeft -= deltaX;
+                    workspaceContainer.scrollTop -= deltaY;
+                    
+                    lastPanPosition.x = e.clientX;
+                    lastPanPosition.y = e.clientY;
+                    
+                    updateStatusBar();
+                    updateMinimap();
+                }
+            });
+            
+            document.addEventListener('mouseup', () => {
+                isPanning = false;
+                workspaceContainer.style.cursor = 'default';
+            });
+            
+            // Search functionality
+            searchInput.addEventListener('input', () => {
+                updateCharacterList();
+            });
+            
+            // Timeline slider
+            timelineSlider.addEventListener('input', () => {
+                timelineValue = parseInt(timelineSlider.value);
+                renderRelationships();
+            });
+            
+            // Intensity slider
+            intensitySlider.addEventListener('input', () => {
+                renderRelationships();
+            });
+            
+            // Relationship type filter
+            document.querySelectorAll('.type-tag').forEach(tag => {
+                tag.addEventListener('click', () => {
+                    document.querySelectorAll('.type-tag').forEach(t => t.classList.remove('selected'));
+                    tag.classList.add('selected');
+                    renderRelationships();
+                });
+            });
+            
+            // Quick action buttons
+            document.getElementById('add-character-btn').addEventListener('click', () => {
+                openCharacterModal();
+            });
+            
+            document.getElementById('auto-layout-btn').addEventListener('click', autoLayout);
+            
+            document.getElementById('connect-btn').addEventListener('click', () => {
+                if (!selectedCharacter) {
+                    alert('Please select a character first to create a connection');
+                    return;
+                }
+                
+                connectionMode = true;
+                connectionSource = selectedCharacter;
+                document.body.style.cursor = 'crosshair';
+                alert('Now click on another character to create a connection');
+            });
+            
+            document.getElementById('clear-all-btn').addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear all characters and relationships?')) {
+                    characters = [];
+                    relationships = [];
+                    renderCharacters();
+                    renderRelationships();
+                    updateCharacterList();
+                    updateCharacterStats();
+                    generateAISuggestions();
+                }
+            });
+            
+            // Refresh AI button
+            document.getElementById('refresh-ai-btn').addEventListener('click', generateAISuggestions);
+            
+            // Export buttons
+            document.getElementById('export-png').addEventListener('click', () => {
+                alert('PNG export would be generated here. In a real app, this would use html2canvas or similar library.');
+            });
+            
+            document.getElementById('export-json').addEventListener('click', () => {
+                const data = {
+                    characters: characters,
+                    relationships: relationships,
+                    timestamp: new Date().toISOString()
+                };
+                
+                const dataStr = JSON.stringify(data, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                
+                const exportFileDefaultName = 'character-relationships.json';
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+            });
+            
+            document.getElementById('export-pdf').addEventListener('click', () => {
+                alert('PDF export would be generated here. In a real app, this would use jsPDF or similar library.');
+            });
+            
+            document.getElementById('export-svg').addEventListener('click', () => {
+                alert('SVG export would be generated here.');
+            });
+            
+            // Help button
+            document.getElementById('help-btn').addEventListener('click', () => {
+                helpModal.style.display = 'flex';
+            });
+            
+            // Close help modal
+            document.getElementById('close-help-modal').addEventListener('click', () => {
+                helpModal.style.display = 'none';
+            });
+            
+            document.getElementById('close-help-btn').addEventListener('click', () => {
+                helpModal.style.display = 'none';
+            });
+            
+            // Relationship modal events
+            document.getElementById('close-modal').addEventListener('click', () => {
+                relationshipModal.style.display = 'none';
+            });
+            
+            document.getElementById('cancel-edit').addEventListener('click', () => {
+                relationshipModal.style.display = 'none';
+            });
+            
+            document.getElementById('relationship-intensity-modal').addEventListener('input', function() {
+                const value = parseInt(this.value);
+                document.getElementById('intensity-value').textContent = `${value} - ${getIntensityLabel(value)}`;
+            });
+            
+            document.getElementById('save-relationship').addEventListener('click', () => {
+                if (!selectedRelationship) return;
+                
+                const relationship = relationships.find(r => r.id === selectedRelationship);
+                if (relationship) {
+                    relationship.type = document.getElementById('relationship-type-select').value;
+                    relationship.intensity = parseInt(document.getElementById('relationship-intensity-modal').value);
+                    relationship.history = document.getElementById('relationship-text').value;
+                    
+                    // Update label based on type
+                    const typeLabels = {
+                        friendship: "Friendship",
+                        rivalry: "Rivalry", 
+                        romantic: "Romantic",
+                        family: "Family",
+                        mentorship: "Mentorship",
+                        alliance: "Alliance",
+                        enmity: "Enmity",
+                        professional: "Professional",
+                        complicated: "Complicated"
+                    };
+                    
+                    relationship.label = typeLabels[relationship.type] || relationship.type;
+                    
+                    renderRelationships();
+                    relationshipModal.style.display = 'none';
+                    generateAISuggestions();
+                }
+            });
+            
+            document.getElementById('delete-relationship-btn').addEventListener('click', () => {
+                if (!selectedRelationship) return;
+                
+                if (confirm('Are you sure you want to delete this relationship?')) {
+                    relationships = relationships.filter(r => r.id !== selectedRelationship);
+                    selectedRelationship = null;
+                    renderRelationships();
+                    updateCharacterStats();
+                    relationshipModal.style.display = 'none';
+                    generateAISuggestions();
+                    selectedInfo.textContent = 'No selection';
+                }
+            });
+            
+            // Character modal events
+            document.getElementById('close-character-modal').addEventListener('click', () => {
+                characterModal.style.display = 'none';
+            });
+            
+            document.getElementById('cancel-character').addEventListener('click', () => {
+                characterModal.style.display = 'none';
+            });
+            
+            // Color presets
+            document.querySelectorAll('.color-preset').forEach(preset => {
+                preset.addEventListener('click', () => {
+                    document.getElementById('character-color').value = preset.dataset.color;
+                });
+            });
+            
+            // Icon selection
+            document.querySelectorAll('.icon-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                });
+            });
+            
+            document.getElementById('save-character').addEventListener('click', () => {
+                const name = document.getElementById('character-name').value.trim();
+                const role = document.getElementById('character-role').value.trim();
+                const description = document.getElementById('character-description').value.trim();
+                const color = document.getElementById('character-color').value;
+                const icon = document.querySelector('.icon-option.selected').dataset.icon;
+                
+                if (!name) {
+                    alert('Please enter a character name');
+                    return;
+                }
+                
+                // Check if we're editing or adding
+                const deleteBtn = document.getElementById('delete-character-btn');
+                const isEditing = deleteBtn.style.display !== 'none';
+                
+                if (isEditing) {
+                    // Edit existing character
+                    const characterId = parseInt(deleteBtn.dataset.characterId);
+                    const character = characters.find(c => c.id === characterId);
+                    
+                    if (character) {
+                        character.name = name;
+                        character.role = role || 'Supporting';
+                        character.description = description;
+                        character.color = color;
+                        character.icon = icon;
+                    }
+                } else {
+                    // Add new character
+                    const newId = characters.length > 0 ? Math.max(...characters.map(c => c.id)) + 1 : 1;
+                    
+                    // Position near center of visible area
+                    const scrollLeft = workspaceContainer.scrollLeft;
+                    const scrollTop = workspaceContainer.scrollTop;
+                    const containerWidth = workspaceContainer.clientWidth;
+                    const containerHeight = workspaceContainer.clientHeight;
+                    
+                    const newCharacter = {
+                        id: newId,
+                        name: name || `Character ${newId}`,
+                        role: role || 'Supporting',
+                        description: description,
+                        color: color,
+                        icon: icon,
+                        x: scrollLeft + containerWidth / 2,
+                        y: scrollTop + containerHeight / 2
+                    };
+                    
+                    characters.push(newCharacter);
+                }
+                
+                renderCharacters();
+                updateCharacterList();
+                updateCharacterStats();
+                generateAISuggestions();
+                characterModal.style.display = 'none';
+            });
+            
+            document.getElementById('delete-character-btn').addEventListener('click', function() {
+                const characterId = parseInt(this.dataset.characterId);
+                deleteCharacter(characterId);
+            });
+            
+            // Update status bar on scroll
+            workspaceContainer.addEventListener('scroll', updateStatusBar);
+            
+            // Double-click on workspace to add character
+            workspace.addEventListener('dblclick', (e) => {
+                if (e.target === workspace || e.target.id === 'relationship-svg') {
+                    const rect = workspace.getBoundingClientRect();
+                    const scrollLeft = workspaceContainer.scrollLeft;
+                    const scrollTop = workspaceContainer.scrollTop;
+                    
+                    openCharacterModal();
+                    
+                    // Position will be set when modal closes
+                }
+            });
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === relationshipModal) {
+                    relationshipModal.style.display = 'none';
+                }
+                if (e.target === characterModal) {
+                    characterModal.style.display = 'none';
+                }
+                if (e.target === helpModal) {
+                    helpModal.style.display = 'none';
+                }
+            });
+            
+            // Escape key to exit connection mode
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && connectionMode) {
+                    connectionMode = false;
+                    connectionSource = null;
+                    document.body.style.cursor = 'default';
+                }
+                
+                // Delete key to delete selected
+                if (e.key === 'Delete') {
+                    if (selectedCharacter) {
+                        deleteCharacter(selectedCharacter);
+                    } else if (selectedRelationship) {
+                        const relationship = relationships.find(r => r.id === selectedRelationship);
+                        if (relationship && confirm('Delete this relationship?')) {
+                            relationships = relationships.filter(r => r.id !== selectedRelationship);
+                            selectedRelationship = null;
+                            renderRelationships();
+                            updateCharacterStats();
+                            generateAISuggestions();
+                            selectedInfo.textContent = 'No selection';
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html>

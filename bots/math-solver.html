@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Solver</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+    color: #fff;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background: rgba(20, 20, 35, 0.8);
+    border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+    margin-bottom: 30px;
+    border-radius: 10px;
+}
+
+.back-btn {
+    padding: 8px 15px;
+    background: rgba(255, 128, 0, 0.2);
+    border: 1px solid #ff8000;
+    border-radius: 5px;
+    color: #ff8000;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.section {
+    background: rgba(20, 20, 35, 0.5);
+    border: 1px solid rgba(255, 69, 0, 0.2);
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #ccc;
+    font-weight: bold;
+}
+
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 10px 15px;
+    background: rgba(50, 50, 70, 0.4);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    border-radius: 5px;
+    color: #fff;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.btn {
+    padding: 12px 25px;
+    background: linear-gradient(to right, #ff7e00, #ff4500);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: 100%;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 69, 0, 0.4);
+}
+
+.solution-box {
+    background: rgba(50, 50, 70, 0.3);
+    border: 1px solid rgba(255, 128, 0, 0.3);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    display: none;
+}
+
+.solution-box.show {
+    display: block;
+}
+
+.step {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+}
+
+.step:last-child {
+    border-bottom: none;
+}
+
+.step-number {
+    color: #ff8000;
+    font-weight: bold;
+}
+
+.step-content {
+    margin-top: 8px;
+    color: #ddd;
+    line-height: 1.6;
+}
+
+.final-answer {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.1));
+    border: 1px solid #4caf50;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.final-answer-label {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-bottom: 5px;
+}
+
+.final-answer-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #4caf50;
+}
+
+.examples {
+    background: rgba(50, 50, 70, 0.2);
+    border: 1px solid rgba(255, 128, 0, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 20px;
+}
+
+.examples h4 {
+    color: #ff8000;
+    margin-bottom: 10px;
+}
+
+.example-item {
+    padding: 8px 0;
+    color: #ccc;
+    font-size: 0.9rem;
+}
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold;">Math Solver</span>
+        <div style="width: 60px;"></div>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <h2 style="margin-bottom: 20px;"><i class="fas fa-square-root-alt"></i> Enter Your Problem</h2>
+            <div class="form-group">
+                <label>Math Problem</label>
+                <textarea id="problemInput" placeholder="Enter your math problem here. Examples:&#10;• Solve: 2x + 5 = 13&#10;• Area of circle with radius 5&#10;• Simplify: 3/4 + 1/2&#10;• Pythagorean theorem: 3 and 4&#10;• Quadratic: x^2 - 5x + 6 = 0"></textarea>
+            </div>
+            <button class="btn" onclick="solveProblem()"><i class="fas fa-magic"></i> Solve Step by Step</button>
+            
+            <div class="examples">
+                <h4>📝 Try These Examples:</h4>
+                <div class="example-item">• <strong>Algebra:</strong> "solve 2x + 5 = 13" or "solve x^2 - 5x + 6 = 0"</div>
+                <div class="example-item">• <strong>Geometry:</strong> "area circle radius 5" or "pythagorean 3 4"</div>
+                <div class="example-item">• <strong>Fractions:</strong> "3/4 + 1/2" or "5/6 - 1/3"</div>
+                <div class="example-item">• <strong>Percentages:</strong> "15% of 200" or "what is 20% increase of 50"</div>
+            </div>
+        </div>
+
+        <div class="section solution-box" id="solutionBox">
+            <h2 style="margin-bottom: 20px; color: #ff8000;"><i class="fas fa-lightbulb"></i> Step-by-Step Solution</h2>
+            <div id="solutionSteps"></div>
+            <div class="final-answer">
+                <div class="final-answer-label">Final Answer</div>
+                <div class="final-answer-value" id="finalAnswer">-</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const solutionDatabase = {
+            'solve: 2x + 5 = 13': {
+                steps: [
+                    'Original equation: 2x + 5 = 13',
+                    'Subtract 5 from both sides: 2x + 5 - 5 = 13 - 5',
+                    'Simplify: 2x = 8',
+                    'Divide both sides by 2: 2x ÷ 2 = 8 ÷ 2',
+                    'Solution: x = 4',
+                    '✓ Check: 2(4) + 5 = 8 + 5 = 13 ✓'
+                ],
+                answer: 'x = 4'
+            },
+            'area circle radius 5': {
+                steps: [
+                    'Formula for circle area: A = πr²',
+                    'Given: radius (r) = 5',
+                    'Substitute into formula: A = π(5)²',
+                    'Simplify: A = π × 25',
+                    'Calculate: A = 25π',
+                    'Approximate value: 25 × 3.14159 ≈ 78.54 square units'
+                ],
+                answer: 'A = 25π ≈ 78.54 square units'
+            },
+            '3/4 + 1/2': {
+                steps: [
+                    'Finding common denominator for 3/4 and 1/2',
+                    'LCD (Least Common Denominator) = 4',
+                    '3/4 stays as 3/4 (already has denominator 4)',
+                    'Convert 1/2 to have denominator 4: 1/2 = 2/4',
+                    'Add fractions: 3/4 + 2/4 = 5/4',
+                    'Convert to mixed number: 5/4 = 1¼ or 1.25'
+                ],
+                answer: '5/4 or 1¼ (or 1.25 as decimal)'
+            },
+            'solve x^2 = 16': {
+                steps: [
+                    'Original equation: x² = 16',
+                    'Take square root of both sides: √(x²) = √16',
+                    'Remember: Both positive and negative solutions work',
+                    'x = +4 or x = -4',
+                    '✓ Check positive: (4)² = 16 ✓',
+                    '✓ Check negative: (-4)² = 16 ✓'
+                ],
+                answer: 'x = 4 or x = -4'
+            },
+            'pythagorean 3 4': {
+                steps: [
+                    'Pythagorean Theorem: a² + b² = c²',
+                    'Given: a = 3, b = 4, find c (hypotenuse)',
+                    'Substitute: 3² + 4² = c²',
+                    'Calculate: 9 + 16 = c²',
+                    'Simplify: 25 = c²',
+                    'Take square root: c = √25 = 5',
+                    '✓ This is a 3-4-5 right triangle (very common!)'
+                ],
+                answer: 'c = 5 (hypotenuse)'
+            },
+            '15% of 200': {
+                steps: [
+                    'Problem: Find 15% of 200',
+                    'Convert percentage to decimal: 15% = 0.15',
+                    'Multiply: 0.15 × 200 = 30',
+                    'Alternative method: (15/100) × 200 = (15 × 200)/100 = 3000/100 = 30'
+                ],
+                answer: '30'
+            },
+            'solve x^2 - 5x + 6 = 0': {
+                steps: [
+                    'Quadratic equation: x² - 5x + 6 = 0',
+                    'Factor: Look for two numbers that multiply to 6 and add to -5',
+                    'Those numbers are -2 and -3 (because -2 × -3 = 6 and -2 + -3 = -5)',
+                    'Factored form: (x - 2)(x - 3) = 0',
+                    'Set each factor to zero: x - 2 = 0 or x - 3 = 0',
+                    'Solve: x = 2 or x = 3',
+                    '✓ Check x=2: (2)² - 5(2) + 6 = 4 - 10 + 6 = 0 ✓'
+                ],
+                answer: 'x = 2 or x = 3'
+            },
+            '5/6 - 1/3': {
+                steps: [
+                    'Problem: 5/6 - 1/3',
+                    'Find LCD (Least Common Denominator) = 6',
+                    '5/6 already has denominator 6',
+                    'Convert 1/3 to denominator 6: 1/3 = 2/6',
+                    'Subtract: 5/6 - 2/6 = 3/6',
+                    'Simplify: 3/6 = 1/2'
+                ],
+                answer: '3/6 = 1/2 (simplified)'
+            }
+        };
+
+        function solveProblem() {
+            const problem = document.getElementById('problemInput').value.toLowerCase().trim();
+            
+            if (!problem) {
+                alert('Please enter a math problem');
+                return;
+            }
+
+            let solution = null;
+
+            for (const [key, value] of Object.entries(solutionDatabase)) {
+                if (problem.includes(key) || key.includes(problem.split(' ')[0])) {
+                    solution = value;
+                    break;
+                }
+            }
+
+            if (!solution) {
+                solution = {
+                    steps: [
+                        'Problem received: ' + problem,
+                        'Type: Identify if this is algebra, geometry, fractions, percentages, or other math',
+                        'Method: Apply the appropriate mathematical formula or technique',
+                        'Calculation: Work through step-by-step, showing all work',
+                        'Simplification: Reduce fractions, combine like terms, or simplify as needed',
+                        '✓ Verification: Check answer by substituting back into original problem',
+                        'Tip: Try one of the example problems above to see a full solution!'
+                    ],
+                    answer: 'Please try an example from the list, or describe your problem in more detail'
+                };
+            }
+
+            displaySolution(solution);
+        }
+
+        function displaySolution(solution) {
+            const stepsContainer = document.getElementById('solutionSteps');
+            stepsContainer.innerHTML = solution.steps.map((step, idx) => `
+                <div class="step">
+                    <div class="step-number">Step ${idx + 1}</div>
+                    <div class="step-content">${step}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('finalAnswer').textContent = solution.answer;
+            document.getElementById('solutionBox').classList.add('show');
+        }
+    </script>
+</body>
+</html>

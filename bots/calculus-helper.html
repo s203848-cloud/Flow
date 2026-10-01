@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus Solver: Derivatives & Integrals</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.10.0/math.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.8);
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            color: #ff8000;
+        }
+
+        .section-title i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+
+        .section-subtitle {
+            color: #aaa;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .form-group input::placeholder {
+            color: #888;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 14px 25px;
+            background: linear-gradient(to right, #ff7e00, #ff4500);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 69, 0, 0.4);
+        }
+
+        .solution {
+            background: rgba(50, 50, 70, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .solution.show {
+            display: block;
+        }
+
+        .solution-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #ff8000;
+        }
+
+        .solution-header i {
+            margin-right: 10px;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.1));
+            border: 1px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4caf50;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 15px;
+            overflow-x: auto;
+        }
+
+        .step-box {
+            background: rgba(50, 50, 70, 0.2);
+            border-left: 3px solid rgba(255, 128, 0, 0.7);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 0 5px 5px 0;
+        }
+
+        .step-title {
+            color: #ff8000;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .step-content {
+            color: #ccc;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+        }
+
+        .examples {
+            background: rgba(50, 50, 70, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .examples-title {
+            color: #ff8000;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .example-item {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            padding-left: 10px;
+            border-left: 2px solid rgba(255, 128, 0, 0.5);
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .navbar span {
+                font-size: 1.2rem;
+            }
+            
+            .result-value {
+                font-size: 1.2rem;
+            }
+        }
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+        }
+
+        .tab {
+            padding: 12px 20px;
+            background: rgba(50, 50, 70, 0.3);
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            margin-right: 5px;
+        }
+
+        .tab.active {
+            background: rgba(255, 69, 0, 0.2);
+            color: #ff8000;
+            border-bottom: 2px solid #ff8000;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold;">Calculus Solver</span>
+        <div style="width: 60px;"></div>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <div class="tab-container">
+                <button class="tab active" data-tab="derivative"><i class="fas fa-chart-line"></i> Derivative Solver</button>
+                <button class="tab" data-tab="integral"><i class="fas fa-chart-area"></i> Integral Solver</button>
+                <button class="tab" data-tab="definite"><i class="fas fa-calculator"></i> Definite Integral</button>
+            </div>
+            
+            <!-- Derivative Tab -->
+            <div class="tab-content active" id="derivative">
+                <h2 class="section-title"><i class="fas fa-chart-line"></i> Derivative Calculator</h2>
+                <p class="section-subtitle">Calculate the derivative of a function with respect to a variable. Use standard mathematical notation (e.g., x^2, sin(x), exp(x)).</p>
+                
+                <div class="form-group">
+                    <label>Function f(x)</label>
+                    <input type="text" id="functionInput" placeholder="Enter function (e.g., x^2 + 3*x + sin(x))" value="x^2 + 3*x + 5">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Variable</label>
+                        <input type="text" id="derivativeVar" placeholder="Variable (e.g., x)" value="x">
+                    </div>
+                    <div class="form-group">
+                        <label>Derivative Order</label>
+                        <select id="derivativeOrder">
+                            <option value="1">First Derivative</option>
+                            <option value="2">Second Derivative</option>
+                            <option value="3">Third Derivative</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="examples">
+                    <div class="examples-title">Examples:</div>
+                    <div class="example-item">x^3 + 2*x^2 - 5*x + 1</div>
+                    <div class="example-item">sin(x) + cos(2*x)</div>
+                    <div class="example-item">exp(3*x) * log(x)</div>
+                    <div class="example-item">sqrt(x^2 + 1)</div>
+                </div>
+                
+                <button class="btn" onclick="calculateDerivative()"><i class="fas fa-calculator"></i> Calculate Derivative</button>
+            </div>
+            
+            <!-- Integral Tab -->
+            <div class="tab-content" id="integral">
+                <h2 class="section-title"><i class="fas fa-chart-area"></i> Indefinite Integral Calculator</h2>
+                <p class="section-subtitle">Calculate the indefinite integral (antiderivative) of a function. Use standard mathematical notation.</p>
+                
+                <div class="form-group">
+                    <label>Function f(x)</label>
+                    <input type="text" id="integralInput" placeholder="Enter function (e.g., x^2 + 3*x)" value="x^2 + 3*x">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Variable</label>
+                        <input type="text" id="integralVar" placeholder="Variable (e.g., x)" value="x">
+                    </div>
+                    <div class="form-group">
+                        <label>Include Constant of Integration</label>
+                        <select id="includeConstant">
+                            <option value="yes">Yes (+ C)</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="examples">
+                    <div class="examples-title">Examples:</div>
+                    <div class="example-item">3*x^2 + 2*x - 1</div>
+                    <div class="example-item">sin(x) + cos(x)</div>
+                    <div class="example-item">exp(2*x)</div>
+                    <div class="example-item">1/(x^2 + 1)</div>
+                </div>
+                
+                <button class="btn" onclick="calculateIntegral()"><i class="fas fa-calculator"></i> Calculate Integral</button>
+            </div>
+            
+            <!-- Definite Integral Tab -->
+            <div class="tab-content" id="definite">
+                <h2 class="section-title"><i class="fas fa-calculator"></i> Definite Integral Calculator</h2>
+                <p class="section-subtitle">Calculate the definite integral of a function between two limits. This gives the area under the curve.</p>
+                
+                <div class="form-group">
+                    <label>Function f(x)</label>
+                    <input type="text" id="definiteInput" placeholder="Enter function (e.g., x^2)" value="x^2">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Variable</label>
+                        <input type="text" id="definiteVar" placeholder="Variable (e.g., x)" value="x">
+                    </div>
+                    <div class="form-group">
+                        <label>Lower Limit (a)</label>
+                        <input type="text" id="lowerLimit" placeholder="e.g., 0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Upper Limit (b)</label>
+                        <input type="text" id="upperLimit" placeholder="e.g., 2" value="2">
+                    </div>
+                </div>
+                
+                <div class="examples">
+                    <div class="examples-title">Examples:</div>
+                    <div class="example-item">Function: x^2, Limits: 0 to 2</div>
+                    <div class="example-item">Function: sin(x), Limits: 0 to π</div>
+                    <div class="example-item">Function: exp(-x^2), Limits: -∞ to ∞</div>
+                </div>
+                
+                <button class="btn" onclick="calculateDefiniteIntegral()"><i class="fas fa-calculator"></i> Calculate Definite Integral</button>
+            </div>
+        </div>
+
+        <div class="section solution" id="solution">
+            <h2 class="solution-header"><i class="fas fa-check"></i> Solution</h2>
+            <div id="solutionContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and tab contents
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Show corresponding tab content
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Calculate derivative function
+        function calculateDerivative() {
+            const funcInput = document.getElementById('functionInput').value.trim();
+            const variable = document.getElementById('derivativeVar').value.trim() || 'x';
+            const order = parseInt(document.getElementById('derivativeOrder').value);
+            
+            if (!funcInput) {
+                alert('Please enter a function');
+                return;
+            }
+            
+            try {
+                // Use math.js to parse and differentiate the function
+                let derivative = math.derivative(funcInput, variable, {simplify: true});
+                
+                // For higher order derivatives
+                for (let i = 2; i <= order; i++) {
+                    derivative = math.derivative(derivative.toString(), variable, {simplify: true});
+                }
+                
+                const simplifiedDerivative = math.simplify(derivative.toString());
+                
+                // Display the result
+                let solutionHTML = `
+                    <div class="result-box">
+                        <div class="result-label">Function:</div>
+                        <div class="result-value">f(${variable}) = ${funcInput}</div>
+                        
+                        <div class="result-label">${order === 1 ? 'First' : order === 2 ? 'Second' : 'Third'} Derivative:</div>
+                        <div class="result-value">f${"'".repeat(order)}(${variable}) = ${simplifiedDerivative.toString()}</div>
+                    </div>
+                    
+                    <div class="step-box">
+                        <div class="step-title">Calculation Steps:</div>
+                        <div class="step-content">
+                            1. Original function: f(${variable}) = ${funcInput}<br>
+                            2. Applied derivative operator d/d${variable}<br>
+                            3. Simplified the result<br>
+                            4. Final derivative: ${simplifiedDerivative.toString()}
+                        </div>
+                    </div>
+                `;
+                
+                // For specific common functions, show more detailed steps
+                if (funcInput.includes('x^')) {
+                    solutionHTML += `
+                        <div class="step-box">
+                            <div class="step-title">Power Rule Applied:</div>
+                            <div class="step-content">
+                                For term x^n: d/dx(x^n) = n*x^(n-1)
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                document.getElementById('solutionContent').innerHTML = solutionHTML;
+                document.getElementById('solution').classList.add('show');
+                
+            } catch (error) {
+                alert('Error calculating derivative. Please check your function syntax.');
+                console.error(error);
+            }
+        }
+
+        // Calculate indefinite integral
+        function calculateIntegral() {
+            const funcInput = document.getElementById('integralInput').value.trim();
+            const variable = document.getElementById('integralVar').value.trim() || 'x';
+            const includeConstant = document.getElementById('includeConstant').value;
+            
+            if (!funcInput) {
+                alert('Please enter a function');
+                return;
+            }
+            
+            try {
+                // For simple polynomials, we can calculate the integral
+                let integralResult = '';
+                let steps = '';
+                
+                // This is a simplified integration logic for demonstration
+                // In a real application, you would use a more sophisticated library
+                
+                // Try to integrate using math.js integrate function (for definite integrals)
+                // For indefinite integrals, we'll use a custom approach for common functions
+                
+                if (funcInput.includes('x^')) {
+                    // Handle polynomial terms
+                    const terms = funcInput.split('+').map(term => term.trim());
+                    let integratedTerms = [];
+                    
+                    for (let term of terms) {
+                        if (term.includes(`${variable}^`)) {
+                            // Extract the power
+                            const powerMatch = term.match(new RegExp(`${variable}\\^(-?\\d+)`));
+                            if (powerMatch) {
+                                const power = parseInt(powerMatch[1]);
+                                const newPower = power + 1;
+                                const coefficient = term.replace(`*${variable}^${power}`, '').replace(`${variable}^${power}`, '1');
+                                
+                                let coeffValue = 1;
+                                if (coefficient && coefficient !== '') {
+                                    coeffValue = parseFloat(coefficient) || 1;
+                                }
+                                
+                                const newCoefficient = coeffValue / newPower;
+                                integratedTerms.push(`${newCoefficient === 1 ? '' : newCoefficient + '*'}${variable}^${newPower}`);
+                            }
+                        } else if (term === variable) {
+                            integratedTerms.push(`(1/2)*${variable}^2`);
+                        } else if (term.includes('*' + variable) && !term.includes('^')) {
+                            const coefficient = term.replace('*' + variable, '');
+                            const coeffValue = parseFloat(coefficient) || 1;
+                            integratedTerms.push(`(${coeffValue}/2)*${variable}^2`);
+                        } else {
+                            // Constant term
+                            integratedTerms.push(`${term}*${variable}`);
+                        }
+                    }
+                    
+                    integralResult = integratedTerms.join(' + ');
+                    steps = `Integrated each term using the power rule: ∫x^n dx = (1/(n+1))x^(n+1)`;
+                } else if (funcInput.includes('sin') || funcInput.includes('cos') || funcInput.includes('exp')) {
+                    // Handle trigonometric and exponential functions
+                    if (funcInput.includes('sin(' + variable + ')')) {
+                        integralResult = '-cos(' + variable + ')';
+                        steps = `Used trigonometric integral: ∫sin(x) dx = -cos(x)`;
+                    } else if (funcInput.includes('cos(' + variable + ')')) {
+                        integralResult = 'sin(' + variable + ')';
+                        steps = `Used trigonometric integral: ∫cos(x) dx = sin(x)`;
+                    } else if (funcInput.includes('exp(')) {
+                        integralResult = funcInput; // exp(x) integrates to itself
+                        steps = `Used exponential integral: ∫e^x dx = e^x`;
+                    } else {
+                        integralResult = `∫(${funcInput}) d${variable}`;
+                        steps = `Could not compute symbolically.`;
+                    }
+                } else {
+                    integralResult = `∫(${funcInput}) d${variable}`;
+                    steps = `Could not compute symbolically.`;
+                }
+                
+                // Add constant of integration if requested
+                if (includeConstant === 'yes' && integralResult !== '') {
+                    integralResult += ' + C';
+                }
+                
+                // Display the result
+                let solutionHTML = `
+                    <div class="result-box">
+                        <div class="result-label">Function to Integrate:</div>
+                        <div class="result-value">f(${variable}) = ${funcInput}</div>
+                        
+                        <div class="result-label">Indefinite Integral:</div>
+                        <div class="result-value">∫ f(${variable}) d${variable} = ${integralResult}</div>
+                    </div>
+                    
+                    <div class="step-box">
+                        <div class="step-title">Integration Steps:</div>
+                        <div class="step-content">
+                            1. Function: ∫(${funcInput}) d${variable}<br>
+                            2. ${steps}<br>
+                            3. Result: ${integralResult}
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('solutionContent').innerHTML = solutionHTML;
+                document.getElementById('solution').classList.add('show');
+                
+            } catch (error) {
+                alert('Error calculating integral. Please check your function syntax.');
+                console.error(error);
+            }
+        }
+
+        // Calculate definite integral
+        function calculateDefiniteIntegral() {
+            const funcInput = document.getElementById('definiteInput').value.trim();
+            const variable = document.getElementById('definiteVar').value.trim() || 'x';
+            const lower = document.getElementById('lowerLimit').value.trim();
+            const upper = document.getElementById('upperLimit').value.trim();
+            
+            if (!funcInput || !lower || !upper) {
+                alert('Please enter a function and both limits');
+                return;
+            }
+            
+            try {
+                // For demonstration, we'll compute some common definite integrals
+                let result = '';
+                let numericResult = '';
+                let steps = '';
+                
+                // Simple polynomial example: ∫x^2 dx from a to b
+                if (funcInput === `${variable}^2`) {
+                    const a = parseFloat(lower);
+                    const b = parseFloat(upper);
+                    
+                    if (!isNaN(a) && !isNaN(b)) {
+                        const antiderivative = `(1/3)*${variable}^3`;
+                        const upperEval = (1/3) * Math.pow(b, 3);
+                        const lowerEval = (1/3) * Math.pow(a, 3);
+                        numericResult = (upperEval - lowerEval).toFixed(4);
+                        
+                        result = `∫${funcInput} d${variable} from ${lower} to ${upper} = ${numericResult}`;
+                        steps = `
+                            1. Find antiderivative: ∫${variable}^2 d${variable} = (1/3)${variable}^3<br>
+                            2. Evaluate at upper limit: (1/3)*(${upper})^3 = ${upperEval.toFixed(4)}<br>
+                            3. Evaluate at lower limit: (1/3)*(${lower})^3 = ${lowerEval.toFixed(4)}<br>
+                            4. Subtract: ${upperEval.toFixed(4)} - ${lowerEval.toFixed(4)} = ${numericResult}
+                        `;
+                    }
+                } 
+                // sin(x) example
+                else if (funcInput === `sin(${variable})`) {
+                    const a = lower === 'π' ? Math.PI : parseFloat(lower);
+                    const b = upper === 'π' ? Math.PI : parseFloat(upper);
+                    
+                    if (!isNaN(a) && !isNaN(b)) {
+                        const antiderivative = `-cos(${variable})`;
+                        const upperEval = -Math.cos(b);
+                        const lowerEval = -Math.cos(a);
+                        numericResult = (upperEval - lowerEval).toFixed(4);
+                        
+                        result = `∫${funcInput} d${variable} from ${lower} to ${upper} = ${numericResult}`;
+                        steps = `
+                            1. Find antiderivative: ∫sin(${variable}) d${variable} = -cos(${variable})<br>
+                            2. Evaluate at upper limit: -cos(${upper}) = ${upperEval.toFixed(4)}<br>
+                            3. Evaluate at lower limit: -cos(${lower}) = ${lowerEval.toFixed(4)}<br>
+                            4. Subtract: ${upperEval.toFixed(4)} - ${lowerEval.toFixed(4)} = ${numericResult}
+                        `;
+                    }
+                }
+                // Default case - show symbolic representation
+                else {
+                    result = `∫${funcInput} d${variable} from ${lower} to ${upper}`;
+                    steps = `The definite integral represents the net area under the curve f(${variable}) = ${funcInput} between ${variable} = ${lower} and ${variable} = ${upper}.`;
+                }
+                
+                // Display the result
+                let solutionHTML = `
+                    <div class="result-box">
+                        <div class="result-label">Definite Integral:</div>
+                        <div class="result-value">${result}</div>
+                        
+                        ${numericResult ? `
+                        <div class="result-label">Numerical Result:</div>
+                        <div class="result-value">${numericResult}</div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="step-box">
+                        <div class="step-title">Calculation Steps:</div>
+                        <div class="step-content">${steps}</div>
+                    </div>
+                    
+                    <div class="step-box">
+                        <div class="step-title">Interpretation:</div>
+                        <div class="step-content">
+                            The definite integral gives the net area between the function curve and the ${variable}-axis from ${variable} = ${lower} to ${variable} = ${upper}.
+                            ${numericResult ? `The area is approximately ${numericResult} square units.` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('solutionContent').innerHTML = solutionHTML;
+                document.getElementById('solution').classList.add('show');
+                
+            } catch (error) {
+                alert('Error calculating definite integral. Please check your inputs.');
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Graphing Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.8);
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+        
+        .main-content {
+            grid-column: 1;
+        }
+        
+        .controls {
+            grid-column: 2;
+        }
+        
+        .section {
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        h2 {
+            margin-bottom: 15px;
+            color: #ff8000;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            padding-bottom: 8px;
+        }
+        
+        h3 {
+            margin: 15px 0 10px 0;
+            color: #ffaa44;
+            font-size: 1.1rem;
+        }
+        
+        canvas {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            width: 100%;
+            margin: 15px 0;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: #fff;
+            margin: 8px 0;
+        }
+        
+        input::placeholder {
+            color: #888;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            background: linear-gradient(to right, #ff7e00, #ff4500);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 69, 0, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(to right, #444, #666);
+            padding: 8px 15px;
+            margin-top: 5px;
+        }
+        
+        .control-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .control-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .variable-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .variable-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .variable-name {
+            font-weight: bold;
+            color: #ffaa44;
+        }
+        
+        .variable-value {
+            color: #88ff88;
+        }
+        
+        .function-list {
+            margin-top: 15px;
+        }
+        
+        .function-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .function-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        .axis-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .axis-input {
+            margin-bottom: 10px;
+        }
+        
+        .row-label {
+            font-weight: bold;
+            color: #ffaa44;
+        }
+        
+        .graph-container {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .coordinate-display {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .calculation-result {
+            background: rgba(0, 50, 0, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .calculation-input {
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                grid-column: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold;">Advanced Graphing Calculator</span>
+    </div>
+    
+    <div class="container">
+        <div class="main-content">
+            <div class="section">
+                <h2><i class="fas fa-chart-line"></i> Graphing Canvas</h2>
+                <div class="graph-container">
+                    <div class="coordinate-display" id="coordinateDisplay">(0, 0)</div>
+                    <canvas id="canvas" width="800" height="500"></canvas>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2><i class="fas fa-calculator"></i> Calculations</h2>
+                <input type="text" id="calcInput" placeholder="Enter calculation using variables (e.g., a + b * 2)" class="calculation-input">
+                <button class="btn" onclick="performCalculation()"><i class="fas fa-calculator"></i> Calculate</button>
+                <div class="calculation-result" id="calcResult">
+                    Result will appear here...
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="section">
+                <h2><i class="fas fa-sliders-h"></i> Graph Controls</h2>
+                
+                <h3>Grid Configuration</h3>
+                <div class="control-group">
+                    <div class="control-item">
+                        <label>Columns</label>
+                        <input type="number" id="columnsInput" min="1" max="30" value="10">
+                    </div>
+                    <div class="control-item">
+                        <label>Rows</label>
+                        <input type="number" id="rowsInput" min="1" max="30" value="10">
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="updateGrid()"><i class="fas fa-sync-alt"></i> Update Grid</button>
+                
+                <h3>Axis Labels & Values</h3>
+                <div class="axis-controls">
+                    <div>
+                        <label>X-axis Min</label>
+                        <input type="number" id="xMinInput" value="-5" class="axis-input">
+                    </div>
+                    <div>
+                        <label>X-axis Max</label>
+                        <input type="number" id="xMaxInput" value="5" class="axis-input">
+                    </div>
+                    <div>
+                        <label>Y-axis Min</label>
+                        <input type="number" id="yMinInput" value="-5" class="axis-input">
+                    </div>
+                    <div>
+                        <label>Y-axis Max</label>
+                        <input type="number" id="yMaxInput" value="5" class="axis-input">
+                    </div>
+                </div>
+                
+                <button class="btn btn-secondary" onclick="updateAxis()"><i class="fas fa-arrows-alt-h"></i> Update Axis</button>
+                
+                <h3>Function Plotting</h3>
+                <input type="text" id="funcInput" placeholder="Enter function: e.g., x*x or sin(x)">
+                <button class="btn" onclick="addFunction()"><i class="fas fa-plus-circle"></i> Add Function</button>
+                
+                <div class="function-list" id="functionList">
+                    <!-- Functions will be added here -->
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2><i class="fas fa-font"></i> Row Variables</h2>
+                <p>Each row is labeled with a letter variable. You can use these variables in calculations.</p>
+                
+                <div class="variable-display" id="variableDisplay">
+                    <!-- Variables will be displayed here -->
+                </div>
+                
+                <button class="btn btn-secondary" onclick="refreshVariables()"><i class="fas fa-redo"></i> Refresh Variables</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Canvas and context
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Grid configuration
+        let columns = 10;
+        let rows = 10;
+        let xMin = -5;
+        let xMax = 5;
+        let yMin = -5;
+        let yMax = 5;
+        
+        // Variables for each row
+        let rowVariables = {};
+        
+        // Functions to plot
+        let functions = [];
+        
+        // Color palette for functions
+        const colors = [
+            '#ff8000', '#00ff80', '#0080ff', '#ff00ff', 
+            '#ffff00', '#00ffff', '#ff4040', '#80ff00'
+        ];
+        
+        // Initialize
+        function init() {
+            updateGridFromInputs();
+            drawGrid();
+            updateVariables();
+            updateFunctionList();
+            
+            // Add mouse move listener for coordinate display
+            canvas.addEventListener('mousemove', handleMouseMove);
+            
+            // Add example function
+            functions.push({
+                expression: 'x*x',
+                color: colors[0]
+            });
+            drawFunctions();
+        }
+        
+        // Update grid from input values
+        function updateGridFromInputs() {
+            columns = parseInt(document.getElementById('columnsInput').value) || 10;
+            rows = parseInt(document.getElementById('rowsInput').value) || 10;
+            xMin = parseFloat(document.getElementById('xMinInput').value) || -5;
+            xMax = parseFloat(document.getElementById('xMaxInput').value) || 5;
+            yMin = parseFloat(document.getElementById('yMinInput').value) || -5;
+            yMax = parseFloat(document.getElementById('yMaxInput').value) || 5;
+        }
+        
+        // Draw the grid
+        function drawGrid() {
+            // Clear canvas
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Grid properties
+            const gridWidth = canvas.width;
+            const gridHeight = canvas.height;
+            const cellWidth = gridWidth / columns;
+            const cellHeight = gridHeight / rows;
+            
+            // Draw grid lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            
+            // Vertical lines
+            for (let i = 0; i <= columns; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * cellWidth, 0);
+                ctx.lineTo(i * cellWidth, gridHeight);
+                ctx.stroke();
+                
+                // X-axis labels
+                const xValue = xMin + (i / columns) * (xMax - xMin);
+                ctx.fillStyle = '#ffaa44';
+                ctx.font = '12px Arial';
+                ctx.fillText(xValue.toFixed(1), i * cellWidth, gridHeight - 5);
+            }
+            
+            // Horizontal lines
+            for (let i = 0; i <= rows; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, i * cellHeight);
+                ctx.lineTo(gridWidth, i * cellHeight);
+                ctx.stroke();
+                
+                // Y-axis labels
+                const yValue = yMax - (i / rows) * (yMax - yMin);
+                ctx.fillStyle = '#ffaa44';
+                ctx.font = '12px Arial';
+                ctx.fillText(yValue.toFixed(1), 5, i * cellHeight + 15);
+                
+                // Row letter labels
+                const rowLetter = String.fromCharCode(65 + i); // A, B, C, ...
+                ctx.fillStyle = '#80a0ff';
+                ctx.font = 'bold 14px Arial';
+                ctx.fillText(rowLetter, gridWidth - 20, i * cellHeight + 15);
+            }
+            
+            // Draw axes
+            ctx.strokeStyle = '#ff8000';
+            ctx.lineWidth = 2;
+            
+            // X-axis
+            const xAxisY = (0 - yMin) / (yMax - yMin) * gridHeight;
+            if (xAxisY >= 0 && xAxisY <= gridHeight) {
+                ctx.beginPath();
+                ctx.moveTo(0, xAxisY);
+                ctx.lineTo(gridWidth, xAxisY);
+                ctx.stroke();
+            }
+            
+            // Y-axis
+            const yAxisX = (0 - xMin) / (xMax - xMin) * gridWidth;
+            if (yAxisX >= 0 && yAxisX <= gridWidth) {
+                ctx.beginPath();
+                ctx.moveTo(yAxisX, 0);
+                ctx.lineTo(yAxisX, gridHeight);
+                ctx.stroke();
+            }
+        }
+        
+        // Draw functions
+        function drawFunctions() {
+            const gridWidth = canvas.width;
+            const gridHeight = canvas.height;
+            
+            functions.forEach(func => {
+                ctx.strokeStyle = func.color;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                
+                let firstPoint = true;
+                
+                for (let px = 0; px < gridWidth; px++) {
+                    const x = xMin + (px / gridWidth) * (xMax - xMin);
+                    
+                    try {
+                        const expression = func.expression.replace(/x/g, '(' + x + ')');
+                        const y = eval(expression);
+                        
+                        // Convert y to pixel coordinate
+                        const py = gridHeight - ((y - yMin) / (yMax - yMin) * gridHeight);
+                        
+                        if (firstPoint) {
+                            ctx.moveTo(px, py);
+                            firstPoint = false;
+                        } else {
+                            ctx.lineTo(px, py);
+                        }
+                    } catch (e) {
+                        // If error, start new path
+                        firstPoint = true;
+                    }
+                }
+                
+                ctx.stroke();
+            });
+        }
+        
+        // Update grid when button clicked
+        function updateGrid() {
+            updateGridFromInputs();
+            drawGrid();
+            drawFunctions();
+            updateVariables();
+        }
+        
+        // Update axis when button clicked
+        function updateAxis() {
+            xMin = parseFloat(document.getElementById('xMinInput').value) || -5;
+            xMax = parseFloat(document.getElementById('xMaxInput').value) || 5;
+            yMin = parseFloat(document.getElementById('yMinInput').value) || -5;
+            yMax = parseFloat(document.getElementById('yMaxInput').value) || 5;
+            
+            drawGrid();
+            drawFunctions();
+            updateVariables();
+        }
+        
+        // Add function to plot
+        function addFunction() {
+            const funcInput = document.getElementById('funcInput');
+            const expression = funcInput.value.trim();
+            
+            if (!expression) {
+                alert('Please enter a function');
+                return;
+            }
+            
+            // Assign a color
+            const color = colors[functions.length % colors.length];
+            
+            functions.push({
+                expression: expression,
+                color: color
+            });
+            
+            funcInput.value = '';
+            drawGrid();
+            drawFunctions();
+            updateFunctionList();
+        }
+        
+        // Update function list display
+        function updateFunctionList() {
+            const functionList = document.getElementById('functionList');
+            functionList.innerHTML = '';
+            
+            functions.forEach((func, index) => {
+                const div = document.createElement('div');
+                div.className = 'function-item';
+                div.innerHTML = `
+                    <div>
+                        <span class="function-color" style="background-color: ${func.color}"></span>
+                        <span>${func.expression}</span>
+                    </div>
+                    <div>
+                        <button onclick="removeFunction(${index})" style="background: transparent; border: none; color: #ff6666; cursor: pointer;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                functionList.appendChild(div);
+            });
+        }
+        
+        // Remove a function
+        function removeFunction(index) {
+            functions.splice(index, 1);
+            drawGrid();
+            drawFunctions();
+            updateFunctionList();
+        }
+        
+        // Update row variables based on grid
+        function updateVariables() {
+            rowVariables = {};
+            
+            // Create variables for each row
+            for (let i = 0; i < rows; i++) {
+                const rowLetter = String.fromCharCode(65 + i); // A, B, C, ...
+                // Calculate value for this row (at the middle of the row)
+                const rowValue = yMax - ((i + 0.5) / rows) * (yMax - yMin);
+                rowVariables[rowLetter] = rowValue;
+            }
+            
+            // Also create column variables (1, 2, 3, ...)
+            for (let i = 0; i < columns; i++) {
+                const colNumber = i + 1;
+                // Calculate value for this column (at the middle of the column)
+                const colValue = xMin + ((i + 0.5) / columns) * (xMax - xMin);
+                rowVariables[colNumber] = colValue;
+            }
+            
+            updateVariableDisplay();
+        }
+        
+        // Update variable display
+        function updateVariableDisplay() {
+            const variableDisplay = document.getElementById('variableDisplay');
+            variableDisplay.innerHTML = '';
+            
+            // Display row variables (A, B, C, ...)
+            for (let i = 0; i < rows; i++) {
+                const rowLetter = String.fromCharCode(65 + i);
+                const value = rowVariables[rowLetter];
+                
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'variable-row';
+                rowDiv.innerHTML = `
+                    <span class="variable-name">${rowLetter}</span>
+                    <span class="variable-value">${value.toFixed(2)}</span>
+                `;
+                variableDisplay.appendChild(rowDiv);
+            }
+            
+            // Display column variables (1, 2, 3, ...)
+            for (let i = 1; i <= columns; i++) {
+                const value = rowVariables[i];
+                
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'variable-row';
+                rowDiv.innerHTML = `
+                    <span class="variable-name">${i}</span>
+                    <span class="variable-value">${value.toFixed(2)}</span>
+                `;
+                variableDisplay.appendChild(rowDiv);
+            }
+        }
+        
+        // Refresh variables
+        function refreshVariables() {
+            updateVariables();
+        }
+        
+        // Perform calculation using variables
+        function performCalculation() {
+            const calcInput = document.getElementById('calcInput');
+            const expression = calcInput.value.trim();
+            const resultDiv = document.getElementById('calcResult');
+            
+            if (!expression) {
+                resultDiv.innerHTML = '<span style="color: #ff6666">Please enter a calculation</span>';
+                return;
+            }
+            
+            try {
+                // Replace variable names with their values
+                let evalExpression = expression;
+                
+                // Replace row letters (A, B, C, ...)
+                for (let i = 0; i < rows; i++) {
+                    const rowLetter = String.fromCharCode(65 + i);
+                    const regex = new RegExp(rowLetter, 'g');
+                    evalExpression = evalExpression.replace(regex, rowVariables[rowLetter]);
+                }
+                
+                // Replace column numbers (1, 2, 3, ...)
+                for (let i = 1; i <= columns; i++) {
+                    const regex = new RegExp('\\b' + i + '\\b', 'g');
+                    evalExpression = evalExpression.replace(regex, rowVariables[i]);
+                }
+                
+                // Evaluate the expression
+                const result = eval(evalExpression);
+                resultDiv.innerHTML = `
+                    <strong>Calculation:</strong> ${expression}<br>
+                    <strong>Result:</strong> ${result.toFixed(4)}<br>
+                    <small>Expression evaluated: ${evalExpression}</small>
+                `;
+            } catch (e) {
+                resultDiv.innerHTML = `<span style="color: #ff6666">Error in calculation: ${e.message}</span>`;
+            }
+        }
+        
+        // Handle mouse movement on canvas
+        function handleMouseMove(event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            // Convert to graph coordinates
+            const graphX = xMin + (x / canvas.width) * (xMax - xMin);
+            const graphY = yMax - (y / canvas.height) * (yMax - yMin);
+            
+            document.getElementById('coordinateDisplay').textContent = 
+                `(${graphX.toFixed(2)}, ${graphY.toFixed(2)})`;
+        }
+        
+        // Initialize on load
+        window.onload = init;
+    </script>
+</body>
+</html>

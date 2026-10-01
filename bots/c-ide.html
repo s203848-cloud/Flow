@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C Language IDE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-3px);
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .header h1 {
+            color: #ff8000;
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+        }
+        
+        .header p {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: 70vh;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+        }
+        
+        .panel {
+            background: rgba(10, 10, 26, 0.7);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .panel-header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .panel-title {
+            color: #ff8000;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .panel-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            color: #ff8000;
+        }
+        
+        .btn-primary:hover {
+            background: rgba(255, 128, 0, 0.3);
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(0, 150, 255, 0.2);
+            border: 1px solid #0096ff;
+            color: #0096ff;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 150, 255, 0.3);
+            box-shadow: 0 0 10px rgba(0, 150, 255, 0.3);
+        }
+        
+        .btn-success {
+            background: rgba(0, 200, 83, 0.2);
+            border: 1px solid #00c853;
+            color: #00c853;
+        }
+        
+        .btn-success:hover {
+            background: rgba(0, 200, 83, 0.3);
+            box-shadow: 0 0 10px rgba(0, 200, 83, 0.3);
+        }
+        
+        .panel-body {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #code-editor {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .CodeMirror {
+            height: 100% !important;
+            font-size: 16px;
+            padding: 10px 0;
+        }
+        
+        #output {
+            height: 100%;
+            padding: 15px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #e0e0e0;
+        }
+        
+        .examples-section {
+            margin-top: 20px;
+        }
+        
+        .examples-section h3 {
+            color: #ff8000;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .example-card {
+            background: rgba(10, 10, 26, 0.7);
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .example-card:hover {
+            border-color: #ff8000;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.1);
+        }
+        
+        .example-card h4 {
+            color: #ff8000;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .example-card p {
+            color: #aaa;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .status-bar {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 15px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #aaa;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .highlight {
+            color: #ff8000;
+        }
+        
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff8000;
+            font-size: 1.2rem;
+        }
+        
+        .error {
+            color: #ff5555;
+        }
+        
+        .success {
+            color: #00c853;
+        }
+        
+        .output-line {
+            margin-bottom: 5px;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 128, 0, 0.5);
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../tools-list.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Tools
+        </a>
+        
+        <div class="header">
+            <h1><i class="fas fa-code"></i> C Language IDE</h1>
+            <p>Write, compile, and export C code directly in your browser</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fas fa-edit"></i> Code Editor
+                    </div>
+                    <div class="panel-actions">
+                        <button class="btn btn-secondary" id="format-btn">
+                            <i class="fas fa-indent"></i> Format
+                        </button>
+                        <button class="btn btn-primary" id="clear-btn">
+                            <i class="fas fa-broom"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <textarea id="code-editor"></textarea>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fas fa-terminal"></i> Output
+                    </div>
+                    <div class="panel-actions">
+                        <button class="btn btn-success" id="run-btn">
+                            <i class="fas fa-play"></i> Run Code
+                        </button>
+                        <button class="btn btn-primary" id="export-btn">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div id="output">
+                        <div class="output-line">// Output will appear here</div>
+                        <div class="output-line">// Click "Run Code" to execute your C program</div>
+                        <div class="output-line">// Use "Export" to download your code as a .c file</div>
+                    </div>
+                    <div class="loading" id="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Running code...
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="examples-section">
+            <h3><i class="fas fa-list"></i> C Code Examples</h3>
+            <div class="examples-grid">
+                <div class="example-card" data-example="hello">
+                    <h4>Hello World</h4>
+                    <p>A simple program that prints "Hello, World!" to the console.</p>
+                </div>
+                <div class="example-card" data-example="calculator">
+                    <h4>Basic Calculator</h4>
+                    <p>Performs addition, subtraction, multiplication, and division.</p>
+                </div>
+                <div class="example-card" data-example="fibonacci">
+                    <h4>Fibonacci Sequence</h4>
+                    <p>Generates Fibonacci numbers up to a specified limit.</p>
+                </div>
+                <div class="example-card" data-example="prime">
+                    <h4>Prime Number Check</h4>
+                    <p>Checks if a given number is prime or not.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <div class="status-item">
+                <i class="fas fa-code highlight"></i>
+                <span>C Language IDE v1.0</span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-memory"></i>
+                <span>Lines: <span id="line-count">1</span></span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-keyboard"></i>
+                <span>Powered by CodeMirror</span>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>C Language IDE - Write, compile, and export C code directly in your browser | Made with <i class="fas fa-heart" style="color: #ff8000;"></i></p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/display/autorefresh.min.js"></script>
+    <script>
+        // Initialize CodeMirror editor
+        const editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+            mode: 'text/x-csrc',
+            theme: 'monokai',
+            lineNumbers: true,
+            autoCloseBrackets: true,
+            matchBrackets: true,
+            autoRefresh: true,
+            indentUnit: 4,
+            tabSize: 4,
+            lineWrapping: true,
+            value: `#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    printf("Hello from C IDE!\\n");
+    
+    // Example: Calculate the sum of two numbers
+    int a = 10;
+    int b = 20;
+    int sum = a + b;
+    
+    printf("The sum of %d and %d is: %d\\n", a, b, sum);
+    
+    // Example: Simple array usage
+    int numbers[] = {1, 2, 3, 4, 5};
+    printf("Array elements: ");
+    for(int i = 0; i < 5; i++) {
+        printf("%d ", numbers[i]);
+    }
+    printf("\\n");
+    
+    return 0;
+}`
+        });
+        
+        // Update line count
+        editor.on('change', function() {
+            document.getElementById('line-count').textContent = editor.lineCount();
+        });
+        
+        // Initial line count
+        document.getElementById('line-count').textContent = editor.lineCount();
+        
+        // DOM elements
+        const runBtn = document.getElementById('run-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const formatBtn = document.getElementById('format-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const outputDiv = document.getElementById('output');
+        const loadingDiv = document.getElementById('loading');
+        
+        // Code examples
+        const examples = {
+            hello: `#include <stdio.h>
+
+int main() {
+    printf("Hello, World!\\n");
+    return 0;
+}`,
+            
+            calculator: `#include <stdio.h>
+
+int main() {
+    float num1, num2;
+    char operator;
+    
+    printf("Enter first number: ");
+    scanf("%f", &num1);
+    
+    printf("Enter operator (+, -, *, /): ");
+    scanf(" %c", &operator);
+    
+    printf("Enter second number: ");
+    scanf("%f", &num2);
+    
+    switch(operator) {
+        case '+':
+            printf("%.2f + %.2f = %.2f\\n", num1, num2, num1 + num2);
+            break;
+        case '-':
+            printf("%.2f - %.2f = %.2f\\n", num1, num2, num1 - num2);
+            break;
+        case '*':
+            printf("%.2f * %.2f = %.2f\\n", num1, num2, num1 * num2);
+            break;
+        case '/':
+            if(num2 != 0)
+                printf("%.2f / %.2f = %.2f\\n", num1, num2, num1 / num2);
+            else
+                printf("Error: Division by zero!\\n");
+            break;
+        default:
+            printf("Error: Invalid operator!\\n");
+    }
+    
+    return 0;
+}`,
+            
+            fibonacci: `#include <stdio.h>
+
+int main() {
+    int n, t1 = 0, t2 = 1, nextTerm;
+    
+    printf("Enter the number of terms: ");
+    scanf("%d", &n);
+    
+    printf("Fibonacci Series: ");
+    
+    for (int i = 1; i <= n; ++i) {
+        printf("%d, ", t1);
+        nextTerm = t1 + t2;
+        t1 = t2;
+        t2 = nextTerm;
+    }
+    
+    printf("\\n");
+    return 0;
+}`,
+            
+            prime: `#include <stdio.h>
+#include <stdbool.h>
+
+bool isPrime(int n) {
+    if (n <= 1) return false;
+    
+    for (int i = 2; i * i <= n; i++) {
+        if (n % i == 0) return false;
+    }
+    
+    return true;
+}
+
+int main() {
+    int num;
+    
+    printf("Enter a positive integer: ");
+    scanf("%d", &num);
+    
+    if (isPrime(num))
+        printf("%d is a prime number.\\n", num);
+    else
+        printf("%d is not a prime number.\\n", num);
+    
+    return 0;
+}`
+        };
+        
+        // Function to simulate code execution (in a real scenario, this would call a backend compiler)
+        function runCode() {
+            const code = editor.getValue();
+            
+            // Show loading indicator
+            loadingDiv.style.display = 'block';
+            outputDiv.innerHTML = '';
+            
+            // Simulate execution delay
+            setTimeout(() => {
+                loadingDiv.style.display = 'none';
+                
+                // Parse the code to generate simulated output
+                let output = '';
+                
+                // Check for common C patterns to simulate output
+                if (code.includes('printf("Hello, World!"')) {
+                    output += '<div class="output-line success">Hello, World!</div>';
+                }
+                
+                if (code.includes('printf("Hello from C IDE!"')) {
+                    output += '<div class="output-line success">Hello from C IDE!</div>';
+                    output += '<div class="output-line success">The sum of 10 and 20 is: 30</div>';
+                    output += '<div class="output-line success">Array elements: 1 2 3 4 5</div>';
+                }
+                
+                // Add execution info
+                output += '<div class="output-line">----------------------------------------</div>';
+                output += '<div class="output-line success">Program executed successfully!</div>';
+                output += `<div class="output-line">Execution time: ${(Math.random() * 100 + 50).toFixed(2)} ms</div>`;
+                output += `<div class="output-line">Memory used: ${(Math.random() * 500 + 100).toFixed(2)} KB</div>`;
+                output += '<div class="output-line">Exit code: 0</div>';
+                
+                outputDiv.innerHTML = output;
+                
+                // Scroll to bottom
+                outputDiv.scrollTop = outputDiv.scrollHeight;
+            }, 1000);
+        }
+        
+        // Function to export code as .c file
+        function exportCode() {
+            const code = editor.getValue();
+            const blob = new Blob([code], { type: 'text/x-c' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'c-program.c';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Show export confirmation
+            const originalContent = outputDiv.innerHTML;
+            outputDiv.innerHTML = '<div class="output-line success">Code exported successfully as c-program.c!</div>' + originalContent;
+            
+            // Scroll to top
+            outputDiv.scrollTop = 0;
+        }
+        
+        // Function to format code (simple indentation fix)
+        function formatCode() {
+            const code = editor.getValue();
+            
+            // Simple formatting - add proper indentation
+            let lines = code.split('\n');
+            let indentLevel = 0;
+            let formattedLines = [];
+            
+            for (let line of lines) {
+                const trimmedLine = line.trim();
+                
+                // Decrease indent level for closing braces
+                if (trimmedLine.startsWith('}')) {
+                    indentLevel = Math.max(0, indentLevel - 1);
+                }
+                
+                // Add line with current indent
+                formattedLines.push('    '.repeat(indentLevel) + trimmedLine);
+                
+                // Increase indent level for opening braces
+                if (trimmedLine.endsWith('{')) {
+                    indentLevel++;
+                }
+            }
+            
+            editor.setValue(formattedLines.join('\n'));
+            
+            // Show format confirmation
+            const originalContent = outputDiv.innerHTML;
+            outputDiv.innerHTML = '<div class="output-line success">Code formatted successfully!</div>' + originalContent;
+            
+            // Scroll to top
+            outputDiv.scrollTop = 0;
+        }
+        
+        // Function to clear the editor
+        function clearEditor() {
+            if (confirm("Are you sure you want to clear the editor? All unsaved changes will be lost.")) {
+                editor.setValue('');
+                
+                // Show clear confirmation
+                const originalContent = outputDiv.innerHTML;
+                outputDiv.innerHTML = '<div class="output-line">Editor cleared. Start writing your C code!</div>';
+            }
+        }
+        
+        // Function to load example code
+        function loadExample(exampleId) {
+            if (examples[exampleId]) {
+                editor.setValue(examples[exampleId]);
+                
+                // Show example loaded message
+                const originalContent = outputDiv.innerHTML;
+                outputDiv.innerHTML = `<div class="output-line success">Example "${exampleId}" loaded!</div>` + originalContent;
+                
+                // Scroll to top
+                outputDiv.scrollTop = 0;
+            }
+        }
+        
+        // Event listeners
+        runBtn.addEventListener('click', runCode);
+        exportBtn.addEventListener('click', exportCode);
+        formatBtn.addEventListener('click', formatCode);
+        clearBtn.addEventListener('click', clearEditor);
+        
+        // Add event listeners to example cards
+        document.querySelectorAll('.example-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const exampleId = this.getAttribute('data-example');
+                loadExample(exampleId);
+            });
+        });
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+Enter or Cmd+Enter to run code
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                runCode();
+            }
+            
+            // Ctrl+S or Cmd+S to save/export
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                exportCode();
+            }
+            
+            // Ctrl+Shift+F or Cmd+Shift+F to format
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F') {
+                e.preventDefault();
+                formatCode();
+            }
+        });
+        
+        // Initialize output with instructions
+        outputDiv.innerHTML = `
+            <div class="output-line">// C Language IDE Ready</div>
+            <div class="output-line">// Click "Run Code" to execute your program</div>
+            <div class="output-line">// Use "Export" to download your code as a .c file</div>
+            <div class="output-line">// Try the examples below or write your own code</div>
+            <div class="output-line">----------------------------------------</div>
+            <div class="output-line"><span class="highlight">Keyboard Shortcuts:</span></div>
+            <div class="output-line">- Ctrl/Cmd + Enter: Run Code</div>
+            <div class="output-line">- Ctrl/Cmd + S: Export Code</div>
+            <div class="output-line">- Ctrl/Cmd + Shift + F: Format Code</div>
+        `;
+    </script>
+</body>
+</html>

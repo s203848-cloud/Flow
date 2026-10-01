@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Editor - Live Preview with Download</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 100%);
+            color: #f0f0f0;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        /* Header & Navigation */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 15px 20px;
+            background: rgba(15, 15, 35, 0.8);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 10px 18px;
+            background: rgba(255, 128, 0, 0.15);
+            border: 1px solid #ff8000;
+            border-radius: 8px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-3px);
+            box-shadow: 0 4px 8px rgba(255, 128, 0, 0.2);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ff8000;
+            text-shadow: 0 2px 4px rgba(255, 128, 0, 0.3);
+        }
+        
+        .logo i {
+            font-size: 1.8rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .action-btn {
+            padding: 10px 18px;
+            background: rgba(40, 40, 80, 0.6);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            color: #f0f0f0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 128, 0, 0.15);
+            border-color: #ff8000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 128, 0, 0.2);
+        }
+        
+        .action-btn.download {
+            background: rgba(0, 150, 0, 0.2);
+            border-color: #00cc00;
+            color: #00ff00;
+        }
+        
+        .action-btn.download:hover {
+            background: rgba(0, 200, 0, 0.3);
+        }
+        
+        .action-btn.upload {
+            background: rgba(0, 100, 200, 0.2);
+            border-color: #0088ff;
+            color: #66bbff;
+        }
+        
+        .action-btn.upload:hover {
+            background: rgba(0, 120, 220, 0.3);
+        }
+        
+        /* Main Content */
+        .main-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        h1 {
+            color: #ff8000;
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: #aaa;
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto 20px;
+        }
+        
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(15, 15, 35, 0.8);
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #ff8000;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-top: 4px;
+        }
+        
+        /* Editor & Preview Container */
+        .editor-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            height: 65vh;
+            min-height: 500px;
+            margin-bottom: 25px;
+        }
+        
+        .editor-section, .preview-section {
+            flex: 1;
+            min-width: 350px;
+            display: flex;
+            flex-direction: column;
+            background: rgba(15, 15, 35, 0.8);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(30, 30, 60, 0.8);
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #ff8000;
+        }
+        
+        .section-title i {
+            font-size: 1.4rem;
+        }
+        
+        .editor-textarea {
+            flex: 1;
+            background: rgba(10, 10, 26, 0.9);
+            color: #f0f0f0;
+            padding: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            border: none;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        .editor-textarea:focus {
+            background: rgba(10, 10, 26, 1);
+        }
+        
+        .preview-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: rgba(10, 10, 26, 0.9);
+        }
+        
+        /* Markdown Styling in Preview */
+        .preview-area h1 {
+            color: #ff8000;
+            border-bottom: 2px solid rgba(255, 128, 0, 0.3);
+            padding-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        
+        .preview-area h2 {
+            color: #ffaa44;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .preview-area h3, .preview-area h4 {
+            color: #ffbb66;
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+        
+        .preview-area p {
+            margin-bottom: 16px;
+        }
+        
+        .preview-area ul, .preview-area ol {
+            margin-left: 25px;
+            margin-bottom: 18px;
+        }
+        
+        .preview-area li {
+            margin-bottom: 8px;
+        }
+        
+        .preview-area li ul, .preview-area li ol {
+            margin-top: 8px;
+            margin-bottom: 0;
+        }
+        
+        .preview-area code {
+            background: rgba(255, 128, 0, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            color: #ffcc99;
+            font-size: 0.9em;
+        }
+        
+        .preview-area pre {
+            background: rgba(15, 15, 30, 0.95);
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+            border-left: 4px solid #ff8000;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .preview-area pre code {
+            background: transparent;
+            padding: 0;
+            color: #f0f0f0;
+            font-size: 0.95em;
+        }
+        
+        .preview-area blockquote {
+            border-left: 4px solid #ff8000;
+            padding-left: 20px;
+            margin-left: 0;
+            margin-right: 0;
+            color: #ccc;
+            font-style: italic;
+            margin-bottom: 20px;
+            background: rgba(255, 128, 0, 0.05);
+            padding: 12px 20px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .preview-area table {
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            width: 100%;
+            background: rgba(30, 30, 60, 0.5);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .preview-area table th, .preview-area table td {
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            padding: 10px 15px;
+            text-align: left;
+        }
+        
+        .preview-area table th {
+            background: rgba(255, 128, 0, 0.15);
+            color: #ffaa44;
+            font-weight: 600;
+        }
+        
+        .preview-area table tr:nth-child(even) {
+            background: rgba(255, 128, 0, 0.05);
+        }
+        
+        .preview-area a {
+            color: #66bbff;
+            text-decoration: none;
+            border-bottom: 1px dotted rgba(102, 187, 255, 0.5);
+            transition: all 0.2s;
+        }
+        
+        .preview-area a:hover {
+            color: #ff8000;
+            border-bottom: 1px solid #ff8000;
+        }
+        
+        .preview-area img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .preview-area hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 128, 0, 0.5), transparent);
+            margin: 30px 0;
+        }
+        
+        /* Footer & Cheatsheet */
+        .footer-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-top: 25px;
+        }
+        
+        .cheatsheet {
+            flex: 2;
+            min-width: 300px;
+            background: rgba(15, 15, 35, 0.8);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .cheatsheet h3 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #ff8000;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+        
+        .cheatsheet h3 i {
+            font-size: 1.5rem;
+        }
+        
+        .cheatsheet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        
+        .cheatsheet-item {
+            background: rgba(255, 128, 0, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid rgba(255, 128, 0, 0.7);
+            transition: transform 0.2s;
+        }
+        
+        .cheatsheet-item:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 128, 0, 0.1);
+        }
+        
+        .cheatsheet-item strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffaa44;
+            font-size: 1rem;
+        }
+        
+        .cheatsheet-item code {
+            background: rgba(255, 128, 0, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            color: #ffcc99;
+            display: inline-block;
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+        
+        .cheatsheet-item .example {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+        
+        .features {
+            flex: 1;
+            min-width: 250px;
+            background: rgba(15, 15, 35, 0.8);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .features h3 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #ff8000;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+        
+        .features ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .features li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .features li:last-child {
+            border-bottom: none;
+        }
+        
+        .features i {
+            color: #00cc00;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.2);
+            color: #aaa;
+            font-size: 0.95rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1100px) {
+            .editor-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .editor-section, .preview-section {
+                height: 450px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .stats-bar {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+            
+            .editor-section, .preview-section {
+                min-width: 100%;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 128, 0, 0.5);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 128, 0, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Navigation -->
+        <nav class="navbar">
+            <a href="../tools-list.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Tools
+            </a>
+            
+            <div class="logo">
+                <i class="fas fa-code"></i>
+                <span>Markdown Pro</span>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn upload" id="uploadBtn">
+                    <i class="fas fa-upload"></i> Upload .md
+                </button>
+                <button class="action-btn download" id="downloadBtn">
+                    <i class="fas fa-download"></i> Download .md
+                </button>
+                <button class="action-btn" id="clearBtn">
+                    <i class="fas fa-eraser"></i> Clear
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Main Header -->
+        <header class="main-header">
+            <h1>Advanced Markdown Editor</h1>
+            <p class="subtitle">Write, preview, and download markdown files in real-time with syntax highlighting and advanced formatting support.</p>
+        </header>
+        
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-value" id="wordCount">0</span>
+                <span class="stat-label">Words</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="charCount">0</span>
+                <span class="stat-label">Characters</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="lineCount">0</span>
+                <span class="stat-label">Lines</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="headingCount">0</span>
+                <span class="stat-label">Headings</span>
+            </div>
+        </div>
+        
+        <!-- Editor & Preview -->
+        <div class="editor-container">
+            <!-- Editor Section -->
+            <section class="editor-section">
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-edit"></i>
+                        <span>Markdown Editor</span>
+                    </div>
+                    <div class="section-actions">
+                        <button class="action-btn" id="formatBtn" title="Format Markdown">
+                            <i class="fas fa-magic"></i> Format
+                        </button>
+                    </div>
+                </div>
+                <textarea id="markdownInput" class="editor-textarea" placeholder="# Start typing your markdown here...
+
+## This is a live preview editor
+
+You can edit this markdown text and see the preview update in real-time on the right.
+
+### Try these features:
+- **Bold text** and *italic text*
+- `Inline code` and code blocks
+- [Links](https://example.com)
+- Images: ![Markdown Logo](https://markdown-here.com/img/icon256.png)
+- Tables, blockquotes, and more!
+
+Start typing or upload your own .md file..."># Welcome to Markdown Pro
+
+## The Ultimate Markdown Editor
+
+This editor provides a **live preview** of your markdown as you type. All formatting is rendered in real-time on the right side.
+
+### Key Features
+
+- **Real-time preview** with syntax highlighting
+- **Download** your markdown as .md files
+- **Upload** existing .md files to edit
+- **Advanced formatting** support
+- **Word/character count** and statistics
+- **Clean, dark theme** with orange accents
+
+### Code Example
+
+```javascript
+// JavaScript code with syntax highlighting
+function calculateStats(text) {
+    const words = text.trim().split(/\s+/).length;
+    const chars = text.length;
+    const lines = text.split('\n').length;
+    
+    return { words, chars, lines };
+}
+
+// Call the function
+const stats = calculateStats("Hello Markdown Editor!");
+console.log(stats);

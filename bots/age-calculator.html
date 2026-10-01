@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Age Calculator with Millisecond Precision</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.8);
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+            margin-bottom: 30px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .section {
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #ff8000;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+        
+        h2 {
+            color: #ffaa00;
+            margin-bottom: 15px;
+            font-size: 1.6rem;
+        }
+        
+        .description {
+            color: #aaa;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+        
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto 30px;
+        }
+        
+        .date-inputs {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .input-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffaa00;
+            font-weight: 500;
+        }
+        
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(10, 10, 25, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+        }
+        
+        .calculate-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #ff8000, #ff5500);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .calculate-btn:hover {
+            background: linear-gradient(135deg, #ff9000, #ff6600);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.3);
+        }
+        
+        .age-display {
+            background: rgba(30, 30, 50, 0.3);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 30px 0;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .counter-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin: 20px 0;
+            perspective: 1000px;
+        }
+        
+        .digit-container {
+            position: relative;
+            width: 60px;
+            height: 90px;
+            overflow: hidden;
+            background: rgba(30, 30, 50, 0.6);
+            border-radius: 8px;
+            margin: 0 2px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .digit-column {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        
+        .milli-digit {
+            transition: transform 0.1s linear !important;
+        }
+        
+        .digit-column i {
+            display: block;
+            height: 90px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #ff8000;
+            text-shadow: 0 0 10px rgba(255, 128, 0, 0.5);
+        }
+        
+        .unit-label {
+            font-size: 1.2rem;
+            color: #ffaa00;
+            margin: 0 10px;
+            min-width: 70px;
+            text-align: left;
+        }
+        
+        .age-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .age-unit {
+            background: rgba(50, 50, 70, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .age-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ff8000;
+            margin-bottom: 5px;
+        }
+        
+        .age-unit-name {
+            font-size: 1.1rem;
+            color: #aaa;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .control-btn {
+            padding: 10px 20px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .instructions {
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #ccc;
+            line-height: 1.5;
+        }
+        
+        .instructions h3 {
+            color: #ff8000;
+            margin-bottom: 10px;
+        }
+        
+        .highlight {
+            color: #ff8000;
+            font-weight: bold;
+        }
+        
+        .results-info {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(10, 10, 25, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .results-info p {
+            margin: 8px 0;
+            color: #ccc;
+        }
+        
+        .birthday-message {
+            color: #ff8000;
+            font-size: 1.2rem;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 128, 0, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        @media (max-width: 768px) {
+            .digit-container {
+                width: 40px;
+                height: 60px;
+            }
+            
+            .digit-column i {
+                height: 60px;
+                font-size: 2rem;
+            }
+            
+            .unit-label {
+                font-size: 1rem;
+                min-width: 60px;
+            }
+            
+            .age-value {
+                font-size: 2rem;
+            }
+            
+            .date-inputs {
+                flex-direction: column;
+            }
+            
+            .input-group {
+                min-width: 100%;
+            }
+            
+            .age-breakdown {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .digit-container {
+                width: 30px;
+                height: 45px;
+            }
+            
+            .digit-column i {
+                height: 45px;
+                font-size: 1.5rem;
+            }
+            
+            .age-breakdown {
+                grid-template-columns: 1fr;
+            }
+            
+            .unit-label {
+                font-size: 0.9rem;
+                min-width: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold;">Age Calculator with Millisecond Precision</span>
+        <div style="width: 60px;"></div>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <h1><i class="fas fa-birthday-cake"></i> Age Calculator</h1>
+            <p class="description">Calculate your exact age down to the millisecond with smooth animated digits. See how many years, months, days, hours, minutes, seconds, and milliseconds you've been alive!</p>
+            
+            <div class="input-section">
+                <div class="date-inputs">
+                    <div class="input-group">
+                        <label for="birthDate"><i class="fas fa-calendar-day"></i> Birth Date</label>
+                        <input type="date" id="birthDate" value="1990-01-01">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="birthTime"><i class="fas fa-clock"></i> Birth Time (Optional)</label>
+                        <input type="time" id="birthTime" value="12:00">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="timezone"><i class="fas fa-globe"></i> Timezone</label>
+                        <select id="timezone">
+                            <option value="local">Local Time</option>
+                            <option value="UTC">UTC/GMT</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="calculate-btn" id="calculateBtn">
+                    <i class="fas fa-calculator"></i> Calculate Age
+                </button>
+            </div>
+            
+            <div class="age-display" id="ageDisplay" style="display: none;">
+                <h2>Your Exact Age</h2>
+                
+                <div id="birthdayMessage" class="birthday-message" style="display: none;">
+                    <i class="fas fa-birthday-cake"></i> Happy Birthday! You're exactly <span id="birthdayAge">0</span> years old today!
+                </div>
+                
+                <!-- Years -->
+                <div style="display: flex; align-items: center; justify-content: center; margin: 15px 0;">
+                    <span class="unit-label">Years:</span>
+                    <div class="counter-container">
+                        <div class="digit-container">
+                            <div class="digit-column" id="yearsDigit1"></div>
+                        </div>
+                        <div class="digit-container">
+                            <div class="digit-column" id="yearsDigit2"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Months -->
+                <div style="display: flex; align-items: center; justify-content: center; margin: 15px 0;">
+                    <span class="unit-label">Months:</span>
+                    <div class="counter-container">
+                        <div class="digit-container">
+                            <div class="digit-column" id="monthsDigit1"></div>
+                        </div>
+                        <div class="digit-container">
+                            <div class="digit-column" id="monthsDigit2"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Days -->
+                <div style="display: flex; align-items: center; justify-content: center; margin: 15px 0;">
+                    <span class="unit-label">Days:</span>
+                    <div class="counter-container">
+                        <div class="digit-container">
+                            <div class="digit-column" id="daysDigit1"></div>
+                        </div>
+                        <div class="digit-container">
+                            <div class="digit-column" id="daysDigit2"></div>
+                        </div>
+                        <div class="digit-container">
+                            <div class="digit-column" id="daysDigit3"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Hours -->
+                <div style="display: flex; align-items: center; justify-content: center; margin: 15px 0;">
+                    <span class="unit-label">Hours:</span>
+                    <div class="counter-container">
+                        <div class="digit-container">
+                            <div class="digit-column" id="hoursDigit1"></div>
+                        </div>
+                        <div class="digit-container">
+                            <div class="digit-column" id="hoursDigit2"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Minutes -->
+                <div style="display: flex; align-items: center; justify-content: center; margin: 15px 0;">
+                    <span class="unit-label">Minutes:</span>
+                    <div class="counter-container">
+                        <div class="digit-container">
+                            <div class="digit-column" id="minutesDigit1"></div>
+                        </div>
+                        <div class="digit-container">
+                            <div class="digit-column" id="minutesDigit2"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Seconds -->
+                <div style="display: flex; align-items: center; justify-content: center; margin: 15px 0;">
+                    <span class="unit-label">Seconds:</span>
+                    <div class="counter-container">
+                        <div class="digit-container">
+                            <div class="digit-column" id="secondsDigit1"></div>
+                        </div>
+                        <div class="digit-container">
+                            <div class="digit-column" id="secondsDigit2"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Milliseconds -->
+                <div style="display: flex; align-items: center; justify-content: center; margin: 15px 0;">
+                    <span class="unit-label">Milliseconds:</span>
+                    <div class="counter-container">
+                        <div class="digit-container">
+                            <div class="digit-column milli-digit" id="millisecondsDigit1"></div>
+                        </div>
+                        <div class="digit-container">
+                            <div class="digit-column milli-digit" id="millisecondsDigit2"></div>
+                        </div>
+                        <div class="digit-container">
+                            <div class="digit-column milli-digit" id="millisecondsDigit3"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button class="control-btn" id="pauseBtn"><i class="fas fa-pause"></i> Pause</button>
+                    <button class="control-btn" id="resumeBtn" disabled><i class="fas fa-play"></i> Resume</button>
+                    <button class="control-btn" id="resetBtn"><i class="fas fa-redo"></i> Reset</button>
+                </div>
+                
+                <div class="results-info">
+                    <p><i class="fas fa-info-circle"></i> <strong>Birth Date:</strong> <span id="displayBirthDate">January 1, 1990</span></p>
+                    <p><i class="fas fa-clock"></i> <strong>Birth Time:</strong> <span id="displayBirthTime">12:00:00 PM</span></p>
+                    <p><i class="fas fa-calendar-alt"></i> <strong>Current Date:</strong> <span id="currentDateDisplay">Loading...</span></p>
+                    <p><i class="fas fa-hourglass-half"></i> <strong>Total Milliseconds:</strong> <span id="totalMilliseconds">0</span></p>
+                </div>
+            </div>
+            
+            <div class="age-breakdown" id="ageBreakdown" style="display: none;">
+                <div class="age-unit">
+                    <div class="age-value" id="totalYears">0</div>
+                    <div class="age-unit-name">Years</div>
+                </div>
+                <div class="age-unit">
+                    <div class="age-value" id="totalMonths">0</div>
+                    <div class="age-unit-name">Months</div>
+                </div>
+                <div class="age-unit">
+                    <div class="age-value" id="totalWeeks">0</div>
+                    <div class="age-unit-name">Weeks</div>
+                </div>
+                <div class="age-unit">
+                    <div class="age-value" id="totalDays">0</div>
+                    <div class="age-unit-name">Days</div>
+                </div>
+                <div class="age-unit">
+                    <div class="age-value" id="totalHours">0</div>
+                    <div class="age-unit-name">Hours</div>
+                </div>
+                <div class="age-unit">
+                    <div class="age-value" id="totalMinutes">0</div>
+                    <div class="age-unit-name">Minutes</div>
+                </div>
+                <div class="age-unit">
+                    <div class="age-value" id="totalSeconds">0</div>
+                    <div class="age-unit-name">Seconds</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> How It Works</h3>
+            <p>This age calculator calculates your exact age down to the <span class="highlight">millisecond</span>. The animated digits scroll smoothly as your age increases in real-time.</p>
+            <p><strong>Features:</strong></p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Enter your birth date and time (time is optional, defaults to noon)</li>
+                <li>Choose between local time or UTC timezone</li>
+                <li>Watch your age update in real-time with smooth digit animations</li>
+                <li>Pause the counter to examine your exact age at any moment</li>
+                <li>See your age broken down into years, months, days, hours, minutes, seconds, and milliseconds</li>
+                <li>Get birthday notifications when you reach exact year milestones</li>
+            </ul>
+            <p style="margin-top: 15px;"><strong>Note:</strong> The calculation accounts for leap years and varying month lengths. Milliseconds update in real-time for the most precise age measurement possible.</p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize digit containers
+        const digitContainers = [
+            'yearsDigit1', 'yearsDigit2',
+            'monthsDigit1', 'monthsDigit2',
+            'daysDigit1', 'daysDigit2', 'daysDigit3',
+            'hoursDigit1', 'hoursDigit2',
+            'minutesDigit1', 'minutesDigit2',
+            'secondsDigit1', 'secondsDigit2',
+            'millisecondsDigit1', 'millisecondsDigit2', 'millisecondsDigit3'
+        ];
+
+        // Current digit values
+        let currentDigits = {
+            years: '00',
+            months: '00',
+            days: '000',
+            hours: '00',
+            minutes: '00',
+            seconds: '00',
+            milliseconds: '000'
+        };
+
+        // Animation control
+        let isPaused = false;
+        let animationId = null;
+        let birthDate = null;
+        let ageStartTime = null;
+
+        // Create digit columns with Font Awesome icons
+        function createDigitColumn(digitContainerId) {
+            const container = document.getElementById(digitContainerId);
+            if (!container) return;
+            
+            // Clear existing content
+            container.innerHTML = '';
+            
+            // Create 10 digits (0-9)
+            for (let i = 0; i <= 9; i++) {
+                const icon = document.createElement('i');
+                icon.className = `fa-solid fa-${i}`;
+                container.appendChild(icon);
+            }
+            
+            // Add an extra 0 at the end for seamless looping
+            const extraZero = document.createElement('i');
+            extraZero.className = 'fa-solid fa-0';
+            container.appendChild(extraZero);
+        }
+
+        // Initialize all digit columns
+        digitContainers.forEach(createDigitColumn);
+
+        // Set digit position
+        function setDigit(digitContainerId, digit, isMillisecond = false) {
+            const container = document.getElementById(digitContainerId);
+            if (!container) return;
+            
+            const containerHeight = container.clientHeight;
+            const digitHeight = containerHeight / 11; // 10 digits + 1 extra
+            const position = -digit * digitHeight;
+            container.style.transform = `translateY(${position}px)`;
+        }
+
+        // Format date to readable string
+        function formatDate(date) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        // Format time to readable string
+        function formatTime(date) {
+            return date.toLocaleTimeString('en-US', { 
+                hour12: true, 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+
+        // Calculate age from birth date to current date
+        function calculateAge(birthDate, currentDate) {
+            // Calculate total difference in milliseconds
+            const totalMs = currentDate - birthDate;
+            
+            // Calculate years
+            let years = currentDate.getFullYear() - birthDate.getFullYear();
+            let months = currentDate.getMonth() - birthDate.getMonth();
+            let days = currentDate.getDate() - birthDate.getDate();
+            let hours = currentDate.getHours() - birthDate.getHours();
+            let minutes = currentDate.getMinutes() - birthDate.getMinutes();
+            let seconds = currentDate.getSeconds() - birthDate.getSeconds();
+            let milliseconds = currentDate.getMilliseconds() - birthDate.getMilliseconds();
+            
+            // Adjust for negative values
+            if (milliseconds < 0) {
+                milliseconds += 1000;
+                seconds--;
+            }
+            if (seconds < 0) {
+                seconds += 60;
+                minutes--;
+            }
+            if (minutes < 0) {
+                minutes += 60;
+                hours--;
+            }
+            if (hours < 0) {
+                hours += 24;
+                days--;
+            }
+            if (days < 0) {
+                // Get days in previous month
+                const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+                days += prevMonth.getDate();
+                months--;
+            }
+            if (months < 0) {
+                months += 12;
+                years--;
+            }
+            
+            // Calculate totals for breakdown
+            const totalYears = years;
+            const totalMonths = years * 12 + months;
+            const totalWeeks = Math.floor(totalMs / (1000 * 60 * 60 * 24 * 7));
+            const totalDays = Math.floor(totalMs / (1000 * 60 * 60 * 24));
+            const totalHours = Math.floor(totalMs / (1000 * 60 * 60));
+            const totalMinutes = Math.floor(totalMs / (1000 * 60));
+            const totalSeconds = Math.floor(totalMs / 1000);
+            
+            return {
+                years,
+                months,
+                days,
+                hours,
+                minutes,
+                seconds,
+                milliseconds,
+                totalMs,
+                totals: {
+                    years: totalYears,
+                    months: totalMonths,
+                    weeks: totalWeeks,
+                    days: totalDays,
+                    hours: totalHours,
+                    minutes: totalMinutes,
+                    seconds: totalSeconds
+                }
+            };
+        }
+
+        // Update the age display
+        function updateAgeDisplay() {
+            if (!birthDate || isPaused) return;
+            
+            const now = new Date();
+            const age = calculateAge(birthDate, now);
+            
+            // Format values for display
+            const yearsStr = age.years.toString().padStart(2, '0');
+            const monthsStr = age.months.toString().padStart(2, '0');
+            const daysStr = age.days.toString().padStart(3, '0');
+            const hoursStr = age.hours.toString().padStart(2, '0');
+            const minutesStr = age.minutes.toString().padStart(2, '0');
+            const secondsStr = age.seconds.toString().padStart(2, '0');
+            const millisecondsStr = age.milliseconds.toString().padStart(3, '0');
+            
+            // Update digit positions if values changed
+            if (yearsStr !== currentDigits.years) {
+                setDigit('yearsDigit1', parseInt(yearsStr[0] || '0'));
+                setDigit('yearsDigit2', parseInt(yearsStr[1] || '0'));
+                currentDigits.years = yearsStr;
+            }
+            
+            if (monthsStr !== currentDigits.months) {
+                setDigit('monthsDigit1', parseInt(monthsStr[0] || '0'));
+                setDigit('monthsDigit2', parseInt(monthsStr[1] || '0'));
+                currentDigits.months = monthsStr;
+            }
+            
+            if (daysStr !== currentDigits.days) {
+                setDigit('daysDigit1', parseInt(daysStr[0] || '0'));
+                setDigit('daysDigit2', parseInt(daysStr[1] || '0'));
+                setDigit('daysDigit3', parseInt(daysStr[2] || '0'));
+                currentDigits.days = daysStr;
+            }
+            
+            if (hoursStr !== currentDigits.hours) {
+                setDigit('hoursDigit1', parseInt(hoursStr[0] || '0'));
+                setDigit('hoursDigit2', parseInt(hoursStr[1] || '0'));
+                currentDigits.hours = hoursStr;
+            }
+            
+            if (minutesStr !== currentDigits.minutes) {
+                setDigit('minutesDigit1', parseInt(minutesStr[0] || '0'));
+                setDigit('minutesDigit2', parseInt(minutesStr[1] || '0'));
+                currentDigits.minutes = minutesStr;
+            }
+            
+            if (secondsStr !== currentDigits.seconds) {
+                setDigit('secondsDigit1', parseInt(secondsStr[0] || '0'));
+                setDigit('secondsDigit2', parseInt(secondsStr[1] || '0'));
+                currentDigits.seconds = secondsStr;
+            }
+            
+            // Always update milliseconds (they change every frame)
+            if (millisecondsStr !== currentDigits.milliseconds) {
+                setDigit('millisecondsDigit1', parseInt(millisecondsStr[0] || '0'), true);
+                setDigit('millisecondsDigit2', parseInt(millisecondsStr[1] || '0'), true);
+                setDigit('millisecondsDigit3', parseInt(millisecondsStr[2] || '0'), true);
+                currentDigits.milliseconds = millisecondsStr;
+            }
+            
+            // Update total breakdown
+            document.getElementById('totalYears').textContent = age.totals.years.toLocaleString();
+            document.getElementById('totalMonths').textContent = age.totals.months.toLocaleString();
+            document.getElementById('totalWeeks').textContent = age.totals.weeks.toLocaleString();
+            document.getElementById('totalDays').textContent = age.totals.days.toLocaleString();
+            document.getElementById('totalHours').textContent = age.totals.hours.toLocaleString();
+            document.getElementById('totalMinutes').textContent = age.totals.minutes.toLocaleString();
+            document.getElementById('totalSeconds').textContent = age.totals.seconds.toLocaleString();
+            document.getElementById('totalMilliseconds').textContent = age.totalMs.toLocaleString();
+            
+            // Update current date display
+            document.getElementById('currentDateDisplay').textContent = `${formatDate(now)} at ${formatTime(now)}`;
+            
+            // Check for birthday
+            const birthdayMessage = document.getElementById('birthdayMessage');
+            if (age.months === 0 && age.days === 0 && age.hours === 0 && age.minutes === 0 && age.seconds < 5) {
+                birthdayMessage.style.display = 'block';
+                document.getElementById('birthdayAge').textContent = age.years;
+            } else {
+                birthdayMessage.style.display = 'none';
+            }
+            
+            // Continue animation
+            animationId = requestAnimationFrame(updateAgeDisplay);
+        }
+
+        // Start age calculation
+        function startAgeCalculation() {
+            // Get input values
+            const birthDateInput = document.getElementById('birthDate').value;
+            const birthTimeInput = document.getElementById('birthTime').value;
+            const timezone = document.getElementById('timezone').value;
+            
+            if (!birthDateInput) {
+                alert('Please enter your birth date');
+                return;
+            }
+            
+            // Parse birth date and time
+            const [year, month, day] = birthDateInput.split('-');
+            const [hours = 12, minutes = 0] = birthTimeInput ? birthTimeInput.split(':') : [];
+            
+            // Create birth date object
+            birthDate = new Date(year, month - 1, day, hours, minutes, 0, 0);
+            
+            // Adjust for timezone if needed
+            if (timezone === 'UTC') {
+                birthDate = new Date(birthDate.getTime() + birthDate.getTimezoneOffset() * 60000);
+            }
+            
+            // Validate birth date is not in the future
+            const now = new Date();
+            if (birthDate > now) {
+                alert('Birth date cannot be in the future!');
+                return;
+            }
+            
+            // Show age display
+            document.getElementById('ageDisplay').style.display = 'block';
+            document.getElementById('ageBreakdown').style.display = 'grid';
+            
+            // Update display information
+            document.getElementById('displayBirthDate').textContent = formatDate(birthDate);
+            document.getElementById('displayBirthTime').textContent = formatTime(birthDate);
+            
+            // Reset animation if already running
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            // Start animation
+            isPaused = false;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('resumeBtn').disabled = true;
+            
+            updateAgeDisplay();
+        }
+
+        // Initialize the page
+        function initPage() {
+            // Set default birth date (30 years ago)
+            const defaultBirthDate = new Date();
+            defaultBirthDate.setFullYear(defaultBirthDate.getFullYear() - 30);
+            const formattedDate = defaultBirthDate.toISOString().split('T')[0];
+            document.getElementById('birthDate').value = formattedDate;
+            
+            // Set up event listeners
+            document.getElementById('calculateBtn').addEventListener('click', startAgeCalculation);
+            
+            document.getElementById('pauseBtn').addEventListener('click', function() {
+                isPaused = true;
+                this.disabled = true;
+                document.getElementById('resumeBtn').disabled = false;
+            });
+            
+            document.getElementById('resumeBtn').addEventListener('click', function() {
+                isPaused = false;
+                this.disabled = true;
+                document.getElementById('pauseBtn').disabled = false;
+                updateAgeDisplay();
+            });
+            
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                // Reset to current inputs
+                isPaused = false;
+                document.getElementById('pauseBtn').disabled = false;
+                document.getElementById('resumeBtn').disabled = true;
+                
+                if (birthDate) {
+                    startAgeCalculation();
+                }
+            });
+            
+            // Allow Enter key to trigger calculation
+            document.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    startAgeCalculation();
+                }
+            });
+            
+            // Update current date display
+            function updateCurrentDate() {
+                const now = new Date();
+                document.getElementById('currentDateDisplay').textContent = `${formatDate(now)} at ${formatTime(now)}`;
+            }
+            
+            updateCurrentDate();
+            setInterval(updateCurrentDate, 1000);
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', initPage);
+        
+        // Clean up animation frame on page unload
+        window.addEventListener('beforeunload', () => {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fact Checker - Credibility Assessment Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        h1 {
+            color: #ff8000;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+        
+        .form-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .section-title {
+            color: #ff8000;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+            font-size: 1.3rem;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #ff8000;
+        }
+        
+        .rating-scale {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .rating-option {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        
+        .rating-option:hover {
+            background: rgba(255, 128, 0, 0.1);
+            border-color: #ff8000;
+        }
+        
+        .rating-option.selected {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+            transform: scale(1.05);
+        }
+        
+        .rating-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff8000;
+            margin-bottom: 5px;
+        }
+        
+        .rating-label {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border-radius: 5px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, #ff8000, #ff5500);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(to right, #ff5500, #ff3300);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid #555;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        .result-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 30px;
+            margin-top: 30px;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .result-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .score-display {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            box-shadow: 0 0 0 10px rgba(255, 128, 0, 0.1);
+        }
+        
+        .score-low { color: #ff4d4d; }
+        .score-medium { color: #ffa500; }
+        .score-high { color: #4CAF50; }
+        
+        .score-label {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-top: 10px;
+        }
+        
+        .category-scores {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .category-score {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ff8000;
+        }
+        
+        .category-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .category-value {
+            color: #ff8000;
+            font-weight: bold;
+        }
+        
+        .report-text {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+        
+        .credibility-level {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.3rem;
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .level-low { color: #ff4d4d; border: 1px solid #ff4d4d; }
+        .level-medium { color: #ffa500; border: 1px solid #ffa500; }
+        .level-high { color: #4CAF50; border: 1px solid #4CAF50; }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .rating-scale {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .category-scores {
+                grid-template-columns: 1fr;
+            }
+            
+            .buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        </div>
+        
+        <header>
+            <h1>Fact Checker</h1>
+            <p class="subtitle">Evaluate the credibility of information sources by assessing key factors</p>
+        </header>
+        
+        <div class="form-container">
+            <form id="factCheckerForm">
+                <div class="form-section">
+                    <h3 class="section-title">Source Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="sourceTitle">Source Title/URL</label>
+                        <input type="text" id="sourceTitle" placeholder="Enter the title or URL of the source">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="author">Author / Creator</label>
+                        <input type="text" id="author" placeholder="Who created this content?">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Author Expertise & Credibility</label>
+                        <p>How knowledgeable and trustworthy is the author on this topic?</p>
+                        <div class="rating-scale" id="authorRating">
+                            <div class="rating-option" data-value="1">
+                                <div class="rating-value">1</div>
+                                <div class="rating-label">Unknown/Unqualified</div>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <div class="rating-value">2</div>
+                                <div class="rating-label">Limited Expertise</div>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <div class="rating-value">3</div>
+                                <div class="rating-label">Some Credentials</div>
+                            </div>
+                            <div class="rating-option" data-value="4">
+                                <div class="rating-value">4</div>
+                                <div class="rating-label">Established Expert</div>
+                            </div>
+                            <div class="rating-option" data-value="5">
+                                <div class="rating-value">5</div>
+                                <div class="rating-label">Recognized Authority</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3 class="section-title">Publisher & Date</h3>
+                    
+                    <div class="form-group">
+                        <label for="publisher">Publisher / Organization</label>
+                        <input type="text" id="publisher" placeholder="Which organization published this?">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Publisher Reputation</label>
+                        <p>How reputable is the publishing organization?</p>
+                        <div class="rating-scale" id="publisherRating">
+                            <div class="rating-option" data-value="1">
+                                <div class="rating-value">1</div>
+                                <div class="rating-label">Poor Reputation</div>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <div class="rating-value">2</div>
+                                <div class="rating-label">Mixed Reviews</div>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <div class="rating-value">3</div>
+                                <div class="rating-label">Generally Reliable</div>
+                            </div>
+                            <div class="rating-option" data-value="4">
+                                <div class="rating-value">4</div>
+                                <div class="rating-label">Well-Respected</div>
+                            </div>
+                            <div class="rating-option" data-value="5">
+                                <div class="rating-value">5</div>
+                                <div class="rating-label">Highly Authoritative</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="date">Publication Date</label>
+                        <input type="date" id="date">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Timeliness</label>
+                        <p>How current is this information for the topic?</p>
+                        <div class="rating-scale" id="timelinessRating">
+                            <div class="rating-option" data-value="1">
+                                <div class="rating-value">1</div>
+                                <div class="rating-label">Outdated</div>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <div class="rating-value">2</div>
+                                <div class="rating-label">Somewhat Old</div>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <div class="rating-value">3</div>
+                                <div class="rating-label">Adequate</div>
+                            </div>
+                            <div class="rating-option" data-value="4">
+                                <div class="rating-value">4</div>
+                                <div class="rating-label">Recent</div>
+                            </div>
+                            <div class="rating-option" data-value="5">
+                                <div class="rating-value">5</div>
+                                <div class="rating-label">Very Current</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3 class="section-title">Evidence & Bias</h3>
+                    
+                    <div class="form-group">
+                        <label>Evidence Quality</label>
+                        <p>How strong is the evidence provided?</p>
+                        <div class="rating-scale" id="evidenceRating">
+                            <div class="rating-option" data-value="1">
+                                <div class="rating-value">1</div>
+                                <div class="rating-label">No Evidence</div>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <div class="rating-value">2</div>
+                                <div class="rating-label">Weak/Questionable</div>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <div class="rating-value">3</div>
+                                <div class="rating-label">Some Support</div>
+                            </div>
+                            <div class="rating-option" data-value="4">
+                                <div class="rating-value">4</div>
+                                <div class="rating-label">Well-Supported</div>
+                            </div>
+                            <div class="rating-option" data-value="5">
+                                <div class="rating-value">5</div>
+                                <div class="rating-label">Strong Evidence</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Bias/Objectivity</label>
+                        <p>How objective is the source?</p>
+                        <div class="rating-scale" id="biasRating">
+                            <div class="rating-option" data-value="5">
+                                <div class="rating-value">5</div>
+                                <div class="rating-label">Highly Objective</div>
+                            </div>
+                            <div class="rating-option" data-value="4">
+                                <div class="rating-value">4</div>
+                                <div class="rating-label">Mostly Balanced</div>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <div class="rating-value">3</div>
+                                <div class="rating-label">Some Bias</div>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <div class="rating-value">2</div>
+                                <div class="rating-label">Clearly Biased</div>
+                            </div>
+                            <div class="rating-option" data-value="1">
+                                <div class="rating-value">1</div>
+                                <div class="rating-label">Extremely Biased</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="additionalNotes">Additional Notes</label>
+                        <textarea id="additionalNotes" rows="3" placeholder="Any other observations about the source..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button type="button" class="btn btn-secondary" id="resetBtn">Reset Form</button>
+                    <button type="button" class="btn btn-primary" id="generateReportBtn">Generate Credibility Report</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="result-container" id="resultContainer">
+            <h2 class="section-title">Credibility Assessment Report</h2>
+            
+            <div id="reportHeader">
+                <h3 id="sourceTitleResult"></h3>
+                <p id="sourceDetails"></p>
+            </div>
+            
+            <div class="score-display">
+                <div class="score-circle" id="scoreCircle">
+                    <span id="finalScore">0</span>/10
+                </div>
+                <div id="scoreLabel" class="score-label"></div>
+                <div id="credibilityLevel" class="credibility-level"></div>
+            </div>
+            
+            <h3 class="section-title">Category Breakdown</h3>
+            <div class="category-scores" id="categoryScores">
+                <!-- Category scores will be inserted here -->
+            </div>
+            
+            <h3 class="section-title">Assessment Summary</h3>
+            <div class="report-text" id="assessmentSummary">
+                <!-- Assessment summary will be inserted here -->
+            </div>
+            
+            <div class="buttons">
+                <button type="button" class="btn btn-secondary" id="backToFormBtn">Back to Form</button>
+                <button type="button" class="btn btn-primary" id="printReportBtn">Print Report</button>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Fact Checker Tool &copy; 2023 | Use this tool as a guide for evaluating information credibility. Always verify from multiple sources.</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const form = document.getElementById('factCheckerForm');
+        const resultContainer = document.getElementById('resultContainer');
+        const generateReportBtn = document.getElementById('generateReportBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const backToFormBtn = document.getElementById('backToFormBtn');
+        const printReportBtn = document.getElementById('printReportBtn');
+        
+        // Rating elements
+        const ratingContainers = document.querySelectorAll('.rating-scale');
+        
+        // Result elements
+        const sourceTitleResult = document.getElementById('sourceTitleResult');
+        const sourceDetails = document.getElementById('sourceDetails');
+        const finalScore = document.getElementById('finalScore');
+        const scoreCircle = document.getElementById('scoreCircle');
+        const scoreLabel = document.getElementById('scoreLabel');
+        const credibilityLevel = document.getElementById('credibilityLevel');
+        const categoryScores = document.getElementById('categoryScores');
+        const assessmentSummary = document.getElementById('assessmentSummary');
+        
+        // Initialize rating selection
+        ratingContainers.forEach(container => {
+            const options = container.querySelectorAll('.rating-option');
+            options.forEach(option => {
+                option.addEventListener('click', () => {
+                    // Remove selected class from all options in this container
+                    options.forEach(opt => opt.classList.remove('selected'));
+                    // Add selected class to clicked option
+                    option.classList.add('selected');
+                });
+            });
+        });
+        
+        // Generate report
+        generateReportBtn.addEventListener('click', () => {
+            // Validate form
+            const sourceTitle = document.getElementById('sourceTitle').value;
+            if (!sourceTitle.trim()) {
+                alert('Please enter a source title or URL');
+                return;
+            }
+            
+            // Get all ratings
+            const authorRating = getRatingValue('authorRating');
+            const publisherRating = getRatingValue('publisherRating');
+            const timelinessRating = getRatingValue('timelinessRating');
+            const evidenceRating = getRatingValue('evidenceRating');
+            const biasRating = getRatingValue('biasRating');
+            
+            // Check if all ratings are selected
+            if (!authorRating || !publisherRating || !timelinessRating || !evidenceRating || !biasRating) {
+                alert('Please select a rating for all categories');
+                return;
+            }
+            
+            // Calculate scores
+            const totalScore = authorRating + publisherRating + timelinessRating + evidenceRating + biasRating;
+            const maxScore = 25; // 5 categories * 5 max points each
+            const percentage = (totalScore / maxScore) * 100;
+            const finalScoreOutOf10 = (totalScore / maxScore) * 10;
+            
+            // Display results
+            displayResults(
+                sourceTitle,
+                authorRating,
+                publisherRating,
+                timelinessRating,
+                evidenceRating,
+                biasRating,
+                finalScoreOutOf10.toFixed(1),
+                percentage.toFixed(0)
+            );
+            
+            // Show result container
+            form.style.display = 'none';
+            resultContainer.classList.add('active');
+        });
+        
+        // Helper function to get rating value
+        function getRatingValue(containerId) {
+            const container = document.getElementById(containerId);
+            const selectedOption = container.querySelector('.rating-option.selected');
+            return selectedOption ? parseInt(selectedOption.getAttribute('data-value')) : null;
+        }
+        
+        // Display results
+        function displayResults(
+            sourceTitle, 
+            authorScore, 
+            publisherScore, 
+            timelinessScore, 
+            evidenceScore, 
+            biasScore,
+            finalScoreValue,
+            percentage
+        ) {
+            // Set source info
+            sourceTitleResult.textContent = sourceTitle;
+            
+            const author = document.getElementById('author').value;
+            const publisher = document.getElementById('publisher').value;
+            const date = document.getElementById('date').value;
+            
+            let details = '';
+            if (author) details += `Author: ${author} | `;
+            if (publisher) details += `Publisher: ${publisher} | `;
+            if (date) details += `Date: ${new Date(date).toLocaleDateString()}`;
+            sourceDetails.textContent = details;
+            
+            // Set final score
+            finalScore.textContent = finalScoreValue;
+            
+            // Set score label and style
+            let scoreClass = '';
+            let levelClass = '';
+            let label = '';
+            
+            if (percentage >= 80) {
+                scoreClass = 'score-high';
+                levelClass = 'level-high';
+                label = 'High Credibility';
+                scoreCircle.style.boxShadow = '0 0 0 10px rgba(76, 175, 80, 0.2)';
+            } else if (percentage >= 60) {
+                scoreClass = 'score-medium';
+                levelClass = 'level-medium';
+                label = 'Moderate Credibility';
+                scoreCircle.style.boxShadow = '0 0 0 10px rgba(255, 165, 0, 0.2)';
+            } else {
+                scoreClass = 'score-low';
+                levelClass = 'level-low';
+                label = 'Low Credibility';
+                scoreCircle.style.boxShadow = '0 0 0 10px rgba(255, 77, 77, 0.2)';
+            }
+            
+            scoreCircle.className = `score-circle ${scoreClass}`;
+            scoreLabel.textContent = `${percentage}% - ${label}`;
+            
+            // Set credibility level
+            credibilityLevel.textContent = label;
+            credibilityLevel.className = `credibility-level ${levelClass}`;
+            
+            // Set category scores
+            const categories = [
+                { name: 'Author Expertise', score: authorScore, max: 5 },
+                { name: 'Publisher Reputation', score: publisherScore, max: 5 },
+                { name: 'Timeliness', score: timelinessScore, max: 5 },
+                { name: 'Evidence Quality', score: evidenceScore, max: 5 },
+                { name: 'Bias/Objectivity', score: biasScore, max: 5 }
+            ];
+            
+            categoryScores.innerHTML = '';
+            categories.forEach(category => {
+                const categoryElement = document.createElement('div');
+                categoryElement.className = 'category-score';
+                categoryElement.innerHTML = `
+                    <div class="category-name">${category.name}</div>
+                    <div class="category-value">${category.score}/${category.max}</div>
+                `;
+                categoryScores.appendChild(categoryElement);
+            });
+            
+            // Generate assessment summary
+            const summary = generateSummary(
+                authorScore, 
+                publisherScore, 
+                timelinessScore, 
+                evidenceScore, 
+                biasScore,
+                percentage
+            );
+            assessmentSummary.innerHTML = `<p>${summary}</p>`;
+            
+            // Add additional notes if provided
+            const additionalNotes = document.getElementById('additionalNotes').value;
+            if (additionalNotes.trim()) {
+                assessmentSummary.innerHTML += `<p><strong>Additional Notes:</strong> ${additionalNotes}</p>`;
+            }
+        }
+        
+        // Generate summary text based on scores
+        function generateSummary(authorScore, publisherScore, timelinessScore, evidenceScore, biasScore, percentage) {
+            let summary = '';
+            
+            if (percentage >= 80) {
+                summary = 'This source demonstrates <strong>high credibility</strong>. ';
+            } else if (percentage >= 60) {
+                summary = 'This source has <strong>moderate credibility</strong>. ';
+            } else {
+                summary = 'This source has <strong>low credibility</strong> and should be used with caution. ';
+            }
+            
+            summary += 'Key factors influencing this assessment include: ';
+            
+            const factors = [];
+            if (authorScore <= 2) factors.push('limited author expertise');
+            if (publisherScore <= 2) factors.push('questionable publisher reputation');
+            if (timelinessScore <= 2) factors.push('outdated information');
+            if (evidenceScore <= 2) factors.push('weak or insufficient evidence');
+            if (biasScore <= 2) factors.push('significant bias');
+            
+            if (factors.length > 0) {
+                summary += factors.join(', ') + '. ';
+            } else {
+                summary += 'strong performance across all evaluated categories. ';
+            }
+            
+            summary += 'Always verify information from multiple reputable sources when conducting research.';
+            
+            return summary;
+        }
+        
+        // Reset form
+        resetBtn.addEventListener('click', () => {
+            form.reset();
+            
+            // Clear all rating selections
+            ratingContainers.forEach(container => {
+                const options = container.querySelectorAll('.rating-option');
+                options.forEach(option => option.classList.remove('selected'));
+            });
+            
+            // Hide results if showing
+            resultContainer.classList.remove('active');
+            form.style.display = 'block';
+        });
+        
+        // Back to form button
+        backToFormBtn.addEventListener('click', () => {
+            resultContainer.classList.remove('active');
+            form.style.display = 'block';
+        });
+        
+        // Print report button
+        printReportBtn.addEventListener('click', () => {
+            const printContent = `
+                <html>
+                <head>
+                    <title>Fact Checker Report</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        h1 { color: #ff8000; }
+                        .score { font-size: 2rem; font-weight: bold; margin: 20px 0; }
+                        .category { margin-bottom: 10px; }
+                        .summary { margin-top: 30px; line-height: 1.6; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Fact Checker Credibility Report</h1>
+                    <h2>${sourceTitleResult.textContent}</h2>
+                    <p>${sourceDetails.textContent}</p>
+                    <div class="score">Credibility Score: ${finalScore.textContent}/10</div>
+                    <div>${scoreLabel.textContent}</div>
+                    <h3>Category Breakdown</h3>
+                    ${Array.from(categoryScores.children).map(el => el.outerHTML).join('')}
+                    <h3>Assessment Summary</h3>
+                    <div class="summary">${assessmentSummary.innerHTML}</div>
+                    <p><em>Report generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</em></p>
+                </body>
+                </html>
+            `;
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.print();
+        });
+        
+        // Set today's date as default
+        document.getElementById('date').valueAsDate = new Date();
+    </script>
+</body>
+</html>

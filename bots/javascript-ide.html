@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript IDE · dark console · enhanced</title>
+    <!-- Font Awesome (same) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- CodeMirror: modern editor with syntax highlighting & line numbers -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Fira Code', monospace, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* back button – exactly preserved */
+        .navbar {
+            margin-bottom: 25px;
+        }
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.95rem;
+            transition: 0.2s;
+        }
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+
+        /* IDE layout */
+        .ide-container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* editor panel with smoother feel */
+        .editor-section {
+            background: rgba(10, 10, 26, 0.7);
+            backdrop-filter: blur(4px);
+            border: 1px solid #ff8000;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.8);
+            transition: box-shadow 0.2s ease;
+        }
+        .editor-section:hover {
+            box-shadow: 0 15px 35px rgba(255, 128, 0, 0.15);
+        }
+
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: #ffaa44;
+            border-left: 4px solid #ff8000;
+            padding-left: 12px;
+        }
+        .section-label i {
+            color: #ff8000;
+            font-size: 1.1rem;
+        }
+
+        /* CodeMirror custom styling (matches original dark theme with orange accents) */
+        .CodeMirror {
+            height: auto;
+            min-height: 240px;
+            background: #0d0b1a;
+            border: 1px solid #ff8000;
+            border-radius: 10px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            box-shadow: inset 0 0 12px rgba(0,0,0,0.7), 0 2px 8px rgba(255,128,0,0.1);
+            transition: border 0.2s, box-shadow 0.2s;
+        }
+        .CodeMirror-focused {
+            border-color: #ffa64d;
+            box-shadow: inset 0 0 12px #000, 0 0 12px #ff800055;
+        }
+        .CodeMirror-gutters {
+            background: #130f1f;
+            border-right: 1px solid #ff8000;
+            border-radius: 10px 0 0 10px;
+        }
+        .CodeMirror-linenumber {
+            color: #ffaa44;
+        }
+        .CodeMirror-cursor {
+            border-left: 2px solid #ff8000;
+        }
+        .CodeMirror-selected {
+            background: #ff800055 !important;
+        }
+        .cm-s-default .cm-keyword { color: #ff9e4a; }    /* orange keywords */
+        .cm-s-default .cm-def { color: #ffb86b; }
+        .cm-s-default .cm-variable { color: #f0f0f0; }
+        .cm-s-default .cm-variable-2 { color: #c3d9ff; }
+        .cm-s-default .cm-comment { color: #7a7a9a; font-style: italic; }
+        .cm-s-default .cm-string { color: #a3ee7c; }
+        .cm-s-default .cm-number { color: #ff77aa; }
+        .cm-s-default .cm-operator { color: #ffaa44; }
+        .cm-s-default .cm-error { background: rgba(255,0,0,0.2); }
+
+        .button-bar {
+            display: flex;
+            gap: 14px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 24px;
+            background: rgba(255, 128, 0, 0.15);
+            border: 1px solid #ff8000;
+            border-radius: 40px;
+            color: #ff8000;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            color: #fff;
+            border-color: #ffa64d;
+            transform: scale(1.02);
+            box-shadow: 0 6px 14px rgba(255,128,0,0.3);
+        }
+        .btn.clear-btn {
+            background: rgba(255, 80, 80, 0.1);
+            border-color: #ff5f5f;
+            color: #ff8888;
+        }
+        .btn.clear-btn:hover {
+            background: rgba(255, 80, 80, 0.25);
+            border-color: #ff3b3b;
+            color: #fff;
+        }
+
+        /* console panel – smoother glass effect */
+        .console-section {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #ff8000;
+            border-radius: 16px;
+            padding: 18px 22px 22px 22px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+            transition: box-shadow 0.2s;
+        }
+        .console-section:hover {
+            box-shadow: 0 15px 35px rgba(255,128,0,0.1);
+        }
+
+        .console-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .console-header .section-label {
+            margin-bottom: 0;
+        }
+
+        #console-output {
+            background: #0a0518;
+            border: 1px solid #ff8000;
+            border-radius: 12px;
+            min-height: 240px;
+            max-height: 360px;
+            overflow-y: auto;
+            padding: 16px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            box-shadow: inset 0 0 20px #00000066, 0 4px 10px #00000055;
+            scroll-behavior: smooth;
+            color: #ddd;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* console lines – refined spacing & icons (via pseudo) */
+        .console-line {
+            padding: 4px 0 4px 24px;
+            margin-bottom: 4px;
+            border-left: 3px solid transparent;
+            font-family: 'Fira Code', monospace;
+            transition: 0.1s;
+            position: relative;
+        }
+        .console-line::before {
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 4px;
+            top: 4px;
+            font-size: 11px;
+            opacity: 0.8;
+        }
+        .console-log {
+            color: #c3d9ff;
+            border-left-color: #5f9eff;
+        }
+        .console-log::before {
+            content: "\f0a9";  /* arrow right */
+            color: #5f9eff;
+        }
+        .console-error {
+            color: #ff7b7b;
+            border-left-color: #ff3a3a;
+            background: rgba(255, 70, 70, 0.08);
+        }
+        .console-error::before {
+            content: "\f06a";  /* exclamation circle */
+            color: #ff7b7b;
+        }
+        .console-warn {
+            color: #ffb86b;
+            border-left-color: #ffaa33;
+        }
+        .console-warn::before {
+            content: "\f071";  /* triangle exclamation */
+            color: #ffb86b;
+        }
+        .console-info {
+            color: #9bff9b;
+            border-left-color: #33cc33;
+        }
+        .console-info::before {
+            content: "\f05a";  /* info circle */
+            color: #9bff9b;
+        }
+
+        .console-placeholder {
+            color: #5f5f7a;
+            font-style: italic;
+            user-select: none;
+            padding-left: 12px;
+        }
+
+        .console-divider {
+            color: #ff8000;
+            border-bottom: 1px dashed #ff8000;
+            margin: 10px 0 10px 0;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+        }
+
+        /* scrollbar refinement */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a1030;
+            border-radius: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ff8000;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ffaa44;
+        }
+        ::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <div class="ide-container">
+        <!-- editor panel with enhanced codemirror -->
+        <div class="editor-section">
+            <div class="section-label">
+                <i class="fas fa-code"></i> JavaScript editor – <span style="font-size:0.8rem; opacity:0.8;">syntax highlight · line numbers</span>
+            </div>
+            <!-- original textarea replaced by CodeMirror, initial content set via JS -->
+            <textarea id="code-editor" placeholder="// write your js here ..." spellcheck="false"></textarea>
+            <div class="button-bar">
+                <button class="btn" id="run-btn"><i class="fas fa-play"></i> run code (⌃⏎)</button>
+                <button class="btn clear-btn" id="clear-console-btn"><i class="fas fa-eraser"></i> clear console</button>
+                <button class="btn clear-btn" id="clear-editor-btn"><i class="fas fa-trash-alt"></i> clear editor</button>
+            </div>
+        </div>
+
+        <!-- console & output panel -->
+        <div class="console-section">
+            <div class="console-header">
+                <div class="section-label">
+                    <i class="fas fa-terminal"></i> console output
+                </div>
+                <span style="color:#ff8000; font-size:13px; background: rgba(255,128,0,0.1); padding:4px 10px; border-radius:40px;"><i class="fas fa-circle" style="font-size: 8px; color:#ff8000;"></i>  captured logs</span>
+            </div>
+            <div id="console-output">
+                <div class="console-placeholder">⏻  output will appear here ...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CodeMirror library and addons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <!-- enable autoCloseBrackets, syntax highlighting for javascript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+    <script>
+        (function() {
+            // ----- DOM elements -----
+            const textarea = document.getElementById('code-editor');
+            const runBtn = document.getElementById('run-btn');
+            const clearConsoleBtn = document.getElementById('clear-console-btn');
+            const clearEditorBtn = document.getElementById('clear-editor-btn');
+            const outputDiv = document.getElementById('console-output');
+
+            // ----- initialize CodeMirror (smooth, with line numbers & autoclose) -----
+            const cm = CodeMirror.fromTextArea(textarea, {
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                indentUnit: 4,
+                tabSize: 4,
+                mode: 'javascript',
+                theme: 'default',   // we use custom CSS on .CodeMirror, keep 'default' for token colors
+                viewportMargin: Infinity,
+                extraKeys: {
+                    "Ctrl-Enter": function(instance) {
+                        runCode();
+                    },
+                    "Cmd-Enter": function(instance) {
+                        runCode();
+                    }
+                }
+            });
+
+            // Set initial code (same as original demo)
+            cm.setValue(`// welcome 👋
+console.log("hello from dark IDE");
+console.warn("this is a warning");
+console.info("answer:", 42);
+
+// try defining a function
+function greet(name) {
+    return "hi, " + name;
+}
+console.log(greet("dev"));`);
+
+            // ----- console formatting helpers (same as before but improved object display) -----
+            function formatArg(arg) {
+                if (arg === null) return 'null';
+                if (arg === undefined) return 'undefined';
+                if (typeof arg === 'string') return arg;
+                if (arg instanceof Error) {
+                    return arg.stack || arg.toString();
+                }
+                if (typeof arg === 'object') {
+                    try {
+                        const seen = new WeakSet();
+                        return JSON.stringify(arg, (key, value) => {
+                            if (typeof value === 'object' && value !== null) {
+                                if (seen.has(value)) {
+                                    return '[Circular]';
+                                }
+                                seen.add(value);
+                            }
+                            return value;
+                        }, 2);
+                    } catch (e) {
+                        return String(arg);
+                    }
+                }
+                return String(arg);
+            }
+
+            function addToConsole(type, args) {
+                // remove placeholder if exists
+                const placeholder = outputDiv.querySelector('.console-placeholder');
+                if (placeholder) placeholder.remove();
+
+                const line = document.createElement('div');
+                line.className = `console-line console-${type}`;
+
+                const formattedParts = args.map(arg => formatArg(arg));
+                line.textContent = formattedParts.join(' ');
+                outputDiv.appendChild(line);
+                outputDiv.scrollTop = outputDiv.scrollHeight;
+            }
+
+            // ----- override console (keep existing) -----
+            window.console = {
+                log: function(...args) { addToConsole('log', args); },
+                error: function(...args) { addToConsole('error', args); },
+                warn: function(...args) { addToConsole('warn', args); },
+                info: function(...args) { addToConsole('info', args); },
+                debug: function(...args) { addToConsole('log', args); },
+            };
+
+            // ----- clear console with placeholder -----
+            function clearConsole() {
+                outputDiv.innerHTML = '';
+                const placeholder = document.createElement('div');
+                placeholder.className = 'console-placeholder';
+                placeholder.textContent = '⏻  console cleared · ready for next run';
+                outputDiv.appendChild(placeholder);
+            }
+
+            // ----- run code from CodeMirror -----
+            function runCode() {
+                const code = cm.getValue();
+                if (!code.trim()) {
+                    console.warn('⚠️ editor is empty');
+                    return;
+                }
+
+                // visual separator for new run
+                addToConsole('log', ['⋮ ⋮ ⋮  ·  run code executed  ·  ⋮ ⋮ ⋮']);
+
+                try {
+                    // indirect eval to run in global scope
+                    (0, eval)(code);
+                } catch (err) {
+                    console.error(err.toString());
+                }
+            }
+
+            // ----- clear editor content (CodeMirror version) -----
+            function clearEditor() {
+                cm.setValue('');
+                cm.focus();
+            }
+
+            // ----- event listeners -----
+            runBtn.addEventListener('click', runCode);
+            clearConsoleBtn.addEventListener('click', clearConsole);
+            clearEditorBtn.addEventListener('click', clearEditor);
+
+            // additional shortcut (ctrl+enter) already handled by CodeMirror extraKeys,
+            // but we keep it for consistency (the textarea is hidden, but cm catches it)
+            // also add a small improvement: clear on double-click console? not needed
+
+            // ensure that any external log (like from eval) will remove placeholder
+            // (already in addToConsole)
+        })();
+    </script>
+    <!-- small additional tweak: smooth focus on console -->
+</body>
+</html>

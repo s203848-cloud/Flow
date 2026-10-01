@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Government Guide</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.8);
+            margin-bottom: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 10px 20px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 8px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 128, 0, 0.2);
+        }
+        
+        .header-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff8000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+        
+        .section {
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        h2 {
+            margin-bottom: 25px;
+            color: #ff8000;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 2px solid rgba(255, 128, 0, 0.3);
+            padding-bottom: 10px;
+        }
+        
+        .branch-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .branch-card {
+            background: rgba(30, 30, 50, 0.4);
+            border-radius: 12px;
+            padding: 25px;
+            border-top: 4px solid;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .branch-card:hover {
+            transform: translateY(-5px);
+            background: rgba(40, 40, 60, 0.5);
+        }
+        
+        .branch-card.legislative {
+            border-color: #4CAF50;
+        }
+        
+        .branch-card.executive {
+            border-color: #2196F3;
+        }
+        
+        .branch-card.judicial {
+            border-color: #9C27B0;
+        }
+        
+        .branch-card.bill-of-rights {
+            border-color: #FF9800;
+        }
+        
+        .branch-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .branch-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+        }
+        
+        .legislative .branch-icon {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+        }
+        
+        .executive .branch-icon {
+            background: linear-gradient(135deg, #2196F3, #0D47A1);
+        }
+        
+        .judicial .branch-icon {
+            background: linear-gradient(135deg, #9C27B0, #6A1B9A);
+        }
+        
+        .bill-of-rights .branch-icon {
+            background: linear-gradient(135deg, #FF9800, #EF6C00);
+        }
+        
+        .branch-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        .branch-subtitle {
+            color: #aaa;
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+        
+        .branch-content {
+            color: #ddd;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .branch-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .branch-details {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .branch-details.active {
+            display: block;
+        }
+        
+        .details-list {
+            list-style: none;
+            margin-top: 10px;
+        }
+        
+        .details-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .details-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: #ff8000;
+            font-weight: 600;
+        }
+        
+        .detail-value {
+            color: #ddd;
+            text-align: right;
+        }
+        
+        .toggle-btn {
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid rgba(255, 128, 0, 0.5);
+            color: #ff8000;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .toggle-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .quiz-section {
+            background: rgba(20, 20, 35, 0.6);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+        
+        .quiz-question {
+            background: rgba(40, 40, 60, 0.4);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .quiz-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .quiz-option {
+            background: rgba(50, 50, 70, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-option:hover {
+            background: rgba(70, 70, 90, 0.4);
+            border-color: rgba(255, 128, 0, 0.5);
+        }
+        
+        .quiz-option.selected {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+        }
+        
+        .quiz-option.correct {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: #4CAF50;
+        }
+        
+        .quiz-option.incorrect {
+            background: rgba(244, 67, 54, 0.3);
+            border-color: #F44336;
+        }
+        
+        .quiz-result {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .quiz-result.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .result-score {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ff8000;
+            margin: 10px 0;
+        }
+        
+        .result-message {
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .restart-quiz {
+            background: linear-gradient(to right, #ff7e00, #ff4500);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .restart-quiz:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 69, 0, 0.3);
+        }
+        
+        .comparison-section {
+            background: rgba(20, 20, 35, 0.6);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .comparison-table th {
+            background: rgba(255, 128, 0, 0.2);
+            color: #ff8000;
+            padding: 15px;
+            text-align: left;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ddd;
+        }
+        
+        .comparison-table tr:hover {
+            background: rgba(255, 128, 0, 0.05);
+        }
+        
+        .interactive-diagram {
+            background: rgba(30, 30, 50, 0.4);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .diagram-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .diagram-node {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .diagram-node:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+        }
+        
+        .diagram-node.legislative {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+        }
+        
+        .diagram-node.executive {
+            background: linear-gradient(135deg, #2196F3, #0D47A1);
+        }
+        
+        .diagram-node.judicial {
+            background: linear-gradient(135deg, #9C27B0, #6A1B9A);
+        }
+        
+        .node-connections {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+        
+        .connection-line {
+            stroke: rgba(255, 128, 0, 0.5);
+            stroke-width: 2;
+            stroke-dasharray: 5;
+            animation: dash 20s linear infinite;
+        }
+        
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 1000;
+            }
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 69, 0, 0.2);
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .branch-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .diagram-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Tools
+        </a>
+        <div class="header-title">
+            <i class="fas fa-landmark"></i> Interactive Government Guide
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Introduction Section -->
+        <div class="section">
+            <h2><i class="fas fa-info-circle"></i> About This Guide</h2>
+            <p style="color: #ddd; line-height: 1.6; font-size: 1.1rem;">
+                Welcome to the Interactive Government Guide! This comprehensive resource explains the fundamental concepts 
+                of government structure, branches of power, and citizen rights. Click on each branch to learn more, 
+                test your knowledge with quizzes, and explore interactive diagrams.
+            </p>
+        </div>
+        
+        <!-- Government Branches Section -->
+        <div class="section">
+            <h2><i class="fas fa-balance-scale"></i> Three Branches of Government</h2>
+            <p style="color: #aaa; margin-bottom: 25px;">
+                Click on any branch to learn more about its functions and responsibilities
+            </p>
+            
+            <div class="branch-container">
+                <!-- Legislative Branch -->
+                <div class="branch-card legislative" onclick="toggleBranchDetails('legislative')">
+                    <div class="branch-header">
+                        <div class="branch-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div>
+                            <div class="branch-title">Legislative Branch</div>
+                            <div class="branch-subtitle">Makes the laws</div>
+                        </div>
+                    </div>
+                    <div class="branch-content" id="legislative-content">
+                        The legislative branch is responsible for creating, debating, and passing laws. 
+                        In the United States, this branch consists of Congress, which is divided into two 
+                        chambers: the House of Representatives and the Senate.
+                    </div>
+                    <button class="toggle-btn" onclick="event.stopPropagation(); toggleBranchDetails('legislative')">
+                        <i class="fas fa-chevron-down"></i> Show Details
+                    </button>
+                    <div class="branch-details" id="legislative-details">
+                        <ul class="details-list">
+                            <li><span class="detail-label">Main Body:</span> <span class="detail-value">U.S. Congress</span></li>
+                            <li><span class="detail-label">Chambers:</span> <span class="detail-value">House of Representatives (435 members) & Senate (100 members)</span></li>
+                            <li><span class="detail-label">Key Powers:</span> <span class="detail-value">Make laws, declare war, regulate commerce</span></li>
+                            <li><span class="detail-label">Term Length:</span> <span class="detail-value">House: 2 years, Senate: 6 years</span></li>
+                            <li><span class="detail-label">Leadership:</span> <span class="detail-value">Speaker of the House, Senate Majority Leader</span></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Executive Branch -->
+                <div class="branch-card executive" onclick="toggleBranchDetails('executive')">
+                    <div class="branch-header">
+                        <div class="branch-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div>
+                            <div class="branch-title">Executive Branch</div>
+                            <div class="branch-subtitle">Enforces the laws</div>
+                        </div>
+                    </div>
+                    <div class="branch-content" id="executive-content">
+                        The executive branch is responsible for implementing and enforcing laws. 
+                        It is headed by the President, who serves as both the head of state and 
+                        the head of government.
+                    </div>
+                    <button class="toggle-btn" onclick="event.stopPropagation(); toggleBranchDetails('executive')">
+                        <i class="fas fa-chevron-down"></i> Show Details
+                    </button>
+                    <div class="branch-details" id="executive-details">
+                        <ul class="details-list">
+                            <li><span class="detail-label">Head:</span> <span class="detail-value">President of the United States</span></li>
+                            <li><span class="detail-label">Key Members:</span> <span class="detail-value">Vice President, Cabinet, Executive Departments</span></li>
+                            <li><span class="detail-label">Key Powers:</span> <span class="detail-value">Veto laws, command military, make treaties</span></li>
+                            <li><span class="detail-label">Term Length:</span> <span class="detail-value">4 years (maximum 2 terms)</span></li>
+                            <li><span class="detail-label">Election:</span> <span class="detail-value">Electoral College</span></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Judicial Branch -->
+                <div class="branch-card judicial" onclick="toggleBranchDetails('judicial')">
+                    <div class="branch-header">
+                        <div class="branch-icon">
+                            <i class="fas fa-gavel"></i>
+                        </div>
+                        <div>
+                            <div class="branch-title">Judicial Branch</div>
+                            <div class="branch-subtitle">Interprets the laws</div>
+                        </div>
+                    </div>
+                    <div class="branch-content" id="judicial-content">
+                        The judicial branch is responsible for interpreting laws and ensuring they 
+                        are applied fairly. It consists of the federal court system, with the 
+                        Supreme Court at its apex.
+                    </div>
+                    <button class="toggle-btn" onclick="event.stopPropagation(); toggleBranchDetails('judicial')">
+                        <i class="fas fa-chevron-down"></i> Show Details
+                    </button>
+                    <div class="branch-details" id="judicial-details">
+                        <ul class="details-list">
+                            <li><span class="detail-label">Highest Court:</span> <span class="detail-value">U.S. Supreme Court</span></li>
+                            <li><span class="detail-label">Key Members:</span> <span class="detail-value">9 Supreme Court Justices (1 Chief, 8 Associate)</span></li>
+                            <li><span class="detail-label">Key Powers:</span> <span class="detail-value">Judicial review, interpret Constitution, resolve disputes</span></li>
+                            <li><span class="detail-label">Term Length:</span> <span class="detail-value">Lifetime appointment</span></li>
+                            <li><span class="detail-label">Nomination:</span> <span class="detail-value">President nominates, Senate confirms</span></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Bill of Rights -->
+                <div class="branch-card bill-of-rights" onclick="toggleBranchDetails('bill-of-rights')">
+                    <div class="branch-header">
+                        <div class="branch-icon">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <div>
+                            <div class="branch-title">Bill of Rights</div>
+                            <div class="branch-subtitle">Protects individual freedoms</div>
+                        </div>
+                    </div>
+                    <div class="branch-content" id="bill-of-rights-content">
+                        The Bill of Rights comprises the first ten amendments to the U.S. Constitution. 
+                        It guarantees essential rights and liberties to individual citizens and limits 
+                        the power of the government.
+                    </div>
+                    <button class="toggle-btn" onclick="event.stopPropagation(); toggleBranchDetails('bill-of-rights')">
+                        <i class="fas fa-chevron-down"></i> Show Details
+                    </button>
+                    <div class="branch-details" id="bill-of-rights-details">
+                        <ul class="details-list">
+                            <li><span class="detail-label">1st Amendment:</span> <span class="detail-value">Freedom of speech, religion, press, assembly</span></li>
+                            <li><span class="detail-label">2nd Amendment:</span> <span class="detail-value">Right to bear arms</span></li>
+                            <li><span class="detail-label">4th Amendment:</span> <span class="detail-value">Protection from unreasonable searches</span></li>
+                            <li><span class="detail-label">5th Amendment:</span> <span class="detail-value">Right to due process, protection from self-incrimination</span></li>
+                            <li><span class="detail-label">10th Amendment:</span> <span class="detail-value">Powers not given to federal government are reserved for states</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Interactive Diagram -->
+        <div class="section interactive-diagram">
+            <h2><i class="fas fa-sitemap"></i> Government Structure Diagram</h2>
+            <p style="color: #aaa; margin-bottom: 20px;">
+                Click on each branch to see its details. Hover to see connections.
+            </p>
+            <div class="diagram-container">
+                <div class="diagram-node legislative" onclick="showBranchInfo('legislative')">
+                    <i class="fas fa-university" style="font-size: 2.5rem; margin-bottom: 10px;"></i>
+                    <div>Legislative</div>
+                    <div style="font-size: 0.9rem; font-weight: normal;">Makes Laws</div>
+                </div>
+                
+                <div class="diagram-node executive" onclick="showBranchInfo('executive')">
+                    <i class="fas fa-user-tie" style="font-size: 2.5rem; margin-bottom: 10px;"></i>
+                    <div>Executive</div>
+                    <div style="font-size: 0.9rem; font-weight: normal;">Enforces Laws</div>
+                </div>
+                
+                <div class="diagram-node judicial" onclick="showBranchInfo('judicial')">
+                    <i class="fas fa-gavel" style="font-size: 2.5rem; margin-bottom: 10px;"></i>
+                    <div>Judicial</div>
+                    <div style="font-size: 0.9rem; font-weight: normal;">Interprets Laws</div>
+                </div>
+            </div>
+            <div id="diagram-info" style="margin-top: 25px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 10px; min-height: 80px;">
+                <p id="diagram-info-text" style="color: #ddd;">Click on any branch above to see information here</p>
+            </div>
+        </div>
+        
+        <!-- Branch Comparison Table -->
+        <div class="section comparison-section">
+            <h2><i class="fas fa-exchange-alt"></i> Branch Comparison</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Branch</th>
+                        <th>Main Function</th>
+                        <th>Key Members</th>
+                        <th>Term Length</th>
+                        <th>Checks on Other Branches</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="color: #4CAF50; font-weight: bold;">Legislative</td>
+                        <td>Make laws</td>
+                        <td>Senators, Representatives</td>
+                        <td>2-6 years</td>
+                        <td>Override veto, impeach officials, approve appointments</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #2196F3; font-weight: bold;">Executive</td>
+                        <td>Enforce laws</td>
+                        <td>President, Vice President, Cabinet</td>
+                        <td>4 years</td>
+                        <td>Veto legislation, appoint judges, executive orders</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #9C27B0; font-weight: bold;">Judicial</td>
+                        <td>Interpret laws</td>
+                        <td>Supreme Court Justices, Federal Judges</td>
+                        <td>Life tenure</td>
+                        <td>Declare laws unconstitutional, judicial review</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Quiz Section -->
+        <div class="section quiz-section">
+            <h2><i class="fas fa-question-circle"></i> Test Your Knowledge</h2>
+            <p style="color: #aaa; margin-bottom: 25px;">
+                Answer the questions below to test your understanding of government concepts.
+            </p>
+            
+            <div id="quiz-container">
+                <!-- Questions will be inserted here by JavaScript -->
+            </div>
+            
+            <div class="quiz-result" id="quiz-result">
+                <h3 style="color: #ff8000; margin-bottom: 15px;">Quiz Completed!</h3>
+                <div class="result-score" id="quiz-score">0/5</div>
+                <div class="result-message" id="quiz-message"></div>
+                <button class="restart-quiz" onclick="startQuiz()">
+                    <i class="fas fa-redo"></i> Restart Quiz
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>Interactive Government Guide | Created for Educational Purposes</p>
+        <p>This guide provides an overview of U.S. government structure and principles</p>
+    </div>
+
+    <script>
+        // Government branches data
+        const branches = {
+            legislative: {
+                title: "Legislative Branch",
+                icon: "fa-university",
+                color: "#4CAF50",
+                description: "The legislative branch is responsible for creating, debating, and passing laws. In the United States, this branch consists of Congress, which is divided into two chambers: the House of Representatives and the Senate.",
+                details: {
+                    "Main Body": "U.S. Congress",
+                    "Chambers": "House of Representatives (435 members) & Senate (100 members)",
+                    "Key Powers": "Make laws, declare war, regulate commerce",
+                    "Term Length": "House: 2 years, Senate: 6 years",
+                    "Leadership": "Speaker of the House, Senate Majority Leader"
+                }
+            },
+            executive: {
+                title: "Executive Branch",
+                icon: "fa-user-tie",
+                color: "#2196F3",
+                description: "The executive branch is responsible for implementing and enforcing laws. It is headed by the President, who serves as both the head of state and the head of government.",
+                details: {
+                    "Head": "President of the United States",
+                    "Key Members": "Vice President, Cabinet, Executive Departments",
+                    "Key Powers": "Veto laws, command military, make treaties",
+                    "Term Length": "4 years (maximum 2 terms)",
+                    "Election": "Electoral College"
+                }
+            },
+            judicial: {
+                title: "Judicial Branch",
+                icon: "fa-gavel",
+                color: "#9C27B0",
+                description: "The judicial branch is responsible for interpreting laws and ensuring they are applied fairly. It consists of the federal court system, with the Supreme Court at its apex.",
+                details: {
+                    "Highest Court": "U.S. Supreme Court",
+                    "Key Members": "9 Supreme Court Justices (1 Chief, 8 Associate)",
+                    "Key Powers": "Judicial review, interpret Constitution, resolve disputes",
+                    "Term Length": "Lifetime appointment",
+                    "Nomination": "President nominates, Senate confirms"
+                }
+            },
+            "bill-of-rights": {
+                title: "Bill of Rights",
+                icon: "fa-file-contract",
+                color: "#FF9800",
+                description: "The Bill of Rights comprises the first ten amendments to the U.S. Constitution. It guarantees essential rights and liberties to individual citizens and limits the power of the government.",
+                details: {
+                    "1st Amendment": "Freedom of speech, religion, press, assembly",
+                    "2nd Amendment": "Right to bear arms",
+                    "4th Amendment": "Protection from unreasonable searches",
+                    "5th Amendment": "Right to due process, protection from self-incrimination",
+                    "10th Amendment": "Powers not given to federal government are reserved for states"
+                }
+            }
+        };
+
+        // Quiz questions
+        const quizQuestions = [
+            {
+                question: "Which branch of government is responsible for making laws?",
+                options: ["Executive Branch", "Legislative Branch", "Judicial Branch", "Military Branch"],
+                correct: 1
+            },
+            {
+                question: "Who is the head of the Executive Branch?",
+                options: ["Chief Justice", "Speaker of the House", "President", "Senate Majority Leader"],
+                correct: 2
+            },
+            {
+                question: "How many amendments are in the Bill of Rights?",
+                options: ["5", "10", "15", "27"],
+                correct: 1
+            },
+            {
+                question: "Which branch can declare laws unconstitutional?",
+                options: ["Legislative", "Executive", "Judicial", "All of the above"],
+                correct: 2
+            },
+            {
+                question: "What is the main purpose of the system of checks and balances?",
+                options: ["To speed up government processes", "To prevent any one branch from becoming too powerful", "To reduce government spending", "To increase presidential power"],
+                correct: 1
+            }
+        ];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show content for all branches initially
+            document.querySelectorAll('.branch-content').forEach(content => {
+                content.classList.add('active');
+            });
+            
+            // Start the quiz
+            startQuiz();
+        });
+
+        // Toggle branch details
+        function toggleBranchDetails(branchId) {
+            const content = document.getElementById(`${branchId}-content`);
+            const details = document.getElementById(`${branchId}-details`);
+            const toggleBtn = details.previousElementSibling;
+            
+            // Toggle details visibility
+            const isActive = details.classList.toggle('active');
+            
+            // Update button text and icon
+            if (isActive) {
+                toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i> Hide Details';
+            } else {
+                toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i> Show Details';
+            }
+        }
+
+        // Show branch info in diagram
+        function showBranchInfo(branchId) {
+            const branch = branches[branchId];
+            const infoDiv = document.getElementById('diagram-info-text');
+            
+            let detailsHTML = `<h3 style="color: ${branch.color}; margin-bottom: 10px;">${branch.title}</h3>`;
+            detailsHTML += `<p style="color: #ddd; margin-bottom: 15px;">${branch.description}</p>`;
+            detailsHTML += `<ul style="text-align: left; margin-left: 20px;">`;
+            
+            for (const [key, value] of Object.entries(branch.details)) {
+                detailsHTML += `<li style="margin-bottom: 8px;"><strong style="color: #ff8000;">${key}:</strong> ${value}</li>`;
+            }
+            
+            detailsHTML += `</ul>`;
+            
+            infoDiv.innerHTML = detailsHTML;
+            
+            // Highlight the clicked node
+            document.querySelectorAll('.diagram-node').forEach(node => {
+                node.style.transform = 'scale(1)';
+            });
+            
+            document.querySelector(`.diagram-node.${branchId}`).style.transform = 'scale(1.15)';
+        }
+
+        // Quiz functionality
+        let currentQuestion = 0;
+        let score = 0;
+        let userAnswers = [];
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            userAnswers = [];
+            document.getElementById('quiz-result').classList.remove('show');
+            
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const quizContainer = document.getElementById('quiz-container');
+            const question = quizQuestions[currentQuestion];
+            
+            let questionHTML = `
+                <div class="quiz-question">
+                    <h3 style="color: #ff8000; margin-bottom: 15px;">Question ${currentQuestion + 1} of ${quizQuestions.length}</h3>
+                    <p style="font-size: 1.2rem; color: #fff;">${question.question}</p>
+                    <div class="quiz-options">
+            `;
+            
+            question.options.forEach((option, index) => {
+                const isSelected = userAnswers[currentQuestion] === index;
+                questionHTML += `
+                    <div class="quiz-option ${isSelected ? 'selected' : ''}" 
+                         onclick="selectAnswer(${index})">
+                        ${option}
+                    </div>
+                `;
+            });
+            
+            questionHTML += `
+                    </div>
+                    <div style="margin-top: 20px; display: flex; justify-content: space-between;">
+            `;
+            
+            if (currentQuestion > 0) {
+                questionHTML += `<button class="toggle-btn" onclick="previousQuestion()"><i class="fas fa-arrow-left"></i> Previous</button>`;
+            } else {
+                questionHTML += `<div></div>`;
+            }
+            
+            if (currentQuestion < quizQuestions.length - 1) {
+                questionHTML += `<button class="toggle-btn" onclick="nextQuestion()">Next <i class="fas fa-arrow-right"></i></button>`;
+            } else {
+                questionHTML += `<button class="toggle-btn" onclick="submitQuiz()" style="background: rgba(76, 175, 80, 0.3); border-color: #4CAF50;"><i class="fas fa-check"></i> Submit Quiz</button>`;
+            }
+            
+            questionHTML += `
+                    </div>
+                </div>
+            `;
+            
+            quizContainer.innerHTML = questionHTML;
+        }
+
+        function selectAnswer(answerIndex) {
+            userAnswers[currentQuestion] = answerIndex;
+            renderQuestion();
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quizQuestions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            }
+        }
+
+        function submitQuiz() {
+            // Calculate score
+            score = 0;
+            quizQuestions.forEach((question, index) => {
+                if (userAnswers[index] === question.correct) {
+                    score++;
+                }
+            });
+            
+            // Show results
+            const resultDiv = document.getElementById('quiz-result');
+            const scoreDiv = document.getElementById('quiz-score');
+            const messageDiv = document.getElementById('quiz-message');
+            
+            scoreDiv.textContent = `${score}/${quizQuestions.length}`;
+            
+            // Generate message based on score
+            let message = "";
+            if (score === quizQuestions.length) {
+                message = "Perfect! You're a government expert!";
+            } else if (score >= quizQuestions.length * 0.7) {
+                message = "Great job! You have a good understanding of government.";
+            } else if (score >= quizQuestions.length * 0.5) {
+                message = "Not bad! Review the material and try again.";
+            } else {
+                message = "Keep studying! You'll get better with practice.";
+            }
+            
+            messageDiv.textContent = message;
+            resultDiv.classList.add('show');
+        }
+
+        // Initialize the page with first branch info
+        setTimeout(() => {
+            showBranchInfo('legislative');
+        }, 500);
+    </script>
+</body>
+</html>

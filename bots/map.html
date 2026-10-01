@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geo-Explorer Interactive Atlas</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .navbar {
+            padding: 15px 20px;
+            background: rgba(10, 10, 26, 0.85);
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1000;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-3px);
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff8000;
+        }
+        
+        .logo span {
+            color: #4dabf7;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            color: #aaa;
+            font-style: italic;
+        }
+        
+        .container {
+            display: flex;
+            height: calc(100vh - 68px);
+        }
+        
+        #map {
+            flex: 1;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .sidebar {
+            width: 380px;
+            background: rgba(15, 15, 35, 0.9);
+            border-left: 1px solid rgba(255, 128, 0, 0.2);
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            transition: transform 0.3s;
+        }
+        
+        .sidebar.collapsed {
+            transform: translateX(100%);
+        }
+        
+        .toggle-sidebar {
+            position: absolute;
+            top: 50%;
+            right: 380px;
+            transform: translateY(-50%);
+            background: rgba(10, 10, 26, 0.9);
+            color: #ff8000;
+            border: 1px solid #ff8000;
+            border-right: none;
+            border-radius: 5px 0 0 5px;
+            padding: 10px 5px;
+            cursor: pointer;
+            z-index: 100;
+        }
+        
+        .panel {
+            background: rgba(26, 26, 46, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .panel-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+            color: #ff8000;
+        }
+        
+        .panel-header i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .panel-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .country-info {
+            display: none;
+        }
+        
+        .country-flag {
+            width: 60px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 3px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .country-name {
+            font-size: 24px;
+            margin-bottom: 5px;
+            color: #ff8000;
+        }
+        
+        .country-data {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .data-item {
+            margin-bottom: 10px;
+        }
+        
+        .data-label {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 3px;
+        }
+        
+        .data-value {
+            font-size: 16px;
+            color: #fff;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .control-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        .control-btn.active {
+            background: rgba(255, 128, 0, 0.3);
+            border-color: #ff8000;
+        }
+        
+        .poi-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .category-btn {
+            padding: 6px 12px;
+            background: rgba(77, 171, 247, 0.1);
+            border: 1px solid rgba(77, 171, 247, 0.3);
+            border-radius: 20px;
+            color: #4dabf7;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        
+        .category-btn.active {
+            background: rgba(77, 171, 247, 0.3);
+            border-color: #4dabf7;
+        }
+        
+        .poi-list {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .poi-item {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .poi-item:hover {
+            background: rgba(255, 128, 0, 0.05);
+        }
+        
+        .poi-icon {
+            margin-right: 10px;
+            font-size: 16px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .poi-details {
+            flex: 1;
+        }
+        
+        .poi-name {
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+        
+        .poi-location {
+            font-size: 13px;
+            color: #aaa;
+        }
+        
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 15px;
+            padding-left: 45px;
+            background: rgba(26, 26, 46, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ff8000;
+        }
+        
+        .measurement-result {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(26, 26, 46, 0.8);
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .tooltip {
+            position: absolute;
+            padding: 8px 12px;
+            background: rgba(10, 10, 26, 0.9);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 1000;
+            max-width: 250px;
+            display: none;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+        
+        .poi-detail-panel {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .poi-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .close-poi {
+            float: right;
+            color: #ff8000;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .loading {
+            padding: 20px;
+            text-align: center;
+            color: #aaa;
+        }
+        
+        .zoom-level-control {
+            position: absolute;
+            top: 70px;
+            right: 10px;
+            background: rgba(10, 10, 26, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            z-index: 1000;
+        }
+        
+        .zoom-level-control button {
+            padding: 5px 10px;
+            margin: 0 5px;
+            background: rgba(26, 26, 46, 0.9);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            color: #ff8000;
+            cursor: pointer;
+        }
+        
+        .leaflet-control-zoom {
+            margin-top: 70px !important;
+        }
+        
+        .leaflet-bar {
+            background: rgba(10, 10, 26, 0.9) !important;
+            border-color: rgba(255, 128, 0, 0.3) !important;
+        }
+        
+        .leaflet-bar a {
+            background-color: rgba(26, 26, 46, 0.9) !important;
+            color: #ff8000 !important;
+            border-bottom-color: rgba(255, 128, 0, 0.3) !important;
+        }
+        
+        .leaflet-bar a:hover {
+            background-color: rgba(255, 128, 0, 0.1) !important;
+        }
+        
+        .country-highlight {
+            fill-opacity: 0.6 !important;
+            stroke-width: 3 !important;
+            stroke: #ff8000 !important;
+        }
+        
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 340px;
+            }
+            
+            .toggle-sidebar {
+                right: 340px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 45vh;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                transform: translateY(100%);
+            }
+            
+            .sidebar.active {
+                transform: translateY(0);
+            }
+            
+            .toggle-sidebar {
+                right: 20px;
+                bottom: 45vh;
+                top: auto;
+                transform: translateY(100%);
+                border: 1px solid #ff8000;
+                border-radius: 5px 5px 0 0;
+            }
+            
+            #map {
+                height: calc(100vh - 68px);
+            }
+            
+            .zoom-level-control {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo-container">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+            <div>
+                <div class="logo">Geo<span>Explorer</span> Pro</div>
+                <div class="subtitle">Enhanced Interactive Atlas with Geographic Hitboxes</div>
+            </div>
+        </div>
+        <div class="controls">
+            <button class="control-btn" id="measure-btn" title="Measure distances between locations">
+                <i class="fas fa-ruler"></i> Measure
+            </button>
+            <button class="control-btn" id="search-btn" title="Search for any location">
+                <i class="fas fa-search"></i> Search
+            </button>
+            <button class="control-btn" id="layers-btn" title="Toggle thematic layers">
+                <i class="fas fa-layer-group"></i> Layers
+            </button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div id="map"></div>
+        <div class="toggle-sidebar" id="toggle-sidebar">
+            <i class="fas fa-chevron-left" id="toggle-icon"></i>
+        </div>
+        <div class="sidebar" id="sidebar">
+            <div class="panel">
+                <div class="panel-header">
+                    <i class="fas fa-globe-americas"></i>
+                    <h2 id="region-title">Geographic Information</h2>
+                </div>
+                <div class="country-info" id="country-info">
+                    <img src="" alt="Country Flag" class="country-flag" id="country-flag">
+                    <div class="country-name" id="country-name">Select a region</div>
+                    <div class="country-data" id="country-data">
+                        <!-- Dynamic content will be added here -->
+                    </div>
+                </div>
+                <div id="default-info">
+                    <p>Click anywhere within a country's borders to see detailed information. Zoom in to see state/provincial borders with geographic hitboxes.</p>
+                    <p>Use the zoom level controls to switch between country and state/province views for precise interaction.</p>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h2>Points of Interest</h2>
+                </div>
+                <div class="poi-categories">
+                    <div class="category-btn active" data-category="all">All</div>
+                    <div class="category-btn" data-category="cultural">Cultural</div>
+                    <div class="category-btn" data-category="natural">Natural</div>
+                    <div class="category-btn" data-category="scientific">Scientific</div>
+                    <div class="category-btn" data-category="historical">Historical</div>
+                    <div class="category-btn" data-category="landmark">Landmarks</div>
+                </div>
+                <div class="poi-list" id="poi-list">
+                    <div class="loading">Loading POIs...</div>
+                </div>
+            </div>
+            
+            <div class="panel" id="search-panel" style="display: none;">
+                <div class="panel-header">
+                    <i class="fas fa-search"></i>
+                    <h2>Search Location</h2>
+                </div>
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="location-search" placeholder="Search for a country, city, or landmark...">
+                </div>
+                <div id="search-results"></div>
+            </div>
+            
+            <div class="panel" id="measure-panel" style="display: none;">
+                <div class="panel-header">
+                    <i class="fas fa-ruler"></i>
+                    <h2>Measure Distance</h2>
+                </div>
+                <p>Click on the map to set start point, then click again for end point. Distance will be calculated automatically.</p>
+                <button class="control-btn" id="clear-measurement" style="margin-top: 10px;">
+                    <i class="fas fa-trash"></i> Clear Measurement
+                </button>
+                <div class="measurement-result" id="measurement-result">
+                    <strong>Distance:</strong> <span id="distance-value">0</span> km
+                </div>
+            </div>
+            
+            <div class="panel" id="layers-panel" style="display: none;">
+                <div class="panel-header">
+                    <i class="fas fa-layer-group"></i>
+                    <h2>Thematic Layers</h2>
+                </div>
+                <div class="controls">
+                    <button class="control-btn layer-btn" data-layer="population">
+                        <i class="fas fa-users"></i> Population Density
+                    </button>
+                    <button class="control-btn layer-btn" data-layer="climate">
+                        <i class="fas fa-cloud-sun"></i> Climate Zones
+                    </button>
+                    <button class="control-btn" id="show-borders">
+                        <i class="fas fa-border-all"></i> Toggle Borders
+                    </button>
+                </div>
+                <div class="legend" id="layer-legend" style="display: none;"></div>
+            </div>
+            
+            <div class="panel poi-detail-panel" id="poi-detail-panel">
+                <div>
+                    <span class="close-poi" id="close-poi">&times;</span>
+                    <div class="panel-header">
+                        <i class="fas fa-info-circle"></i>
+                        <h2 id="poi-detail-title">Point of Interest</h2>
+                    </div>
+                </div>
+                <img src="" alt="POI Image" class="poi-image" id="poi-detail-image">
+                <div id="poi-detail-description"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tooltip" id="map-tooltip"></div>
+    
+    <!-- Zoom Level Control -->
+    <div class="zoom-level-control" id="zoom-level-control">
+        <span>Map View:</span>
+        <button id="country-view">Countries</button>
+        <button id="state-view">States/Provinces</button>
+        <button id="reset-view">Reset Zoom</button>
+    </div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
+    <script>
+        // Initialize the map
+        const map = L.map('map').setView([20, 0], 3);
+        
+        // Add tile layer
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap, © CARTO',
+            subdomains: 'abcd',
+            maxZoom: 10
+        }).addTo(map);
+        
+        // State management
+        const appState = {
+            currentZoomLevel: 'countries',
+            activeCountry: null,
+            activeState: null,
+            highlightedLayer: null,
+            poiMarkers: new Map(),
+            countryLayers: new Map(),
+            stateLayers: new Map(),
+            countryData: {},
+            stateData: {}
+        };
+        
+        // Enhanced country data with real polygon coordinates
+        
+        // Initialize OSM-based POI system
+        const osmCategories = {
+            cultural: ['museum', 'artwork', 'theatre', 'gallery', 'library'],
+            natural: ['peak', 'waterfall', 'beach', 'cliff', 'volcano', 'glacier'],
+            scientific: ['observatory', 'research', 'university', 'laboratory'],
+            historical: ['archaeological_site', 'castle', 'fort', 'monument', 'memorial'],
+            landmark: ['tower', 'bridge', 'dam', 'statue']
+        };
+        
+        // Create custom icons for POIs
+        const createCustomIcon = (color, iconType) => {
+            const iconHtml = {
+                cultural: 'fas fa-landmark',
+                natural: 'fas fa-mountain',
+                scientific: 'fas fa-flask',
+                historical: 'fas fa-fort',
+                landmark: 'fas fa-monument',
+                default: 'fas fa-map-marker-alt'
+            };
+            
+            return L.divIcon({
+                html: `<div style="color: ${color}; font-size: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+                         <i class="${iconHtml[iconType] || iconHtml.default}"></i>
+                       </div>`,
+                iconSize: [30, 30],
+                className: 'poi-marker'
+            });
+        };
+        
+        // Load geographic polygons
+        function loadGeographicLayers() {
+            // Load country layers
+            Object.entries(enhancedCountriesData).forEach(([key, data]) => {
+                const polygon = L.polygon(data.polygon, {
+                    color: data.color,
+                    weight: 2,
+                    fillOpacity: 0.1,
+                    className: 'country-polygon',
+                    interactive: true
+                }).addTo(map);
+                
+                polygon.on('click', function(e) {
+                    handleGeographicClick(key, 'country', e.latlng);
+                });
+                
+                polygon.on('mouseover', function(e) {
+                    polygon.setStyle({ fillOpacity: 0.3, weight: 3 });
+                    showTooltip(data.name, e.latlng);
+                });
+                
+                polygon.on('mouseout', function() {
+                    if (appState.activeCountry !== key) {
+                        polygon.setStyle({ fillOpacity: 0.1, weight: 2 });
+                    }
+                    hideTooltip();
+                });
+                
+                appState.countryLayers.set(key, polygon);
+            });
+            
+            // Load state layers (initially hidden)
+            Object.entries(statesData).forEach(([countryKey, states]) => {
+                Object.entries(states).forEach(([stateKey, stateData]) => {
+                    const polygon = L.polygon(stateData.polygon, {
+                        color: stateData.color,
+                        weight: 1,
+                        fillOpacity: 0.05,
+                        className: 'state-polygon',
+                        interactive: false
+                    }).addTo(map);
+                    
+                    polygon.on('click', function(e) {
+                        handleGeographicClick(stateKey, 'state', e.latlng, countryKey);
+                    });
+                    
+                    appState.stateLayers.set(`${countryKey}_${stateKey}`, polygon);
+                    polygon.setStyle({ opacity: 0 });
+                });
+            });
+        }
+        
+        // Handle geographic clicks
+        function handleGeographicClick(id, type, latlng, countryKey = null) {
+            if (type === 'country') {
+                showCountryInfo(id);
+                appState.activeCountry = id;
+                appState.activeState = null;
+                
+                // Highlight the clicked country
+                appState.countryLayers.forEach((layer, key) => {
+                    layer.setStyle({ 
+                        fillOpacity: key === id ? 0.6 : 0.1,
+                        weight: key === id ? 3 : 2
+                    });
+                });
+                
+                // Show states for this country if zoomed in
+                if (map.getZoom() > 5) {
+                    showStatesForCountry(id);
+                }
+                
+            } else if (type === 'state') {
+                showStateInfo(id, countryKey);
+                appState.activeState = id;
+                
+                // Highlight the clicked state
+                appState.stateLayers.forEach((layer, key) => {
+                    const [cKey, sKey] = key.split('_');
+                    layer.setStyle({ 
+                        opacity: sKey === id ? 1 : 0.3,
+                        fillOpacity: sKey === id ? 0.6 : 0.1
+                    });
+                });
+            }
+            
+            map.setView(latlng, Math.min(map.getZoom() + 1, 8));
+        }
+        
+        // Show/hide state layers based on country
+        function showStatesForCountry(countryKey) {
+            appState.stateLayers.forEach((layer, key) => {
+                const [cKey, sKey] = key.split('_');
+                if (cKey === countryKey) {
+                    layer.setStyle({ opacity: 1 });
+                } else {
+                    layer.setStyle({ opacity: 0 });
+                }
+            });
+        }
+        
+        // Show country information
+        function showCountryInfo(countryKey) {
+            const country = enhancedCountriesData[countryKey];
+            if (!country) return;
+            
+            document.getElementById('default-info').style.display = 'none';
+            document.getElementById('country-info').style.display = 'block';
+            document.getElementById('region-title').innerHTML = '<i class="fas fa-globe-americas"></i><h2>Country Information</h2>';
+            
+            const countryDataHTML = `
+                <div class="data-item">
+                    <div class="data-label">Capital</div>
+                    <div class="data-value" id="country-capital">${country.capital}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Population</div>
+                    <div class="data-value" id="country-population">${country.population}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Language</div>
+                    <div class="data-value" id="country-language">${country.language}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Area</div>
+                    <div class="data-value" id="country-area">${country.area}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Coordinates</div>
+                    <div class="data-value" id="country-coordinates">${country.coordinates}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Currency</div>
+                    <div class="data-value" id="country-currency">${country.currency}</div>
+                </div>
+            `;
+            
+            document.getElementById('country-name').textContent = country.name;
+            document.getElementById('country-flag').src = country.flag;
+            document.getElementById('country-data').innerHTML = countryDataHTML;
+        }
+        
+        // Show state information
+        function showStateInfo(stateKey, countryKey) {
+            const state = statesData[countryKey][stateKey];
+            if (!state) return;
+            
+            document.getElementById('default-info').style.display = 'none';
+            document.getElementById('country-info').style.display = 'block';
+            document.getElementById('region-title').innerHTML = '<i class="fas fa-map"></i><h2>State/Province Information</h2>';
+            
+            const stateDataHTML = `
+                <div class="data-item">
+                    <div class="data-label">Capital</div>
+                    <div class="data-value">${state.capital}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Population</div>
+                    <div class="data-value">${state.population}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Area</div>
+                    <div class="data-value">${state.area}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Coordinates</div>
+                    <div class="data-value">${state.coordinates}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Country</div>
+                    <div class="data-value">${enhancedCountriesData[countryKey].name}</div>
+                </div>
+            `;
+            
+            document.getElementById('country-name').textContent = state.name;
+            document.getElementById('country-flag').src = enhancedCountriesData[countryKey].flag;
+            document.getElementById('country-data').innerHTML = stateDataHTML;
+        }
+        
+        // Fetch POIs from OSM (simulated for demo)
+        async function fetchPOIs(bounds, category = 'all') {
+            // Simulate API call with enhanced data
+            
+            // Filter by bounds and category
+            return enhancedPOIs.filter(poi => {
+                const inBounds = bounds.contains([poi.lat, poi.lng]);
+                const inCategory = category === 'all' || poi.category === category;
+                return inBounds && inCategory;
+            });
+        }
+        
+        // Load and display POIs
+        async function loadPOIs(category = 'all') {
+            const bounds = map.getBounds();
+            const pois = await fetchPOIs(bounds, category);
+            
+            // Clear existing markers
+            appState.poiMarkers.forEach(marker => map.removeLayer(marker));
+            appState.poiMarkers.clear();
+            
+            // Add new markers
+            pois.forEach(poi => {
+                const icon = createCustomIcon(poi.color, poi.category);
+                const marker = L.marker([poi.lat, poi.lng], { icon })
+                    .addTo(map)
+                    .bindTooltip(`<strong>${poi.name}</strong><br>${poi.category.charAt(0).toUpperCase() + poi.category.slice(1)}`)
+                    .on('click', function(e) {
+                        showPoiDetail(poi);
+                        map.setView(e.latlng, Math.min(map.getZoom() + 3, 10));
+                    });
+                
+                appState.poiMarkers.set(poi.id, marker);
+            });
+            
+            // Update POI list
+            populatePoiList(pois);
+        }
+        
+        // Populate POI list
+        function populatePoiList(pois) {
+            const poiList = document.getElementById('poi-list');
+            poiList.innerHTML = '';
+            
+            if (pois.length === 0) {
+                poiList.innerHTML = '<div class="loading">No POIs found in this area. Zoom or pan to explore more.</div>';
+                return;
+            }
+            
+            pois.forEach(poi => {
+                const poiItem = document.createElement('div');
+                poiItem.className = 'poi-item';
+                poiItem.dataset.id = poi.id;
+                
+                const iconMap = {
+                    cultural: 'fas fa-landmark',
+                    natural: 'fas fa-mountain',
+                    scientific: 'fas fa-flask',
+                    historical: 'fas fa-fort',
+                    landmark: 'fas fa-monument'
+                };
+                
+                poiItem.innerHTML = `
+                    <div class="poi-icon" style="color: ${poi.color}">
+                        <i class="${iconMap[poi.category] || 'fas fa-map-marker-alt'}"></i>
+                    </div>
+                    <div class="poi-details">
+                        <div class="poi-name">${poi.name}</div>
+                        <div class="poi-location">${poi.lat.toFixed(4)}°, ${poi.lng.toFixed(4)}° • ${poi.category.charAt(0).toUpperCase() + poi.category.slice(1)}</div>
+                    </div>
+                `;
+                
+                poiItem.addEventListener('click', () => {
+                    showPoiDetail(poi);
+                    map.setView([poi.lat, poi.lng], Math.min(map.getZoom() + 3, 10));
+                });
+                
+                poiList.appendChild(poiItem);
+            });
+        }
+        
+        // Show POI detail
+        function showPoiDetail(poi) {
+            document.getElementById('poi-detail-title').textContent = poi.name;
+            document.getElementById('poi-detail-image').src = poi.image;
+            document.getElementById('poi-detail-description').innerHTML = `
+                <p><strong>Type:</strong> ${poi.category.charAt(0).toUpperCase() + poi.category.slice(1)}</p>
+                <p><strong>Coordinates:</strong> ${poi.lat.toFixed(4)}° ${poi.lat >= 0 ? 'N' : 'S'}, ${poi.lng.toFixed(4)}° ${poi.lng >= 0 ? 'E' : 'W'}</p>
+                <p><strong>Tags:</strong> ${poi.tags?.join(', ') || 'N/A'}</p>
+                <p style="margin-top: 10px;">${poi.description}</p>
+            `;
+            document.getElementById('poi-detail-panel').style.display = 'block';
+        }
+        
+        // Tooltip functionality
+        const tooltip = document.getElementById('map-tooltip');
+        
+        function showTooltip(text, latlng) {
+            const point = map.latLngToContainerPoint(latlng);
+            tooltip.innerHTML = text;
+            tooltip.style.left = (point.x + 10) + 'px';
+            tooltip.style.top = (point.y - 20) + 'px';
+            tooltip.style.display = 'block';
+        }
+        
+        function hideTooltip() {
+            tooltip.style.display = 'none';
+        }
+        
+        // Zoom level controls
+        document.getElementById('country-view').addEventListener('click', () => {
+            map.setZoom(3);
+            appState.currentZoomLevel = 'countries';
+            updateLayerVisibility();
+        });
+        
+        document.getElementById('state-view').addEventListener('click', () => {
+            map.setZoom(6);
+            appState.currentZoomLevel = 'states';
+            updateLayerVisibility();
+        });
+        
+        document.getElementById('reset-view').addEventListener('click', () => {
+            map.setView([20, 0], 3);
+            appState.currentZoomLevel = 'countries';
+            updateLayerVisibility();
+        });
+        
+        // Update layer visibility based on zoom level
+        function updateLayerVisibility() {
+            const zoom = map.getZoom();
+            
+            if (zoom > 5) {
+                // Show states
+                appState.stateLayers.forEach(layer => {
+                    if (appState.activeCountry) {
+                        const [countryKey] = layer._leaflet_id.split('_');
+                        if (countryKey === appState.activeCountry) {
+                            layer.setStyle({ opacity: 1 });
+                        }
+                    }
+                });
+            } else {
+                // Hide states
+                appState.stateLayers.forEach(layer => {
+                    layer.setStyle({ opacity: 0 });
+                });
+                appState.activeState = null;
+            }
+        }
+        
+        // Measurement functionality
+        let measureStart = null;
+        let measureEnd = null;
+        let measureLine = null;
+        let isMeasuring = false;
+        
+        document.getElementById('measure-btn').addEventListener('click', function() {
+            togglePanel('measure');
+            this.classList.toggle('active');
+            
+            if (this.classList.contains('active')) {
+                startMeasuring();
+            } else {
+                stopMeasuring();
+            }
+        });
+        
+        function startMeasuring() {
+            isMeasuring = true;
+            document.getElementById('measurement-result').style.display = 'none';
+            map.on('click', handleMeasureClick);
+        }
+        
+        function stopMeasuring() {
+            isMeasuring = false;
+            map.off('click', handleMeasureClick);
+            if (measureLine) {
+                map.removeLayer(measureLine);
+                measureLine = null;
+            }
+            measureStart = null;
+            measureEnd = null;
+        }
+        
+        function handleMeasureClick(e) {
+            if (!measureStart) {
+                measureStart = e.latlng;
+                measureLine = L.polyline([measureStart], {color: '#ff8000', weight: 2, dashArray: '5, 10'}).addTo(map);
+            } else {
+                measureEnd = e.latlng;
+                measureLine.setLatLngs([measureStart, measureEnd]);
+                const distance = measureStart.distanceTo(measureEnd) / 1000;
+                document.getElementById('distance-value').textContent = distance.toFixed(2);
+                document.getElementById('measurement-result').style.display = 'block';
+                measureStart = null;
+                measureEnd = null;
+            }
+        }
+        
+        // Search functionality
+        document.getElementById('search-btn').addEventListener('click', function() {
+            togglePanel('search');
+            this.classList.toggle('active');
+            document.getElementById('location-search').focus();
+        });
+        
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', () => {
+            loadGeographicLayers();
+            loadPOIs();
+            
+            // Initialize with France selected
+            setTimeout(() => {
+                handleGeographicClick('france', 'country', {lat: 46.603354, lng: 1.888334});
+            }, 1000);
+            
+            // Update POIs on map move
+            map.on('moveend', () => {
+                const category = document.querySelector('.category-btn.active').dataset.category;
+                loadPOIs(category);
+                updateLayerVisibility();
+            });
+            
+            // POI category filtering
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    const category = this.dataset.category;
+                    loadPOIs(category);
+                });
+            });
+            
+            // Close POI detail
+            document.getElementById('close-poi').addEventListener('click', function() {
+                document.getElementById('poi-detail-panel').style.display = 'none';
+            });
+            
+            // Clear measurement
+            document.getElementById('clear-measurement').addEventListener('click', function() {
+                if (measureLine) map.removeLayer(measureLine);
+                measureLine = null;
+                measureStart = null;
+                measureEnd = null;
+                document.getElementById('measurement-result').style.display = 'none';
+            });
+            
+            // Layers button
+            document.getElementById('layers-btn').addEventListener('click', function() {
+                togglePanel('layers');
+                this.classList.toggle('active');
+            });
+            
+            // Border toggle
+            document.getElementById('show-borders').addEventListener('click', function() {
+                const currentOpacity = appState.countryLayers.values().next().value.options.fillOpacity;
+                const newOpacity = currentOpacity === 0.1 ? 0.4 : 0.1;
+                
+                appState.countryLayers.forEach(layer => {
+                    if (appState.activeCountry && layer._leaflet_id !== appState.activeCountry) {
+                        layer.setStyle({ fillOpacity: newOpacity });
+                    }
+                });
+                
+                appState.stateLayers.forEach(layer => {
+                    layer.setStyle({ fillOpacity: newOpacity * 0.5 });
+                });
+            });
+            
+            // Sidebar toggle
+            document.getElementById('toggle-sidebar').addEventListener('click', function() {
+                const sidebar = document.getElementById('sidebar');
+                const icon = document.getElementById('toggle-icon');
+                
+                sidebar.classList.toggle('collapsed');
+                icon.className = sidebar.classList.contains('collapsed') 
+                    ? 'fas fa-chevron-right' 
+                    : 'fas fa-chevron-left';
+                
+                this.style.right = sidebar.classList.contains('collapsed') 
+                    ? '0' 
+                    : sidebar.offsetWidth + 'px';
+            });
+        });
+        
+        // Panel toggling function
+        function togglePanel(panelName) {
+            const panels = ['search', 'measure', 'layers'];
+            panels.forEach(panel => {
+                const panelElement = document.getElementById(`${panel}-panel`);
+                panelElement.style.display = panel === panelName 
+                    ? (panelElement.style.display === 'none' ? 'block' : 'none')
+                    : 'none';
+            });
+            
+            document.querySelectorAll('.control-btn').forEach(btn => {
+                if (btn.id !== `${panelName}-btn`) {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+        
+        // Search functionality (simplified for demo)
+        document.getElementById('location-search').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            const resultsDiv = document.getElementById('search-results');
+            
+            if (query.length < 2) {
+                resultsDiv.innerHTML = '<p style="color: #aaa;">Start typing to search...</p>';
+                return;
+            }
+            
+            // Simple search implementation
+            const allItems = [
+                ...Object.entries(enhancedCountriesData).map(([key, data]) => ({
+                    type: 'country',
+                    key,
+                    name: data.name,
+                    capital: data.capital
+                })),
+                ...Object.entries(statesData).flatMap(([countryKey, states]) => 
+                    Object.entries(states).map(([stateKey, state]) => ({
+                        type: 'state',
+                        key: stateKey,
+                        countryKey,
+                        name: state.name,
+                        capital: state.capital
+                    }))
+                )
+            ];
+            
+            const filtered = allItems.filter(item => 
+                item.name.toLowerCase().includes(query) ||
+                item.capital.toLowerCase().includes(query)
+            );
+            
+            resultsDiv.innerHTML = '';
+            
+            if (filtered.length === 0) {
+                resultsDiv.innerHTML = '<p style="color: #aaa;">No results found</p>';
+                return;
+            }
+            
+            filtered.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'poi-item';
+                div.innerHTML = `
+                    <div class="poi-icon" style="color: #ff8000">
+                        <i class="fas fa-${item.type === 'country' ? 'globe' : 'map'}"></i>
+                    </div>
+                    <div class="poi-details">
+                        <div class="poi-name">${item.name}</div>
+                        <div class="poi-location">${item.type === 'country' ? 'Country' : 'State/Province'} • Capital: ${item.capital}</div>
+                    </div>
+                `;
+                
+                div.addEventListener('click', () => {
+                    if (item.type === 'country') {
+                        handleGeographicClick(item.key, 'country', {lat: 20, lng: 0});
+                    } else {
+                        handleGeographicClick(item.key, 'state', {lat: 20, lng: 0}, item.countryKey);
+                    }
+                    document.getElementById('location-search').value = '';
+                    resultsDiv.innerHTML = '';
+                });
+                
+                resultsDiv.appendChild(div);
+            });
+        });
+    </script>
+</body>
+</html>

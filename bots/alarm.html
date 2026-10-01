@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alarm Clock</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 0 0 10px 10px;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 128, 0, 0.2);
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 100px;
+            padding: 20px;
+        }
+        
+        .current-time {
+            font-size: 4.5rem;
+            font-weight: 700;
+            color: #ff8000;
+            text-align: center;
+            margin: 20px 0;
+            text-shadow: 0 0 30px rgba(255, 128, 0, 0.5);
+            letter-spacing: 2px;
+            font-variant-numeric: tabular-nums;
+            padding: 20px;
+            border-radius: 20px;
+            background: rgba(30, 30, 45, 0.3);
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .alarm-status {
+            color: #aaa;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            text-align: center;
+            min-height: 1.5rem;
+        }
+        
+        /* Alarm set container */
+        .set-alarm-container {
+            background: rgba(30, 30, 45, 0.7);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 700px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+        }
+        
+        .set-alarm-container h3 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #ff8000;
+            font-size: 1.6rem;
+            font-weight: 600;
+        }
+        
+        .time-inputs {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .time-input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .time-input-label {
+            font-size: 0.95rem;
+            color: #aaa;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 500;
+        }
+        
+        .time-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-align: center;
+            background: rgba(15, 15, 25, 0.9);
+            border: 2px solid rgba(255, 128, 0, 0.3);
+            border-radius: 12px;
+            color: #ff8000;
+            transition: all 0.3s;
+        }
+        
+        .time-input:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 20px rgba(255, 128, 0, 0.3);
+        }
+        
+        /* Tune selection */
+        .tune-selection {
+            margin-top: 25px;
+        }
+        
+        .tune-selection h4 {
+            color: #ff8000;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.3rem;
+        }
+        
+        .tune-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(15, 15, 25, 0.7);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .tune-option {
+            padding: 12px;
+            background: rgba(30, 30, 45, 0.8);
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            border-radius: 8px;
+            color: #ccc;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .tune-option:hover {
+            background: rgba(255, 128, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .tune-option.active {
+            background: rgba(255, 128, 0, 0.2);
+            color: #ff8000;
+            border-color: #ff8000;
+            box-shadow: 0 0 15px rgba(255, 128, 0, 0.3);
+        }
+        
+        /* Volume control */
+        .volume-control {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .volume-label {
+            color: #aaa;
+            font-size: 0.95rem;
+            min-width: 80px;
+        }
+        
+        .volume-slider {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(15, 15, 25, 0.9);
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #ff8000;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.5);
+        }
+        
+        .volume-value {
+            color: #ff8000;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: right;
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 16px 35px;
+            background: linear-gradient(to right, #ff7e00, #ff4500);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 25px rgba(255, 69, 0, 0.3);
+            min-width: 160px;
+            justify-content: center;
+        }
+        
+        .btn:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 12px 30px rgba(255, 69, 0, 0.5);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+        
+        .btn:disabled {
+            background: linear-gradient(to right, #444, #666);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+        
+        .btn-set {
+            background: linear-gradient(to right, #00aa44, #008833);
+        }
+        
+        .btn-stop {
+            background: linear-gradient(to right, #cc0000, #990000);
+        }
+        
+        .btn-snooze {
+            background: linear-gradient(to right, #0088cc, #006699);
+        }
+        
+        /* Active alarms */
+        .active-alarms-container {
+            background: rgba(30, 30, 45, 0.7);
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            max-width: 700px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .active-alarms-container h3 {
+            color: #ff8000;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .alarm-list {
+            list-style: none;
+        }
+        
+        .alarm-item {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.1);
+            transition: all 0.3s;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            background: rgba(20, 20, 30, 0.5);
+        }
+        
+        .alarm-item:hover {
+            background: rgba(255, 128, 0, 0.05);
+        }
+        
+        .alarm-item.active {
+            background: rgba(255, 128, 0, 0.1);
+            border-left: 4px solid #ff8000;
+        }
+        
+        .alarm-time {
+            color: #ff8000;
+            font-weight: 700;
+            font-size: 1.8rem;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .alarm-tune {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .alarm-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 8px 12px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 6px;
+            color: #ff8000;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .action-btn.delete {
+            background: rgba(204, 0, 0, 0.1);
+            border-color: rgba(204, 0, 0, 0.3);
+            color: #ff6666;
+        }
+        
+        .action-btn.delete:hover {
+            background: rgba(204, 0, 0, 0.2);
+        }
+        
+        /* Alarm ringing overlay */
+        .alarm-ringing-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .alarm-ringing-content {
+            background: linear-gradient(135deg, #1a0a2e, #0a0a1a);
+            border-radius: 30px;
+            padding: 50px;
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            border: 3px solid #ff8000;
+            box-shadow: 0 0 80px rgba(255, 128, 0, 0.7);
+            animation: pulse 2s infinite;
+        }
+        
+        .alarm-ringing-content h2 {
+            color: #ff8000;
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(255, 128, 0, 0.7);
+        }
+        
+        .alarm-ringing-time {
+            color: #fff;
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Scrollbar */
+        .tune-grid::-webkit-scrollbar,
+        .active-alarms-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .tune-grid::-webkit-scrollbar-track,
+        .active-alarms-container::-webkit-scrollbar-track {
+            background: rgba(20, 20, 30, 0.5);
+            border-radius: 10px;
+        }
+        
+        .tune-grid::-webkit-scrollbar-thumb,
+        .active-alarms-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 128, 0, 0.5);
+            border-radius: 10px;
+        }
+        
+        /* Empty state */
+        .empty-alarms {
+            text-align: center;
+            color: #666;
+            padding: 40px 20px;
+            font-size: 1.1rem;
+        }
+        
+        .empty-alarms i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: rgba(255, 128, 0, 0.3);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .current-time {
+                font-size: 3.5rem;
+            }
+            
+            .time-inputs {
+                gap: 15px;
+            }
+            
+            .time-input-group {
+                min-width: 100px;
+            }
+            
+            .time-input {
+                font-size: 1.5rem;
+                padding: 12px;
+            }
+            
+            .btn {
+                padding: 14px 25px;
+                min-width: 140px;
+                font-size: 1rem;
+            }
+            
+            .alarm-ringing-content {
+                padding: 30px;
+            }
+            
+            .alarm-ringing-content h2 {
+                font-size: 2.5rem;
+            }
+            
+            .alarm-ringing-time {
+                font-size: 3rem;
+            }
+            
+            .alarm-item {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .alarm-actions {
+                grid-column: 1;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .current-time {
+                font-size: 2.8rem;
+            }
+            
+            .controls {
+                gap: 10px;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                min-width: 130px;
+            }
+            
+            .tune-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+        
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 80px rgba(255, 128, 0, 0.7); }
+            50% { transform: scale(1.03); box-shadow: 0 0 100px rgba(255, 128, 0, 0.9); }
+            100% { transform: scale(1); box-shadow: 0 0 80px rgba(255, 128, 0, 0.7); }
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        /* Flash animation for alarm time */
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .flash {
+            animation: flash 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <span style="font-size: 1.5rem; font-weight: bold; color: #ff8000;">Alarm Clock</span>
+    </div>
+    
+    <div class="container">
+        <div class="current-time slide-in" id="currentTime">
+            00:00:00
+        </div>
+        
+        <div class="alarm-status slide-in" id="alarmStatus">
+            No alarms set
+        </div>
+        
+        <div class="set-alarm-container slide-in">
+            <h3>Set New Alarm</h3>
+            
+            <div class="time-inputs">
+                <div class="time-input-group">
+                    <div class="time-input-label">Hour</div>
+                    <input type="number" class="time-input" id="hourInput" 
+                           min="0" max="23" value="07" placeholder="00">
+                </div>
+                
+                <div class="time-input-group">
+                    <div class="time-input-label">Minute</div>
+                    <input type="number" class="time-input" id="minuteInput" 
+                           min="0" max="59" value="00" placeholder="00">
+                </div>
+                
+                <div class="time-input-group">
+                    <div class="time-input-label">Second</div>
+                    <input type="number" class="time-input" id="secondInput" 
+                           min="0" max="59" value="00" placeholder="00">
+                </div>
+            </div>
+            
+            <div class="tune-selection">
+                <h4>Select Alarm Tone</h4>
+                <div class="tune-grid" id="tuneGrid">
+                    <!-- Tune options will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="volume-control">
+                <div class="volume-label">Volume:</div>
+                <input type="range" class="volume-slider" id="volumeSlider" 
+                       min="0" max="100" value="90" step="1">
+                <div class="volume-value" id="volumeValue">90%</div>
+            </div>
+        </div>
+        
+        <div class="controls slide-in">
+            <button class="btn btn-set" id="setAlarmBtn">
+                <i class="fas fa-bell"></i> Set Alarm
+            </button>
+            <button class="btn btn-snooze" id="snoozeBtn" disabled>
+                <i class="fas fa-bed"></i> Snooze (10 min)
+            </button>
+            <button class="btn btn-stop" id="stopAlarmBtn" disabled>
+                <i class="fas fa-stop"></i> Stop Alarm
+            </button>
+        </div>
+        
+        <div class="active-alarms-container slide-in">
+            <h3>
+                <span>Active Alarms</span>
+                <span style="font-size: 1rem; color: #aaa;" id="alarmSummary">0 alarms</span>
+            </h3>
+            
+            <div class="empty-alarms" id="emptyAlarms">
+                <i class="fas fa-bell-slash"></i>
+                <p>No active alarms.<br>Set an alarm to get started!</p>
+            </div>
+            
+            <ul class="alarm-list" id="alarmList" style="display: none;"></ul>
+        </div>
+        
+        <!-- Alarm ringing overlay -->
+        <div class="alarm-ringing-overlay" id="alarmOverlay">
+            <div class="alarm-ringing-content">
+                <h2>⏰ ALARM! ⏰</h2>
+                <div class="alarm-ringing-time" id="ringingAlarmTime">07:00:00</div>
+                <div style="color: #aaa; margin-bottom: 30px; font-size: 1.2rem;" id="ringingAlarmTune">
+                    Tone: Standard Beep
+                </div>
+                <div class="controls">
+                    <button class="btn btn-snooze" id="overlaySnoozeBtn">
+                        <i class="fas fa-bed"></i> Snooze
+                    </button>
+                    <button class="btn btn-stop" id="overlayStopBtn">
+                        <i class="fas fa-stop"></i> Stop Alarm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Alarm variables
+        let alarms = [];
+        let alarmSound = null;
+        let audioContext = null;
+        let isAlarmRinging = false;
+        let currentRingingAlarm = null;
+        let selectedTuneId = 1;
+        let volume = 0.9; // 0 to 1
+        
+        // DOM elements
+        const currentTimeDisplay = document.getElementById('currentTime');
+        const alarmStatus = document.getElementById('alarmStatus');
+        const hourInput = document.getElementById('hourInput');
+        const minuteInput = document.getElementById('minuteInput');
+        const secondInput = document.getElementById('secondInput');
+        const setAlarmBtn = document.getElementById('setAlarmBtn');
+        const snoozeBtn = document.getElementById('snoozeBtn');
+        const stopAlarmBtn = document.getElementById('stopAlarmBtn');
+        const alarmList = document.getElementById('alarmList');
+        const emptyAlarms = document.getElementById('emptyAlarms');
+        const alarmSummary = document.getElementById('alarmSummary');
+        const tuneGrid = document.getElementById('tuneGrid');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeValue = document.getElementById('volumeValue');
+        const alarmOverlay = document.getElementById('alarmOverlay');
+        const ringingAlarmTime = document.getElementById('ringingAlarmTime');
+        const ringingAlarmTune = document.getElementById('ringingAlarmTune');
+        const overlaySnoozeBtn = document.getElementById('overlaySnoozeBtn');
+        const overlayStopBtn = document.getElementById('overlayStopBtn');
+        
+        // Professional alarm tones based on E2S standards[citation:8]
+        const alarmTunes = [
+            { id: 1, name: "Standard Beep", freq1: 800, freq2: 1000, pattern: "alternating", interval: 0.25 },
+            { id: 2, name: "Slow Whoop", freq1: 500, freq2: 1200, pattern: "sweep", interval: 0.3 },
+            { id: 3, name: "Fast Sweep", freq1: 800, freq2: 1000, pattern: "sweep", interval: 1.0 },
+            { id: 4, name: "High Pitch", freq1: 2400, freq2: null, pattern: "continuous", interval: 0 },
+            { id: 5, name: "Rapid Sweep", freq1: 2400, freq2: 2900, pattern: "sweep", interval: 0.14 },
+            { id: 6, name: "Intermittent", freq1: 1000, freq2: null, pattern: "pulse", interval: 1.0 },
+            { id: 7, name: "Double Pulse", freq1: 800, freq2: null, pattern: "pulse", interval: 0.25 },
+            { id: 8, name: "Bell", freq1: 660, freq2: null, pattern: "bell", interval: 1.8 },
+            { id: 9, name: "Siren", freq1: 800, freq2: 1000, pattern: "siren", interval: 0.5 },
+            { id: 10, name: "Alert Tone", freq1: 544, freq2: 440, pattern: "alternating", interval: 0.5 },
+            { id: 11, name: "Chime", freq1: 554, freq2: 440, pattern: "alternating", interval: 1.0 },
+            { id: 12, name: "Industrial", freq1: 340, freq2: null, pattern: "continuous", interval: 0 },
+            { id: 13, name: "Emergency", freq1: 1200, freq2: 500, pattern: "sweep", interval: 1.0 },
+            { id: 14, name: "Toxic Gas Alarm", freq1: 1000, freq2: null, pattern: "continuous", interval: 0 },
+            { id: 15, name: "Fire Alarm", freq1: 1000, freq2: null, pattern: "pulse", interval: 1.0 },
+            { id: 16, name: "Motor Siren Low", freq1: 800, freq2: null, pattern: "siren", interval: 2.0 },
+            { id: 17, name: "Motor Siren High", freq1: 1200, freq2: null, pattern: "siren", interval: 2.0 },
+            { id: 18, name: "Australian Alert", freq1: 420, freq2: null, pattern: "pulse", interval: 0.625 },
+            { id: 19, name: "Singapore Tone", freq1: 1000, freq2: 2000, pattern: "alternating", interval: 0.5 },
+            { id: 20, name: "Mechanical Bell", freq1: 660, freq2: null, pattern: "bell", interval: 0.15 },
+            { id: 21, name: "Electronic Buzzer", freq1: 800, freq2: null, pattern: "pulse", interval: 0.1 },
+            { id: 22, name: "Rising Siren", freq1: 500, freq2: 1200, pattern: "sweep", interval: 3.75 },
+            { id: 23, name: "Two-Tone Chime", freq1: 800, freq2: 1000, pattern: "chime", interval: 0.5 },
+            { id: 24, name: "Rapid Beep", freq1: 2400, freq2: null, pattern: "pulse", interval: 0.1 },
+            { id: 25, name: "Deep Horn", freq1: 300, freq2: null, pattern: "continuous", interval: 0 },
+            { id: 26, name: "Mid Frequency", freq1: 660, freq2: 1200, pattern: "sweep", interval: 1.0 },
+            { id: 27, name: "Fast Alternating", freq1: 2400, freq2: 2900, pattern: "alternating", interval: 0.14 },
+            { id: 28, name: "Triple Sweep", freq1: 500, freq2: 1200, pattern: "triple", interval: 0.3 },
+            { id: 29, name: "Ultra High", freq1: 2900, freq2: null, pattern: "continuous", interval: 0 },
+            { id: 30, name: "Double Bell", freq1: 660, freq2: null, pattern: "doubleBell", interval: 0.5 }
+        ];
+        
+        // Initialize the alarm clock
+        function initAlarmClock() {
+            // Initialize AudioContext
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.error("Web Audio API not supported:", e);
+                alarmStatus.textContent = "Audio not supported - alarms will be silent";
+                alarmStatus.style.color = "#ff4500";
+            }
+            
+            // Populate tune grid
+            populateTuneGrid();
+            
+            // Initialize current time display
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000);
+            
+            // Check alarms every second
+            setInterval(checkAlarms, 1000);
+            
+            // Initialize input validation
+            initInputValidation();
+            
+            // Update volume display
+            updateVolumeDisplay();
+            
+            // Add initial animation
+            document.querySelectorAll('.slide-in').forEach((el, i) => {
+                el.style.animationDelay = `${i * 0.1}s`;
+            });
+        }
+        
+        // Populate tune selection grid
+        function populateTuneGrid() {
+            tuneGrid.innerHTML = '';
+            
+            alarmTunes.forEach(tune => {
+                const tuneOption = document.createElement('div');
+                tuneOption.className = 'tune-option';
+                tuneOption.textContent = tune.name;
+                tuneOption.dataset.id = tune.id;
+                
+                if (tune.id === selectedTuneId) {
+                    tuneOption.classList.add('active');
+                }
+                
+                tuneOption.addEventListener('click', () => {
+                    // Remove active class from all options
+                    document.querySelectorAll('.tune-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    
+                    // Add active class to selected option
+                    tuneOption.classList.add('active');
+                    selectedTuneId = tune.id;
+                    
+                    // Preview the tune
+                    previewTune(tune);
+                });
+                
+                tuneGrid.appendChild(tuneOption);
+            });
+        }
+        
+        // Preview a tune
+        function previewTune(tune) {
+            if (!audioContext || isAlarmRinging) return;
+            
+            stopAlarmSound();
+            playAlarmSound(tune, 1.0); // Preview at full volume
+            setTimeout(() => stopAlarmSound(), 2000); // Stop after 2 seconds
+        }
+        
+        // Play alarm sound using Web Audio API for maximum volume[citation:7]
+        function playAlarmSound(tune, customVolume = null) {
+            if (!audioContext) return;
+            
+            stopAlarmSound(); // Stop any existing sound
+            
+            const gainNode = audioContext.createGain();
+            const oscillator1 = audioContext.createOscillator();
+            let oscillator2 = null;
+            
+            // Set volume - use customVolume if provided, otherwise use global volume
+            const finalVolume = customVolume !== null ? customVolume : volume;
+            gainNode.gain.value = finalVolume;
+            
+            // Configure first oscillator
+            oscillator1.type = 'sine';
+            oscillator1.frequency.value = tune.freq1;
+            
+            // Connect oscillator to gain node
+            oscillator1.connect(gainNode);
+            
+            // Configure second oscillator if needed
+            if (tune.freq2 !== null) {
+                oscillator2 = audioContext.createOscillator();
+                oscillator2.type = 'sine';
+                oscillator2.frequency.value = tune.freq2;
+                oscillator2.connect(gainNode);
+            }
+            
+            // Connect gain node to destination
+            gainNode.connect(audioContext.destination);
+            
+            // Apply pattern
+            switch(tune.pattern) {
+                case 'alternating':
+                    if (oscillator2) {
+                        // Alternate between frequencies
+                        let useFirst = true;
+                        const interval = setInterval(() => {
+                            if (useFirst) {
+                                oscillator1.frequency.value = tune.freq1;
+                                if (oscillator2) oscillator2.frequency.value = 0;
+                            } else {
+                                oscillator1.frequency.value = 0;
+                                if (oscillator2) oscillator2.frequency.value = tune.freq2;
+                            }
+                            useFirst = !useFirst;
+                        }, tune.interval * 500);
+                        
+                        // Store interval ID for cleanup
+                        alarmSound = { 
+                            oscillator1, 
+                            oscillator2, 
+                            gainNode, 
+                            interval 
+                        };
+                    }
+                    break;
+                    
+                case 'sweep':
+                    // Sweep between frequencies
+                    let currentFreq = tune.freq1;
+                    const sweepStep = (tune.freq2 - tune.freq1) / (tune.interval * 10);
+                    const sweepInterval = setInterval(() => {
+                        currentFreq += sweepStep;
+                        if (currentFreq >= tune.freq2 || currentFreq <= tune.freq1) {
+                            sweepStep = -sweepStep;
+                        }
+                        oscillator1.frequency.value = currentFreq;
+                    }, 100);
+                    
+                    alarmSound = { 
+                        oscillator1, 
+                        oscillator2: null, 
+                        gainNode, 
+                        interval: sweepInterval 
+                    };
+                    break;
+                    
+                case 'pulse':
+                    // Pulse on and off
+                    let isOn = true;
+                    const pulseInterval = setInterval(() => {
+                        gainNode.gain.value = isOn ? finalVolume : 0;
+                        isOn = !isOn;
+                    }, tune.interval * 500);
+                    
+                    alarmSound = { 
+                        oscillator1, 
+                        oscillator2: null, 
+                        gainNode, 
+                        interval: pulseInterval 
+                    };
+                    break;
+                    
+                case 'siren':
+                    // Siren effect
+                    let sirenFreq = tune.freq1;
+                    const sirenStep = 50;
+                    const sirenInterval = setInterval(() => {
+                        sirenFreq += sirenStep;
+                        if (sirenFreq >= tune.freq1 + 200 || sirenFreq <= tune.freq1 - 200) {
+                            sirenStep = -sirenStep;
+                        }
+                        oscillator1.frequency.value = sirenFreq;
+                    }, 50);
+                    
+                    alarmSound = { 
+                        oscillator1, 
+                        oscillator2: null, 
+                        gainNode, 
+                        interval: sirenInterval 
+                    };
+                    break;
+                    
+                case 'bell':
+                    // Bell-like sound
+                    const bellInterval = setInterval(() => {
+                        // Create a bell envelope
+                        const now = audioContext.currentTime;
+                        gainNode.gain.cancelScheduledValues(now);
+                        gainNode.gain.setValueAtTime(finalVolume, now);
+                        gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                        
+                        // Restart after interval
+                        setTimeout(() => {
+                            if (alarmSound) {
+                                gainNode.gain.setValueAtTime(finalVolume, audioContext.currentTime);
+                                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+                            }
+                        }, tune.interval * 1000);
+                    }, tune.interval * 1000);
+                    
+                    alarmSound = { 
+                        oscillator1, 
+                        oscillator2: null, 
+                        gainNode, 
+                        interval: bellInterval 
+                    };
+                    break;
+                    
+                default: // continuous
+                    // No special pattern, just continuous tone
+                    alarmSound = { 
+                        oscillator1, 
+                        oscillator2, 
+                        gainNode, 
+                        interval: null 
+                    };
+            }
+            
+            // Start oscillators
+            const now = audioContext.currentTime;
+            oscillator1.start(now);
+            if (oscillator2) {
+                oscillator2.start(now);
+            }
+            
+            // Schedule stop for preview (if customVolume is set, it's a preview)
+            if (customVolume !== null) {
+                setTimeout(() => {
+                    stopAlarmSound();
+                }, 2000);
+            }
+        }
+        
+        // Stop alarm sound
+        function stopAlarmSound() {
+            if (alarmSound) {
+                const now = audioContext ? audioContext.currentTime : 0;
+                
+                // Stop oscillators
+                if (alarmSound.oscillator1) {
+                    try {
+                        alarmSound.oscillator1.stop(now);
+                    } catch(e) {}
+                }
+                
+                if (alarmSound.oscillator2) {
+                    try {
+                        alarmSound.oscillator2.stop(now);
+                    } catch(e) {}
+                }
+                
+                // Clear interval if exists
+                if (alarmSound.interval) {
+                    clearInterval(alarmSound.interval);
+                }
+                
+                // Disconnect gain node
+                if (alarmSound.gainNode) {
+                    alarmSound.gainNode.disconnect();
+                }
+                
+                alarmSound = null;
+            }
+            
+            // Hide alarm overlay
+            alarmOverlay.style.display = 'none';
+            isAlarmRinging = false;
+            currentRingingAlarm = null;
+            
+            // Update button states
+            snoozeBtn.disabled = true;
+            stopAlarmBtn.disabled = true;
+        }
+        
+        // Update current time display
+        function updateCurrentTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            
+            currentTimeDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+            
+            // Flash the display every second
+            currentTimeDisplay.classList.toggle('flash');
+        }
+        
+        // Initialize input validation
+        function initInputValidation() {
+            hourInput.addEventListener('input', () => {
+                let value = parseInt(hourInput.value) || 0;
+                if (value < 0) value = 0;
+                if (value > 23) value = 23;
+                hourInput.value = value.toString().padStart(2, '0');
+            });
+            
+            minuteInput.addEventListener('input', () => {
+                let value = parseInt(minuteInput.value) || 0;
+                if (value < 0) value = 0;
+                if (value > 59) value = 59;
+                minuteInput.value = value.toString().padStart(2, '0');
+            });
+            
+            secondInput.addEventListener('input', () => {
+                let value = parseInt(secondInput.value) || 0;
+                if (value < 0) value = 0;
+                if (value > 59) value = 59;
+                secondInput.value = value.toString().padStart(2, '0');
+            });
+        }
+        
+        // Update volume display
+        function updateVolumeDisplay() {
+            volume = parseInt(volumeSlider.value) / 100;
+            volumeValue.textContent = `${volumeSlider.value}%`;
+        }
+        
+        // Set new alarm
+        function setNewAlarm() {
+            const hour = parseInt(hourInput.value) || 0;
+            const minute = parseInt(minuteInput.value) || 0;
+            const second = parseInt(secondInput.value) || 0;
+            
+            // Validate time
+            if (hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59) {
+                alarmStatus.textContent = "Invalid time! Please enter valid values.";
+                alarmStatus.style.color = "#ff4500";
+                return;
+            }
+            
+            // Check if time is in the past
+            const now = new Date();
+            const alarmTime = new Date();
+            alarmTime.setHours(hour, minute, second, 0);
+            
+            // If alarm time is in the past, set it for tomorrow
+            if (alarmTime < now) {
+                alarmTime.setDate(alarmTime.getDate() + 1);
+            }
+            
+            // Find selected tune
+            const tune = alarmTunes.find(t => t.id === selectedTuneId) || alarmTunes[0];
+            
+            // Create alarm object
+            const alarm = {
+                id: Date.now().toString(),
+                time: alarmTime,
+                hour: hour,
+                minute: minute,
+                second: second,
+                tune: tune,
+                active: true,
+                snoozed: false
+            };
+            
+            // Add to alarms array
+            alarms.push(alarm);
+            
+            // Update UI
+            updateAlarmList();
+            updateAlarmSummary();
+            
+            // Reset inputs to default
+            hourInput.value = "07";
+            minuteInput.value = "00";
+            secondInput.value = "00";
+            
+            // Update status
+            alarmStatus.textContent = `Alarm set for ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
+            alarmStatus.style.color = "#4CAF50";
+            
+            // Play confirmation sound
+            playConfirmationSound();
+        }
+        
+        // Update alarm list display
+        function updateAlarmList() {
+            if (alarms.length === 0) {
+                emptyAlarms.style.display = 'block';
+                alarmList.style.display = 'none';
+                return;
+            }
+            
+            emptyAlarms.style.display = 'none';
+            alarmList.style.display = 'block';
+            alarmList.innerHTML = '';
+            
+            // Sort alarms by time
+            alarms.sort((a, b) => a.time - b.time);
+            
+            // Add each alarm to list
+            alarms.forEach(alarm => {
+                const li = document.createElement('li');
+                li.className = 'alarm-item';
+                if (alarm.active) li.classList.add('active');
+                
+                const timeStr = `${alarm.hour.toString().padStart(2, '0')}:${alarm.minute.toString().padStart(2, '0')}:${alarm.second.toString().padStart(2, '0')}`;
+                
+                li.innerHTML = `
+                    <div class="alarm-time">${timeStr}</div>
+                    <div class="alarm-tune">${alarm.tune.name}</div>
+                    <div class="alarm-actions">
+                        <button class="action-btn toggle-btn" data-id="${alarm.id}">
+                            ${alarm.active ? 'Disable' : 'Enable'}
+                        </button>
+                        <button class="action-btn delete delete-btn" data-id="${alarm.id}">
+                            Delete
+                        </button>
+                    </div>
+                `;
+                
+                alarmList.appendChild(li);
+            });
+            
+            // Add event listeners to action buttons
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.target.dataset.id;
+                    toggleAlarm(id);
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.target.dataset.id;
+                    deleteAlarm(id);
+                });
+            });
+        }
+        
+        // Update alarm summary
+        function updateAlarmSummary() {
+            const activeCount = alarms.filter(a => a.active).length;
+            alarmSummary.textContent = `${activeCount} active alarm${activeCount !== 1 ? 's' : ''}`;
+        }
+        
+        // Toggle alarm active state
+        function toggleAlarm(id) {
+            const alarm = alarms.find(a => a.id === id);
+            if (alarm) {
+                alarm.active = !alarm.active;
+                updateAlarmList();
+                updateAlarmSummary();
+                
+                alarmStatus.textContent = `Alarm ${alarm.active ? 'enabled' : 'disabled'}`;
+                alarmStatus.style.color = alarm.active ? "#4CAF50" : "#ff4500";
+            }
+        }
+        
+        // Delete alarm
+        function deleteAlarm(id) {
+            const index = alarms.findIndex(a => a.id === id);
+            if (index !== -1) {
+                alarms.splice(index, 1);
+                updateAlarmList();
+                updateAlarmSummary();
+                
+                alarmStatus.textContent = "Alarm deleted";
+                alarmStatus.style.color = "#ff4500";
+            }
+        }
+        
+        // Check if any alarms should ring
+        function checkAlarms() {
+            if (isAlarmRinging) return;
+            
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            const currentSecond = now.getSeconds();
+            
+            for (const alarm of alarms) {
+                if (!alarm.active) continue;
+                
+                if (currentHour === alarm.hour && 
+                    currentMinute === alarm.minute && 
+                    currentSecond === alarm.second) {
+                    
+                    // Alarm time!
+                    triggerAlarm(alarm);
+                    break;
+                }
+            }
+        }
+        
+        // Trigger an alarm
+        function triggerAlarm(alarm) {
+            isAlarmRinging = true;
+            currentRingingAlarm = alarm;
+            
+            // Play alarm sound
+            playAlarmSound(alarm.tune);
+            
+            // Show alarm overlay
+            ringingAlarmTime.textContent = `${alarm.hour.toString().padStart(2, '0')}:${alarm.minute.toString().padStart(2, '0')}:${alarm.second.toString().padStart(2, '0')}`;
+            ringingAlarmTune.textContent = `Tone: ${alarm.tune.name}`;
+            alarmOverlay.style.display = 'flex';
+            
+            // Update button states
+            snoozeBtn.disabled = false;
+            stopAlarmBtn.disabled = false;
+            
+            // Update status
+            alarmStatus.textContent = "ALARM RINGING!";
+            alarmStatus.style.color = "#ff4500";
+            alarmStatus.classList.add('flash');
+        }
+        
+        // Snooze current alarm
+        function snoozeAlarm() {
+            if (!currentRingingAlarm) return;
+            
+            stopAlarmSound();
+            
+            // Add 10 minutes to the alarm time
+            const snoozeTime = new Date(currentRingingAlarm.time);
+            snoozeTime.setMinutes(snoozeTime.getMinutes() + 10);
+            
+            currentRingingAlarm.time = snoozeTime;
+            currentRingingAlarm.hour = snoozeTime.getHours();
+            currentRingingAlarm.minute = snoozeTime.getMinutes();
+            currentRingingAlarm.snoozed = true;
+            
+            // Update UI
+            updateAlarmList();
+            
+            // Update status
+            alarmStatus.textContent = `Alarm snoozed until ${currentRingingAlarm.hour.toString().padStart(2, '0')}:${currentRingingAlarm.minute.toString().padStart(2, '0')}`;
+            alarmStatus.style.color = "#4CAF50";
+            alarmStatus.classList.remove('flash');
+        }
+        
+        // Stop current alarm
+        function stopAlarm() {
+            if (!currentRingingAlarm) return;
+            
+            stopAlarmSound();
+            
+            // If alarm was snoozed, disable it after stopping
+            if (currentRingingAlarm.snoozed) {
+                currentRingingAlarm.active = false;
+                updateAlarmList();
+                updateAlarmSummary();
+            }
+            
+            // Update status
+            alarmStatus.textContent = "Alarm stopped";
+            alarmStatus.style.color = "#aaa";
+            alarmStatus.classList.remove('flash');
+        }
+        
+        // Play confirmation sound
+        function playConfirmationSound() {
+            if (!audioContext) return;
+            
+            const gainNode = audioContext.createGain();
+            const oscillator = audioContext.createOscillator();
+            
+            // Set volume lower for confirmation
+            gainNode.gain.value = volume * 0.5;
+            
+            // Configure oscillator
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 880; // A5
+            
+            // Connect nodes
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Create envelope
+            const now = audioContext.currentTime;
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(volume * 0.5, now + 0.05);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+            
+            // Start and stop
+            oscillator.start(now);
+            oscillator.stop(now + 0.3);
+        }
+        
+        // Event listeners
+        setAlarmBtn.addEventListener('click', setNewAlarm);
+        snoozeBtn.addEventListener('click', snoozeAlarm);
+        stopAlarmBtn.addEventListener('click', stopAlarm);
+        overlaySnoozeBtn.addEventListener('click', snoozeAlarm);
+        overlayStopBtn.addEventListener('click', stopAlarm);
+        volumeSlider.addEventListener('input', updateVolumeDisplay);
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            
+            switch(e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    if (isAlarmRinging) {
+                        stopAlarm();
+                    } else {
+                        setNewAlarm();
+                    }
+                    break;
+                case 'KeyS':
+                    if (isAlarmRinging) {
+                        snoozeAlarm();
+                    }
+                    break;
+                case 'Escape':
+                    if (isAlarmRinging) {
+                        stopAlarm();
+                    }
+                    break;
+            }
+        });
+        
+        // Initialize when page loads
+        window.addEventListener('DOMContentLoaded', initAlarmClock);
+    </script>
+</body>
+</html>

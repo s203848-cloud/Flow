@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Bar Graph</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            background: rgba(20, 20, 35, 0.8);
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 25px;
+        }
+        
+        .main-content {
+            grid-column: 1;
+        }
+        
+        .controls {
+            grid-column: 2;
+        }
+        
+        .section {
+            background: rgba(20, 20, 35, 0.5);
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        h2 {
+            margin-bottom: 15px;
+            color: #ff8000;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            padding-bottom: 8px;
+        }
+        
+        h3 {
+            margin: 15px 0 10px 0;
+            color: #ffaa44;
+            font-size: 1.1rem;
+        }
+        
+        .graph-container {
+            position: relative;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+            height: 550px;
+            margin: 15px 0;
+            touch-action: none;
+            cursor: grab;
+        }
+        
+        .graph-container:active {
+            cursor: grabbing;
+        }
+        
+        canvas {
+            display: block;
+        }
+        
+        .viewport-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            z-index: 10;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .zoom-level {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            z-index: 10;
+            border: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            background: rgba(50, 50, 70, 0.4);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: #fff;
+            margin: 8px 0;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: monospace;
+        }
+        
+        input::placeholder {
+            color: #888;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            background: linear-gradient(to right, #ff7e00, #ff4500);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 69, 0, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(to right, #444, #666);
+            padding: 8px 15px;
+            margin-top: 5px;
+        }
+        
+        .control-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .control-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .control-item.full-width {
+            grid-column: 1 / span 2;
+        }
+        
+        .bar-data-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .bar-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            background: rgba(255, 128, 0, 0.05);
+        }
+        
+        .bar-label {
+            font-weight: bold;
+            color: #ffaa44;
+        }
+        
+        .bar-value {
+            color: #88ff88;
+            font-weight: bold;
+        }
+        
+        .bar-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .color-picker input {
+            width: 60px;
+            margin: 0;
+        }
+        
+        .magnification-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .magnification-controls button {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .magnification-controls button:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .instructions {
+            background: rgba(255, 128, 0, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #ff8000;
+        }
+        
+        .instructions ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .function-list {
+            margin-top: 15px;
+        }
+        
+        .function-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .calculation-result {
+            background: rgba(0, 50, 0, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .statistics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffaa44;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+        
+        @media (max-width: 1100px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                grid-column: 1;
+            }
+            
+            .graph-container {
+                height: 450px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .control-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-item.full-width {
+                grid-column: 1;
+            }
+            
+            .graph-container {
+                height: 400px;
+            }
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 128, 0, 0.5);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 128, 0, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+        <span style="font-size: 1.5rem; font-weight: bold;">Interactive Bar Graph</span>
+    </div>
+    
+    <div class="container">
+        <div class="main-content">
+            <div class="section">
+                <h2><i class="fas fa-chart-bar"></i> Interactive Bar Graph</h2>
+                
+                <div class="graph-container" id="graphContainer">
+                    <div class="viewport-overlay" id="viewportInfo">
+                        Viewport: X: 0-10, Y: 0-100
+                    </div>
+                    <div class="zoom-level" id="zoomLevel">
+                        Zoom: 1.00x
+                    </div>
+                    <canvas id="canvas" width="1000" height="500"></canvas>
+                </div>
+                
+                <div class="magnification-controls">
+                    <button onclick="zoomOut()"><i class="fas fa-search-minus"></i> Zoom Out</button>
+                    <button onclick="resetView()"><i class="fas fa-expand-arrows-alt"></i> Reset View</button>
+                    <button onclick="zoomIn()"><i class="fas fa-search-plus"></i> Zoom In</button>
+                </div>
+                
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> Navigation Instructions</h3>
+                    <ul>
+                        <li><strong>Drag</strong> with mouse/touch to pan around the graph</li>
+                        <li><strong>Scroll</strong> or <strong>pinch</strong> to zoom in/out</li>
+                        <li><strong>Double-click</strong> on a bar to edit its value</li>
+                        <li>Use the magnification buttons above for precise control</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2><i class="fas fa-calculator"></i> Calculations & Statistics</h2>
+                
+                <input type="text" id="calcInput" placeholder="Enter calculation using bar labels (e.g., A + B * 2)">
+                <button class="btn" onclick="performCalculation()"><i class="fas fa-calculator"></i> Calculate</button>
+                
+                <div class="calculation-result" id="calcResult">
+                    Result will appear here...
+                </div>
+                
+                <div class="statistics">
+                    <div class="stat-item">
+                        <div class="stat-value" id="statSum">0</div>
+                        <div class="stat-label">Total Sum</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statAvg">0</div>
+                        <div class="stat-label">Average</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statMax">0</div>
+                        <div class="stat-label">Maximum</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statMin">0</div>
+                        <div class="stat-label">Minimum</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="section">
+                <h2><i class="fas fa-sliders-h"></i> Graph Controls</h2>
+                
+                <h3>Bar Configuration</h3>
+                <div class="control-group">
+                    <div class="control-item">
+                        <label>Number of Bars</label>
+                        <input type="number" id="barsCount" min="1" max="50" value="10">
+                    </div>
+                    <div class="control-item">
+                        <label>Bar Width (%)</label>
+                        <input type="range" id="barWidth" min="20" max="80" value="50">
+                        <span id="barWidthValue">50%</span>
+                    </div>
+                    <div class="control-item">
+                        <label>Bar Spacing (%)</label>
+                        <input type="range" id="barSpacing" min="5" max="50" value="20">
+                        <span id="barSpacingValue">20%</span>
+                    </div>
+                    <div class="control-item">
+                        <label>Max Value</label>
+                        <input type="number" id="maxValue" min="10" max="1000" value="100">
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="updateBars()"><i class="fas fa-sync-alt"></i> Update Bars</button>
+                
+                <h3>Add/Edit Bar</h3>
+                <div class="control-item full-width">
+                    <label>Bar Label</label>
+                    <input type="text" id="barLabel" placeholder="Enter label (e.g., A, B, Product1)">
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-item">
+                        <label>Bar Value</label>
+                        <input type="number" id="barValue" min="0" value="50">
+                    </div>
+                    <div class="control-item">
+                        <label>Bar Color</label>
+                        <div class="color-picker">
+                            <input type="color" id="barColor" value="#ff8000">
+                            <span id="colorHex">#ff8000</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="addOrUpdateBar()"><i class="fas fa-plus-circle"></i> Add/Update Bar</button>
+                <button class="btn btn-secondary" onclick="generateRandomBars()"><i class="fas fa-random"></i> Randomize Bars</button>
+                
+                <div class="bar-data-display" id="barDataDisplay">
+                    <!-- Bars will be displayed here -->
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2><i class="fas fa-upload"></i> Data Import/Export</h2>
+                
+                <h3>Import Data</h3>
+                <textarea id="importData" placeholder='Enter data as JSON or CSV format:
+JSON: [{"label":"A","value":25},{"label":"B","value":50}]
+CSV: A,25
+B,50'></textarea>
+                <button class="btn" onclick="importData()"><i class="fas fa-file-import"></i> Import Data</button>
+                
+                <h3>Export Data</h3>
+                <button class="btn btn-secondary" onclick="exportData('json')"><i class="fas fa-file-export"></i> Export as JSON</button>
+                <button class="btn btn-secondary" onclick="exportData('csv')"><i class="fas fa-file-csv"></i> Export as CSV</button>
+                
+                <div class="instructions" style="margin-top: 15px;">
+                    <h4><i class="fas fa-lightbulb"></i> Quick Data Entry</h4>
+                    <p>Enter simple values separated by commas:</p>
+                    <input type="text" id="quickData" placeholder="e.g., 25, 50, 75, 100">
+                    <button class="btn-secondary" onclick="importQuickData()" style="margin-top: 5px;">Apply Quick Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Canvas and context
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const graphContainer = document.getElementById('graphContainer');
+        
+        // Bar data
+        let bars = [];
+        let nextLabelCharCode = 65; // Start with 'A'
+        
+        // Viewport properties
+        let viewport = {
+            x: 0,
+            y: 0,
+            width: 10, // Visible data range in X
+            height: 100, // Visible data range in Y
+            zoom: 1.0,
+            minZoom: 0.1,
+            maxZoom: 10.0
+        };
+        
+        // Interaction state
+        let isDragging = false;
+        let dragStart = { x: 0, y: 0 };
+        let viewportStart = { x: 0, y: 0 };
+        let selectedBar = null;
+        
+        // Color palette for bars
+        const barColors = [
+            '#ff8000', '#00aaff', '#44dd44', '#ff44aa', 
+            '#ffcc00', '#aa44ff', '#00dddd', '#ff6666',
+            '#88cc00', '#ff8800', '#0088ff', '#cc00cc'
+        ];
+        
+        // Initialize
+        function init() {
+            // Set canvas size to match container
+            resizeCanvas();
+            
+            // Generate initial bars
+            generateInitialBars();
+            
+            // Draw initial graph
+            drawGraph();
+            
+            // Update displays
+            updateBarDataDisplay();
+            updateStatistics();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Update viewport info
+            updateViewportInfo();
+        }
+        
+        // Set up event listeners for interaction
+        function setupEventListeners() {
+            // Mouse events for dragging
+            graphContainer.addEventListener('mousedown', handleMouseDown);
+            graphContainer.addEventListener('mousemove', handleMouseMove);
+            graphContainer.addEventListener('mouseup', handleMouseUp);
+            graphContainer.addEventListener('mouseleave', handleMouseUp);
+            
+            // Touch events for mobile/trackpad
+            graphContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+            graphContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+            graphContainer.addEventListener('touchend', handleTouchEnd);
+            
+            // Wheel events for zooming
+            graphContainer.addEventListener('wheel', handleWheel, { passive: false });
+            
+            // Double-click to edit bar
+            graphContainer.addEventListener('dclick', handleDoubleClick);
+            
+            // Prevent context menu
+            graphContainer.addEventListener('contextmenu', (e) => e.preventDefault());
+            
+            // Window resize
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Color picker update
+            document.getElementById('barColor').addEventListener('input', (e) => {
+                document.getElementById('colorHex').textContent = e.target.value;
+            });
+            
+            // Range inputs update
+            document.getElementById('barWidth').addEventListener('input', (e) => {
+                document.getElementById('barWidthValue').textContent = e.target.value + '%';
+            });
+            
+            document.getElementById('barSpacing').addEventListener('input', (e) => {
+                document.getElementById('barSpacingValue').textContent = e.target.value + '%';
+            });
+        }
+        
+        // Resize canvas to fit container
+        function resizeCanvas() {
+            const container = graphContainer.getBoundingClientRect();
+            canvas.width = container.width;
+            canvas.height = container.height;
+            drawGraph();
+        }
+        
+        // Generate initial bars
+        function generateInitialBars() {
+            bars = [];
+            const barCount = parseInt(document.getElementById('barsCount').value) || 10;
+            
+            for (let i = 0; i < barCount; i++) {
+                const label = String.fromCharCode(65 + i);
+                const value = Math.floor(Math.random() * 80) + 20;
+                const color = barColors[i % barColors.length];
+                
+                bars.push({
+                    label: label,
+                    value: value,
+                    color: color,
+                    x: i,
+                    width: 0.7,
+                    isSelected: false
+                });
+            }
+            
+            nextLabelCharCode = 65 + barCount;
+        }
+        
+        // Draw the bar graph
+        function drawGraph() {
+            // Clear canvas
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Calculate visible bars based on viewport
+            const visibleBars = getVisibleBars();
+            
+            // Draw grid
+            drawGrid();
+            
+            // Draw bars
+            drawBars(visibleBars);
+            
+            // Draw axes
+            drawAxes();
+            
+            // Draw labels
+            drawLabels(visibleBars);
+            
+            // Draw selection highlight if any
+            if (selectedBar) {
+                drawSelection(selectedBar);
+            }
+        }
+        
+        // Draw grid lines
+        function drawGrid() {
+            const gridSizeX = viewport.width / 10;
+            const gridSizeY = viewport.height / 10;
+            
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            
+            // Vertical grid lines
+            for (let x = Math.ceil(viewport.x / gridSizeX) * gridSizeX; x < viewport.x + viewport.width; x += gridSizeX) {
+                const canvasX = ((x - viewport.x) / viewport.width) * canvas.width;
+                ctx.beginPath();
+                ctx.moveTo(canvasX, 0);
+                ctx.lineTo(canvasX, canvas.height);
+                ctx.stroke();
+            }
+            
+            // Horizontal grid lines
+            for (let y = Math.ceil(viewport.y / gridSizeY) * gridSizeY; y < viewport.y + viewport.height; y += gridSizeY) {
+                const canvasY = canvas.height - ((y - viewport.y) / viewport.height) * canvas.height;
+                ctx.beginPath();
+                ctx.moveTo(0, canvasY);
+                ctx.lineTo(canvas.width, canvasY);
+                ctx.stroke();
+                
+                // Y-axis labels
+                ctx.fillStyle = '#ffaa44';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'right';
+                ctx.fillText(y.toFixed(0), 40, canvasY + 4);
+            }
+        }
+        
+        // Draw axes
+        function drawAxes() {
+            ctx.strokeStyle = '#ff8000';
+            ctx.lineWidth = 2;
+            
+            // X-axis
+            const xAxisY = canvas.height - ((0 - viewport.y) / viewport.height) * canvas.height;
+            if (xAxisY >= 0 && xAxisY <= canvas.height) {
+                ctx.beginPath();
+                ctx.moveTo(0, xAxisY);
+                ctx.lineTo(canvas.width, xAxisY);
+                ctx.stroke();
+            }
+            
+            // Y-axis
+            const yAxisX = ((0 - viewport.x) / viewport.width) * canvas.width;
+            if (yAxisX >= 0 && yAxisX <= canvas.width) {
+                ctx.beginPath();
+                ctx.moveTo(yAxisX, 0);
+                ctx.lineTo(yAxisX, canvas.height);
+                ctx.stroke();
+            }
+        }
+        
+        // Get visible bars based on viewport
+        function getVisibleBars() {
+            return bars.filter(bar => {
+                const barRight = bar.x + bar.width;
+                return !(barRight < viewport.x || bar.x > viewport.x + viewport.width);
+            });
+        }
+        
+        // Draw bars
+        function drawBars(visibleBars) {
+            visibleBars.forEach(bar => {
+                const barWidthPercent = parseInt(document.getElementById('barWidth').value) / 100 || 0.5;
+                const barSpacingPercent = parseInt(document.getElementById('barSpacing').value) / 100 || 0.2;
+                
+                // Calculate bar dimensions in canvas coordinates
+                const canvasX = ((bar.x - viewport.x) / viewport.width) * canvas.width;
+                const canvasWidth = (bar.width / viewport.width) * canvas.width * barWidthPercent;
+                const canvasSpacing = (bar.width / viewport.width) * canvas.width * barSpacingPercent;
+                const canvasHeight = ((bar.value - viewport.y) / viewport.height) * canvas.height;
+                
+                // Draw bar
+                ctx.fillStyle = bar.color;
+                ctx.fillRect(
+                    canvasX + canvasSpacing/2,
+                    canvas.height - canvasHeight,
+                    canvasWidth,
+                    canvasHeight
+                );
+                
+                // Draw bar border
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(
+                    canvasX + canvasSpacing/2,
+                    canvas.height - canvasHeight,
+                    canvasWidth,
+                    canvasHeight
+                );
+            });
+        }
+        
+        // Draw bar labels
+        function drawLabels(visibleBars) {
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            
+            visibleBars.forEach(bar => {
+                const barWidthPercent = parseInt(document.getElementById('barWidth').value) / 100 || 0.5;
+                const barSpacingPercent = parseInt(document.getElementById('barSpacing').value) / 100 || 0.2;
+                
+                const canvasX = ((bar.x - viewport.x) / viewport.width) * canvas.width;
+                const canvasWidth = (bar.width / viewport.width) * canvas.width * barWidthPercent;
+                const canvasSpacing = (bar.width / viewport.width) * canvas.width * barSpacingPercent;
+                const canvasHeight = ((bar.value - viewport.y) / viewport.height) * canvas.height;
+                
+                // Draw label at top of bar
+                ctx.fillText(
+                    bar.label,
+                    canvasX + canvasSpacing/2 + canvasWidth/2,
+                    canvas.height - canvasHeight - 20
+                );
+                
+                // Draw value inside bar if there's space
+                if (canvasHeight > 30) {
+                    ctx.fillStyle = '#000000';
+                    ctx.fillText(
+                        bar.value.toString(),
+                        canvasX + canvasSpacing/2 + canvasWidth/2,
+                        canvas.height - canvasHeight/2 - 7
+                    );
+                    ctx.fillStyle = '#ffffff';
+                }
+            });
+        }
+        
+        // Draw selection highlight
+        function drawSelection(bar) {
+            const barWidthPercent = parseInt(document.getElementById('barWidth').value) / 100 || 0.5;
+            const barSpacingPercent = parseInt(document.getElementById('barSpacing').value) / 100 || 0.2;
+            
+            const canvasX = ((bar.x - viewport.x) / viewport.width) * canvas.width;
+            const canvasWidth = (bar.width / viewport.width) * canvas.width * barWidthPercent;
+            const canvasSpacing = (bar.width / viewport.width) * canvas.width * barSpacingPercent;
+            const canvasHeight = ((bar.value - viewport.y) / viewport.height) * canvas.height;
+            
+            // Draw highlight border
+            ctx.strokeStyle = '#ffff00';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+            ctx.strokeRect(
+                canvasX + canvasSpacing/2 - 2,
+                canvas.height - canvasHeight - 2,
+                canvasWidth + 4,
+                canvasHeight + 4
+            );
+            ctx.setLineDash([]);
+        }
+        
+        // Update bars based on controls
+        function updateBars() {
+            const barCount = parseInt(document.getElementById('barsCount').value) || 10;
+            const maxValue = parseInt(document.getElementById('maxValue').value) || 100;
+            
+            // Adjust number of bars
+            if (barCount > bars.length) {
+                // Add new bars
+                for (let i = bars.length; i < barCount; i++) {
+                    const label = String.fromCharCode(nextLabelCharCode++);
+                    const value = Math.floor(Math.random() * (maxValue * 0.8)) + (maxValue * 0.2);
+                    const color = barColors[i % barColors.length];
+                    
+                    bars.push({
+                        label: label,
+                        value: value,
+                        color: color,
+                        x: i,
+                        width: 1,
+                        isSelected: false
+                    });
+                }
+            } else if (barCount < bars.length) {
+                // Remove excess bars
+                bars = bars.slice(0, barCount);
+                nextLabelCharCode = 65 + barCount;
+            }
+            
+            // Update values to not exceed max
+            bars.forEach(bar => {
+                if (bar.value > maxValue) {
+                    bar.value = maxValue;
+                }
+            });
+            
+            // Adjust viewport width to show all bars
+            viewport.width = Math.max(barCount + 2, 10);
+            
+            drawGraph();
+            updateBarDataDisplay();
+            updateStatistics();
+            updateViewportInfo();
+        }
+        
+        // Add or update a bar
+        function addOrUpdateBar() {
+            const labelInput = document.getElementById('barLabel');
+            const valueInput = document.getElementById('barValue');
+            const colorInput = document.getElementById('barColor');
+            
+            const label = labelInput.value.trim().toUpperCase();
+            const value = parseInt(valueInput.value) || 0;
+            const color = colorInput.value;
+            const maxValue = parseInt(document.getElementById('maxValue').value) || 100;
+            
+            if (!label) {
+                alert('Please enter a bar label');
+                return;
+            }
+            
+            // Check if bar already exists
+            const existingIndex = bars.findIndex(bar => bar.label === label);
+            
+            if (existingIndex >= 0) {
+                // Update existing bar
+                bars[existingIndex].value = Math.min(value, maxValue);
+                bars[existingIndex].color = color;
+            } else {
+                // Add new bar
+                bars.push({
+                    label: label,
+                    value: Math.min(value, maxValue),
+                    color: color,
+                    x: bars.length,
+                    width: 1,
+                    isSelected: false
+                });
+                
+                // Update bar count input
+                document.getElementById('barsCount').value = bars.length;
+                
+                // Update next label char code if it's a letter
+                if (label.length === 1 && label >= 'A' && label <= 'Z') {
+                    const charCode = label.charCodeAt(0);
+                    if (charCode >= nextLabelCharCode) {
+                        nextLabelCharCode = charCode + 1;
+                    }
+                }
+            }
+            
+            // Adjust viewport width
+            viewport.width = Math.max(bars.length + 2, 10);
+            
+            drawGraph();
+            updateBarDataDisplay();
+            updateStatistics();
+            
+            // Clear inputs
+            labelInput.value = '';
+            valueInput.value = '50';
+        }
+        
+        // Generate random bars
+        function generateRandomBars() {
+            const barCount = parseInt(document.getElementById('barsCount').value) || 10;
+            const maxValue = parseInt(document.getElementById('maxValue').value) || 100;
+            
+            bars = [];
+            
+            for (let i = 0; i < barCount; i++) {
+                const label = String.fromCharCode(65 + i);
+                const value = Math.floor(Math.random() * (maxValue * 0.9)) + (maxValue * 0.1);
+                const color = barColors[i % barColors.length];
+                
+                bars.push({
+                    label: label,
+                    value: value,
+                    color: color,
+                    x: i,
+                    width: 1,
+                    isSelected: false
+                });
+            }
+            
+            nextLabelCharCode = 65 + barCount;
+            
+            drawGraph();
+            updateBarDataDisplay();
+            updateStatistics();
+        }
+        
+        // Update bar data display
+        function updateBarDataDisplay() {
+            const display = document.getElementById('barDataDisplay');
+            display.innerHTML = '';
+            
+            bars.forEach(bar => {
+                const row = document.createElement('div');
+                row.className = 'bar-row';
+                row.innerHTML = `
+                    <div>
+                        <span class="bar-color" style="background-color: ${bar.color}"></span>
+                        <span class="bar-label">${bar.label}</span>
+                    </div>
+                    <div class="bar-value">${bar.value}</div>
+                    <div>
+                        <button onclick="editBar('${bar.label}')" style="background: transparent; border: none; color: #ffaa44; cursor: pointer; margin-right: 5px;">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="removeBar('${bar.label}')" style="background: transparent; border: none; color: #ff6666; cursor: pointer;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                display.appendChild(row);
+            });
+        }
+        
+        // Edit a bar
+        function editBar(label) {
+            const bar = bars.find(b => b.label === label);
+            if (bar) {
+                document.getElementById('barLabel').value = bar.label;
+                document.getElementById('barValue').value = bar.value;
+                document.getElementById('barColor').value = bar.color;
+                document.getElementById('colorHex').textContent = bar.color;
+                
+                // Scroll to controls
+                document.getElementById('barLabel').focus();
+                
+                // Highlight the bar
+                selectedBar = bar;
+                drawGraph();
+            }
+        }
+        
+        // Remove a bar
+        function removeBar(label) {
+            const index = bars.findIndex(b => b.label === label);
+            if (index >= 0) {
+                bars.splice(index, 1);
+                
+                // Update positions
+                bars.forEach((bar, i) => {
+                    bar.x = i;
+                });
+                
+                // Update bar count
+                document.getElementById('barsCount').value = bars.length;
+                nextLabelCharCode = 65 + bars.length;
+                
+                drawGraph();
+                updateBarDataDisplay();
+                updateStatistics();
+                updateViewportInfo();
+            }
+        }
+        
+        // Update statistics
+        function updateStatistics() {
+            if (bars.length === 0) {
+                document.getElementById('statSum').textContent = '0';
+                document.getElementById('statAvg').textContent = '0';
+                document.getElementById('statMax').textContent = '0';
+                document.getElementById('statMin').textContent = '0';
+                return;
+            }
+            
+            const sum = bars.reduce((total, bar) => total + bar.value, 0);
+            const avg = sum / bars.length;
+            const max = Math.max(...bars.map(bar => bar.value));
+            const min = Math.min(...bars.map(bar => bar.value));
+            
+            document.getElementById('statSum').textContent = sum.toFixed(0);
+            document.getElementById('statAvg').textContent = avg.toFixed(1);
+            document.getElementById('statMax').textContent = max.toFixed(0);
+            document.getElementById('statMin').textContent = min.toFixed(0);
+        }
+        
+        // Perform calculation using bar labels
+        function performCalculation() {
+            const calcInput = document.getElementById('calcInput');
+            const expression = calcInput.value.trim();
+            const resultDiv = document.getElementById('calcResult');
+            
+            if (!expression) {
+                resultDiv.innerHTML = '<span style="color: #ff6666">Please enter a calculation</span>';
+                return;
+            }
+            
+            try {
+                // Replace bar labels with their values
+                let evalExpression = expression;
+                
+                bars.forEach(bar => {
+                    const regex = new RegExp(bar.label, 'gi');
+                    evalExpression = evalExpression.replace(regex, bar.value);
+                });
+                
+                // Evaluate the expression
+                const result = eval(evalExpression);
+                resultDiv.innerHTML = `
+                    <strong>Calculation:</strong> ${expression}<br>
+                    <strong>Result:</strong> ${result.toFixed(4)}<br>
+                    <small>Expression evaluated: ${evalExpression}</small>
+                `;
+            } catch (e) {
+                resultDiv.innerHTML = `<span style="color: #ff6666">Error in calculation: ${e.message}</span>`;
+            }
+        }
+        
+        // Zoom in
+        function zoomIn() {
+            if (viewport.zoom < viewport.maxZoom) {
+                viewport.zoom *= 1.2;
+                viewport.width /= 1.2;
+                viewport.height /= 1.2;
+                
+                // Center zoom on current viewport
+                viewport.x += viewport.width * 0.1;
+                viewport.y += viewport.height * 0.1;
+                
+                updateZoomDisplay();
+                drawGraph();
+                updateViewportInfo();
+            }
+        }
+        
+        // Zoom out
+        function zoomOut() {
+            if (viewport.zoom > viewport.minZoom) {
+                viewport.zoom /= 1.2;
+                viewport.width *= 1.2;
+                viewport.height *= 1.2;
+                
+                // Center zoom on current viewport
+                viewport.x -= viewport.width * 0.1;
+                viewport.y -= viewport.height * 0.1;
+                
+                updateZoomDisplay();
+                drawGraph();
+                updateViewportInfo();
+            }
+        }
+        
+        // Reset view
+        function resetView() {
+            viewport = {
+                x: 0,
+                y: 0,
+                width: Math.max(bars.length + 2, 10),
+                height: 100,
+                zoom: 1.0,
+                minZoom: 0.1,
+                maxZoom: 10.0
+            };
+            
+            updateZoomDisplay();
+            drawGraph();
+            updateViewportInfo();
+        }
+        
+        // Update zoom display
+        function updateZoomDisplay() {
+            document.getElementById('zoomLevel').textContent = `Zoom: ${viewport.zoom.toFixed(2)}x`;
+        }
+        
+        // Update viewport info
+        function updateViewportInfo() {
+            const xEnd = viewport.x + viewport.width;
+            const yEnd = viewport.y + viewport.height;
+            document.getElementById('viewportInfo').textContent = 
+                `Viewport: X: ${viewport.x.toFixed(1)}-${xEnd.toFixed(1)}, Y: ${viewport.y.toFixed(1)}-${yEnd.toFixed(1)}`;
+        }
+        
+        // Import data
+        function importData() {
+            const importText = document.getElementById('importData').value.trim();
+            
+            if (!importText) {
+                alert('Please enter data to import');
+                return;
+            }
+            
+            try {
+                let newBars = [];
+                
+                // Try to parse as JSON
+                if (importText.startsWith('[')) {
+                    newBars = JSON.parse(importText);
+                } 
+                // Try to parse as CSV
+                else {
+                    const lines = importText.split('\n');
+                    lines.forEach(line => {
+                        const parts = line.split(',').map(part => part.trim());
+                        if (parts.length >= 2) {
+                            newBars.push({
+                                label: parts[0],
+                                value: parseFloat(parts[1]),
+                                color: parts[2] || barColors[newBars.length % barColors.length]
+                            });
+                        }
+                    });
+                }
+                
+                if (newBars.length === 0) {
+                    throw new Error('No valid data found');
+                }
+                
+                // Process imported bars
+                bars = newBars.map((bar, i) => ({
+                    label: bar.label || String.fromCharCode(65 + i),
+                    value: bar.value || 0,
+                    color: bar.color || barColors[i % barColors.length],
+                    x: i,
+                    width: 1,
+                    isSelected: false
+                }));
+                
+                // Update bar count
+                document.getElementById('barsCount').value = bars.length;
+                nextLabelCharCode = 65 + bars.length;
+                
+                // Update max value if needed
+                const maxBarValue = Math.max(...bars.map(bar => bar.value));
+                if (maxBarValue > parseInt(document.getElementById('maxValue').value)) {
+                    document.getElementById('maxValue').value = Math.ceil(maxBarValue / 10) * 10;
+                }
+                
+                drawGraph();
+                updateBarDataDisplay();
+                updateStatistics();
+                updateViewportInfo();
+                
+                alert(`Successfully imported ${bars.length} bars`);
+            } catch (e) {
+                alert(`Error importing data: ${e.message}`);
+            }
+        }
+        
+        // Import quick data
+        function importQuickData() {
+            const quickData = document.getElementById('quickData').value.trim();
+            
+            if (!quickData) {
+                alert('Please enter values separated by commas');
+                return;
+            }
+            
+            const values = quickData.split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v));
+            
+            if (values.length === 0) {
+                alert('No valid numbers found');
+                return;
+            }
+            
+            bars = values.map((value, i) => ({
+                label: String.fromCharCode(65 + i),
+                value: value,
+                color: barColors[i % barColors.length],
+                x: i,
+                width: 1,
+                isSelected: false
+            }));
+            
+            // Update controls
+            document.getElementById('barsCount').value = bars.length;
+            nextLabelCharCode = 65 + bars.length;
+            
+            // Update max value
+            const maxValue = Math.max(...values);
+            document.getElementById('maxValue').value = Math.ceil(maxValue / 10) * 10;
+            
+            drawGraph();
+            updateBarDataDisplay();
+            updateStatistics();
+            updateViewportInfo();
+        }
+        
+        // Export data
+        function exportData(format) {
+            let dataStr, mimeType, filename;
+            
+            if (format === 'json') {
+                const exportData = bars.map(bar => ({
+                    label: bar.label,
+                    value: bar.value,
+                    color: bar.color
+                }));
+                
+                dataStr = JSON.stringify(exportData, null, 2);
+                mimeType = 'application/json';
+                filename = 'bar-graph-data.json';
+            } else if (format === 'csv') {
+                dataStr = bars.map(bar => `${bar.label},${bar.value},${bar.color}`).join('\n');
+                mimeType = 'text/csv';
+                filename = 'bar-graph-data.csv';
+            }
+            
+            // Create download link
+            const blob = new Blob([dataStr], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Handle mouse down for dragging
+        function handleMouseDown(e) {
+            e.preventDefault();
+            isDragging = true;
+            dragStart = { x: e.clientX, y: e.clientY };
+            viewportStart = { x: viewport.x, y: viewport.y };
+            graphContainer.style.cursor = 'grabbing';
+            
+            // Check if clicked on a bar
+            const canvasRect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - canvasRect.left;
+            const clickY = e.clientY - canvasRect.top;
+            
+            selectedBar = getBarAtPosition(clickX, clickY);
+            drawGraph();
+        }
+        
+        // Handle mouse move for dragging
+        function handleMouseMove(e) {
+            if (!isDragging) return;
+            
+            e.preventDefault();
+            
+            const dx = dragStart.x - e.clientX;
+            const dy = dragStart.y - e.clientY;
+            
+            // Convert pixel movement to data movement
+            const dataDx = (dx / canvas.width) * viewport.width;
+            const dataDy = (dy / canvas.height) * viewport.height;
+            
+            viewport.x = viewportStart.x + dataDx;
+            viewport.y = viewportStart.y - dataDy; // Invert Y axis
+            
+            drawGraph();
+            updateViewportInfo();
+        }
+        
+        // Handle mouse up
+        function handleMouseUp(e) {
+            if (isDragging) {
+                e.preventDefault();
+                isDragging = false;
+                graphContainer.style.cursor = 'grab';
+            }
+        }
+        
+        // Handle touch start
+        function handleTouchStart(e) {
+            if (e.touches.length === 1) {
+                // Single touch for dragging
+                e.preventDefault();
+                isDragging = true;
+                dragStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                viewportStart = { x: viewport.x, y: viewport.y };
+            } else if (e.touches.length === 2) {
+                // Two touches for pinch zoom
+                e.preventDefault();
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                const initialDistance = Math.hypot(
+                    touch1.clientX - touch2.clientX,
+                    touch1.clientY - touch2.clientY
+                );
+                
+                e.target.dataset.initialDistance = initialDistance;
+                e.target.dataset.initialZoom = viewport.zoom;
+            }
+        }
+        
+        // Handle touch move
+        function handleTouchMove(e) {
+            if (e.touches.length === 1 && isDragging) {
+                // Single touch dragging
+                e.preventDefault();
+                
+                const dx = dragStart.x - e.touches[0].clientX;
+                const dy = dragStart.y - e.touches[0].clientY;
+                
+                const dataDx = (dx / canvas.width) * viewport.width;
+                const dataDy = (dy / canvas.height) * viewport.height;
+                
+                viewport.x = viewportStart.x + dataDx;
+                viewport.y = viewportStart.y - dataDy;
+                
+                drawGraph();
+                updateViewportInfo();
+            } else if (e.touches.length === 2) {
+                // Pinch zoom
+                e.preventDefault();
+                
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                const currentDistance = Math.hypot(
+                    touch1.clientX - touch2.clientX,
+                    touch1.clientY - touch2.clientY
+                );
+                
+                const initialDistance = parseFloat(e.target.dataset.initialDistance);
+                const initialZoom = parseFloat(e.target.dataset.initialZoom);
+                
+                if (initialDistance && initialZoom) {
+                    const scale = currentDistance / initialDistance;
+                    const newZoom = initialZoom * scale;
+                    
+                    // Clamp zoom
+                    viewport.zoom = Math.max(viewport.minZoom, Math.min(viewport.maxZoom, newZoom));
+                    
+                    // Adjust viewport size
+                    const oldWidth = viewport.width;
+                    const oldHeight = viewport.height;
+                    viewport.width = (bars.length + 2) / viewport.zoom;
+                    viewport.height = 100 / viewport.zoom;
+                    
+                    // Adjust position to zoom around center
+                    const widthChange = oldWidth - viewport.width;
+                    const heightChange = oldHeight - viewport.height;
+                    viewport.x += widthChange / 2;
+                    viewport.y += heightChange / 2;
+                    
+                    updateZoomDisplay();
+                    drawGraph();
+                    updateViewportInfo();
+                }
+            }
+        }
+        
+        // Handle touch end
+        function handleTouchEnd(e) {
+            if (isDragging) {
+                e.preventDefault();
+                isDragging = false;
+            }
+        }
+        
+        // Handle wheel for zooming
+        function handleWheel(e) {
+            e.preventDefault();
+            
+            const zoomFactor = e.deltaY > 0 ? 1.2 : 1/1.2;
+            
+            if ((viewport.zoom < viewport.maxZoom && zoomFactor > 1) || 
+                (viewport.zoom > viewport.minZoom && zoomFactor < 1)) {
+                
+                // Calculate mouse position in data coordinates
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                const dataX = viewport.x + (mouseX / canvas.width) * viewport.width;
+                const dataY = viewport.y + ((canvas.height - mouseY) / canvas.height) * viewport.height;
+                
+                // Apply zoom
+                viewport.zoom *= zoomFactor;
+                viewport.width /= zoomFactor;
+                viewport.height /= zoomFactor;
+                
+                // Adjust position to zoom toward mouse
+                viewport.x = dataX - (mouseX / canvas.width) * viewport.width;
+                viewport.y = dataY - ((canvas.height - mouseY) / canvas.height) * viewport.height;
+                
+                updateZoomDisplay();
+                drawGraph();
+                updateViewportInfo();
+            }
+        }
+        
+        // Handle double click to edit bar
+        function handleDoubleClick(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+            
+            const bar = getBarAtPosition(clickX, clickY);
+            if (bar) {
+                editBar(bar.label);
+            }
+        }
+        
+        // Get bar at canvas position
+        function getBarAtPosition(canvasX, canvasY) {
+            const dataX = viewport.x + (canvasX / canvas.width) * viewport.width;
+            const dataY = viewport.y + ((canvas.height - canvasY) / canvas.height) * viewport.height;
+            
+            const barWidthPercent = parseInt(document.getElementById('barWidth').value) / 100 || 0.5;
+            const barSpacingPercent = parseInt(document.getElementById('barSpacing').value) / 100 || 0.2;
+            
+            for (const bar of bars) {
+                const barLeft = bar.x + (bar.width * barSpacingPercent / 2);
+                const barRight = barLeft + (bar.width * barWidthPercent);
+                const barTop = bar.value;
+                
+                if (dataX >= barLeft && dataX <= barRight && dataY <= barTop && dataY >= 0) {
+                    return bar;
+                }
+            }
+            
+            return null;
+        }
+        
+        // Initialize on load
+        window.onload = init;
+    </script>
+</body>
+</html>

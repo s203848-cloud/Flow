@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Prep - Practice Questions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-3px);
+        }
+        
+        .header h1 {
+            color: #ff8000;
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            color: #ccc;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+        
+        @media (max-width: 1100px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .question-section {
+            background: rgba(10, 10, 26, 0.7);
+            border-radius: 10px;
+            padding: 30px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .section-title {
+            color: #ff8000;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .current-question {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            min-height: 120px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            border-left: 4px solid #ff8000;
+        }
+        
+        /* Multiple Choice Options */
+        .options-section {
+            margin: 25px 0;
+        }
+        
+        .options-title {
+            color: #ffaa55;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .option-item {
+            padding: 15px;
+            background: rgba(255, 128, 0, 0.08);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .option-item:hover {
+            background: rgba(255, 128, 0, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .option-item.selected {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+            box-shadow: 0 0 0 2px rgba(255, 128, 0, 0.3);
+        }
+        
+        .option-item.correct {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: #4CAF50;
+        }
+        
+        .option-item.incorrect {
+            background: rgba(244, 67, 54, 0.2);
+            border-color: #f44336;
+        }
+        
+        .option-letter {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 128, 0, 0.3);
+            border-radius: 50%;
+            font-weight: bold;
+            color: #ff8000;
+            flex-shrink: 0;
+        }
+        
+        .option-item.selected .option-letter {
+            background: #ff8000;
+            color: #0a0a1a;
+        }
+        
+        .option-item.correct .option-letter {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .option-item.incorrect .option-letter {
+            background: #f44336;
+            color: white;
+        }
+        
+        .option-text {
+            flex: 1;
+            line-height: 1.5;
+        }
+        
+        .options-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .answer-feedback {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .answer-feedback.correct {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid #4CAF50;
+            display: block;
+        }
+        
+        .answer-feedback.incorrect {
+            background: rgba(244, 67, 54, 0.1);
+            border-left: 4px solid #f44336;
+            display: block;
+        }
+        
+        .feedback-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .feedback-title.correct {
+            color: #4CAF50;
+        }
+        
+        .feedback-title.incorrect {
+            color: #f44336;
+        }
+        
+        /* Custom Questions Interface */
+        .custom-interface {
+            display: none;
+        }
+        
+        .custom-interface.active {
+            display: block;
+        }
+        
+        .custom-form {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffaa55;
+            font-weight: 500;
+        }
+        
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #ff8000;
+            box-shadow: 0 0 0 2px rgba(255, 128, 0, 0.2);
+        }
+        
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .option-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .option-input {
+            flex: 1;
+        }
+        
+        .option-remove-btn {
+            padding: 8px 12px;
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .option-remove-btn:hover {
+            background: rgba(244, 67, 54, 0.3);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        .custom-questions-list {
+            max-height: 400px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .custom-question-item {
+            padding: 15px;
+            background: rgba(255, 128, 0, 0.05);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ff8000;
+            position: relative;
+        }
+        
+        .custom-question-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .custom-question-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .custom-question-btn {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .custom-question-edit {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196F3;
+            border: 1px solid rgba(33, 150, 243, 0.3);
+        }
+        
+        .custom-question-delete {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+        
+        .custom-question-btn:hover {
+            opacity: 0.8;
+        }
+        
+        .custom-question-type {
+            display: inline-block;
+            padding: 3px 10px;
+            background: rgba(255, 128, 0, 0.2);
+            color: #ffaa55;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+        }
+        
+        .timer-section {
+            background: rgba(10, 10, 26, 0.7);
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+        
+        .timer-display {
+            font-size: 3rem;
+            text-align: center;
+            font-weight: bold;
+            color: #ff8000;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+        
+        .timer-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: rgba(255, 128, 0, 0.9);
+            color: #0a0a1a;
+        }
+        
+        .btn-primary:hover {
+            background: #ff8000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(255, 128, 0, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 0.9rem;
+        }
+        
+        .btn-success {
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #4CAF50;
+        }
+        
+        .question-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .tips-section {
+            background: rgba(10, 10, 26, 0.7);
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+        }
+        
+        .tip-content {
+            background: rgba(255, 128, 0, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #ff8000;
+            line-height: 1.6;
+        }
+        
+        .questions-list {
+            background: rgba(10, 10, 26, 0.7);
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .questions-list h3 {
+            margin-bottom: 20px;
+        }
+        
+        .question-category {
+            margin-bottom: 25px;
+        }
+        
+        .category-title {
+            color: #ff8000;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .question-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .question-item:hover {
+            background: rgba(255, 128, 0, 0.1);
+            border-left: 3px solid #ff8000;
+        }
+        
+        .question-item.active {
+            background: rgba(255, 128, 0, 0.15);
+            border-left: 3px solid #ff8000;
+        }
+        
+        .question-type-indicator {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(255, 128, 0, 0.2);
+            color: #ffaa55;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff8000;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        
+        .timer-presets {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .timer-preset {
+            padding: 5px 10px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 3px;
+            color: #ff8000;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .timer-preset:hover {
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        .mode-toggle {
+            display: flex;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 5px;
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .mode-btn.active {
+            background: rgba(255, 128, 0, 0.3);
+            color: #ff8000;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .practice-notes {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 128, 0, 0.05);
+            border-radius: 8px;
+            font-style: italic;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 128, 0, 0.5);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 128, 0, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Tools
+            </a>
+            <div class="header">
+                <h1><i class="fas fa-comments"></i> Interview Prep</h1>
+                <p>Practice common interview questions with timing and tips</p>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="question-section">
+                <div class="mode-toggle">
+                    <div class="mode-btn active" id="mode-open-ended">
+                        <i class="fas fa-keyboard"></i> Open-Ended
+                    </div>
+                    <div class="mode-btn" id="mode-multiple-choice">
+                        <i class="fas fa-list-ul"></i> Multiple Choice
+                    </div>
+                    <div class="mode-btn" id="mode-custom">
+                        <i class="fas fa-edit"></i> Custom
+                    </div>
+                </div>
+                
+                <!-- Regular Practice Interface -->
+                <div id="practice-interface">
+                    <h2 class="section-title"><i class="fas fa-question-circle"></i> Current Question</h2>
+                    <div class="current-question" id="current-question">
+                        <!-- Question will be loaded here -->
+                    </div>
+                    
+                    <!-- Multiple Choice Options Section -->
+                    <div class="options-section hidden" id="options-section">
+                        <div class="options-title">
+                            <i class="fas fa-check-circle"></i> Select the Best Answer (Up to 8 options)
+                        </div>
+                        <div class="options-grid" id="options-grid">
+                            <!-- Options will be loaded here -->
+                        </div>
+                        <div class="options-controls">
+                            <button class="btn btn-primary btn-small" id="submit-answer">
+                                <i class="fas fa-paper-plane"></i> Submit Answer
+                            </button>
+                            <button class="btn btn-secondary btn-small" id="show-answer">
+                                <i class="fas fa-eye"></i> Show Correct Answer
+                            </button>
+                            <button class="btn btn-secondary btn-small" id="clear-selection">
+                                <i class="fas fa-times"></i> Clear Selection
+                            </button>
+                        </div>
+                        <div class="answer-feedback" id="answer-feedback">
+                            <!-- Feedback will be shown here -->
+                        </div>
+                    </div>
+                    
+                    <div class="timer-section">
+                        <h3 class="section-title"><i class="fas fa-clock"></i> Response Timer</h3>
+                        <div class="timer-display" id="timer-display">02:00</div>
+                        
+                        <div class="timer-controls">
+                            <button class="btn btn-primary" id="start-timer">
+                                <i class="fas fa-play"></i> Start
+                            </button>
+                            <button class="btn btn-secondary" id="pause-timer">
+                                <i class="fas fa-pause"></i> Pause
+                            </button>
+                            <button class="btn btn-secondary" id="reset-timer">
+                                <i class="fas fa-redo"></i> Reset
+                            </button>
+                        </div>
+                        
+                        <div class="timer-presets">
+                            <div class="timer-preset" data-time="60">1 min</div>
+                            <div class="timer-preset" data-time="120">2 min</div>
+                            <div class="timer-preset" data-time="180">3 min</div>
+                            <div class="timer-preset" data-time="300">5 min</div>
+                        </div>
+                    </div>
+                    
+                    <div class="tips-section">
+                        <h3 class="section-title"><i class="fas fa-lightbulb"></i> Tips for This Question</h3>
+                        <div class="tip-content" id="tip-content">
+                            <!-- Tips will be loaded here -->
+                        </div>
+                        <div class="practice-notes">
+                            <p><strong>Practice Tip:</strong> For multiple choice questions, try to eliminate obviously wrong answers first, then select the best option. For open-ended questions, use the STAR method (Situation, Task, Action, Result).</p>
+                        </div>
+                    </div>
+                    
+                    <div class="question-controls">
+                        <button class="btn btn-secondary" id="prev-question">
+                            <i class="fas fa-chevron-left"></i> Previous Question
+                        </button>
+                        <button class="btn btn-primary" id="next-question">
+                            Next Question <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Custom Questions Interface -->
+                <div class="custom-interface" id="custom-interface">
+                    <h2 class="section-title"><i class="fas fa-edit"></i> Create Custom Questions</h2>
+                    
+                    <div class="custom-form">
+                        <div class="form-group">
+                            <label class="form-label">Question Type</label>
+                            <select class="form-select" id="custom-question-type">
+                                <option value="open-ended">Open-Ended Question</option>
+                                <option value="multiple-choice">Multiple Choice Question</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Question Text</label>
+                            <textarea class="form-textarea" id="custom-question-text" placeholder="Enter your question here..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Tips/Explanation</label>
+                            <textarea class="form-textarea" id="custom-question-tip" placeholder="Enter tips or explanation for this question..."></textarea>
+                        </div>
+                        
+                        <!-- Multiple Choice Options (only shown when type is multiple-choice) -->
+                        <div class="form-group hidden" id="custom-options-group">
+                            <label class="form-label">Options (Select the correct answer)</label>
+                            <div id="custom-options-container">
+                                <!-- Options will be added here -->
+                            </div>
+                            <button class="btn btn-secondary btn-small" id="add-option-btn" style="margin-top: 10px;">
+                                <i class="fas fa-plus"></i> Add Option
+                            </button>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="custom-question-category">
+                                <option value="behavioral">Behavioral</option>
+                                <option value="technical">Technical</option>
+                                <option value="situational">Situational</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button class="btn btn-secondary" id="clear-custom-form">
+                                <i class="fas fa-times"></i> Clear Form
+                            </button>
+                            <button class="btn btn-primary" id="save-custom-question">
+                                <i class="fas fa-save"></i> Save Question
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <h3 class="section-title"><i class="fas fa-list"></i> Your Custom Questions</h3>
+                    <div class="custom-questions-list" id="custom-questions-list">
+                        <!-- Custom questions will be listed here -->
+                    </div>
+                    
+                    <div class="tips-section" style="margin-top: 30px;">
+                        <h3 class="section-title"><i class="fas fa-lightbulb"></i> Using Custom Questions</h3>
+                        <div class="tip-content">
+                            <p><strong>Create your own questions:</strong> Fill out the form above to create custom interview questions. You can create both open-ended and multiple choice questions.</p>
+                            <p><strong>Practice custom questions:</strong> Switch back to Open-Ended or Multiple Choice mode to practice with your custom questions. They will appear in the "Custom" category in the question bank.</p>
+                            <p><strong>Edit or delete:</strong> Use the edit and delete buttons next to each question to manage your custom questions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="questions-list">
+                    <h3 class="section-title"><i class="fas fa-list"></i> Question Bank</h3>
+                    
+                    <div class="question-category">
+                        <div class="category-title">Behavioral Questions</div>
+                        <div class="question-list" id="behavioral-questions">
+                            <!-- Behavioral questions will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <div class="question-category">
+                        <div class="category-title">Technical Questions</div>
+                        <div class="question-list" id="technical-questions">
+                            <!-- Technical questions will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <div class="question-category">
+                        <div class="category-title">Situational Questions</div>
+                        <div class="question-list" id="situational-questions">
+                            <!-- Situational questions will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <div class="question-category">
+                        <div class="category-title">Custom Questions</div>
+                        <div class="question-list" id="custom-questions">
+                            <!-- Custom questions will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <div class="stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="total-questions">0</div>
+                            <div class="stat-label">Total Questions</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="completed">0</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="correct-answers">0</div>
+                            <div class="stat-label">Correct Answers</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="accuracy">0%</div>
+                            <div class="stat-label">Accuracy</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="time-spent">0</div>
+                            <div class="stat-label">Minutes</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="questions-answered">0</div>
+                            <div class="stat-label">MC Answered</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Interview Prep Tool • Create and practice custom questions • Use the timer to simulate real interview conditions</p>
+        </footer>
+    </div>
+
+    <script>
+        // Interview questions data with multiple choice options
+        const interviewQuestions = {
+            behavioral: [
+                {
+                    question: "Tell me about yourself and your background.",
+                    tip: "Keep it professional and relevant to the job. Focus on your career journey, key skills, and what led you to apply for this position. Limit to 1-2 minutes.",
+                    options: [
+                        "Give a chronological overview of your entire life starting from childhood",
+                        "Focus on personal hobbies and interests unrelated to the job",
+                        "Provide a concise professional summary highlighting relevant experience and skills",
+                        "Talk about your salary expectations and benefits you're seeking"
+                    ],
+                    correctAnswer: 2,
+                    type: "open-ended"
+                },
+                {
+                    question: "Describe a challenging project you worked on and how you overcame obstacles.",
+                    tip: "Use the STAR method: Explain the Situation, Task, Action you took, and the Result. Emphasize your problem-solving skills and what you learned.",
+                    options: [
+                        "Blame team members for the project's difficulties",
+                        "Focus only on the successful outcome without mentioning challenges",
+                        "Describe the challenge, your specific actions, and what you learned",
+                        "Say you've never faced a challenging project"
+                    ],
+                    correctAnswer: 2,
+                    type: "multiple-choice"
+                },
+                {
+                    question: "Tell me about a time you failed and what you learned from it.",
+                    tip: "Choose a genuine example but focus on the learning outcome. Show accountability, resilience, and how you applied the lesson to future work.",
+                    options: [
+                        "Say you've never failed at anything",
+                        "Blame external factors for the failure",
+                        "Describe a minor failure and the constructive lessons you learned",
+                        "Focus only on the failure without mentioning any learning"
+                    ],
+                    correctAnswer: 2,
+                    type: "multiple-choice"
+                },
+                {
+                    question: "Give an example of how you worked on a team.",
+                    tip: "Highlight your collaboration skills, communication, and ability to work towards a common goal. Mention any conflict resolution if applicable.",
+                    options: [
+                        "Take all the credit for the team's success",
+                        "Criticize other team members' performance",
+                        "Describe your specific role and how you collaborated with others",
+                        "Say you prefer to work alone rather than in teams"
+                    ],
+                    correctAnswer: 2,
+                    type: "multiple-choice"
+                },
+                {
+                    question: "Describe a situation where you had to meet a tight deadline.",
+                    tip: "Explain how you prioritized tasks, managed time, and stayed organized under pressure. Mention any tools or techniques you used.",
+                    options: [
+                        "Worked 24/7 without breaks until it was done",
+                        "Asked for an extension on the deadline",
+                        "Prioritized tasks, eliminated distractions, and communicated progress",
+                        "Waited until the last minute and then rushed to complete it"
+                    ],
+                    correctAnswer: 2,
+                    type: "multiple-choice"
+                }
+            ],
+            technical: [
+                {
+                    question: "Explain a complex technical concept to a non-technical person.",
+                    tip: "Use simple analogies, avoid jargon, and check for understanding. Focus on the 'why' and 'how' at a high level rather than technical details.",
+                    options: [
+                        "Use highly technical terminology to sound knowledgeable",
+                        "Assume they won't understand anyway and give up",
+                        "Create a simple analogy and avoid technical jargon",
+                        "Tell them to just trust you that it works"
+                    ],
+                    correctAnswer: 2,
+                    type: "multiple-choice"
+                },
+                {
+                    question: "How do you approach debugging a difficult problem?",
+                    tip: "Describe your systematic approach: reproducing the issue, isolating variables, checking logs, using debugging tools, and seeking help when needed.",
+                    options: [
+                        "Randomly change code until something works",
+                        "Immediately ask someone else to solve it",
+                        "Follow a systematic process: reproduce, isolate, test, verify",
+                        "Ignore the problem and hope it goes away"
+                    ],
+                    correctAnswer: 2,
+                    type: "multiple-choice"
+                },
+                {
+                    question: "What programming languages or technologies are you most experienced with?",
+                    tip: "Be honest about your skill levels. Mention projects where you used these technologies and how you stay updated with new developments.",
+                    options: [
+                        "Claim expertise in every technology mentioned",
+                        "Be honest about your strengths and areas for growth",
+                        "Say you only know one technology perfectly",
+                        "Avoid answering and change the subject"
+                    ],
+                    correctAnswer: 1,
+                    type: "multiple-choice"
+                },
+                {
+                    question: "How do you ensure code quality and maintainability?",
+                    tip: "Discuss practices like code reviews, testing, documentation, following style guides, and design patterns. Mention specific tools if relevant.",
+                    options: [
+                        "Write code as quickly as possible without review",
+                        "Rely solely on automated tests",
+                        "Use code reviews, testing, documentation, and standards",
+                        "Assume the next developer will figure it out"
+                    ],
+                    correctAnswer: 2,
+                    type: "multiple-choice"
+                },
+                {
+                    question: "Describe your experience with version control systems.",
+                    tip: "Talk about your workflow with Git (or other systems), branching strategies, commit practices, and collaboration experience.",
+                    options: [
+                        "Save copies of files with different names (v1, v2, etc.)",
+                        "Use Git with proper branching, committing, and merging",
+                        "Only use the basic commit/push commands",
+                        "Don't use version control at all"
+                    ],
+                    correctAnswer: 1,
+                    type: "multiple-choice"
+                }
+            ],
+            situational: [
+                {
+                    question: "How do you handle conflicting priorities or multiple deadlines?",
+                    tip: "Discuss prioritization techniques, communication with stakeholders, and time management strategies. Give a specific example if possible.",
+                    options: [
+                        "Work on whatever seems easiest first",
+                        "Panic and miss all deadlines",
+                        "Assess urgency/importance, communicate, and prioritize",
+                        "Ignore some tasks and hope no one notices"
+                    ],
+                    correctAnswer: 2,
+                    type: "multiple-choice"
+                },
+                {
+                    question: "What would you do if you disagreed with your manager's decision?",
+                    tip: "Emphasize respectful communication, data-driven discussions, and ultimately respecting the chain of command while expressing concerns professionally.",
+                    options: [
+                        "Publicly challenge the decision in a team meeting",
+                        "Passively accept it even if you think it's wrong",
+                        "Schedule a private discussion to respectfully share your perspective",
+                        "Complain to other team members about the decision"
+                    ],
+                    correctAnswer: 2,
+                    type: "multiple-choice"
+                },
+                {
+                    question: "How do you stay updated with industry trends and developments?",
+                    tip: "Mention specific resources: blogs, podcasts, conferences, online courses, professional networks, or side projects. Show continuous learning mindset.",
+                    options: [
+                        "Rely solely on what you learned in school/college",
+                        "Regularly read industry publications and take courses",
+                        "Wait for your employer to provide training",
+                        "Don't bother staying updated"
+                    ],
+                    correctAnswer: 1,
+                    type: "multiple-choice"
+                },
+                {
+                    question: "Where do you see yourself in 5 years?",
+                    tip: "Align your goals with the company's growth. Focus on skill development, contributions you hope to make, and growing with the organization.",
+                    options: [
+                        "In a completely different career",
+                        "Running my own company unrelated to this field",
+                        "Growing with this company and developing advanced skills",
+                        "Retired or working part-time"
+                    ],
+                    correctAnswer: 2,
+                    type: "multiple-choice"
+                },
+                {
+                    question: "Why do you want to work for our company?",
+                    tip: "Show you've researched the company. Mention specific products, values, or projects that align with your skills and career goals.",
+                    options: [
+                        "I need a job and you're hiring",
+                        "I've heard you pay well",
+                        "I'm passionate about your mission and products",
+                        "My friend works here"
+                    ],
+                    correctAnswer: 2,
+                    type: "multiple-choice"
+                }
+            ],
+            custom: []
+        };
+
+        // App state
+        let currentCategory = 'behavioral';
+        let currentQuestionIndex = 0;
+        let timerInterval = null;
+        let timeLeft = 120; // 2 minutes in seconds
+        let isTimerRunning = false;
+        let completedQuestions = new Set();
+        let totalPracticeTime = 0; // in seconds
+        let correctAnswers = 0;
+        let totalMCQuestionsAnswered = 0;
+        let selectedOptionIndex = null;
+        let currentMode = 'open-ended'; // 'open-ended', 'multiple-choice', or 'custom'
+        
+        // Custom questions state
+        let editingQuestionId = null;
+        let customQuestionOptions = [];
+        let customQuestionCorrectAnswer = 0;
+        
+        // DOM elements
+        const currentQuestionEl = document.getElementById('current-question');
+        const tipContentEl = document.getElementById('tip-content');
+        const timerDisplayEl = document.getElementById('timer-display');
+        const startTimerBtn = document.getElementById('start-timer');
+        const pauseTimerBtn = document.getElementById('pause-timer');
+        const resetTimerBtn = document.getElementById('reset-timer');
+        const prevQuestionBtn = document.getElementById('prev-question');
+        const nextQuestionBtn = document.getElementById('next-question');
+        const timerPresets = document.querySelectorAll('.timer-preset');
+        const optionsSection = document.getElementById('options-section');
+        const optionsGrid = document.getElementById('options-grid');
+        const submitAnswerBtn = document.getElementById('submit-answer');
+        const showAnswerBtn = document.getElementById('show-answer');
+        const clearSelectionBtn = document.getElementById('clear-selection');
+        const answerFeedback = document.getElementById('answer-feedback');
+        const modeOpenEndedBtn = document.getElementById('mode-open-ended');
+        const modeMultipleChoiceBtn = document.getElementById('mode-multiple-choice');
+        const modeCustomBtn = document.getElementById('mode-custom');
+        const practiceInterface = document.getElementById('practice-interface');
+        const customInterface = document.getElementById('custom-interface');
+        
+        // Custom form elements
+        const customQuestionType = document.getElementById('custom-question-type');
+        const customQuestionText = document.getElementById('custom-question-text');
+        const customQuestionTip = document.getElementById('custom-question-tip');
+        const customOptionsGroup = document.getElementById('custom-options-group');
+        const customOptionsContainer = document.getElementById('custom-options-container');
+        const addOptionBtn = document.getElementById('add-option-btn');
+        const customQuestionCategory = document.getElementById('custom-question-category');
+        const clearCustomFormBtn = document.getElementById('clear-custom-form');
+        const saveCustomQuestionBtn = document.getElementById('save-custom-question');
+        const customQuestionsList = document.getElementById('custom-questions-list');
+        
+        // Stats elements
+        const totalQuestionsEl = document.getElementById('total-questions');
+        const completedEl = document.getElementById('completed');
+        const correctAnswersEl = document.getElementById('correct-answers');
+        const accuracyEl = document.getElementById('accuracy');
+        const timeSpentEl = document.getElementById('time-spent');
+        const questionsAnsweredEl = document.getElementById('questions-answered');
+        
+        // Initialize the app
+        function init() {
+            // Load custom questions from localStorage
+            loadCustomQuestions();
+            
+            loadQuestions();
+            displayQuestion();
+            updateStats();
+            
+            // Set up event listeners
+            startTimerBtn.addEventListener('click', startTimer);
+            pauseTimerBtn.addEventListener('click', pauseTimer);
+            resetTimerBtn.addEventListener('click', resetTimer);
+            prevQuestionBtn.addEventListener('click', showPreviousQuestion);
+            nextQuestionBtn.addEventListener('click', showNextQuestion);
+            
+            timerPresets.forEach(preset => {
+                preset.addEventListener('click', () => {
+                    const time = parseInt(preset.getAttribute('data-time'));
+                    setTimer(time);
+                });
+            });
+            
+            // Mode toggle listeners
+            modeOpenEndedBtn.addEventListener('click', () => switchMode('open-ended'));
+            modeMultipleChoiceBtn.addEventListener('click', () => switchMode('multiple-choice'));
+            modeCustomBtn.addEventListener('click', () => switchMode('custom'));
+            
+            // Multiple choice listeners
+            submitAnswerBtn.addEventListener('click', submitAnswer);
+            showAnswerBtn.addEventListener('click', showCorrectAnswer);
+            clearSelectionBtn.addEventListener('click', clearSelection);
+            
+            // Custom form listeners
+            customQuestionType.addEventListener('change', toggleCustomOptionsVisibility);
+            addOptionBtn.addEventListener('click', addCustomOption);
+            clearCustomFormBtn.addEventListener('click', clearCustomForm);
+            saveCustomQuestionBtn.addEventListener('click', saveCustomQuestion);
+            
+            // Initialize timer display
+            updateTimerDisplay();
+            
+            // Initialize custom options
+            initializeCustomOptions();
+        }
+        
+        // Load custom questions from localStorage
+        function loadCustomQuestions() {
+            const savedQuestions = localStorage.getItem('interviewPrepCustomQuestions');
+            if (savedQuestions) {
+                try {
+                    interviewQuestions.custom = JSON.parse(savedQuestions);
+                } catch (e) {
+                    console.error('Error loading custom questions:', e);
+                    interviewQuestions.custom = [];
+                }
+            }
+        }
+        
+        // Save custom questions to localStorage
+        function saveCustomQuestionsToStorage() {
+            localStorage.setItem('interviewPrepCustomQuestions', JSON.stringify(interviewQuestions.custom));
+        }
+        
+        // Load questions into the sidebar
+        function loadQuestions() {
+            // Behavioral questions
+            const behavioralList = document.getElementById('behavioral-questions');
+            interviewQuestions.behavioral.forEach((q, index) => {
+                const questionEl = createQuestionListItem(q, 'behavioral', index);
+                behavioralList.appendChild(questionEl);
+            });
+            
+            // Technical questions
+            const technicalList = document.getElementById('technical-questions');
+            interviewQuestions.technical.forEach((q, index) => {
+                const questionEl = createQuestionListItem(q, 'technical', index);
+                technicalList.appendChild(questionEl);
+            });
+            
+            // Situational questions
+            const situationalList = document.getElementById('situational-questions');
+            interviewQuestions.situational.forEach((q, index) => {
+                const questionEl = createQuestionListItem(q, 'situational', index);
+                situationalList.appendChild(questionEl);
+            });
+            
+            // Custom questions
+            loadCustomQuestionsList();
+            
+            // Update total questions count
+            updateTotalQuestionsCount();
+        }
+        
+        // Load custom questions list
+        function loadCustomQuestionsList() {
+            const customList = document.getElementById('custom-questions');
+            customList.innerHTML = '';
+            
+            interviewQuestions.custom.forEach((q, index) => {
+                const questionEl = createQuestionListItem(q, 'custom', index);
+                customList.appendChild(questionEl);
+            });
+        }
+        
+        // Update total questions count
+        function updateTotalQuestionsCount() {
+            const totalQuestions = interviewQuestions.behavioral.length + 
+                                  interviewQuestions.technical.length + 
+                                  interviewQuestions.situational.length +
+                                  interviewQuestions.custom.length;
+            totalQuestionsEl.textContent = totalQuestions;
+        }
+        
+        // Create a question list item
+        function createQuestionListItem(question, category, index) {
+            const questionEl = document.createElement('div');
+            questionEl.className = 'question-item';
+            questionEl.innerHTML = `
+                <span>${question.question.substring(0, 50)}...</span>
+                <span class="question-type-indicator">${question.type === 'multiple-choice' ? 'MC' : 'OE'}</span>
+            `;
+            questionEl.addEventListener('click', () => {
+                currentCategory = category;
+                currentQuestionIndex = index;
+                displayQuestion();
+            });
+            return questionEl;
+        }
+        
+        // Display the current question and tip
+        function displayQuestion() {
+            // Reset selection and feedback
+            selectedOptionIndex = null;
+            answerFeedback.className = 'answer-feedback';
+            answerFeedback.innerHTML = '';
+            
+            // Update active question in sidebar
+            updateActiveQuestion();
+            
+            // Get current question
+            const question = interviewQuestions[currentCategory][currentQuestionIndex];
+            
+            // Display question and tip
+            currentQuestionEl.textContent = question.question;
+            tipContentEl.textContent = question.tip;
+            
+            // Show/hide options based on question type and mode
+            if (currentMode === 'multiple-choice' && question.options) {
+                optionsSection.classList.remove('hidden');
+                renderOptions(question.options);
+            } else {
+                optionsSection.classList.add('hidden');
+            }
+            
+            // Mark as completed if already practiced
+            const questionId = `${currentCategory}-${currentQuestionIndex}`;
+            if (completedQuestions.has(questionId)) {
+                currentQuestionEl.style.borderLeft = "4px solid #4CAF50";
+            } else {
+                currentQuestionEl.style.borderLeft = "4px solid #ff8000";
+            }
+            
+            // Clear any selected options
+            clearOptionSelection();
+        }
+        
+        // Render multiple choice options
+        function renderOptions(options) {
+            optionsGrid.innerHTML = '';
+            
+            const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+            
+            options.forEach((option, index) => {
+                const optionEl = document.createElement('div');
+                optionEl.className = 'option-item';
+                optionEl.innerHTML = `
+                    <div class="option-letter">${letters[index]}</div>
+                    <div class="option-text">${option}</div>
+                `;
+                
+                optionEl.addEventListener('click', () => {
+                    selectOption(index, optionEl);
+                });
+                
+                optionsGrid.appendChild(optionEl);
+            });
+        }
+        
+        // Select an option
+        function selectOption(index, optionElement) {
+            // Clear previous selection
+            clearOptionSelection();
+            
+            // Set new selection
+            selectedOptionIndex = index;
+            optionElement.classList.add('selected');
+        }
+        
+        // Clear option selection
+        function clearOptionSelection() {
+            document.querySelectorAll('.option-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            selectedOptionIndex = null;
+        }
+        
+        // Submit answer for multiple choice
+        function submitAnswer() {
+            if (selectedOptionIndex === null) {
+                alert('Please select an answer first.');
+                return;
+            }
+            
+            const question = interviewQuestions[currentCategory][currentQuestionIndex];
+            const isCorrect = selectedOptionIndex === question.correctAnswer;
+            
+            // Update stats
+            totalMCQuestionsAnswered++;
+            if (isCorrect) {
+                correctAnswers++;
+            }
+            
+            // Show feedback
+            showAnswerFeedback(isCorrect, question.correctAnswer);
+            
+            // Mark question as completed
+            const questionId = `${currentCategory}-${currentQuestionIndex}`;
+            completedQuestions.add(questionId);
+            
+            // Update stats display
+            updateStats();
+        }
+        
+        // Show correct answer
+        function showCorrectAnswer() {
+            const question = interviewQuestions[currentCategory][currentQuestionIndex];
+            
+            // Highlight correct answer
+            document.querySelectorAll('.option-item').forEach((item, index) => {
+                item.classList.remove('correct', 'incorrect');
+                if (index === question.correctAnswer) {
+                    item.classList.add('correct');
+                } else if (index === selectedOptionIndex && selectedOptionIndex !== question.correctAnswer) {
+                    item.classList.add('incorrect');
+                }
+            });
+            
+            // Show feedback
+            const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+            answerFeedback.className = 'answer-feedback correct';
+            answerFeedback.innerHTML = `
+                <div class="feedback-title correct">
+                    <i class="fas fa-check-circle"></i> Correct Answer: ${letters[question.correctAnswer]}
+                </div>
+                <p>The correct answer is: ${question.options[question.correctAnswer]}</p>
+            `;
+        }
+        
+        // Show answer feedback
+        function showAnswerFeedback(isCorrect, correctIndex) {
+            const question = interviewQuestions[currentCategory][currentQuestionIndex];
+            const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+            
+            // Highlight correct/incorrect answers
+            document.querySelectorAll('.option-item').forEach((item, index) => {
+                item.classList.remove('correct', 'incorrect');
+                if (index === correctIndex) {
+                    item.classList.add('correct');
+                } else if (index === selectedOptionIndex && !isCorrect) {
+                    item.classList.add('incorrect');
+                }
+            });
+            
+            // Show feedback message
+            if (isCorrect) {
+                answerFeedback.className = 'answer-feedback correct';
+                answerFeedback.innerHTML = `
+                    <div class="feedback-title correct">
+                        <i class="fas fa-check-circle"></i> Correct!
+                    </div>
+                    <p>Well done! ${letters[selectedOptionIndex]} is the correct answer.</p>
+                `;
+            } else {
+                answerFeedback.className = 'answer-feedback incorrect';
+                answerFeedback.innerHTML = `
+                    <div class="feedback-title incorrect">
+                        <i class="fas fa-times-circle"></i> Incorrect
+                    </div>
+                    <p>The correct answer is ${letters[correctIndex]}: ${question.options[correctIndex]}</p>
+                `;
+            }
+        }
+        
+        // Clear selection
+        function clearSelection() {
+            clearOptionSelection();
+            answerFeedback.className = 'answer-feedback';
+            answerFeedback.innerHTML = '';
+        }
+        
+        // Switch between modes
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            // Update UI
+            modeOpenEndedBtn.classList.toggle('active', mode === 'open-ended');
+            modeMultipleChoiceBtn.classList.toggle('active', mode === 'multiple-choice');
+            modeCustomBtn.classList.toggle('active', mode === 'custom');
+            
+            // Show/hide interfaces
+            if (mode === 'custom') {
+                practiceInterface.style.display = 'none';
+                customInterface.classList.add('active');
+                renderCustomQuestionsList();
+            } else {
+                practiceInterface.style.display = 'block';
+                customInterface.classList.remove('active');
+                
+                // Show/hide options section based on current question
+                displayQuestion();
+            }
+        }
+        
+        // Initialize custom options
+        function initializeCustomOptions() {
+            // Add initial option
+            addCustomOption();
+        }
+        
+        // Toggle custom options visibility
+        function toggleCustomOptionsVisibility() {
+            if (customQuestionType.value === 'multiple-choice') {
+                customOptionsGroup.classList.remove('hidden');
+            } else {
+                customOptionsGroup.classList.add('hidden');
+            }
+        }
+        
+        // Add custom option
+        function addCustomOption() {
+            // Limit to 12 options
+            if (customQuestionOptions.length >= 12) {
+                alert('Maximum 12 options allowed.');
+                return;
+            }
+            
+            const optionId = customQuestionOptions.length;
+            const optionHtml = `
+                <div class="option-input-group" data-option-id="${optionId}">
+                    <input type="radio" name="correct-option" ${optionId === 0 ? 'checked' : ''} 
+                           onchange="setCustomCorrectAnswer(${optionId})">
+                    <input type="text" class="form-input option-input" placeholder="Option text..." 
+                           oninput="updateCustomOption(${optionId}, this.value)">
+                    <button type="button" class="option-remove-btn" onclick="removeCustomOption(${optionId})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            customOptionsContainer.insertAdjacentHTML('beforeend', optionHtml);
+            customQuestionOptions.push('');
+            
+            // Set first option as correct by default
+            if (optionId === 0) {
+                customQuestionCorrectAnswer = 0;
+            }
+        }
+        
+        // Update custom option
+        function updateCustomOption(index, value) {
+            customQuestionOptions[index] = value;
+        }
+        
+        // Set custom correct answer
+        function setCustomCorrectAnswer(index) {
+            customQuestionCorrectAnswer = index;
+        }
+        
+        // Remove custom option
+        function removeCustomOption(index) {
+            // Need at least 2 options for multiple choice
+            if (customQuestionOptions.length <= 2) {
+                alert('Multiple choice questions require at least 2 options.');
+                return;
+            }
+            
+            // Remove from array
+            customQuestionOptions.splice(index, 1);
+            
+            // Re-render options
+            renderCustomOptions();
+            
+            // Adjust correct answer index if needed
+            if (customQuestionCorrectAnswer >= index) {
+                if (customQuestionCorrectAnswer > 0) {
+                    customQuestionCorrectAnswer--;
+                } else {
+                    customQuestionCorrectAnswer = 0;
+                }
+            }
+        }
+        
+        // Render custom options
+        function renderCustomOptions() {
+            customOptionsContainer.innerHTML = '';
+            
+            customQuestionOptions.forEach((option, index) => {
+                const optionHtml = `
+                    <div class="option-input-group" data-option-id="${index}">
+                        <input type="radio" name="correct-option" ${index === customQuestionCorrectAnswer ? 'checked' : ''} 
+                               onchange="setCustomCorrectAnswer(${index})">
+                        <input type="text" class="form-input option-input" placeholder="Option text..." 
+                               value="${option}" oninput="updateCustomOption(${index}, this.value)">
+                        <button type="button" class="option-remove-btn" onclick="removeCustomOption(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                customOptionsContainer.insertAdjacentHTML('beforeend', optionHtml);
+            });
+        }
+        
+        // Clear custom form
+        function clearCustomForm() {
+            customQuestionText.value = '';
+            customQuestionTip.value = '';
+            customQuestionCategory.value = 'custom';
+            customQuestionType.value = 'open-ended';
+            
+            // Reset options
+            customQuestionOptions = [''];
+            customQuestionCorrectAnswer = 0;
+            renderCustomOptions();
+            
+            // Reset editing state
+            editingQuestionId = null;
+            saveCustomQuestionBtn.innerHTML = '<i class="fas fa-save"></i> Save Question';
+            
+            // Hide options group for open-ended
+            customOptionsGroup.classList.add('hidden');
+        }
+        
+        // Save custom question
+        function saveCustomQuestion() {
+            const questionText = customQuestionText.value.trim();
+            const questionTip = customQuestionTip.value.trim();
+            const questionCategory = customQuestionCategory.value;
+            const questionType = customQuestionType.value;
+            
+            // Validation
+            if (!questionText) {
+                alert('Please enter a question.');
+                return;
+            }
+            
+            if (!questionTip) {
+                alert('Please enter tips or explanation for the question.');
+                return;
+            }
+            
+            if (questionType === 'multiple-choice') {
+                // Validate options
+                const validOptions = customQuestionOptions.filter(opt => opt.trim() !== '');
+                if (validOptions.length < 2) {
+                    alert('Multiple choice questions require at least 2 options.');
+                    return;
+                }
+                
+                // Check if any option is empty
+                for (let i = 0; i < customQuestionOptions.length; i++) {
+                    if (!customQuestionOptions[i].trim()) {
+                        alert(`Option ${i + 1} is empty. Please fill all options or remove empty ones.`);
+                        return;
+                    }
+                }
+            }
+            
+            // Create question object
+            const question = {
+                question: questionText,
+                tip: questionTip,
+                type: questionType,
+                category: questionCategory
+            };
+            
+            // Add options for multiple choice
+            if (questionType === 'multiple-choice') {
+                question.options = [...customQuestionOptions];
+                question.correctAnswer = customQuestionCorrectAnswer;
+            }
+            
+            // Check if editing existing question
+            if (editingQuestionId !== null) {
+                // Update existing question
+                interviewQuestions.custom[editingQuestionId] = question;
+            } else {
+                // Add new question
+                interviewQuestions.custom.push(question);
+            }
+            
+            // Save to localStorage
+            saveCustomQuestionsToStorage();
+            
+            // Update UI
+            loadCustomQuestionsList();
+            updateTotalQuestionsCount();
+            renderCustomQuestionsList();
+            
+            // Clear form
+            clearCustomForm();
+            
+            // Show success message
+            alert('Question saved successfully!');
+        }
+        
+        // Render custom questions list
+        function renderCustomQuestionsList() {
+            customQuestionsList.innerHTML = '';
+            
+            if (interviewQuestions.custom.length === 0) {
+                customQuestionsList.innerHTML = '<p style="text-align: center; color: #aaa;">No custom questions yet. Create your first one!</p>';
+                return;
+            }
+            
+            interviewQuestions.custom.forEach((question, index) => {
+                const questionEl = document.createElement('div');
+                questionEl.className = 'custom-question-item';
+                questionEl.innerHTML = `
+                    <div class="custom-question-type">${question.type === 'multiple-choice' ? 'Multiple Choice' : 'Open-Ended'}</div>
+                    <p><strong>Q:</strong> ${question.question.substring(0, 100)}${question.question.length > 100 ? '...' : ''}</p>
+                    <div class="custom-question-actions">
+                        <button class="custom-question-btn custom-question-edit" onclick="editCustomQuestion(${index})">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="custom-question-btn custom-question-delete" onclick="deleteCustomQuestion(${index})">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+                customQuestionsList.appendChild(questionEl);
+            });
+        }
+        
+        // Edit custom question
+        function editCustomQuestion(index) {
+            const question = interviewQuestions.custom[index];
+            
+            // Fill form with question data
+            customQuestionText.value = question.question;
+            customQuestionTip.value = question.tip;
+            customQuestionType.value = question.type;
+            customQuestionCategory.value = question.category || 'custom';
+            
+            // Set options for multiple choice
+            if (question.type === 'multiple-choice') {
+                customQuestionOptions = [...question.options];
+                customQuestionCorrectAnswer = question.correctAnswer || 0;
+                renderCustomOptions();
+                customOptionsGroup.classList.remove('hidden');
+            } else {
+                customQuestionOptions = [''];
+                customQuestionCorrectAnswer = 0;
+                renderCustomOptions();
+                customOptionsGroup.classList.add('hidden');
+            }
+            
+            // Set editing state
+            editingQuestionId = index;
+            saveCustomQuestionBtn.innerHTML = '<i class="fas fa-save"></i> Update Question';
+            
+            // Switch to custom mode if not already
+            if (currentMode !== 'custom') {
+                switchMode('custom');
+            }
+        }
+        
+        // Delete custom question
+        function deleteCustomQuestion(index) {
+            if (confirm('Are you sure you want to delete this question?')) {
+                interviewQuestions.custom.splice(index, 1);
+                
+                // Save to localStorage
+                saveCustomQuestionsToStorage();
+                
+                // Update UI
+                loadCustomQuestionsList();
+                updateTotalQuestionsCount();
+                renderCustomQuestionsList();
+                
+                // If we were on the custom category and viewing this question, reset
+                if (currentCategory === 'custom') {
+                    if (currentQuestionIndex >= interviewQuestions.custom.length) {
+                        currentQuestionIndex = Math.max(0, interviewQuestions.custom.length - 1);
+                    }
+                    if (interviewQuestions.custom.length > 0) {
+                        displayQuestion();
+                    }
+                }
+            }
+        }
+        
+        // Update active question in sidebar
+        function updateActiveQuestion() {
+            // Remove active class from all questions
+            document.querySelectorAll('.question-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to current question
+            const questionLists = {
+                'behavioral': document.getElementById('behavioral-questions'),
+                'technical': document.getElementById('technical-questions'),
+                'situational': document.getElementById('situational-questions'),
+                'custom': document.getElementById('custom-questions')
+            };
+            
+            const currentList = questionLists[currentCategory];
+            if (currentList && currentList.children[currentQuestionIndex]) {
+                currentList.children[currentQuestionIndex].classList.add('active');
+            }
+        }
+        
+        // Timer functions
+        function startTimer() {
+            if (isTimerRunning) return;
+            
+            isTimerRunning = true;
+            startTimerBtn.disabled = true;
+            pauseTimerBtn.disabled = false;
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    timerFinished();
+                }
+            }, 1000);
+        }
+        
+        function pauseTimer() {
+            if (!isTimerRunning) return;
+            
+            isTimerRunning = false;
+            startTimerBtn.disabled = false;
+            clearInterval(timerInterval);
+            
+            // Track practice time
+            totalPracticeTime += (120 - timeLeft);
+            updateStats();
+        }
+        
+        function resetTimer() {
+            pauseTimer();
+            setTimer(120);
+        }
+        
+        function setTimer(seconds) {
+            timeLeft = seconds;
+            updateTimerDisplay();
+        }
+        
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplayEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Change color when time is running low
+            if (timeLeft <= 30) {
+                timerDisplayEl.style.color = '#ff5555';
+            } else if (timeLeft <= 60) {
+                timerDisplayEl.style.color = '#ffaa00';
+            } else {
+                timerDisplayEl.style.color = '#ff8000';
+            }
+        }
+        
+        function timerFinished() {
+            pauseTimer();
+            
+            // Mark question as completed
+            const questionId = `${currentCategory}-${currentQuestionIndex}`;
+            completedQuestions.add(questionId);
+            
+            // Update stats
+            updateStats();
+            
+            // Visual feedback
+            currentQuestionEl.style.borderLeft = "4px solid #4CAF50";
+            timerDisplayEl.style.animation = "pulse 0.5s 3";
+            
+            // Show notification
+            if (currentMode === 'open-ended') {
+                alert("Time's up! Great practice. Consider moving to the next question or reviewing the tips.");
+            }
+            
+            // Reset animation
+            setTimeout(() => {
+                timerDisplayEl.style.animation = "";
+            }, 1500);
+        }
+        
+        // Question navigation
+        function showNextQuestion() {
+            // Mark current question as completed if timer was used in open-ended mode
+            if (timeLeft < 120 && currentMode === 'open-ended') {
+                const questionId = `${currentCategory}-${currentQuestionIndex}`;
+                completedQuestions.add(questionId);
+            }
+            
+            // Move to next question in current category
+            currentQuestionIndex++;
+            
+            // If at end of category, move to next category
+            if (currentQuestionIndex >= interviewQuestions[currentCategory].length) {
+                // Cycle to next category
+                const categories = ['behavioral', 'technical', 'situational', 'custom'];
+                const currentCatIndex = categories.indexOf(currentCategory);
+                currentCategory = categories[(currentCatIndex + 1) % categories.length];
+                currentQuestionIndex = 0;
+            }
+            
+            // Reset timer for new question
+            resetTimer();
+            displayQuestion();
+            updateStats();
+        }
+        
+        function showPreviousQuestion() {
+            // Move to previous question in current category
+            currentQuestionIndex--;
+            
+            // If at beginning of category, move to previous category
+            if (currentQuestionIndex < 0) {
+                // Cycle to previous category
+                const categories = ['behavioral', 'technical', 'situational', 'custom'];
+                const currentCatIndex = categories.indexOf(currentCategory);
+                currentCategory = categories[(currentCatIndex - 1 + categories.length) % categories.length];
+                currentQuestionIndex = interviewQuestions[currentCategory].length - 1;
+            }
+            
+            // Reset timer for new question
+            resetTimer();
+            displayQuestion();
+            updateStats();
+        }
+        
+        // Update statistics
+        function updateStats() {
+            // Update completed count
+            completedEl.textContent = completedQuestions.size;
+            
+            // Update correct answers and accuracy
+            correctAnswersEl.textContent = correctAnswers;
+            const accuracy = totalMCQuestionsAnswered > 0 ? Math.round((correctAnswers / totalMCQuestionsAnswered) * 100) : 0;
+            accuracyEl.textContent = `${accuracy}%`;
+            
+            // Update time spent (convert seconds to minutes)
+            const minutesPracticed = Math.floor(totalPracticeTime / 60);
+            timeSpentEl.textContent = minutesPracticed;
+            
+            // Update multiple choice questions answered
+            questionsAnsweredEl.textContent = totalMCQuestionsAnswered;
+        }
+        
+        // Make functions available globally for inline event handlers
+        window.updateCustomOption = updateCustomOption;
+        window.setCustomCorrectAnswer = setCustomCorrectAnswer;
+        window.removeCustomOption = removeCustomOption;
+        window.editCustomQuestion = editCustomQuestion;
+        window.deleteCustomQuestion = deleteCustomQuestion;
+        
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // Add some CSS animation for timer
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

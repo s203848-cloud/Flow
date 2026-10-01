@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Comic Strip Maker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ff8000;
+            text-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+        }
+        
+        .subtitle {
+            color: #aaa;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        .app-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .toolbar {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .workspace {
+            flex: 3;
+            min-width: 800px;
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #333;
+            overflow: auto;
+        }
+        
+        .tool-section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .tool-section:last-child {
+            border-bottom: none;
+        }
+        
+        .tool-section h3 {
+            color: #ff8000;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .characters {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        .character {
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid #ff8000;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: grab;
+            transition: all 0.2s ease;
+        }
+        
+        .character:hover {
+            background: rgba(255, 128, 0, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .character-icon {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .bubbles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .bubble {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #555;
+            border-radius: 8px;
+            padding: 10px;
+            width: 80px;
+            text-align: center;
+            cursor: grab;
+            transition: all 0.2s ease;
+        }
+        
+        .bubble:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .bubble-icon {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .panel-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .panel-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .panel-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .panel-btn.active {
+            background: rgba(255, 128, 0, 0.4);
+            border-color: #ff9900;
+        }
+        
+        .comic-panels {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            min-height: 700px;
+        }
+        
+        .panel {
+            background: rgba(30, 30, 60, 0.7);
+            border-radius: 10px;
+            min-height: 300px;
+            padding: 15px;
+            border: 2px dashed #444;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .panel.active {
+            border-color: #ff8000;
+            border-style: solid;
+            box-shadow: 0 0 15px rgba(255, 128, 0, 0.2);
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .panel-title {
+            font-weight: bold;
+            color: #ff8000;
+        }
+        
+        .panel-actions button {
+            background: none;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            margin-left: 5px;
+            transition: color 0.2s;
+        }
+        
+        .panel-actions button:hover {
+            color: #ff8000;
+        }
+        
+        .panel-content {
+            height: calc(100% - 40px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .draggable {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            touch-action: none;
+            transition: transform 0.1s;
+        }
+        
+        .draggable.selected {
+            outline: 2px dashed #ff8000;
+            outline-offset: 3px;
+        }
+        
+        .character-element {
+            font-size: 4rem;
+            text-align: center;
+        }
+        
+        .speech-bubble {
+            background: white;
+            color: black;
+            padding: 10px;
+            border-radius: 15px;
+            max-width: 200px;
+            min-height: 50px;
+            font-size: 0.9rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            word-wrap: break-word;
+        }
+        
+        .speech-bubble:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 20px;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: white transparent;
+        }
+        
+        .thought-bubble:after {
+            border-radius: 50%;
+            width: 10px;
+            height: 10px;
+            background: white;
+            bottom: -15px;
+            left: 30px;
+            border: none;
+        }
+        
+        .imported-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        /* Drawing canvas */
+        .drawing-canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: none;
+        }
+        
+        .drawing-canvas-container.active {
+            display: block;
+        }
+        
+        .drawing-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+            background: transparent;
+        }
+        
+        /* Drawing tools */
+        .drawing-tools {
+            background: rgba(30, 30, 50, 0.9);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            display: none;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .drawing-tools.active {
+            display: flex;
+        }
+        
+        .drawing-tool {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid #ff8000;
+            color: #ff8000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .drawing-tool:hover, .drawing-tool.active {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        .color-picker {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            border: 1px solid #555;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        
+        .color-picker input {
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .brush-size {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .brush-size label {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .brush-size input {
+            width: 100px;
+        }
+        
+        /* Resize handles */
+        .resize-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff8000;
+            border-radius: 50%;
+            z-index: 100;
+            display: none;
+        }
+        
+        .draggable.resizable .resize-handle {
+            display: block;
+        }
+        
+        .resize-nw {
+            top: -5px;
+            left: -5px;
+            cursor: nw-resize;
+        }
+        
+        .resize-ne {
+            top: -5px;
+            right: -5px;
+            cursor: ne-resize;
+        }
+        
+        .resize-sw {
+            bottom: -5px;
+            left: -5px;
+            cursor: sw-resize;
+        }
+        
+        .resize-se {
+            bottom: -5px;
+            right: -5px;
+            cursor: se-resize;
+        }
+        
+        /* Import section */
+        .import-section {
+            background: rgba(30, 30, 50, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .import-btn {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 150, 255, 0.2);
+            border: 1px solid #0096ff;
+            border-radius: 5px;
+            color: #0096ff;
+            cursor: pointer;
+            text-align: center;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+        
+        .import-btn:hover {
+            background: rgba(0, 150, 255, 0.3);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .export-section {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+        }
+        
+        .export-btn {
+            padding: 12px 25px;
+            background: rgba(255, 128, 0, 0.3);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .export-btn:hover {
+            background: rgba(255, 128, 0, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.2);
+        }
+        
+        .instructions {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 1px solid #333;
+        }
+        
+        .instructions h3 {
+            color: #ff8000;
+            margin-bottom: 15px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            line-height: 1.6;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .element-controls {
+            display: none;
+            background: rgba(30, 30, 50, 0.9);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .element-controls.active {
+            display: flex;
+        }
+        
+        .control-btn {
+            padding: 5px 10px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        @media (max-width: 1200px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .toolbar, .workspace {
+                min-width: 100%;
+            }
+            
+            .comic-panels {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+        
+        /* Character colors */
+        .char-red { color: #ff6b6b; }
+        .char-blue { color: #4dabf7; }
+        .char-green { color: #51cf66; }
+        .char-yellow { color: #ffd43b; }
+        .char-purple { color: #cc5de8; }
+        .char-pink { color: #f783ac; }
+        
+        /* Modal for drawing */
+        .drawing-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .drawing-modal.active {
+            display: flex;
+        }
+        
+        .drawing-modal-content {
+            background: linear-gradient(135deg, #1a1a2e, #0a0a1a);
+            border: 2px solid rgba(255, 128, 0, 0.5);
+            border-radius: 15px;
+            width: 90%;
+            max-width: 1200px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .drawing-modal-header {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .drawing-modal-title {
+            color: #ff8000;
+            font-size: 1.5rem;
+        }
+        
+        .drawing-modal-close {
+            background: none;
+            border: none;
+            color: #ff8000;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .drawing-modal-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        .drawing-modal-canvas-container {
+            flex: 1;
+            position: relative;
+            overflow: auto;
+        }
+        
+        .drawing-modal-canvas {
+            background: white;
+            display: block;
+            cursor: crosshair;
+        }
+        
+        .drawing-modal-tools {
+            width: 250px;
+            background: rgba(30, 30, 45, 0.9);
+            padding: 15px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        
+        <header>
+            <h1>Advanced Comic Strip Maker</h1>
+            <p class="subtitle">Create comics with drag-and-drop elements, drawing tools, and imported images</p>
+        </header>
+        
+        <div class="app-container">
+            <div class="toolbar">
+                <div class="tool-section">
+                    <h3><i class="fas fa-user"></i> Characters</h3>
+                    <div class="characters">
+                        <div class="character" data-type="character" data-char="robot" data-color="char-blue">
+                            <div class="character-icon char-blue"><i class="fas fa-robot"></i></div>
+                            <div>Robot</div>
+                        </div>
+                        <div class="character" data-type="character" data-char="alien" data-color="char-green">
+                            <div class="character-icon char-green"><i class="fas fa-user-astronaut"></i></div>
+                            <div>Alien</div>
+                        </div>
+                        <div class="character" data-type="character" data-char="hero" data-color="char-red">
+                            <div class="character-icon char-red"><i class="fas fa-user-ninja"></i></div>
+                            <div>Hero</div>
+                        </div>
+                        <div class="character" data-type="character" data-char="cat" data-color="char-yellow">
+                            <div class="character-icon char-yellow"><i class="fas fa-cat"></i></div>
+                            <div>Cat</div>
+                        </div>
+                        <div class="character" data-type="character" data-char="ghost" data-color="char-purple">
+                            <div class="character-icon char-purple"><i class="fas fa-ghost"></i></div>
+                            <div>Ghost</div>
+                        </div>
+                        <div class="character" data-type="character" data-char="dinosaur" data-color="char-pink">
+                            <div class="character-icon char-pink"><i class="fas fa-dragon"></i></div>
+                            <div>Dinosaur</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tool-section">
+                    <h3><i class="fas fa-comment"></i> Speech Bubbles</h3>
+                    <div class="bubbles">
+                        <div class="bubble" data-type="speech" data-bubble="standard">
+                            <div class="bubble-icon"><i class="fas fa-comment"></i></div>
+                            <div>Speech</div>
+                        </div>
+                        <div class="bubble" data-type="speech" data-bubble="thought">
+                            <div class="bubble-icon"><i class="fas fa-comment-dots"></i></div>
+                            <div>Thought</div>
+                        </div>
+                        <div class="bubble" data-type="speech" data-bubble="exclamation">
+                            <div class="bubble-icon"><i class="fas fa-exclamation-circle"></i></div>
+                            <div>Exclamation</div>
+                        </div>
+                        <div class="bubble" data-type="speech" data-bubble="question">
+                            <div class="bubble-icon"><i class="fas fa-question-circle"></i></div>
+                            <div>Question</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tool-section">
+                    <h3><i class="fas fa-file-import"></i> Import Objects</h3>
+                    <div class="import-section">
+                        <div class="import-btn" id="import-image-btn">
+                            <i class="fas fa-upload"></i> Import Image
+                        </div>
+                        <input type="file" id="image-upload" class="file-input" accept="image/*">
+                        <p style="color: #aaa; font-size: 0.9rem; margin-top: 10px;">
+                            Upload images to add to your comic
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="tool-section">
+                    <h3><i class="fas fa-paint-brush"></i> Drawing Tools</h3>
+                    <div class="drawing-tools" id="drawing-tools">
+                        <div class="drawing-tool active" data-tool="brush" title="Brush">
+                            <i class="fas fa-paint-brush"></i>
+                        </div>
+                        <div class="drawing-tool" data-tool="eraser" title="Eraser">
+                            <i class="fas fa-eraser"></i>
+                        </div>
+                        <div class="drawing-tool" data-tool="line" title="Line">
+                            <i class="fas fa-slash"></i>
+                        </div>
+                        <div class="drawing-tool" data-tool="rectangle" title="Rectangle">
+                            <i class="far fa-square"></i>
+                        </div>
+                        <div class="drawing-tool" data-tool="circle" title="Circle">
+                            <i class="far fa-circle"></i>
+                        </div>
+                        <div class="color-picker" title="Drawing Color">
+                            <input type="color" id="drawing-color" value="#ff8000">
+                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ff8000; pointer-events: none;"></div>
+                        </div>
+                        <div class="brush-size">
+                            <label>Size:</label>
+                            <input type="range" id="brush-size" min="1" max="50" value="5">
+                        </div>
+                    </div>
+                    <button class="panel-btn" id="toggle-draw-btn">
+                        <i class="fas fa-pencil-alt"></i> Toggle Drawing Mode
+                    </button>
+                    <button class="panel-btn" id="open-drawing-modal-btn">
+                        <i class="fas fa-expand"></i> Open Full Drawing
+                    </button>
+                </div>
+                
+                <div class="tool-section">
+                    <h3><i class="fas fa-th-large"></i> Panel Controls</h3>
+                    <div class="panel-controls">
+                        <button class="panel-btn" id="add-panel"><i class="fas fa-plus"></i> Add Panel</button>
+                        <button class="panel-btn" id="remove-panel"><i class="fas fa-minus"></i> Remove Panel</button>
+                        <button class="panel-btn" id="clear-panel"><i class="fas fa-trash"></i> Clear Panel</button>
+                        <button class="panel-btn" id="clear-all"><i class="fas fa-broom"></i> Clear All</button>
+                    </div>
+                </div>
+                
+                <div class="tool-section">
+                    <h3><i class="fas fa-palette"></i> Panel Backgrounds</h3>
+                    <div class="panel-controls">
+                        <button class="panel-btn" data-bg="default">Default</button>
+                        <button class="panel-btn" data-bg="space">Space</button>
+                        <button class="panel-btn" data-bg="city">City</button>
+                        <button class="panel-btn" data-bg="nature">Nature</button>
+                    </div>
+                </div>
+                
+                <div class="tool-section">
+                    <h3><i class="fas fa-cube"></i> Element Controls</h3>
+                    <div class="element-controls" id="element-controls">
+                        <button class="control-btn" id="bring-forward"><i class="fas fa-arrow-up"></i> Forward</button>
+                        <button class="control-btn" id="send-backward"><i class="fas fa-arrow-down"></i> Backward</button>
+                        <button class="control-btn" id="delete-element"><i class="fas fa-trash"></i> Delete</button>
+                        <button class="control-btn" id="toggle-resize"><i class="fas fa-expand-alt"></i> Resize</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="workspace">
+                <h3>Your Comic Strip</h3>
+                <p>Click on a panel to activate it, then drag elements from the toolbar. Select elements to resize or reorder them.</p>
+                
+                <div class="comic-panels" id="comic-panels">
+                    <!-- Panels will be added here -->
+                </div>
+                
+                <div class="export-section">
+                    <button class="export-btn" id="export-comic"><i class="fas fa-download"></i> Export Comic Strip</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>How to Use the Advanced Comic Strip Maker</h3>
+            <ul>
+                <li><strong>Add panels:</strong> Click the "Add Panel" button to create new comic panels</li>
+                <li><strong>Activate panel:</strong> Click on a panel to make it active (orange border)</li>
+                <li><strong>Add elements:</strong> Drag characters, speech bubbles, or imported images into the active panel</li>
+                <li><strong>Import images:</strong> Use the "Import Image" button to upload your own images</li>
+                <li><strong>Drawing mode:</strong> Click "Toggle Drawing Mode" to draw directly on the active panel</li>
+                <li><strong>Full drawing:</strong> Use "Open Full Drawing" for a larger drawing canvas that can be added to panels</li>
+                <li><strong>Select elements:</strong> Click on any element to select it (orange outline)</li>
+                <li><strong>Move elements:</strong> Drag selected elements to reposition them</li>
+                <li><strong>Resize elements:</strong> Enable resize mode, then drag the corners of selected elements</li>
+                <li><strong>Reorder elements:</strong> Use the "Forward" and "Backward" buttons to change element layering</li>
+                <li><strong>Edit text:</strong> Double-click speech bubbles to edit their text</li>
+                <li><strong>Export:</strong> Click "Export Comic Strip" to save your creation as an image</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Drawing Modal -->
+    <div class="drawing-modal" id="drawing-modal">
+        <div class="drawing-modal-content">
+            <div class="drawing-modal-header">
+                <h2 class="drawing-modal-title">Drawing Canvas</h2>
+                <button class="drawing-modal-close" id="close-drawing-modal">&times;</button>
+            </div>
+            <div class="drawing-modal-body">
+                <div class="drawing-modal-canvas-container">
+                    <canvas class="drawing-modal-canvas" id="drawing-modal-canvas"></canvas>
+                </div>
+                <div class="drawing-modal-tools">
+                    <h4 style="color: #ff8000; margin-bottom: 15px;">Drawing Tools</h4>
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <div class="drawing-tool active" data-tool="brush" title="Brush">
+                            <i class="fas fa-paint-brush"></i>
+                        </div>
+                        <div class="drawing-tool" data-tool="eraser" title="Eraser">
+                            <i class="fas fa-eraser"></i>
+                        </div>
+                        <div class="drawing-tool" data-tool="line" title="Line">
+                            <i class="fas fa-slash"></i>
+                        </div>
+                        <div class="drawing-tool" data-tool="rectangle" title="Rectangle">
+                            <i class="far fa-square"></i>
+                        </div>
+                        <div class="drawing-tool" data-tool="circle" title="Circle">
+                            <i class="far fa-circle"></i>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="color: #aaa; display: block; margin-bottom: 5px;">Color</label>
+                        <input type="color" id="modal-drawing-color" value="#ff8000" style="width: 100%; height: 40px;">
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="color: #aaa; display: block; margin-bottom: 5px;">Brush Size: <span id="modal-brush-size-value">5</span></label>
+                        <input type="range" id="modal-brush-size" min="1" max="50" value="5" style="width: 100%;">
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <button class="panel-btn" id="clear-drawing" style="width: 100%;">
+                            <i class="fas fa-trash"></i> Clear Drawing
+                        </button>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <button class="panel-btn" id="save-drawing" style="width: 100%; background: rgba(0, 150, 255, 0.2); border-color: #0096ff; color: #0096ff;">
+                            <i class="fas fa-save"></i> Save to Panel
+                        </button>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <p style="color: #aaa; font-size: 0.9rem;">
+                            Draw on this canvas, then click "Save to Panel" to add your drawing to the active comic panel.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const comicPanels = document.getElementById('comic-panels');
+            const drawingModal = document.getElementById('drawing-modal');
+            const drawingModalCanvas = document.getElementById('drawing-modal-canvas');
+            const modalCtx = drawingModalCanvas.getContext('2d');
+            
+            let activePanel = null;
+            let selectedElement = null;
+            let panelCount = 0;
+            let isDrawingMode = false;
+            let isResizeMode = false;
+            let drawingData = {
+                isDrawing: false,
+                lastX: 0,
+                lastY: 0,
+                tool: 'brush',
+                color: '#ff8000',
+                size: 5
+            };
+            
+            // Drawing tools for modal
+            let modalDrawingData = {
+                isDrawing: false,
+                lastX: 0,
+                lastY: 0,
+                tool: 'brush',
+                color: '#ff8000',
+                size: 5
+            };
+            
+            // Initialize drawing modal canvas
+            drawingModalCanvas.width = 800;
+            drawingModalCanvas.height = 600;
+            modalCtx.fillStyle = 'white';
+            modalCtx.fillRect(0, 0, drawingModalCanvas.width, drawingModalCanvas.height);
+            
+            // Create initial panels
+            for (let i = 0; i < 3; i++) {
+                addPanel();
+            }
+            
+            // Set first panel as active
+            if (comicPanels.children.length > 0) {
+                setActivePanel(comicPanels.children[0]);
+            }
+            
+            // Add panel button
+            document.getElementById('add-panel').addEventListener('click', addPanel);
+            
+            // Remove panel button
+            document.getElementById('remove-panel').addEventListener('click', function() {
+                if (comicPanels.children.length > 1 && activePanel) {
+                    const index = Array.from(comicPanels.children).indexOf(activePanel);
+                    comicPanels.removeChild(activePanel);
+                    
+                    // Set a new active panel
+                    if (comicPanels.children.length > 0) {
+                        const newIndex = Math.min(index, comicPanels.children.length - 1);
+                        setActivePanel(comicPanels.children[newIndex]);
+                    } else {
+                        activePanel = null;
+                    }
+                }
+            });
+            
+            // Clear panel button
+            document.getElementById('clear-panel').addEventListener('click', function() {
+                if (activePanel) {
+                    const panelContent = activePanel.querySelector('.panel-content');
+                    panelContent.innerHTML = '';
+                    updateDrawingCanvas(activePanel);
+                }
+            });
+            
+            // Clear all button
+            document.getElementById('clear-all').addEventListener('click', function() {
+                comicPanels.innerHTML = '';
+                addPanel();
+                setActivePanel(comicPanels.children[0]);
+            });
+            
+            // Background buttons
+            document.querySelectorAll('[data-bg]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (activePanel) {
+                        const bg = this.getAttribute('data-bg');
+                        activePanel.style.background = getBackgroundStyle(bg);
+                    }
+                });
+            });
+            
+            // Export button
+            document.getElementById('export-comic').addEventListener('click', exportComic);
+            
+            // Import image button
+            document.getElementById('import-image-btn').addEventListener('click', function() {
+                document.getElementById('image-upload').click();
+            });
+            
+            // Image upload handler
+            document.getElementById('image-upload').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        // Create a draggable image element
+                        const dragData = {
+                            type: 'image',
+                            src: event.target.result
+                        };
+                        
+                        // If we have an active panel, add the image to it
+                        if (activePanel) {
+                            const panelContent = activePanel.querySelector('.panel-content');
+                            const rect = panelContent.getBoundingClientRect();
+                            createImageElement(panelContent, event.target.result, rect.width/2 - 50, rect.height/2 - 50);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Toggle drawing mode
+            document.getElementById('toggle-draw-btn').addEventListener('click', function() {
+                isDrawingMode = !isDrawingMode;
+                this.classList.toggle('active');
+                
+                if (activePanel) {
+                    const drawingContainer = activePanel.querySelector('.drawing-canvas-container');
+                    if (drawingContainer) {
+                        drawingContainer.classList.toggle('active', isDrawingMode);
+                    }
+                    
+                    // Show/hide drawing tools
+                    document.getElementById('drawing-tools').classList.toggle('active', isDrawingMode);
+                }
+            });
+            
+            // Open drawing modal
+            document.getElementById('open-drawing-modal-btn').addEventListener('click', function() {
+                drawingModal.classList.add('active');
+            });
+            
+            // Close drawing modal
+            document.getElementById('close-drawing-modal').addEventListener('click', function() {
+                drawingModal.classList.remove('active');
+            });
+            
+            // Clear drawing in modal
+            document.getElementById('clear-drawing').addEventListener('click', function() {
+                modalCtx.fillStyle = 'white';
+                modalCtx.fillRect(0, 0, drawingModalCanvas.width, drawingModalCanvas.height);
+            });
+            
+            // Save drawing from modal to panel
+            document.getElementById('save-drawing').addEventListener('click', function() {
+                if (activePanel) {
+                    // Convert canvas to image
+                    const dataUrl = drawingModalCanvas.toDataURL('image/png');
+                    const panelContent = activePanel.querySelector('.panel-content');
+                    const rect = panelContent.getBoundingClientRect();
+                    
+                    // Create image element in panel
+                    createImageElement(panelContent, dataUrl, 10, 10, 200, 150);
+                    
+                    // Close modal
+                    drawingModal.classList.remove('active');
+                }
+            });
+            
+            // Drawing tools in main toolbar
+            document.querySelectorAll('.drawing-tool[data-tool]').forEach(tool => {
+                tool.addEventListener('click', function() {
+                    document.querySelectorAll('.drawing-tool').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    drawingData.tool = this.getAttribute('data-tool');
+                });
+            });
+            
+            // Drawing color picker
+            document.getElementById('drawing-color').addEventListener('input', function(e) {
+                drawingData.color = e.target.value;
+                document.querySelector('.color-picker > div').style.background = e.target.value;
+            });
+            
+            // Brush size
+            document.getElementById('brush-size').addEventListener('input', function(e) {
+                drawingData.size = parseInt(e.target.value);
+            });
+            
+            // Drawing tools in modal
+            document.querySelectorAll('.drawing-modal-tools .drawing-tool[data-tool]').forEach(tool => {
+                tool.addEventListener('click', function() {
+                    document.querySelectorAll('.drawing-modal-tools .drawing-tool').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    modalDrawingData.tool = this.getAttribute('data-tool');
+                });
+            });
+            
+            // Modal drawing color
+            document.getElementById('modal-drawing-color').addEventListener('input', function(e) {
+                modalDrawingData.color = e.target.value;
+            });
+            
+            // Modal brush size
+            document.getElementById('modal-brush-size').addEventListener('input', function(e) {
+                modalDrawingData.size = parseInt(e.target.value);
+                document.getElementById('modal-brush-size-value').textContent = modalDrawingData.size;
+            });
+            
+            // Make characters and bubbles draggable
+            document.querySelectorAll('.character, .bubble').forEach(element => {
+                element.addEventListener('dragstart', dragStart);
+                element.setAttribute('draggable', 'true');
+            });
+            
+            // Make panels drop zones
+            document.addEventListener('dragover', dragOver);
+            document.addEventListener('drop', drop);
+            
+            // Element controls
+            document.getElementById('bring-forward').addEventListener('click', function() {
+                if (selectedElement) {
+                    const parent = selectedElement.parentElement;
+                    parent.appendChild(selectedElement);
+                }
+            });
+            
+            document.getElementById('send-backward').addEventListener('click', function() {
+                if (selectedElement) {
+                    const parent = selectedElement.parentElement;
+                    if (parent.firstChild !== selectedElement) {
+                        parent.insertBefore(selectedElement, selectedElement.previousElementSibling);
+                    }
+                }
+            });
+            
+            document.getElementById('delete-element').addEventListener('click', function() {
+                if (selectedElement) {
+                    selectedElement.remove();
+                    selectedElement = null;
+                    document.getElementById('element-controls').classList.remove('active');
+                }
+            });
+            
+            document.getElementById('toggle-resize').addEventListener('click', function() {
+                isResizeMode = !isResizeMode;
+                this.classList.toggle('active');
+                
+                if (selectedElement) {
+                    selectedElement.classList.toggle('resizable', isResizeMode);
+                }
+            });
+            
+            // Panel creation function
+            function addPanel() {
+                panelCount++;
+                const panel = document.createElement('div');
+                panel.className = 'panel';
+                panel.innerHTML = `
+                    <div class="panel-header">
+                        <div class="panel-title">Panel ${panelCount}</div>
+                        <div class="panel-actions">
+                            <button class="move-up" title="Move up"><i class="fas fa-arrow-up"></i></button>
+                            <button class="move-down" title="Move down"><i class="fas fa-arrow-down"></i></button>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="drawing-canvas-container">
+                            <canvas class="drawing-canvas"></canvas>
+                        </div>
+                    </div>
+                `;
+                
+                // Set panel as active when clicked
+                panel.addEventListener('click', function(e) {
+                    if (e.target.closest('.panel-actions')) return;
+                    if (e.target.closest('.draggable')) return;
+                    setActivePanel(panel);
+                });
+                
+                // Move up/down buttons
+                panel.querySelector('.move-up').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const prev = panel.previousElementSibling;
+                    if (prev) {
+                        comicPanels.insertBefore(panel, prev);
+                    }
+                });
+                
+                panel.querySelector('.move-down').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const next = panel.nextElementSibling;
+                    if (next) {
+                        comicPanels.insertBefore(next, panel);
+                    }
+                });
+                
+                // Initialize drawing canvas
+                updateDrawingCanvas(panel);
+                
+                comicPanels.appendChild(panel);
+                setActivePanel(panel);
+                return panel;
+            }
+            
+            // Set active panel
+            function setActivePanel(panel) {
+                // Remove active class from all panels
+                document.querySelectorAll('.panel').forEach(p => {
+                    p.classList.remove('active');
+                });
+                
+                // Add active class to selected panel
+                panel.classList.add('active');
+                activePanel = panel;
+                
+                // Update drawing mode UI
+                const drawingContainer = panel.querySelector('.drawing-canvas-container');
+                if (drawingContainer) {
+                    drawingContainer.classList.toggle('active', isDrawingMode);
+                }
+                
+                // Update drawing tools visibility
+                document.getElementById('drawing-tools').classList.toggle('active', isDrawingMode);
+            }
+            
+            // Update drawing canvas
+            function updateDrawingCanvas(panel) {
+                const drawingContainer = panel.querySelector('.drawing-canvas-container');
+                const canvas = panel.querySelector('.drawing-canvas');
+                const ctx = canvas.getContext('2d');
+                const panelContent = panel.querySelector('.panel-content');
+                
+                // Set canvas size to match panel content
+                const rect = panelContent.getBoundingClientRect();
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Set up drawing events
+                canvas.addEventListener('mousedown', startDrawing);
+                canvas.addEventListener('mousemove', draw);
+                canvas.addEventListener('mouseup', stopDrawing);
+                canvas.addEventListener('mouseout', stopDrawing);
+                
+                function startDrawing(e) {
+                    if (!isDrawingMode) return;
+                    
+                    const rect = canvas.getBoundingClientRect();
+                    drawingData.isDrawing = true;
+                    drawingData.lastX = e.clientX - rect.left;
+                    drawingData.lastY = e.clientY - rect.top;
+                    
+                    // Draw initial point
+                    drawPoint(ctx, drawingData.lastX, drawingData.lastY);
+                }
+                
+                function draw(e) {
+                    if (!drawingData.isDrawing) return;
+                    
+                    const rect = canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    drawLine(ctx, drawingData.lastX, drawingData.lastY, x, y);
+                    drawingData.lastX = x;
+                    drawingData.lastY = y;
+                }
+                
+                function stopDrawing() {
+                    drawingData.isDrawing = false;
+                }
+                
+                function drawPoint(ctx, x, y) {
+                    ctx.save();
+                    ctx.globalAlpha = 1;
+                    
+                    if (drawingData.tool === 'eraser') {
+                        ctx.globalCompositeOperation = 'destination-out';
+                        ctx.beginPath();
+                        ctx.arc(x, y, drawingData.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else {
+                        ctx.fillStyle = drawingData.color;
+                        ctx.beginPath();
+                        ctx.arc(x, y, drawingData.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    
+                    ctx.restore();
+                }
+                
+                function drawLine(ctx, x1, y1, x2, y2) {
+                    ctx.save();
+                    ctx.globalAlpha = 1;
+                    
+                    if (drawingData.tool === 'eraser') {
+                        ctx.globalCompositeOperation = 'destination-out';
+                        ctx.lineWidth = drawingData.size * 2;
+                        ctx.lineCap = 'round';
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.stroke();
+                    } else {
+                        ctx.strokeStyle = drawingData.color;
+                        ctx.lineWidth = drawingData.size * 2;
+                        ctx.lineCap = 'round';
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.stroke();
+                    }
+                    
+                    ctx.restore();
+                }
+            }
+            
+            // Modal drawing events
+            drawingModalCanvas.addEventListener('mousedown', startModalDrawing);
+            drawingModalCanvas.addEventListener('mousemove', drawModal);
+            drawingModalCanvas.addEventListener('mouseup', stopModalDrawing);
+            drawingModalCanvas.addEventListener('mouseout', stopModalDrawing);
+            
+            function startModalDrawing(e) {
+                const rect = drawingModalCanvas.getBoundingClientRect();
+                modalDrawingData.isDrawing = true;
+                modalDrawingData.lastX = e.clientX - rect.left;
+                modalDrawingData.lastY = e.clientY - rect.top;
+                
+                drawModalPoint(modalDrawingData.lastX, modalDrawingData.lastY);
+            }
+            
+            function drawModal(e) {
+                if (!modalDrawingData.isDrawing) return;
+                
+                const rect = drawingModalCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                drawModalLine(modalDrawingData.lastX, modalDrawingData.lastY, x, y);
+                modalDrawingData.lastX = x;
+                modalDrawingData.lastY = y;
+            }
+            
+            function stopModalDrawing() {
+                modalDrawingData.isDrawing = false;
+            }
+            
+            function drawModalPoint(x, y) {
+                modalCtx.save();
+                modalCtx.globalAlpha = 1;
+                
+                if (modalDrawingData.tool === 'eraser') {
+                    modalCtx.globalCompositeOperation = 'destination-out';
+                    modalCtx.beginPath();
+                    modalCtx.arc(x, y, modalDrawingData.size, 0, Math.PI * 2);
+                    modalCtx.fill();
+                } else {
+                    modalCtx.fillStyle = modalDrawingData.color;
+                    modalCtx.beginPath();
+                    modalCtx.arc(x, y, modalDrawingData.size, 0, Math.PI * 2);
+                    modalCtx.fill();
+                }
+                
+                modalCtx.restore();
+            }
+            
+            function drawModalLine(x1, y1, x2, y2) {
+                modalCtx.save();
+                modalCtx.globalAlpha = 1;
+                
+                if (modalDrawingData.tool === 'eraser') {
+                    modalCtx.globalCompositeOperation = 'destination-out';
+                    modalCtx.lineWidth = modalDrawingData.size * 2;
+                    modalCtx.lineCap = 'round';
+                    modalCtx.beginPath();
+                    modalCtx.moveTo(x1, y1);
+                    modalCtx.lineTo(x2, y2);
+                    modalCtx.stroke();
+                } else {
+                    modalCtx.strokeStyle = modalDrawingData.color;
+                    modalCtx.lineWidth = modalDrawingData.size * 2;
+                    modalCtx.lineCap = 'round';
+                    modalCtx.beginPath();
+                    modalCtx.moveTo(x1, y1);
+                    modalCtx.lineTo(x2, y2);
+                    modalCtx.stroke();
+                }
+                
+                modalCtx.restore();
+            }
+            
+            // Drag and drop functions
+            function dragStart(e) {
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    type: e.target.getAttribute('data-type'),
+                    character: e.target.getAttribute('data-char'),
+                    color: e.target.getAttribute('data-color'),
+                    bubble: e.target.getAttribute('data-bubble')
+                }));
+            }
+            
+            function dragOver(e) {
+                e.preventDefault();
+            }
+            
+            function drop(e) {
+                e.preventDefault();
+                
+                // Get drop target (panel content)
+                let panelContent = e.target.closest('.panel-content');
+                if (!panelContent) {
+                    // If dropped on panel itself, find its content
+                    const panel = e.target.closest('.panel');
+                    if (panel) {
+                        panelContent = panel.querySelector('.panel-content');
+                    }
+                }
+                
+                // If no panel content found, exit
+                if (!panelContent) return;
+                
+                // Get drag data
+                const dragData = JSON.parse(e.dataTransfer.getData('text/plain'));
+                
+                // Calculate position within panel
+                const rect = panelContent.getBoundingClientRect();
+                const x = e.clientX - rect.left - 50;
+                const y = e.clientY - rect.top - 50;
+                
+                // Create element based on type
+                if (dragData.type === 'character') {
+                    createCharacter(panelContent, dragData.character, dragData.color, x, y);
+                } else if (dragData.type === 'speech') {
+                    createSpeechBubble(panelContent, dragData.bubble, x, y);
+                }
+            }
+            
+            // Create character element
+            function createCharacter(container, character, color, x, y) {
+                const charElement = document.createElement('div');
+                charElement.className = `draggable character-element ${color}`;
+                charElement.style.left = `${Math.max(0, x)}px`;
+                charElement.style.top = `${Math.max(0, y)}px`;
+                charElement.style.width = '80px';
+                charElement.style.height = '80px';
+                charElement.style.zIndex = '100';
+                
+                // Set icon based on character type
+                let iconClass = 'fas fa-user';
+                switch(character) {
+                    case 'robot': iconClass = 'fas fa-robot'; break;
+                    case 'alien': iconClass = 'fas fa-user-astronaut'; break;
+                    case 'hero': iconClass = 'fas fa-user-ninja'; break;
+                    case 'cat': iconClass = 'fas fa-cat'; break;
+                    case 'ghost': iconClass = 'fas fa-ghost'; break;
+                    case 'dinosaur': iconClass = 'fas fa-dragon'; break;
+                }
+                
+                charElement.innerHTML = `
+                    <i class="${iconClass}" style="font-size: 4rem;"></i>
+                    <div class="resize-handle resize-nw"></div>
+                    <div class="resize-handle resize-ne"></div>
+                    <div class="resize-handle resize-sw"></div>
+                    <div class="resize-handle resize-se"></div>
+                `;
+                
+                // Make draggable and selectable
+                makeDraggable(charElement);
+                
+                container.appendChild(charElement);
+                return charElement;
+            }
+            
+            // Create speech bubble element
+            function createSpeechBubble(container, bubbleType, x, y) {
+                const bubble = document.createElement('div');
+                bubble.className = `draggable speech-bubble ${bubbleType}-bubble`;
+                bubble.style.left = `${Math.max(0, x)}px`;
+                bubble.style.top = `${Math.max(0, y)}px`;
+                bubble.style.width = '150px';
+                bubble.style.zIndex = '200';
+                
+                // Set default text based on bubble type
+                let defaultText = "Hello!";
+                switch(bubbleType) {
+                    case 'thought': defaultText = "I wonder..."; break;
+                    case 'exclamation': defaultText = "Wow!"; break;
+                    case 'question': defaultText = "What?"; break;
+                }
+                
+                bubble.innerHTML = `
+                    <div class="bubble-text">${defaultText}</div>
+                    <div class="resize-handle resize-nw"></div>
+                    <div class="resize-handle resize-ne"></div>
+                    <div class="resize-handle resize-sw"></div>
+                    <div class="resize-handle resize-se"></div>
+                `;
+                
+                // Make draggable and selectable
+                makeDraggable(bubble);
+                
+                // Double-click to edit text
+                bubble.addEventListener('dblclick', function() {
+                    const textElement = this.querySelector('.bubble-text');
+                    const currentText = textElement.textContent;
+                    const newText = prompt('Enter bubble text:', currentText);
+                    if (newText !== null) {
+                        textElement.textContent = newText;
+                    }
+                });
+                
+                container.appendChild(bubble);
+                return bubble;
+            }
+            
+            // Create image element
+            function createImageElement(container, src, x, y, width = 100, height = 100) {
+                const imgElement = document.createElement('div');
+                imgElement.className = 'draggable imported-image-container';
+                imgElement.style.left = `${Math.max(0, x)}px`;
+                imgElement.style.top = `${Math.max(0, y)}px`;
+                imgElement.style.width = `${width}px`;
+                imgElement.style.height = `${height}px`;
+                imgElement.style.zIndex = '150';
+                
+                imgElement.innerHTML = `
+                    <img src="${src}" class="imported-image" style="width: 100%; height: 100%; object-fit: contain;">
+                    <div class="resize-handle resize-nw"></div>
+                    <div class="resize-handle resize-ne"></div>
+                    <div class="resize-handle resize-sw"></div>
+                    <div class="resize-handle resize-se"></div>
+                `;
+                
+                // Make draggable and selectable
+                makeDraggable(imgElement);
+                
+                container.appendChild(imgElement);
+                return imgElement;
+            }
+            
+            // Make elements draggable and selectable within their container
+            function makeDraggable(element) {
+                let isDragging = false;
+                let isResizing = false;
+                let resizeDirection = '';
+                let offsetX, offsetY;
+                let startX, startY, startWidth, startHeight;
+                
+                element.addEventListener('mousedown', startDrag);
+                
+                function startDrag(e) {
+                    // Check if we're clicking on a resize handle
+                    if (e.target.classList.contains('resize-handle')) {
+                        if (!isResizeMode) return;
+                        
+                        isResizing = true;
+                        resizeDirection = e.target.classList[1].replace('resize-', '');
+                        
+                        const rect = element.getBoundingClientRect();
+                        startX = rect.left;
+                        startY = rect.top;
+                        startWidth = rect.width;
+                        startHeight = rect.height;
+                        
+                        e.preventDefault();
+                    } else {
+                        // Otherwise, we're dragging the element
+                        isDragging = true;
+                        const rect = element.getBoundingClientRect();
+                        offsetX = e.clientX - rect.left;
+                        offsetY = e.clientY - rect.top;
+                        
+                        // Select this element
+                        selectElement(element);
+                        
+                        e.preventDefault();
+                    }
+                    
+                    document.addEventListener('mousemove', drag);
+                    document.addEventListener('mouseup', stopDrag);
+                }
+                
+                function drag(e) {
+                    if (isDragging) {
+                        const container = element.parentElement.getBoundingClientRect();
+                        let x = e.clientX - container.left - offsetX;
+                        let y = e.clientY - container.top - offsetY;
+                        
+                        // Keep element within container bounds
+                        const elementWidth = element.offsetWidth;
+                        const elementHeight = element.offsetHeight;
+                        
+                        x = Math.max(0, Math.min(x, container.width - elementWidth));
+                        y = Math.max(0, Math.min(y, container.height - elementHeight));
+                        
+                        element.style.left = `${x}px`;
+                        element.style.top = `${y}px`;
+                    } else if (isResizing) {
+                        const deltaX = e.clientX - startX;
+                        const deltaY = e.clientY - startY;
+                        
+                        let newWidth = startWidth;
+                        let newHeight = startHeight;
+                        let newX = parseFloat(element.style.left) || 0;
+                        let newY = parseFloat(element.style.top) || 0;
+                        
+                        // Calculate new dimensions based on resize direction
+                        switch(resizeDirection) {
+                            case 'nw':
+                                newWidth = startWidth - deltaX;
+                                newHeight = startHeight - deltaY;
+                                newX = startX - element.parentElement.getBoundingClientRect().left + deltaX;
+                                newY = startY - element.parentElement.getBoundingClientRect().top + deltaY;
+                                break;
+                            case 'ne':
+                                newWidth = startWidth + deltaX;
+                                newHeight = startHeight - deltaY;
+                                newY = startY - element.parentElement.getBoundingClientRect().top + deltaY;
+                                break;
+                            case 'sw':
+                                newWidth = startWidth - deltaX;
+                                newHeight = startHeight + deltaY;
+                                newX = startX - element.parentElement.getBoundingClientRect().left + deltaX;
+                                break;
+                            case 'se':
+                                newWidth = startWidth + deltaX;
+                                newHeight = startHeight + deltaY;
+                                break;
+                        }
+                        
+                        // Apply minimum and maximum size constraints
+                        newWidth = Math.max(30, Math.min(newWidth, 500));
+                        newHeight = Math.max(30, Math.min(newHeight, 500));
+                        
+                        // Update element
+                        element.style.width = `${newWidth}px`;
+                        element.style.height = `${newHeight}px`;
+                        
+                        if (resizeDirection === 'nw' || resizeDirection === 'sw') {
+                            element.style.left = `${newX}px`;
+                        }
+                        
+                        if (resizeDirection === 'nw' || resizeDirection === 'ne') {
+                            element.style.top = `${newY}px`;
+                        }
+                    }
+                }
+                
+                function stopDrag() {
+                    isDragging = false;
+                    isResizing = false;
+                    
+                    document.removeEventListener('mousemove', drag);
+                    document.removeEventListener('mouseup', stopDrag);
+                }
+            }
+            
+            // Select an element
+            function selectElement(element) {
+                // Deselect previously selected element
+                if (selectedElement) {
+                    selectedElement.classList.remove('selected');
+                    selectedElement.classList.remove('resizable', isResizeMode);
+                }
+                
+                // Select new element
+                selectedElement = element;
+                selectedElement.classList.add('selected');
+                selectedElement.classList.toggle('resizable', isResizeMode);
+                
+                // Show element controls
+                document.getElementById('element-controls').classList.add('active');
+            }
+            
+            // Get background style based on selection
+            function getBackgroundStyle(bgType) {
+                switch(bgType) {
+                    case 'space':
+                        return 'radial-gradient(circle at 30% 30%, #0a0a2a, #1a0a3e)';
+                    case 'city':
+                        return 'linear-gradient(to bottom, #2a2a4a, #1a1a3a)';
+                    case 'nature':
+                        return 'linear-gradient(to bottom, #1a3a2a, #0a2a1a)';
+                    default:
+                        return 'rgba(30, 30, 60, 0.7)';
+                }
+            }
+            
+            // Export comic as image
+            function exportComic() {
+                html2canvas(document.querySelector('.comic-panels')).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = 'my-comic-strip.png';
+                    link.href = canvas.toDataURL();
+                    link.click();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

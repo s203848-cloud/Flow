@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Chart Creator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #ff8000;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #aaa;
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            line-height: 1.5;
+        }
+        
+        .app-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .controls-panel {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .chart-container {
+            flex: 2;
+            min-width: 500px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .section-title {
+            color: #ff8000;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ddd;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            color: #fff;
+            padding: 12px;
+            font-size: 14px;
+            resize: vertical;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #ff8000;
+        }
+        
+        .chart-type-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-type-btn {
+            padding: 12px;
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .chart-type-btn:hover {
+            background: rgba(255, 128, 0, 0.2);
+        }
+        
+        .chart-type-btn.active {
+            background: rgba(255, 128, 0, 0.4);
+            border-color: #ff8000;
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+        }
+        
+        .color-scheme-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .color-scheme {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .color-scheme:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-scheme.active {
+            border-color: #fff;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        .customization-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            color: #fff;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #ff8000;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .generate-btn {
+            background: linear-gradient(to right, #ff8000, #ff5500);
+            color: white;
+        }
+        
+        .generate-btn:hover {
+            background: linear-gradient(to right, #ff5500, #ff3300);
+            transform: translateY(-2px);
+        }
+        
+        .export-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .export-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        #chartCanvas {
+            width: 100%;
+            height: 500px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+        
+        .sample-data {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 1100px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .controls-panel, .chart-container {
+                min-width: 100%;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .chart-type-selector, .color-scheme-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .customization-options {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        </div>
+        
+        <header>
+            <h1>Chart & Graph Creator</h1>
+            <p class="subtitle">Create stunning bar, line, and pie charts from your data. Paste your data in the format "Label:Value" (one per line) or use our sample data to get started.</p>
+        </header>
+        
+        <div class="app-container">
+            <div class="controls-panel">
+                <h2 class="section-title">Data Input</h2>
+                <div class="input-group">
+                    <label for="dataInput">Paste your data here (Format: Label:Value)</label>
+                    <textarea id="dataInput" placeholder="Enter data in format: Label:Value (one per line)&#10;Example:&#10;January:120&#10;February:200&#10;March:150&#10;April:180&#10;May:220">January:120
+February:200
+March:150
+April:180
+May:220
+June:190
+July:240
+August:210</textarea>
+                    <p class="sample-data">Example formats: "Sales:120" or "Q1:45" or "Apples:30". Each entry on a new line.</p>
+                </div>
+                
+                <h2 class="section-title">Chart Type</h2>
+                <div class="chart-type-selector">
+                    <div class="chart-type-btn active" data-type="bar">Bar Chart</div>
+                    <div class="chart-type-btn" data-type="line">Line Chart</div>
+                    <div class="chart-type-btn" data-type="pie">Pie Chart</div>
+                </div>
+                
+                <h2 class="section-title">Color Scheme</h2>
+                <div class="color-scheme-selector">
+                    <div class="color-scheme active" data-scheme="scheme1" style="background: linear-gradient(45deg, #ff8000, #ff5500);"></div>
+                    <div class="color-scheme" data-scheme="scheme2" style="background: linear-gradient(45deg, #4285F4, #34A853);"></div>
+                    <div class="color-scheme" data-scheme="scheme3" style="background: linear-gradient(45deg, #EA4335, #FBBC05);"></div>
+                    <div class="color-scheme" data-scheme="scheme4" style="background: linear-gradient(45deg, #6A11CB, #2575FC);"></div>
+                </div>
+                
+                <h2 class="section-title">Customization</h2>
+                <div class="customization-options">
+                    <div class="input-group">
+                        <label for="chartTitle">Chart Title</label>
+                        <input type="text" id="chartTitle" value="Monthly Sales Data">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="xAxisLabel">X-Axis Label</label>
+                        <input type="text" id="xAxisLabel" value="Month">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="yAxisLabel">Y-Axis Label</label>
+                        <input type="text" id="yAxisLabel" value="Revenue ($)">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="borderWidth">Border Width</label>
+                        <select id="borderWidth">
+                            <option value="0">0px</option>
+                            <option value="1" selected>1px</option>
+                            <option value="2">2px</option>
+                            <option value="3">3px</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="generate-btn" id="generateChart">Generate Chart</button>
+                    <button class="export-btn" id="exportChart">Export as Image</button>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <h2 class="section-title">Chart Preview</h2>
+                <canvas id="chartCanvas"></canvas>
+                <div class="sample-data" style="margin-top: 20px;">
+                    <p><strong>Tip:</strong> Customize your chart using the options on the left. Change the chart type, color scheme, labels, and more.</p>
+                    <p>After generating your chart, you can export it as a PNG image by clicking the "Export as Image" button.</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Chart Creator Tool | Made with Chart.js | Data is processed locally and not stored anywhere</p>
+        </footer>
+    </div>
+
+    <script>
+        // Chart variables
+        let myChart = null;
+        const colorSchemes = {
+            scheme1: ['#FF8000', '#FF9A40', '#FFB366', '#FFCD8C', '#FFE6B3', '#FFA500', '#FF8C00', '#FF7000'],
+            scheme2: ['#4285F4', '#34A853', '#FBBC05', '#EA4335', '#8F44AD', '#24C1E0', '#F6821F', '#B3B3B3'],
+            scheme3: ['#EA4335', '#FBBC05', '#34A853', '#4285F4', '#8F44AD', '#24C1E0', '#F6821F', '#B3B3B3'],
+            scheme4: ['#6A11CB', '#2575FC', '#7F00FF', '#3498DB', '#2ECC71', '#F1C40F', '#E74C3C', '#9B59B6']
+        };
+        
+        // DOM Elements
+        const dataInput = document.getElementById('dataInput');
+        const chartTypeButtons = document.querySelectorAll('.chart-type-btn');
+        const colorSchemeButtons = document.querySelectorAll('.color-scheme');
+        const generateButton = document.getElementById('generateChart');
+        const exportButton = document.getElementById('exportChart');
+        const chartTitleInput = document.getElementById('chartTitle');
+        const xAxisLabelInput = document.getElementById('xAxisLabel');
+        const yAxisLabelInput = document.getElementById('yAxisLabel');
+        const borderWidthSelect = document.getElementById('borderWidth');
+        
+        // Initialize with default chart
+        document.addEventListener('DOMContentLoaded', function() {
+            parseDataAndGenerateChart();
+            
+            // Chart type selection
+            chartTypeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    chartTypeButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    parseDataAndGenerateChart();
+                });
+            });
+            
+            // Color scheme selection
+            colorSchemeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    colorSchemeButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    parseDataAndGenerateChart();
+                });
+            });
+            
+            // Generate chart button
+            generateButton.addEventListener('click', parseDataAndGenerateChart);
+            
+            // Export chart button
+            exportButton.addEventListener('click', exportChartAsImage);
+            
+            // Update chart when customization options change
+            chartTitleInput.addEventListener('input', parseDataAndGenerateChart);
+            xAxisLabelInput.addEventListener('input', parseDataAndGenerateChart);
+            yAxisLabelInput.addEventListener('input', parseDataAndGenerateChart);
+            borderWidthSelect.addEventListener('change', parseDataAndGenerateChart);
+        });
+        
+        // Parse data from textarea and generate chart
+        function parseDataAndGenerateChart() {
+            const dataText = dataInput.value.trim();
+            const lines = dataText.split('\n');
+            const labels = [];
+            const dataValues = [];
+            
+            lines.forEach(line => {
+                line = line.trim();
+                if (line) {
+                    // Handle both "Label:Value" and "Label,Value" formats
+                    const separator = line.includes(':') ? ':' : ',';
+                    const parts = line.split(separator);
+                    
+                    if (parts.length >= 2) {
+                        const label = parts[0].trim();
+                        const value = parseFloat(parts[1].trim());
+                        
+                        if (!isNaN(value)) {
+                            labels.push(label);
+                            dataValues.push(value);
+                        }
+                    }
+                }
+            });
+            
+            // If no valid data, use sample data
+            if (labels.length === 0) {
+                labels.push('Sample 1', 'Sample 2', 'Sample 3', 'Sample 4');
+                dataValues.push(30, 50, 20, 80);
+            }
+            
+            generateChart(labels, dataValues);
+        }
+        
+        // Generate the chart with the given data
+        function generateChart(labels, data) {
+            const canvas = document.getElementById('chartCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Destroy previous chart if exists
+            if (myChart) {
+                myChart.destroy();
+            }
+            
+            // Get selected chart type
+            const selectedChartType = document.querySelector('.chart-type-btn.active').dataset.type;
+            
+            // Get selected color scheme
+            const selectedColorScheme = document.querySelector('.color-scheme.active').dataset.scheme;
+            const colors = colorSchemes[selectedColorScheme];
+            
+            // Prepare dataset colors
+            let backgroundColor, borderColor;
+            
+            if (selectedChartType === 'pie') {
+                backgroundColor = colors.slice(0, labels.length);
+                borderColor = backgroundColor.map(color => color.replace('0.8', '1'));
+            } else {
+                backgroundColor = colors[0].replace(')', ', 0.7)').replace('rgb', 'rgba');
+                borderColor = colors[0];
+            }
+            
+            // Chart configuration
+            const config = {
+                type: selectedChartType,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: yAxisLabelInput.value || 'Values',
+                        data: data,
+                        backgroundColor: selectedChartType === 'pie' ? 
+                            backgroundColor : 
+                            backgroundColor,
+                        borderColor: borderColor,
+                        borderWidth: parseInt(borderWidthSelect.value),
+                        tension: selectedChartType === 'line' ? 0.4 : 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#fff',
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: chartTitleInput.value || 'Chart Title',
+                            color: '#ff8000',
+                            font: {
+                                size: 20,
+                                weight: 'bold'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#ff8000',
+                            bodyColor: '#fff',
+                            borderColor: '#ff8000',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: selectedChartType !== 'pie' ? {
+                        x: {
+                            title: {
+                                display: true,
+                                text: xAxisLabelInput.value || 'X-Axis',
+                                color: '#fff',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                color: '#ddd'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: yAxisLabelInput.value || 'Y-Axis',
+                                color: '#fff',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                color: '#ddd'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    } : {}
+                }
+            };
+            
+            // Create the chart
+            myChart = new Chart(ctx, config);
+        }
+        
+        // Export chart as PNG image
+        function exportChartAsImage() {
+            if (!myChart) return;
+            
+            const canvas = document.getElementById('chartCanvas');
+            const link = document.createElement('a');
+            link.download = 'chart-export.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // FontAwesome icon fallback if CDN is not available
+        if (!document.querySelector('link[href*="font-awesome"]') && !document.querySelector('link[href*="fontawesome"]')) {
+            const style = document.createElement('style');
+            style.innerHTML = `
+                .fa-arrow-left:before { content: "← "; }
+            `;
+            document.head.appendChild(style);
+        }
+    </script>
+</body>
+</html>

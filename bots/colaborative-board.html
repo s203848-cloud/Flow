@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Collaborative Whiteboard - Real-time Drawing</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-3px);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .header h1 {
+            color: #ff8000;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        .header p {
+            color: #aaa;
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .whiteboard-container {
+            display: flex;
+            gap: 20px;
+            height: 75vh;
+        }
+        
+        .tools-panel {
+            width: 280px;
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #333;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tools-title {
+            color: #ff8000;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .tool-section {
+            margin-bottom: 25px;
+        }
+        
+        .tool-section h3 {
+            margin-bottom: 12px;
+            color: #ccc;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .tool-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .tool-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #444;
+            border-radius: 5px;
+            color: #ddd;
+            cursor: pointer;
+            padding: 12px 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+        
+        .tool-btn i {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .tool-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #666;
+        }
+        
+        .tool-btn.active {
+            background: rgba(255, 128, 0, 0.2);
+            border-color: #ff8000;
+            color: #ff8000;
+        }
+        
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .color-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .color-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-btn.active {
+            border-color: white;
+            transform: scale(1.1);
+        }
+        
+        .brush-size-container {
+            margin-bottom: 20px;
+        }
+        
+        .brush-size-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .brush-size-slider {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        .brush-size-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff8000;
+            cursor: pointer;
+        }
+        
+        .brush-size-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff8000;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .brush-preview {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .preview-circle {
+            border-radius: 50%;
+            background: currentColor;
+            transition: all 0.2s ease;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: auto;
+        }
+        
+        .action-btn {
+            padding: 12px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .action-btn.clear {
+            background: rgba(255, 0, 0, 0.2);
+            border-color: #ff3333;
+            color: #ff6666;
+        }
+        
+        .action-btn.clear:hover {
+            background: rgba(255, 0, 0, 0.3);
+        }
+        
+        .action-btn.undo-redo {
+            background: rgba(0, 150, 255, 0.2);
+            border-color: #0096ff;
+            color: #66b8ff;
+        }
+        
+        .action-btn.undo-redo:hover {
+            background: rgba(0, 150, 255, 0.3);
+        }
+        
+        .whiteboard-wrapper {
+            flex: 1;
+            background: rgba(10, 10, 26, 0.8);
+            border-radius: 8px;
+            border: 1px solid #333;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .whiteboard-header {
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+        
+        .whiteboard-title {
+            color: #ff8000;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 150, 255, 0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 150, 255, 0.5);
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #0f0;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        #whiteboard {
+            width: 100%;
+            height: calc(100% - 60px);
+            cursor: crosshair;
+            display: block;
+        }
+        
+        .users-panel {
+            margin-top: 20px;
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #333;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .users-title {
+            color: #ff8000;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .users-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            border-left: 4px solid;
+            min-width: 180px;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #000;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
+            font-weight: 500;
+        }
+        
+        .user-status {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 128, 0, 0.2);
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .instructions {
+            background: rgba(255, 128, 0, 0.1);
+            border: 1px solid rgba(255, 128, 0, 0.3);
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.95rem;
+        }
+        
+        .instructions h3 {
+            color: #ff8000;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            color: #ccc;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 1024px) {
+            .whiteboard-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .tools-panel {
+                width: 100%;
+                order: 2;
+                margin-top: 20px;
+            }
+            
+            .whiteboard-wrapper {
+                min-height: 500px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .tool-buttons {
+                grid-template-columns: repeat(6, 1fr);
+            }
+            
+            .color-palette {
+                grid-template-columns: repeat(8, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+            <div class="logo">
+                <i class="fas fa-draw-polygon" style="color: #ff8000;"></i>
+                <span style="margin-left: 8px; font-weight: 600;">Collaborative Whiteboard</span>
+            </div>
+        </div>
+        
+        <div class="header">
+            <h1>Real-time Collaborative Whiteboard</h1>
+            <p>Draw, plan, and brainstorm together in real-time. Multiple users can collaborate simultaneously.</p>
+        </div>
+        
+        <div class="whiteboard-container">
+            <div class="tools-panel">
+                <div class="tools-title">
+                    <i class="fas fa-paint-brush"></i> Drawing Tools
+                </div>
+                
+                <div class="tool-section">
+                    <h3>Tools</h3>
+                    <div class="tool-buttons">
+                        <button class="tool-btn active" id="pen-tool" title="Pen">
+                            <i class="fas fa-pen"></i>
+                            <span>Pen</span>
+                        </button>
+                        <button class="tool-btn" id="eraser-tool" title="Eraser">
+                            <i class="fas fa-eraser"></i>
+                            <span>Eraser</span>
+                        </button>
+                        <button class="tool-btn" id="line-tool" title="Line">
+                            <i class="fas fa-slash"></i>
+                            <span>Line</span>
+                        </button>
+                        <button class="tool-btn" id="rect-tool" title="Rectangle">
+                            <i class="fas fa-square"></i>
+                            <span>Rectangle</span>
+                        </button>
+                        <button class="tool-btn" id="circle-tool" title="Circle">
+                            <i class="fas fa-circle"></i>
+                            <span>Circle</span>
+                        </button>
+                        <button class="tool-btn" id="text-tool" title="Text">
+                            <i class="fas fa-font"></i>
+                            <span>Text</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-section">
+                    <h3>Colors</h3>
+                    <div class="color-palette" id="color-palette">
+                        <!-- Colors will be added dynamically -->
+                    </div>
+                </div>
+                
+                <div class="tool-section">
+                    <div class="brush-size-container">
+                        <div class="brush-size-label">
+                            <span>Brush Size</span>
+                            <span id="brush-size-value">5px</span>
+                        </div>
+                        <input type="range" min="1" max="50" value="5" class="brush-size-slider" id="brush-size-slider">
+                        <div class="brush-preview">
+                            <div class="preview-circle" id="brush-preview"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="action-btn undo-redo" id="undo-btn">
+                        <i class="fas fa-undo"></i> Undo
+                    </button>
+                    <button class="action-btn undo-redo" id="redo-btn">
+                        <i class="fas fa-redo"></i> Redo
+                    </button>
+                    <button class="action-btn" id="clear-btn">
+                        <i class="fas fa-trash-alt"></i> Clear Whiteboard
+                    </button>
+                    <button class="action-btn" id="save-btn">
+                        <i class="fas fa-download"></i> Save Image
+                    </button>
+                </div>
+            </div>
+            
+            <div class="whiteboard-wrapper">
+                <div class="whiteboard-header">
+                    <div class="whiteboard-title">
+                        <i class="fas fa-chalkboard"></i> Collaborative Drawing Board
+                    </div>
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        <span>Live - Syncing drawings in real-time</span>
+                    </div>
+                </div>
+                <canvas id="whiteboard"></canvas>
+            </div>
+        </div>
+        
+        <div class="users-panel">
+            <div class="users-title">
+                <i class="fas fa-users"></i> Active Collaborators
+            </div>
+            <div class="users-list" id="users-list">
+                <!-- Users will be dynamically added here -->
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> How to use the collaborative whiteboard:</h3>
+            <ul>
+                <li>Select a tool from the toolbar (pen, eraser, shapes, etc.)</li>
+                <li>Choose a color from the palette</li>
+                <li>Adjust brush size using the slider</li>
+                <li>Draw on the canvas by clicking and dragging</li>
+                <li>Open this page in another browser tab to see real-time collaboration</li>
+                <li>Use "Undo" to revert your last action</li>
+                <li>Click "Save Image" to download your drawing</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p><i class="fas fa-lightbulb"></i> This collaborative whiteboard uses localStorage to simulate real-time updates across tabs. Open multiple tabs to see collaboration in action.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Generate a random user for this session
+            const userId = 'user_' + Math.floor(Math.random() * 10000);
+            const userColors = ['#ff8000', '#0096ff', '#00cc66', '#cc66ff', '#ffcc00', '#ff3366', '#33ccff', '#ff9933'];
+            const userColor = userColors[Math.floor(Math.random() * userColors.length)];
+            const userNames = ['Alex Designer', 'Taylor Artist', 'Jordan Planner', 'Casey Illustrator', 'Riley Sketcher', 'Morgan Creator'];
+            const userName = userNames[Math.floor(Math.random() * userNames.length)];
+            
+            // Canvas setup
+            const canvas = document.getElementById('whiteboard');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas dimensions
+            function resizeCanvas() {
+                const container = canvas.parentElement;
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight - 60; // Subtract header height
+                redrawCanvas();
+            }
+            
+            // Drawing state
+            let drawing = false;
+            let currentTool = 'pen';
+            let currentColor = '#ff8000';
+            let brushSize = 5;
+            let lastX = 0;
+            let lastY = 0;
+            let startX = 0;
+            let startY = 0;
+            
+            // Drawing history for undo/redo
+            let drawingHistory = [];
+            let historyIndex = -1;
+            
+            // Users list
+            const usersList = document.getElementById('users-list');
+            
+            // Available colors
+            const colors = [
+                '#ff8000', '#ffffff', '#000000', '#ff3333', '#33ff33', '#3366ff', 
+                '#ff33ff', '#ffff33', '#33ffff', '#666666', '#996633', '#663399',
+                '#ff6666', '#66ff66', '#6666ff', '#ff66ff', '#ffff66', '#66ffff'
+            ];
+            
+            // Initialize color palette
+            const colorPalette = document.getElementById('color-palette');
+            colors.forEach(color => {
+                const colorBtn = document.createElement('div');
+                colorBtn.className = 'color-btn';
+                colorBtn.style.backgroundColor = color;
+                colorBtn.dataset.color = color;
+                
+                if (color === '#ff8000') {
+                    colorBtn.classList.add('active');
+                }
+                
+                colorBtn.addEventListener('click', function() {
+                    document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    currentColor = this.dataset.color;
+                    updateBrushPreview();
+                });
+                
+                colorPalette.appendChild(colorBtn);
+            });
+            
+            // Initialize brush preview
+            const brushPreview = document.getElementById('brush-preview');
+            const brushSizeValue = document.getElementById('brush-size-value');
+            const brushSizeSlider = document.getElementById('brush-size-slider');
+            
+            function updateBrushPreview() {
+                brushPreview.style.width = `${brushSize}px`;
+                brushPreview.style.height = `${brushSize}px`;
+                brushPreview.style.color = currentTool === 'eraser' ? '#0a0a1a' : currentColor;
+                brushSizeValue.textContent = `${brushSize}px`;
+            }
+            
+            brushSizeSlider.addEventListener('input', function() {
+                brushSize = parseInt(this.value);
+                updateBrushPreview();
+            });
+            
+            // Tool buttons
+            const toolButtons = document.querySelectorAll('.tool-btn');
+            toolButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    toolButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    currentTool = this.id.replace('-tool', '');
+                    updateBrushPreview();
+                });
+            });
+            
+            // Action buttons
+            document.getElementById('undo-btn').addEventListener('click', undo);
+            document.getElementById('redo-btn').addEventListener('click', redo);
+            document.getElementById('clear-btn').addEventListener('click', clearCanvas);
+            document.getElementById('save-btn').addEventListener('click', saveImage);
+            
+            // Save current drawing state to history
+            function saveState() {
+                // Remove any future states if we're in the middle of undo/redo
+                if (historyIndex < drawingHistory.length - 1) {
+                    drawingHistory = drawingHistory.slice(0, historyIndex + 1);
+                }
+                
+                // Save current canvas state
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                drawingHistory.push(imageData);
+                historyIndex++;
+                
+                // Limit history size
+                if (drawingHistory.length > 20) {
+                    drawingHistory.shift();
+                    historyIndex--;
+                }
+                
+                // Sync to localStorage for collaboration
+                syncDrawing();
+            }
+            
+            // Undo last action
+            function undo() {
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    const imageData = drawingHistory[historyIndex];
+                    ctx.putImageData(imageData, 0, 0);
+                    syncDrawing();
+                }
+            }
+            
+            // Redo last undone action
+            function redo() {
+                if (historyIndex < drawingHistory.length - 1) {
+                    historyIndex++;
+                    const imageData = drawingHistory[historyIndex];
+                    ctx.putImageData(imageData, 0, 0);
+                    syncDrawing();
+                }
+            }
+            
+            // Clear the canvas
+            function clearCanvas() {
+                if (confirm('Are you sure you want to clear the whiteboard? This will clear for all users.')) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    saveState();
+                }
+            }
+            
+            // Save canvas as image
+            function saveImage() {
+                const link = document.createElement('a');
+                link.download = 'collaborative-whiteboard.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }
+            
+            // Redraw the entire canvas from saved state
+            function redrawCanvas() {
+                if (drawingHistory.length > 0 && historyIndex >= 0) {
+                    const imageData = drawingHistory[historyIndex];
+                    ctx.putImageData(imageData, 0, 0);
+                } else {
+                    // Draw grid background
+                    drawGrid();
+                }
+            }
+            
+            // Draw grid background
+            function drawGrid() {
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+                ctx.lineWidth = 1;
+                
+                // Vertical lines
+                for (let x = 0; x < canvas.width; x += 20) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+                
+                // Horizontal lines
+                for (let y = 0; y < canvas.height; y += 20) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+            }
+            
+            // Drawing functions
+            function startDrawing(e) {
+                drawing = true;
+                const pos = getMousePos(canvas, e);
+                [lastX, lastY] = [pos.x, pos.y];
+                [startX, startY] = [pos.x, pos.y];
+                
+                // For text tool
+                if (currentTool === 'text') {
+                    const text = prompt('Enter text:', 'Sample text');
+                    if (text) {
+                        ctx.fillStyle = currentColor;
+                        ctx.font = `${brushSize * 4}px Arial`;
+                        ctx.fillText(text, pos.x, pos.y);
+                        saveState();
+                    }
+                    drawing = false;
+                }
+            }
+            
+            function draw(e) {
+                if (!drawing) return;
+                
+                const pos = getMousePos(canvas, e);
+                
+                ctx.lineWidth = brushSize;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                
+                if (currentTool === 'pen') {
+                    ctx.strokeStyle = currentColor;
+                    ctx.globalCompositeOperation = 'source-over';
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(lastX, lastY);
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.stroke();
+                    
+                    [lastX, lastY] = [pos.x, pos.y];
+                } 
+                else if (currentTool === 'eraser') {
+                    ctx.strokeStyle = '#0a0a1a'; // Match background
+                    ctx.globalCompositeOperation = 'destination-out';
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(lastX, lastY);
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.stroke();
+                    
+                    [lastX, lastY] = [pos.x, pos.y];
+                }
+                else if (currentTool === 'line' || currentTool === 'rect' || currentTool === 'circle') {
+                    // For shapes, we draw temporarily during mouse move
+                    // The final shape is drawn on mouse up
+                    redrawCanvas(); // Clear temporary drawings
+                    
+                    ctx.strokeStyle = currentColor;
+                    ctx.fillStyle = currentColor.replace(')', ', 0.2)').replace('rgb', 'rgba');
+                    ctx.globalCompositeOperation = 'source-over';
+                    
+                    ctx.beginPath();
+                    
+                    if (currentTool === 'line') {
+                        ctx.moveTo(startX, startY);
+                        ctx.lineTo(pos.x, pos.y);
+                        ctx.stroke();
+                    } 
+                    else if (currentTool === 'rect') {
+                        const width = pos.x - startX;
+                        const height = pos.y - startY;
+                        ctx.rect(startX, startY, width, height);
+                        ctx.fill();
+                        ctx.stroke();
+                    }
+                    else if (currentTool === 'circle') {
+                        const radius = Math.sqrt(Math.pow(pos.x - startX, 2) + Math.pow(pos.y - startY, 2));
+                        ctx.arc(startX, startY, radius, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+                    }
+                }
+            }
+            
+            function stopDrawing() {
+                if (!drawing) return;
+                
+                drawing = false;
+                
+                // For shape tools, save the final shape
+                if (currentTool === 'line' || currentTool === 'rect' || currentTool === 'circle') {
+                    saveState();
+                } 
+                else if (currentTool === 'pen' || currentTool === 'eraser') {
+                    saveState();
+                }
+                
+                // Reset composite operation
+                ctx.globalCompositeOperation = 'source-over';
+            }
+            
+            // Get mouse position relative to canvas
+            function getMousePos(canvas, e) {
+                const rect = canvas.getBoundingClientRect();
+                let clientX, clientY;
+                
+                if (e.type.includes('touch')) {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                }
+                
+                return {
+                    x: clientX - rect.left,
+                    y: clientY - rect.top
+                };
+            }
+            
+            // Add user to sidebar
+            function addUserToList(id, name, color, isCurrentUser = false) {
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                userItem.style.borderLeftColor = color;
+                
+                const avatar = document.createElement('div');
+                avatar.className = 'user-avatar';
+                avatar.style.backgroundColor = color;
+                avatar.textContent = name.charAt(0);
+                
+                const userInfo = document.createElement('div');
+                userInfo.className = 'user-info';
+                userInfo.innerHTML = `
+                    <div class="user-name">${name} ${isCurrentUser ? '(You)' : ''}</div>
+                    <div class="user-status">${isCurrentUser ? 'Drawing now' : 'Active'}</div>
+                `;
+                
+                userItem.appendChild(avatar);
+                userItem.appendChild(userInfo);
+                usersList.appendChild(userItem);
+            }
+            
+            // Clear user list and add current user
+            function refreshUserList() {
+                usersList.innerHTML = '';
+                addUserToList(userId, userName, userColor, true);
+                
+                // Check for other users in localStorage
+                const users = JSON.parse(localStorage.getItem('collab-whiteboard-users') || '{}');
+                const now = Date.now();
+                
+                for (const [id, userData] of Object.entries(users)) {
+                    // Only show users active in the last 10 seconds
+                    if (id !== userId && now - userData.timestamp < 10000) {
+                        addUserToList(id, userData.name, userData.color);
+                    }
+                }
+            }
+            
+            // Save user activity
+            function updateUserActivity() {
+                const users = JSON.parse(localStorage.getItem('collab-whiteboard-users') || '{}');
+                users[userId] = {
+                    name: userName,
+                    color: userColor,
+                    timestamp: Date.now()
+                };
+                
+                // Remove inactive users (older than 10 seconds)
+                for (const [id, userData] of Object.entries(users)) {
+                    if (Date.now() - userData.timestamp > 10000) {
+                        delete users[id];
+                    }
+                }
+                
+                localStorage.setItem('collab-whiteboard-users', JSON.stringify(users));
+                localStorage.setItem('collab-whiteboard-user-update', Date.now().toString());
+            }
+            
+            // Sync drawing to localStorage for collaboration
+            function syncDrawing() {
+                const imageData = canvas.toDataURL('image/png');
+                localStorage.setItem('collab-whiteboard-image', imageData);
+                localStorage.setItem('collab-whiteboard-update', Date.now().toString());
+            }
+            
+            // Load drawing from localStorage
+            function loadDrawing() {
+                const savedImage = localStorage.getItem('collab-whiteboard-image');
+                if (savedImage) {
+                    const img = new Image();
+                    img.onload = function() {
+                        ctx.drawImage(img, 0, 0);
+                        // Save to history
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        drawingHistory = [imageData];
+                        historyIndex = 0;
+                    };
+                    img.src = savedImage;
+                } else {
+                    drawGrid();
+                    saveState();
+                }
+            }
+            
+            // Simulate other users for demo purposes
+            function simulateOtherUsers() {
+                const now = Date.now();
+                const users = JSON.parse(localStorage.getItem('collab-whiteboard-users') || '{}');
+                
+                // Add a simulated user if none exist (for demo purposes)
+                if (Object.keys(users).length <= 1) {
+                    const demoUserId = 'demo_user_456';
+                    const demoColors = userColors.filter(c => c !== userColor);
+                    const demoColor = demoColors[Math.floor(Math.random() * demoColors.length)];
+                    const demoName = userNames.find(name => name !== userName) || 'Demo User';
+                    
+                    users[demoUserId] = {
+                        name: demoName,
+                        color: demoColor,
+                        timestamp: now - 5000 // 5 seconds ago
+                    };
+                    
+                    localStorage.setItem('collab-whiteboard-users', JSON.stringify(users));
+                    localStorage.setItem('collab-whiteboard-user-update', now.toString());
+                    refreshUserList();
+                }
+            }
+            
+            // Event Listeners
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // Touch events for mobile devices
+            canvas.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                startDrawing(e);
+            });
+            canvas.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                draw(e);
+            });
+            canvas.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                stopDrawing();
+            });
+            
+            // Listen for storage events (other tabs updating)
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'collab-whiteboard-image') {
+                    const img = new Image();
+                    img.onload = function() {
+                        ctx.drawImage(img, 0, 0);
+                        // Update history
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        drawingHistory.push(imageData);
+                        historyIndex++;
+                    };
+                    img.src = e.newValue;
+                }
+                
+                if (e.key === 'collab-whiteboard-user-update') {
+                    refreshUserList();
+                }
+            });
+            
+            // Initialize
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            loadDrawing();
+            refreshUserList();
+            updateBrushPreview();
+            simulateOtherUsers();
+            
+            // Update user activity every 3 seconds
+            setInterval(updateUserActivity, 3000);
+            
+            // Refresh user list every 5 seconds
+            setInterval(refreshUserList, 5000);
+        });
+    </script>
+</body>
+</html>

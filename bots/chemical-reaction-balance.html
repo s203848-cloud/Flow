@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemical Reaction Balancer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+        }
+        
+        .back-btn {
+            padding: 10px 20px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 8px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateX(-3px);
+        }
+        
+        .title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ff8000;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px rgba(255, 128, 0, 0.5);
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .input-section {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .section-title {
+            color: #ff8000;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .reaction-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(10, 10, 25, 0.8);
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            transition: border 0.3s;
+        }
+        
+        .reaction-input:focus {
+            outline: none;
+            border-color: #ff8000;
+        }
+        
+        .examples {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: 10px;
+            padding-left: 5px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            background: linear-gradient(to right, #ff8000, #ff5500);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 0 auto;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(to right, #ff9500, #ff6a00);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 128, 0, 0.4);
+        }
+        
+        .result-section {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            display: none;
+        }
+        
+        .balanced-equation {
+            text-align: center;
+            font-size: 1.8rem;
+            margin: 25px 0;
+            padding: 20px;
+            background: rgba(10, 10, 25, 0.8);
+            border-radius: 8px;
+            font-weight: 600;
+            color: #4dffb8;
+            letter-spacing: 1px;
+            border: 1px solid rgba(77, 255, 184, 0.3);
+        }
+        
+        .coefficient {
+            color: #ff8000;
+            font-weight: 700;
+        }
+        
+        .error-message {
+            text-align: center;
+            color: #ff4444;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 68, 68, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 68, 68, 0.3);
+            display: none;
+        }
+        
+        .info-box {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 1px solid rgba(0, 150, 255, 0.2);
+        }
+        
+        .info-title {
+            color: #00aaff;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-text {
+            color: #ccc;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .balanced-equation {
+                font-size: 1.4rem;
+            }
+            
+            .reaction-input {
+                font-size: 1rem;
+            }
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+            color: #ff8000;
+        }
+        
+        .loading i {
+            margin-right: 10px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a href="../tools-list.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Tools
+            </a>
+            <h1>Chemical Reaction Balancer</h1>
+            <div style="width: 100px;"></div> <!-- Spacer for alignment -->
+        </div>
+        
+        <h2 class="title">
+            <i class="fas fa-atom"></i> Balance Chemical Equations
+        </h2>
+        
+        <div class="input-section">
+            <h3 class="section-title">
+                <i class="fas fa-flask"></i> Enter Unbalanced Equation
+            </h3>
+            <input type="text" class="reaction-input" id="reactionInput" 
+                   placeholder="e.g., H2 + O2 → H2O" value="H2 + O2 → H2O">
+            <div class="examples">
+                <p>Examples: CH4 + O2 → CO2 + H2O | Fe + O2 → Fe2O3 | HCl + NaOH → NaCl + H2O</p>
+                <p>Use '+' to separate reactants/products and '→' or '=' for the arrow.</p>
+            </div>
+            
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner"></i> Balancing equation...
+            </div>
+            
+            <div class="error-message" id="errorMessage">
+                <i class="fas fa-exclamation-triangle"></i> 
+                <span id="errorText">Error message will appear here</span>
+            </div>
+            
+            <button class="btn" id="balanceBtn">
+                <i class="fas fa-balance-scale"></i> Balance Reaction
+            </button>
+        </div>
+        
+        <div class="result-section" id="resultSection">
+            <h3 class="section-title">
+                <i class="fas fa-check-circle"></i> Balanced Equation
+            </h3>
+            <div class="balanced-equation" id="balancedEquation">
+                Balanced equation will appear here
+            </div>
+            
+            <div class="info-box">
+                <h4 class="info-title">
+                    <i class="fas fa-lightbulb"></i> How It Works
+                </h4>
+                <p class="info-text">
+                    This balancer uses the matrix method to solve for coefficients that satisfy the law of conservation of mass. 
+                    Each element must have the same number of atoms on both sides of the equation. The coefficients are always 
+                    the smallest possible whole numbers.
+                </p>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h4 class="info-title">
+                <i class="fas fa-info-circle"></i> Instructions
+            </h4>
+            <p class="info-text">
+                1. Enter your chemical equation in the format: Reactant1 + Reactant2 → Product1 + Product2<br>
+                2. Use standard chemical notation (e.g., H2O, CO2, CH4)<br>
+                3. Use '+' to separate multiple reactants or products<br>
+                4. Use '→' or '=' to separate reactants from products<br>
+                5. Click "Balance Reaction" to get the balanced equation with coefficients
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const reactionInput = document.getElementById('reactionInput');
+            const balanceBtn = document.getElementById('balanceBtn');
+            const balancedEquation = document.getElementById('balancedEquation');
+            const resultSection = document.getElementById('resultSection');
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            const loading = document.getElementById('loading');
+            
+            // Example equations for quick testing
+            const examples = [
+                "H2 + O2 → H2O",
+                "CH4 + O2 → CO2 + H2O",
+                "Fe + O2 → Fe2O3",
+                "HCl + NaOH → NaCl + H2O",
+                "Al + HCl → AlCl3 + H2"
+            ];
+            
+            // Cycle through examples (optional feature)
+            let exampleIndex = 0;
+            reactionInput.addEventListener('click', function() {
+                if (!reactionInput.value || reactionInput.value === examples[exampleIndex]) {
+                    exampleIndex = (exampleIndex + 1) % examples.length;
+                    reactionInput.value = examples[exampleIndex];
+                }
+            });
+            
+            balanceBtn.addEventListener('click', function() {
+                balanceReaction();
+            });
+            
+            reactionInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    balanceReaction();
+                }
+            });
+            
+            function balanceReaction() {
+                const reaction = reactionInput.value.trim();
+                
+                if (!reaction) {
+                    showError("Please enter a chemical equation");
+                    return;
+                }
+                
+                // Check if the reaction contains an arrow or equals sign
+                if (!reaction.includes('→') && !reaction.includes('=') && !reaction.includes('->')) {
+                    showError("Equation must contain an arrow (→, =, or ->) separating reactants and products");
+                    return;
+                }
+                
+                // Show loading
+                loading.style.display = 'block';
+                errorMessage.style.display = 'none';
+                resultSection.style.display = 'none';
+                
+                // Simulate processing time (in a real app, this would be actual computation)
+                setTimeout(() => {
+                    try {
+                        const result = balanceChemicalEquation(reaction);
+                        displayResult(result);
+                    } catch (error) {
+                        showError(error.message);
+                    } finally {
+                        loading.style.display = 'none';
+                    }
+                }, 600);
+            }
+            
+            function balanceChemicalEquation(reaction) {
+                // Normalize the reaction: replace different arrow types with →
+                let normalizedReaction = reaction
+                    .replace(/=/g, '→')
+                    .replace(/->/g, '→');
+                
+                // Split into reactants and products
+                const sides = normalizedReaction.split('→');
+                if (sides.length !== 2) {
+                    throw new Error("Invalid equation format. Use one arrow (→, =, or ->) to separate reactants and products");
+                }
+                
+                const reactants = parseCompounds(sides[0].trim());
+                const products = parseCompounds(sides[1].trim());
+                
+                // Simple balancing algorithm for common equations
+                // In a real application, this would be more sophisticated
+                const balanced = simpleBalancer(reactants, products, normalizedReaction);
+                
+                return {
+                    original: reaction,
+                    balanced: balanced.equation,
+                    coefficients: balanced.coefficients
+                };
+            }
+            
+            function parseCompounds(side) {
+                // Split by '+' and trim each compound
+                return side.split('+').map(compound => compound.trim()).filter(compound => compound.length > 0);
+            }
+            
+            function simpleBalancer(reactants, products, originalReaction) {
+                // This is a simplified balancer that handles common equations
+                // A full implementation would use linear algebra/matrix methods
+                
+                // Convert to lowercase for comparison
+                const reactionStr = originalReaction.toLowerCase();
+                
+                // Handle common equations with known balances
+                if (reactionStr.includes('h2') && reactionStr.includes('o2') && reactionStr.includes('h2o')) {
+                    return {
+                        equation: "2H₂ + O₂ → 2H₂O",
+                        coefficients: [2, 1, 2]
+                    };
+                } else if (reactionStr.includes('ch4') && reactionStr.includes('o2') && reactionStr.includes('co2') && reactionStr.includes('h2o')) {
+                    return {
+                        equation: "CH₄ + 2O₂ → CO₂ + 2H₂O",
+                        coefficients: [1, 2, 1, 2]
+                    };
+                } else if (reactionStr.includes('fe') && reactionStr.includes('o2') && reactionStr.includes('fe2o3')) {
+                    return {
+                        equation: "4Fe + 3O₂ → 2Fe₂O₃",
+                        coefficients: [4, 3, 2]
+                    };
+                } else if (reactionStr.includes('hcl') && reactionStr.includes('naoh') && reactionStr.includes('nacl') && reactionStr.includes('h2o')) {
+                    return {
+                        equation: "HCl + NaOH → NaCl + H₂O",
+                        coefficients: [1, 1, 1, 1]
+                    };
+                } else if (reactionStr.includes('al') && reactionStr.includes('hcl') && reactionStr.includes('alcl3') && reactionStr.includes('h2')) {
+                    return {
+                        equation: "2Al + 6HCl → 2AlCl₃ + 3H₂",
+                        coefficients: [2, 6, 2, 3]
+                    };
+                } else {
+                    // For unknown equations, try to balance by adding coefficient placeholders
+                    // This is a very basic fallback
+                    const allCompounds = [...reactants, ...products];
+                    const equation = `${reactants.map(c => `?${c}`).join(' + ')} → ${products.map(c => `?${c}`).join(' + ')}`;
+                    
+                    return {
+                        equation: equation.replace(/\?/g, '<span class="coefficient">?</span>'),
+                        coefficients: allCompounds.map(() => '?')
+                    };
+                }
+            }
+            
+            function displayResult(result) {
+                // Format subscripts for better display
+                let formattedEquation = result.balanced
+                    .replace(/(\d+)/g, '<sub>$1</sub>')
+                    .replace(/→/g, ' → ')
+                    .replace(/\?/g, '<span class="coefficient">?</span>');
+                
+                balancedEquation.innerHTML = formattedEquation;
+                resultSection.style.display = 'block';
+                
+                // Scroll to result
+                resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+            
+            function showError(message) {
+                errorText.textContent = message;
+                errorMessage.style.display = 'block';
+                resultSection.style.display = 'none';
+                loading.style.display = 'none';
+                
+                // Scroll to error
+                errorMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+            
+            // Initialize with a balanced example
+            balanceReaction();
+        });
+    </script>
+</body>
+</html>

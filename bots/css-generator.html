@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Generator - Visual Controls</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a0a2e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .back-btn {
+            padding: 8px 15px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .header h1 {
+            color: #ff8000;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #ccc;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .generator-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .generator-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .controls-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+        }
+        
+        .preview-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid rgba(255, 128, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .panel-title {
+            color: #ff8000;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 128, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .control-group {
+            margin-bottom: 25px;
+        }
+        
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #ddd;
+        }
+        
+        .control-value {
+            color: #ff8000;
+            font-weight: bold;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        input[type="range"] {
+            flex-grow: 1;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff8000;
+            cursor: pointer;
+        }
+        
+        .color-picker {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        input[type="color"] {
+            width: 60px;
+            height: 40px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: transparent;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #ff8000;
+        }
+        
+        .preview-box {
+            flex-grow: 1;
+            background: #1a1a2e;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .preview-element {
+            width: 200px;
+            height: 150px;
+            background: #ff8000;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 15px;
+            font-weight: bold;
+            color: #fff;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .code-output {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 1px solid rgba(255, 128, 0, 0.2);
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .code-header h3 {
+            color: #ff8000;
+        }
+        
+        #copyBtn {
+            padding: 6px 12px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        #copyBtn:hover {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        
+        #cssCode {
+            width: 100%;
+            height: 150px;
+            background: #0a0a1a;
+            color: #4dff9a;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        
+        .reset-btn {
+            display: block;
+            margin: 20px auto 0;
+            padding: 10px 20px;
+            background: rgba(255, 128, 0, 0.2);
+            border: 1px solid #ff8000;
+            border-radius: 5px;
+            color: #ff8000;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .reset-btn:hover {
+            background: rgba(255, 128, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .highlight {
+            color: #ff8000;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../tools-list.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        
+        <div class="header">
+            <h1><i class="fas fa-palette"></i> Visual CSS Generator</h1>
+            <p>Adjust the controls below to visually create CSS styles. The preview updates in real-time, and the CSS code is automatically generated for you to copy and use in your projects.</p>
+        </div>
+        
+        <div class="generator-container">
+            <div class="controls-panel">
+                <h2 class="panel-title"><i class="fas fa-sliders-h"></i> CSS Controls</h2>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Background Color</span>
+                        <span class="control-value" id="bgColorValue">#ff8000</span>
+                    </div>
+                    <div class="color-picker">
+                        <input type="color" id="bgColor" value="#ff8000">
+                        <span>Click to select a color</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Text Color</span>
+                        <span class="control-value" id="textColorValue">#ffffff</span>
+                    </div>
+                    <div class="color-picker">
+                        <input type="color" id="textColor" value="#ffffff">
+                        <span>Click to select a color</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Width</span>
+                        <span class="control-value" id="widthValue">200px</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" id="width" min="100" max="400" value="200" step="10">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Height</span>
+                        <span class="control-value" id="heightValue">150px</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" id="height" min="80" max="300" value="150" step="10">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Border Radius</span>
+                        <span class="control-value" id="borderRadiusValue">8px</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" id="borderRadius" min="0" max="50" value="8">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Border Width</span>
+                        <span class="control-value" id="borderWidthValue">0px</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" id="borderWidth" min="0" max="20" value="0">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Border Color</span>
+                        <span class="control-value" id="borderColorValue">#000000</span>
+                    </div>
+                    <div class="color-picker">
+                        <input type="color" id="borderColor" value="#000000">
+                        <span>Click to select a color</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Box Shadow</span>
+                        <span class="control-value" id="shadowValue">4px 4px 8px rgba(0,0,0,0.2)</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" id="shadow" min="0" max="20" value="4">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Font Size</span>
+                        <span class="control-value" id="fontSizeValue">16px</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" id="fontSize" min="10" max="36" value="16">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Additional Properties</span>
+                    </div>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="boldText">
+                            <span>Bold Text</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="italicText">
+                            <span>Italic Text</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="textCenter">
+                            <span>Center Text</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="uppercase">
+                            <span>Uppercase</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <button class="reset-btn" id="resetBtn">
+                    <i class="fas fa-redo"></i> Reset All Controls
+                </button>
+            </div>
+            
+            <div class="preview-panel">
+                <h2 class="panel-title"><i class="fas fa-eye"></i> Live Preview</h2>
+                
+                <div class="preview-box">
+                    <div class="preview-element" id="previewElement">
+                        CSS Preview Element<br>
+                        Edit me with the controls!
+                    </div>
+                </div>
+                
+                <p style="text-align: center; color: #aaa; margin-top: 10px; font-style: italic;">
+                    The element above reflects your current CSS settings
+                </p>
+            </div>
+        </div>
+        
+        <div class="code-output">
+            <div class="code-header">
+                <h3><i class="fas fa-code"></i> Generated CSS Code</h3>
+                <button id="copyBtn">Copy to Clipboard</button>
+            </div>
+            <textarea id="cssCode" readonly>/* CSS generated by Visual CSS Generator */
+.preview-element {
+  background-color: #ff8000;
+  color: #ffffff;
+  width: 200px;
+  height: 150px;
+  border-radius: 8px;
+  border-width: 0px;
+  border-color: #000000;
+  border-style: solid;
+  box-shadow: 4px 4px 8px rgba(0,0,0,0.2);
+  font-size: 16px;
+}</textarea>
+        </div>
+        
+        <div class="footer">
+            <p>Visual CSS Generator &copy; 2023 | Use the controls to create custom CSS styles</p>
+            <p>Made with <span class="highlight">HTML, CSS & JavaScript</span> | Color Scheme: <span class="highlight">Dark Blue & Orange</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const previewElement = document.getElementById('previewElement');
+        const cssCode = document.getElementById('cssCode');
+        const copyBtn = document.getElementById('copyBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        
+        // Input controls
+        const bgColor = document.getElementById('bgColor');
+        const textColor = document.getElementById('textColor');
+        const width = document.getElementById('width');
+        const height = document.getElementById('height');
+        const borderRadius = document.getElementById('borderRadius');
+        const borderWidth = document.getElementById('borderWidth');
+        const borderColor = document.getElementById('borderColor');
+        const shadow = document.getElementById('shadow');
+        const fontSize = document.getElementById('fontSize');
+        
+        // Checkboxes
+        const boldText = document.getElementById('boldText');
+        const italicText = document.getElementById('italicText');
+        const textCenter = document.getElementById('textCenter');
+        const uppercase = document.getElementById('uppercase');
+        
+        // Value displays
+        const bgColorValue = document.getElementById('bgColorValue');
+        const textColorValue = document.getElementById('textColorValue');
+        const widthValue = document.getElementById('widthValue');
+        const heightValue = document.getElementById('heightValue');
+        const borderRadiusValue = document.getElementById('borderRadiusValue');
+        const borderWidthValue = document.getElementById('borderWidthValue');
+        const borderColorValue = document.getElementById('borderColorValue');
+        const shadowValue = document.getElementById('shadowValue');
+        const fontSizeValue = document.getElementById('fontSizeValue');
+        
+        // Initialize values
+        updateAllValues();
+        generateCSS();
+        
+        // Event listeners for all controls
+        bgColor.addEventListener('input', () => {
+            updatePreview();
+            updateValueDisplay(bgColorValue, bgColor.value);
+            generateCSS();
+        });
+        
+        textColor.addEventListener('input', () => {
+            updatePreview();
+            updateValueDisplay(textColorValue, textColor.value);
+            generateCSS();
+        });
+        
+        width.addEventListener('input', () => {
+            updatePreview();
+            updateValueDisplay(widthValue, width.value + 'px');
+            generateCSS();
+        });
+        
+        height.addEventListener('input', () => {
+            updatePreview();
+            updateValueDisplay(heightValue, height.value + 'px');
+            generateCSS();
+        });
+        
+        borderRadius.addEventListener('input', () => {
+            updatePreview();
+            updateValueDisplay(borderRadiusValue, borderRadius.value + 'px');
+            generateCSS();
+        });
+        
+        borderWidth.addEventListener('input', () => {
+            updatePreview();
+            updateValueDisplay(borderWidthValue, borderWidth.value + 'px');
+            generateCSS();
+        });
+        
+        borderColor.addEventListener('input', () => {
+            updatePreview();
+            updateValueDisplay(borderColorValue, borderColor.value);
+            generateCSS();
+        });
+        
+        shadow.addEventListener('input', () => {
+            updatePreview();
+            const shadowValueText = `${shadow.value}px ${shadow.value}px ${shadow.value * 2}px rgba(0,0,0,0.2)`;
+            updateValueDisplay(shadowValue, shadowValueText);
+            generateCSS();
+        });
+        
+        fontSize.addEventListener('input', () => {
+            updatePreview();
+            updateValueDisplay(fontSizeValue, fontSize.value + 'px');
+            generateCSS();
+        });
+        
+        // Checkbox event listeners
+        [boldText, italicText, textCenter, uppercase].forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                updatePreview();
+                generateCSS();
+            });
+        });
+        
+        // Copy to clipboard button
+        copyBtn.addEventListener('click', () => {
+            cssCode.select();
+            cssCode.setSelectionRange(0, 99999); // For mobile devices
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    const originalText = copyBtn.textContent;
+                    copyBtn.textContent = 'Copied!';
+                    copyBtn.style.background = 'rgba(0, 255, 0, 0.2)';
+                    copyBtn.style.borderColor = '#00ff00';
+                    copyBtn.style.color = '#00ff00';
+                    
+                    setTimeout(() => {
+                        copyBtn.textContent = originalText;
+                        copyBtn.style.background = 'rgba(255, 128, 0, 0.2)';
+                        copyBtn.style.borderColor = '#ff8000';
+                        copyBtn.style.color = '#ff8000';
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+            }
+        });
+        
+        // Reset button
+        resetBtn.addEventListener('click', () => {
+            // Reset all controls to default values
+            bgColor.value = '#ff8000';
+            textColor.value = '#ffffff';
+            width.value = 200;
+            height.value = 150;
+            borderRadius.value = 8;
+            borderWidth.value = 0;
+            borderColor.value = '#000000';
+            shadow.value = 4;
+            fontSize.value = 16;
+            
+            // Reset checkboxes
+            boldText.checked = false;
+            italicText.checked = false;
+            textCenter.checked = false;
+            uppercase.checked = false;
+            
+            // Update everything
+            updateAllValues();
+            updatePreview();
+            generateCSS();
+            
+            // Show reset confirmation
+            const originalText = resetBtn.innerHTML;
+            resetBtn.innerHTML = '<i class="fas fa-check"></i> Reset Complete!';
+            resetBtn.style.background = 'rgba(0, 255, 0, 0.2)';
+            resetBtn.style.borderColor = '#00ff00';
+            resetBtn.style.color = '#00ff00';
+            
+            setTimeout(() => {
+                resetBtn.innerHTML = originalText;
+                resetBtn.style.background = 'rgba(255, 128, 0, 0.2)';
+                resetBtn.style.borderColor = '#ff8000';
+                resetBtn.style.color = '#ff8000';
+            }, 2000);
+        });
+        
+        // Helper functions
+        function updateAllValues() {
+            updateValueDisplay(bgColorValue, bgColor.value);
+            updateValueDisplay(textColorValue, textColor.value);
+            updateValueDisplay(widthValue, width.value + 'px');
+            updateValueDisplay(heightValue, height.value + 'px');
+            updateValueDisplay(borderRadiusValue, borderRadius.value + 'px');
+            updateValueDisplay(borderWidthValue, borderWidth.value + 'px');
+            updateValueDisplay(borderColorValue, borderColor.value);
+            
+            const shadowValueText = `${shadow.value}px ${shadow.value}px ${shadow.value * 2}px rgba(0,0,0,0.2)`;
+            updateValueDisplay(shadowValue, shadowValueText);
+            
+            updateValueDisplay(fontSizeValue, fontSize.value + 'px');
+        }
+        
+        function updateValueDisplay(element, value) {
+            element.textContent = value;
+        }
+        
+        function updatePreview() {
+            // Apply all styles to the preview element
+            previewElement.style.backgroundColor = bgColor.value;
+            previewElement.style.color = textColor.value;
+            previewElement.style.width = width.value + 'px';
+            previewElement.style.height = height.value + 'px';
+            previewElement.style.borderRadius = borderRadius.value + 'px';
+            previewElement.style.borderWidth = borderWidth.value + 'px';
+            previewElement.style.borderColor = borderColor.value;
+            previewElement.style.borderStyle = borderWidth.value > 0 ? 'solid' : 'none';
+            
+            const shadowValue = `${shadow.value}px ${shadow.value}px ${shadow.value * 2}px rgba(0,0,0,0.2)`;
+            previewElement.style.boxShadow = shadowValue;
+            
+            previewElement.style.fontSize = fontSize.value + 'px';
+            
+            // Apply text styles based on checkboxes
+            previewElement.style.fontWeight = boldText.checked ? 'bold' : 'normal';
+            previewElement.style.fontStyle = italicText.checked ? 'italic' : 'normal';
+            previewElement.style.textAlign = textCenter.checked ? 'center' : 'left';
+            previewElement.style.textTransform = uppercase.checked ? 'uppercase' : 'none';
+        }
+        
+        function generateCSS() {
+            // Generate CSS code based on current settings
+            let css = `/* CSS generated by Visual CSS Generator */
+.preview-element {
+  background-color: ${bgColor.value};
+  color: ${textColor.value};
+  width: ${width.value}px;
+  height: ${height.value}px;
+  border-radius: ${borderRadius.value}px;
+  border-width: ${borderWidth.value}px;
+  border-color: ${borderColor.value};
+  border-style: ${borderWidth.value > 0 ? 'solid' : 'none'};
+  box-shadow: ${shadow.value}px ${shadow.value}px ${shadow.value * 2}px rgba(0,0,0,0.2);
+  font-size: ${fontSize.value}px;`;
+            
+            // Add conditional styles
+            if (boldText.checked) {
+                css += `
+  font-weight: bold;`;
+            }
+            
+            if (italicText.checked) {
+                css += `
+  font-style: italic;`;
+            }
+            
+            if (textCenter.checked) {
+                css += `
+  text-align: center;`;
+            }
+            
+            if (uppercase.checked) {
+                css += `
+  text-transform: uppercase;`;
+            }
+            
+            css += `
+}`;
+            
+            // Update the code textarea
+            cssCode.value = css;
+        }
+    </script>
+</body>
+</html>
