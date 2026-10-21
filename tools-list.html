@@ -3233,23 +3233,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         updateCompactClock();
         
-        setInterval(updateCompactClock, 10);
-    }
-    
-    initCompactClock();
-// Redirect custom search terms
-document.getElementById('searchInput').addEventListener('keydown', function(event) {
-    // Check if the user pressed the Enter key
-    if (event.key === 'Enter') {
-        // Get the search value, make it lowercase, and trim extra spaces
-        const searchTerm = this.value.toLowerCase().trim();
-        
-        // If the search term is 'gconsole', redirect the page
-        if (searchTerm === 'gconsole') {
-            event.preventDefault(); // Stop the default search action
-            window.location.href = 'https://your-different-link.com'; // Replace with your target URL
-        }
-    }
 });
 
 
