@@ -3232,9 +3232,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         updateCompactClock();
-        
+        setInterval(updateCompactClock, 10);
+    }
+    
+    initCompactClock();
 });
-
 
 </script>
 </body>
