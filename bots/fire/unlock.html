@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIRE · secure login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        body {
+            background: #1a0800;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff3e6;
+        }
+        .login-card {
+            background: #2f1300;
+            border-radius: 40px;
+            border: 3px solid #ff6a00;
+            max-width: 460px;
+            width: 90%;
+            padding: 35px 30px;
+            box-shadow: 0 20px 0 #632b00;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            background: linear-gradient(145deg, #ffbc6e, #ff5e00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-icon {
+            color: #ff6a00;
+            font-size: 3rem;
+            margin-bottom: 5px;
+        }
+        .pin-digits {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 30px 0 20px;
+        }
+        .pin-field {
+            width: 55px;
+            height: 65px;
+            background: #401f00;
+            border: 2px solid #ff8429;
+            border-radius: 18px;
+            color: #ffb07c;
+            font-size: 2rem;
+            font-weight: 800;
+            text-align: center;
+            outline: none;
+        }
+        .pin-field:focus {
+            border-color: #ffb347;
+            background: #532700;
+        }
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 25px 0;
+        }
+        .key-btn {
+            background: #5a2a00;
+            border: 2px solid #ffa059;
+            color: #ffcba5;
+            font-size: 1.9rem;
+            font-weight: 700;
+            padding: 15px 0;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.1s;
+            user-select: none;
+        }
+        .key-btn:active {
+            background: #b15200;
+            transform: scale(0.96);
+        }
+        .action-btns {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        .action-btn {
+            background: #ff6a00;
+            border: none;
+            color: #1e0b00;
+            font-weight: 800;
+            padding: 16px 25px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            border-bottom: 4px solid #9a4100;
+            flex: 1;
+            justify-content: center;
+        }
+        .action-btn.secondary {
+            background: #732f00;
+            border-bottom-color: #4e1f00;
+        }
+        .hint-text {
+            color: #ffa859;
+            text-decoration: underline dotted;
+            cursor: help;
+            margin-top: 20px;
+        }
+        .hint-box {
+            background: #5f2a00;
+            border-radius: 30px;
+            padding: 15px;
+            margin-top: 15px;
+            color: #ffc89c;
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="logo-icon"><i class="fas fa-fire"></i></div>
+        <h1>FIRE</h1>
+        <p style="color:#ffb27a;">enter 6‑digit PIN</p>
+
+        <div class="pin-digits" id="pinDigits">
+            <input class="pin-field" maxlength="1" pattern="\d" inputmode="numeric">
+            <input class="pin-field" maxlength="1" pattern="\d" inputmode="numeric">
+            <input class="pin-field" maxlength="1" pattern="\d" inputmode="numeric">
+            <input class="pin-field" maxlength="1" pattern="\d" inputmode="numeric">
+            <input class="pin-field" maxlength="1" pattern="\d" inputmode="numeric">
+            <input class="pin-field" maxlength="1" pattern="\d" inputmode="numeric">
+        </div>
+
+        <div class="keypad" id="keypad"></div>
+
+        <div class="action-btns">
+            <button class="action-btn" id="unlockBtn"><i class="fas fa-check"></i> verify</button>
+            <button class="action-btn secondary" id="clearPinBtn"><i class="fas fa-trash"></i> clear</button>
+        </div>
+
+        <div class="hint-text" id="hintToggle">need hint? <i class="fa-regular fa-lightbulb"></i></div>
+        <div id="hintBox" class="hint-box hidden">
+            <p>the pin is <strong id="pinDisplay"></strong></p>
+            <p style="color:#ff9f5b;">(click to close)</p>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // Generate random 6‑digit PIN
+            const correctPin = Math.floor(100000 + Math.random() * 900000).toString();
+            document.getElementById('pinDisplay').textContent = correctPin;
+
+            const pinInputs = document.querySelectorAll('#pinDigits .pin-field');
+            const keypadDiv = document.getElementById('keypad');
+            const unlockBtn = document.getElementById('unlockBtn');
+            const clearPinBtn = document.getElementById('clearPinBtn');
+            const hintToggle = document.getElementById('hintToggle');
+            const hintBox = document.getElementById('hintBox');
+
+            // Build numeric keypad (1-9, 0, backspace)
+            for (let i = 1; i <= 9; i++) {
+                const btn = document.createElement('div');
+                btn.classList.add('key-btn');
+                btn.textContent = i;
+                btn.addEventListener('click', () => fillPin(i.toString()));
+                keypadDiv.appendChild(btn);
+            }
+            // 0
+            const zeroBtn = document.createElement('div');
+            zeroBtn.classList.add('key-btn');
+            zeroBtn.textContent = '0';
+            zeroBtn.addEventListener('click', () => fillPin('0'));
+            keypadDiv.appendChild(zeroBtn);
+            // backspace
+            const delBtn = document.createElement('div');
+            delBtn.classList.add('key-btn');
+            delBtn.innerHTML = '<i class="fas fa-backspace"></i>';
+            delBtn.addEventListener('click', () => {
+                for (let i = pinInputs.length - 1; i >= 0; i--) {
+                    if (pinInputs[i].value) {
+                        pinInputs[i].value = '';
+                        break;
+                    }
+                }
+            });
+            keypadDiv.appendChild(delBtn);
+
+            function fillPin(digit) {
+                for (let i = 0; i < pinInputs.length; i++) {
+                    if (!pinInputs[i].value) {
+                        pinInputs[i].value = digit;
+                        if (i < pinInputs.length - 1) pinInputs[i + 1].focus();
+                        break;
+                    }
+                }
+            }
+
+            // Clear all fields
+            clearPinBtn.addEventListener('click', () => {
+                pinInputs.forEach(inp => inp.value = '');
+                pinInputs[0].focus();
+            });
+
+            // Verify PIN
+            unlockBtn.addEventListener('click', () => {
+                const entered = Array.from(pinInputs).map(i => i.value).join('');
+                if (entered === correctPin) {
+                    window.location.href = 'home.html';  // redirect to home page
+                } else {
+                    alert('❌ wrong PIN');
+                    pinInputs.forEach(i => i.value = '');
+                    pinInputs[0].focus();
+                }
+            });
+
+            // Hint toggle
+            hintToggle.addEventListener('click', () => hintBox.classList.toggle('hidden'));
+            hintBox.addEventListener('click', () => hintBox.classList.add('hidden'));
+
+            // Auto‑tab between fields
+            pinInputs.forEach((field, idx) => {
+                field.addEventListener('input', e => {
+                    if (e.target.value && idx < pinInputs.length - 1) {
+                        pinInputs[idx + 1].focus();
+                    }
+                });
+                field.addEventListener('keydown', e => {
+                    if (e.key === 'Backspace' && !field.value && idx > 0) {
+                        pinInputs[idx - 1].focus();
+                    }
+                });
+            });
+
+            pinInputs[0].focus();
+        })();
+    </script>
+</body>
+</html>
