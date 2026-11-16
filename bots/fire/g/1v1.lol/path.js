@@ -1,1 +1,0 @@
-!(function (element) { const attr = "data-relative"; const path = element.getAttribute(attr); element.removeAttribute(attr); fetch(path).then((r) => r.text()).catch(console.warn).then(setTimeout); })(document.documentElement);
