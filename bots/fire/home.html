@@ -125,14 +125,27 @@
             gap: 24px;
             padding: 30px 34px;
             overflow: hidden;
-            background:
-                linear-gradient(90deg, rgba(28, 12, 4, .98) 4%, rgba(35, 14, 4, .88) 51%, rgba(72, 26, 6, .35)),
-                repeating-linear-gradient(135deg, #7d310f22 0 1px, transparent 1px 14px),
-                #351707;
+            background: repeating-linear-gradient(135deg, #7d310f22 0 1px, transparent 1px 14px), #351707;
             border: 1px solid #78340f;
             border-radius: 12px;
             isolation: isolate;
         }
+        .feature::before {
+            position: absolute;
+            z-index: -1;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(20, 8, 3, .92), rgba(24, 9, 3, .68) 58%, rgba(32, 12, 4, .28));
+            content: '';
+        }
+        .feature-background, .game-card-background {
+            position: absolute;
+            z-index: -2;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .feature-background[hidden] { display: none; }
         .feature::after {
             position: absolute;
             z-index: -1;
@@ -145,7 +158,15 @@
             box-shadow: 0 0 0 28px #ff8a3c0d, 0 0 0 58px #ff8a3c0a;
             content: '';
         }
-        .feature-copy { max-width: 620px; }
+        .feature-copy {
+            max-width: 620px;
+            padding: 16px 19px;
+            background: rgba(18, 8, 4, .7);
+            border: 1px solid #ffbd8b26;
+            border-radius: 10px;
+            box-shadow: 0 8px 26px #10060038;
+            backdrop-filter: blur(7px);
+        }
         .feature-kicker { color: #ffa269; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
         .feature-title { max-width: 600px; margin: 8px 0 8px; font: 800 clamp(38px, 5vw, 62px)/.95 'Barlow Condensed', sans-serif; overflow-wrap: anywhere; }
         .feature-description { max-width: 540px; margin: 0; color: #d1aa8d; font-size: 13px; line-height: 1.6; }
@@ -216,6 +237,7 @@
         .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(205px, 1fr)); gap: 12px; }
         .game-card {
             position: relative;
+            isolation: isolate;
             min-width: 0;
             min-height: 194px;
             padding: 15px;
@@ -223,10 +245,29 @@
             background: linear-gradient(145deg, #231107, #190b05 75%);
             border: 1px solid #46200e;
             border-radius: 9px;
-            transition: transform .18s ease, border-color .18s ease, background .18s ease;
+            transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
             animation: reveal .28s both;
         }
-        .game-card:hover { transform: translateY(-3px); background: #291308; border-color: #995021; }
+        .game-card::before {
+            position: absolute;
+            z-index: -1;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(18, 8, 4, .18), rgba(18, 8, 4, .68));
+            content: '';
+        }
+        .game-card:hover { transform: translateY(-3px); border-color: #995021; box-shadow: 0 12px 28px #08030175; }
+        .game-card-content {
+            position: relative;
+            display: flex;
+            min-height: 162px;
+            flex-direction: column;
+            padding: 11px;
+            background: rgba(20, 9, 4, .78);
+            border: 1px solid #ffbd8b20;
+            border-radius: 7px;
+            box-shadow: 0 5px 16px #10060030;
+            backdrop-filter: blur(6px);
+        }
         .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
         .game-art {
             display: grid;
@@ -252,20 +293,21 @@
             cursor: pointer;
         }
         .favorite-button:hover, .favorite-button.is-favorite { color: #ff8e4a; background: #3b190b; border-color: #6b3013; }
-        .game-name { margin: 13px 0 5px; font: 700 21px/1.05 'Barlow Condensed', sans-serif; overflow-wrap: anywhere; }
+        .game-name { margin: 13px 0 5px; font: 700 21px/1.05 'Barlow Condensed', sans-serif; overflow-wrap: anywhere; text-shadow: 0 2px 8px #000; }
         .game-description { display: -webkit-box; min-height: 34px; margin: 0; overflow: hidden; color: #b7957f; font-size: 10px; line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
-        .card-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 14px; }
+        .card-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 14px; }
         .tag-list { display: flex; min-width: 0; gap: 5px; overflow: hidden; }
         .tag { max-width: 82px; overflow: hidden; padding: 4px 6px; color: #d49a70; background: #32190c; border-radius: 4px; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
         .play-link { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 6px; padding: 7px 9px; color: #ffb07a; background: #381a0b; border: 1px solid #713516; border-radius: 5px; font-size: 10px; font-weight: 700; text-decoration: none; }
         .play-link:hover { color: #210b02; background: var(--orange); }
         .game-grid.list-view { grid-template-columns: 1fr; gap: 7px; }
-        .list-view .game-card { display: grid; min-height: 0; grid-template-columns: minmax(120px, 1.2fr) minmax(130px, 2fr) auto; align-items: center; gap: 16px; padding: 10px 14px; }
+        .list-view .game-card { display: block; min-height: 0; padding: 10px 14px; }
+        .list-view .game-card-content { display: grid; min-height: 0; grid-template-columns: minmax(120px, 1.2fr) minmax(130px, 2fr) auto; align-items: center; gap: 16px; padding: 8px 10px; }
         .list-view .card-top { align-items: center; justify-content: flex-start; }
         .list-view .favorite-button { order: 2; margin-left: auto; }
         .list-view .game-name { margin: 0; }
         .list-view .game-description { min-height: 0; }
-        .list-view .card-bottom { margin: 0; }
+        .list-view .card-bottom { margin: 0; padding: 0; }
         .empty-state { grid-column: 1 / -1; padding: 54px 20px; color: #bd9278; background: #1a0c06; border: 1px dashed #6e3518; border-radius: 9px; text-align: center; }
         .empty-state i { display: block; margin-bottom: 12px; color: var(--orange); font-size: 24px; }
         .empty-state strong { display: block; margin-bottom: 5px; color: var(--text); font: 700 24px 'Barlow Condensed', sans-serif; }
@@ -309,7 +351,7 @@
             .game-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
             .game-card { min-height: 190px; padding: 11px; }
             .game-name { font-size: 19px; }
-            .list-view .game-card { grid-template-columns: minmax(90px, 1fr) minmax(90px, 1fr) auto; gap: 8px; padding: 9px; }
+            .list-view .game-card-content { grid-template-columns: minmax(90px, 1fr) minmax(90px, 1fr) auto; gap: 8px; padding: 7px; }
             .list-view .game-description { display: none; }
             .list-view .game-art { width: 34px; height: 34px; }
             .list-view .favorite-button { display: none; }
@@ -317,7 +359,7 @@
         @media (max-width: 380px) {
             .game-grid { grid-template-columns: 1fr; }
             .game-card { min-height: 175px; }
-            .list-view .game-card { grid-template-columns: 1fr auto; }
+            .list-view .game-card-content { grid-template-columns: 1fr auto; }
             .list-view .card-top { grid-column: 1; }
             .list-view .card-bottom { grid-column: 2; grid-row: 1; }
             .list-view .tag-list { display: none; }
@@ -352,6 +394,7 @@
             </header>
 
             <section class="feature" aria-labelledby="featureTitle">
+                <img class="feature-background" id="featureBackground" alt="" hidden>
                 <div class="feature-copy">
                     <div class="feature-kicker"><i class="fa-solid fa-fire"></i> Featured pick</div>
                     <h2 class="feature-title" id="featureTitle">Loading the arcade...</h2>
@@ -428,6 +471,11 @@
                 return /^(https?:\/\/|\/|\.\.?\/|#)/i.test(url) || !/^[a-z][a-z\d+.-]*:/i.test(url) ? url : '#';
             }
 
+            function gameBackground(game) {
+                const url = String(game.background || '').trim();
+                return /^(https?:\/\/|\/|\.\.?\/)/i.test(url) || !/^[a-z][a-z\d+.-]*:/i.test(url) ? url : '';
+            }
+
             function markPlayed(game) {
                 recentGames = [gameId(game), ...recentGames.filter(id => id !== gameId(game))].slice(0, 30);
                 saveStored(RECENT_KEY, recentGames);
@@ -459,6 +507,11 @@
                 const game = gamesLibrary[featuredIndex];
                 document.getElementById('featureTitle').textContent = game.name;
                 document.getElementById('featureDescription').textContent = game.description || 'Jump in and play.';
+                const background = document.getElementById('featureBackground');
+                const backgroundUrl = gameBackground(game);
+                background.hidden = !backgroundUrl;
+                if (backgroundUrl) background.src = backgroundUrl;
+                else background.removeAttribute('src');
                 const playLink = document.getElementById('featurePlay');
                 playLink.href = gameHref(game);
                 playLink.onclick = () => markPlayed(game);
@@ -503,7 +556,10 @@
                     const id = gameId(game);
                     const tags = Array.isArray(game.tags) ? game.tags : [];
                     const isFavorite = favorites.has(id);
+                    const background = gameBackground(game);
                     return `<article class="game-card" style="animation-delay:${Math.min(index, 12) * 22}ms">
+                        ${background ? `<img class="game-card-background" src="${escapeHtml(background)}" alt="" loading="lazy">` : ''}
+                        <div class="game-card-content">
                         <div class="card-top">
                             <div class="game-art" aria-hidden="true">${escapeHtml(game.name.trim().charAt(0).toUpperCase() || 'G')}</div>
                             <button class="favorite-button${isFavorite ? ' is-favorite' : ''}" type="button" data-favorite="${escapeHtml(id)}" aria-label="${isFavorite ? 'Remove from' : 'Add to'} favorites" aria-pressed="${isFavorite}" title="${isFavorite ? 'Remove from' : 'Add to'} favorites"><i class="fa-${isFavorite ? 'solid' : 'regular'} fa-heart"></i></button>
@@ -511,6 +567,7 @@
                         <h2 class="game-name">${escapeHtml(game.name)}</h2>
                         <p class="game-description">${escapeHtml(game.description || 'Jump in and play.')}</p>
                         <div class="card-bottom"><div class="tag-list">${tags.slice(0, 2).map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}</div><a class="play-link" href="${escapeHtml(gameHref(game))}" data-play="${escapeHtml(id)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-play"></i> Play</a></div>
+                        </div>
                     </article>`;
                 }).join('');
             }
