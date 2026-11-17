@@ -8,7 +8,7 @@ const games = [
     { name: '20 Minutes Till Dawn', description: '?.', tags: ['?', '?'], url: 'g/20 Minutes Till Dawn/index.html', background: 'g/20 Minutes Till Dawn/background.png' },
     { name: 'A Bite at Freddys', description: '?.', tags: ['?', '?'], url: 'g/A Bite at Freddys/index.html', background: 'g/A Bite at Freddys/background.png' },
     { name: 'A Dance of Fire and Ice', description: '?.', tags: ['?', '?'], url: 'g/A Dance of Fire and Ice/index.html', background: 'g/A Dance of Fire and Ice/background.png' },
-    { name: 'A Difficult Game About Climbing', description: '?.', tags: ['?', '?'], url: 'g/A Difficult Game Abount Climbing/index.html', background: 'g/A Difficult Game About Climbing/background.png' },
+    { name: 'A Difficult Game About Climbing', description: '?.', tags: ['?', '?'], url: 'g/A Difficult Game About Climbing/index.html', background: 'g/A Difficult Game About Climbing/background.png' },
     { name: 'Amanda the Adventurer', description: '?.', tags: ['?', '?'], url: 'g/Amanda the Adventurer/index.html', background: 'g/Amanda the Adventurer/background.png' },
     { name: 'Andys Apple Farm', description: '?.', tags: ['?', '?'], url: 'g/Andys Apple Farm/index.html', background: 'g/Andys Apple Farm/background.png' },
     { name: 'AquaPark.io', description: '?.', tags: ['?', '?'], url: 'g/Aquapark.io/index.html', background: 'g/Aquapark.io/background.png' },
